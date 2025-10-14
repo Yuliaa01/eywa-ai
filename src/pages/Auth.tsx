@@ -7,6 +7,23 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Heart, Lock, Mail } from "lucide-react";
+import { z } from "zod";
+
+// Security: Input validation schema to prevent malformed data and enforce password strength
+const authSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email("Please enter a valid email address")
+    .max(255, "Email must be less than 255 characters"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must be less than 128 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+});
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -37,10 +54,16 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // Security: Validate inputs before submitting to prevent malformed data
+      const validatedData = authSchema.parse({
+        email: email.trim(),
+        password,
+      });
+
       const redirectUrl = `${window.location.origin}/dashboard`;
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: validatedData.email,
+        password: validatedData.password,
         options: {
           emailRedirectTo: redirectUrl,
         },
@@ -53,11 +76,21 @@ export default function Auth() {
         description: "Your account has been created. Redirecting to dashboard...",
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Sign up failed",
-        description: error.message,
-      });
+      // Handle validation errors separately for better user experience
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: firstError.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Sign up failed",
+          description: error.message,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -68,9 +101,15 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
+      // Security: Validate inputs before submitting to prevent malformed data
+      const validatedData = authSchema.parse({
+        email: email.trim(),
         password,
+      });
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: validatedData.email,
+        password: validatedData.password,
       });
 
       if (error) throw error;
@@ -80,11 +119,21 @@ export default function Auth() {
         description: "Redirecting to your dashboard...",
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Sign in failed",
-        description: error.message,
-      });
+      // Handle validation errors separately for better user experience
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: firstError.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Sign in failed",
+          description: error.message,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -200,10 +249,10 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
-                    minLength={6}
+                    minLength={8}
                   />
                   <p className="text-xs text-muted-foreground">
-                    At least 6 characters
+                    At least 8 characters with uppercase, lowercase, and number
                   </p>
                 </div>
 
