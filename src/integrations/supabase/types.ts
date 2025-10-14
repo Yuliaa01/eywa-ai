@@ -904,36 +904,6 @@ export type Database = {
           },
         ]
       }
-      users: {
-        Row: {
-          created_at: string
-          deleted_at: string | null
-          email: string
-          id: string
-          password_hash: string | null
-          status: Database["public"]["Enums"]["user_status"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          deleted_at?: string | null
-          email: string
-          id?: string
-          password_hash?: string | null
-          status?: Database["public"]["Enums"]["user_status"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          deleted_at?: string | null
-          email?: string
-          id?: string
-          password_hash?: string | null
-          status?: Database["public"]["Enums"]["user_status"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       vitals_stream: {
         Row: {
           created_at: string
