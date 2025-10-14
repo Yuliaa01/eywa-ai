@@ -1,26 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import {
   Activity,
-  Apple,
   Heart,
   Utensils,
   TestTube,
   Brain,
-  TrendingUp,
   Menu,
   Bell,
   Settings,
   LogOut,
-  ChevronRight,
-  Zap,
-  Moon,
-  Flame,
+  Sparkles,
+  User,
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,10 +22,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Import section components
+import PrioritiesSection from "@/components/dashboard/PrioritiesSection";
+import NutritionSection from "@/components/dashboard/NutritionSection";
+import ActivitiesSection from "@/components/dashboard/ActivitiesSection";
+import HealthCareSection from "@/components/dashboard/HealthCareSection";
+import AICoachOrb from "@/components/dashboard/AICoachOrb";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("priorities");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -63,267 +67,148 @@ export default function Dashboard() {
     toast({
       title: "Signed out",
       description: "See you soon!",
+      duration: 3000,
     });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F8FCFF] via-[#EFF8FB] to-[#E8FAFF]/30">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#12AFCB]/20 to-[#12AFCB]/10 backdrop-blur-xl border border-[#12AFCB]/20 flex items-center justify-center animate-glow-pulse">
+            <Activity className="w-8 h-8 text-[#12AFCB] animate-spin" />
+          </div>
+          <p className="text-sm text-[#5A6B7F] font-rounded">Loading your health hub...</p>
+        </div>
       </div>
     );
   }
 
-  const metrics = [
-    { label: "Recovery", value: "85%", color: "text-green-500", icon: Heart },
-    { label: "HRV", value: "64 ms", color: "text-blue-500", icon: Activity },
-    { label: "Sleep", value: "7.2h", color: "text-purple-500", icon: Moon },
-    { label: "Readiness", value: "Good", color: "text-emerald-500", icon: Zap },
-  ];
-
-  const quickActions = [
-    {
-      title: "Log Meal",
-      icon: Utensils,
-      description: "Track your nutrition",
-      gradient: "from-orange-500 to-red-500",
-    },
-    {
-      title: "Add Activity",
-      icon: Activity,
-      description: "Record your workout",
-      gradient: "from-blue-500 to-cyan-500",
-    },
-    {
-      title: "Log Test",
-      icon: TestTube,
-      description: "Add lab results",
-      gradient: "from-purple-500 to-pink-500",
-    },
-    {
-      title: "AI Coach",
-      icon: Brain,
-      description: "Get personalized insights",
-      gradient: "from-green-500 to-emerald-500",
-    },
-  ];
-
-  const insights = [
-    {
-      title: "Your Vitamin D is trending low",
-      description: "Consider supplementing 2000 IU daily. Next test in 8 weeks.",
-      priority: "medium",
-      icon: TrendingUp,
-    },
-    {
-      title: "Great recovery this week!",
-      description: "Your HRV is 15% above baseline. Keep up the sleep routine.",
-      priority: "low",
-      icon: Heart,
-    },
-    {
-      title: "Time to check your apoB",
-      description: "It's been 6 months since your last lipid panel.",
-      priority: "high",
-      icon: TestTube,
-    },
-  ];
+  const userName = user?.email?.split("@")[0] || "there";
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  })();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#F8FCFF] via-[#EFF8FB] to-[#E8FAFF]/30 pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <Activity className="w-6 h-6 text-white" />
+      <header className="sticky top-0 z-20 backdrop-blur-xl bg-white/60 border-b border-[#12AFCB]/10">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* User Greeting */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB]/20 to-[#12AFCB]/10 backdrop-blur-xl border border-[#12AFCB]/20 flex items-center justify-center">
+                <User className="w-6 h-6 text-[#12AFCB]" />
+              </div>
+              <div>
+                <h1 className="font-rounded text-xl font-semibold text-[#0E1012]">
+                  {greeting}, {userName}
+                </h1>
+                <p className="text-sm text-[#5A6B7F]">
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-bold text-lg">Eywa AI</h1>
-              <p className="text-xs text-muted-foreground">
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="w-5 h-5" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-10 h-10 rounded-xl hover:bg-[#12AFCB]/10"
+              >
+                <Bell className="w-5 h-5 text-[#5A6B7F]" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 h-10 rounded-xl hover:bg-[#12AFCB]/10"
+                  >
+                    <Menu className="w-5 h-5 text-[#5A6B7F]" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto p-4 pb-20 space-y-6">
-        {/* Hero Metrics */}
-        <Card className="p-6 bg-gradient-to-br from-primary/10 via-background to-background border-primary/20">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold">Today's Recovery</h2>
-              <p className="text-muted-foreground">You're ready to train</p>
-            </div>
-            <div className="text-4xl font-bold text-primary">85%</div>
-          </div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          {/* Tab Navigation */}
+          <TabsList className="w-full grid grid-cols-4 bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-1.5 rounded-3xl h-auto">
+            <TabsTrigger
+              value="priorities"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Priorities
+            </TabsTrigger>
+            <TabsTrigger
+              value="nutrition"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+            >
+              <Utensils className="w-4 h-4 mr-2" />
+              Nutrition
+            </TabsTrigger>
+            <TabsTrigger
+              value="activities"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Activities
+            </TabsTrigger>
+            <TabsTrigger
+              value="healthcare"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Health Care
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="grid grid-cols-4 gap-4 mt-6">
-            {metrics.map((metric) => (
-              <div key={metric.label} className="text-center">
-                <metric.icon className={`w-6 h-6 mx-auto mb-1 ${metric.color}`} />
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-                <p className="font-semibold">{metric.value}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
+          {/* Tab Content */}
+          <TabsContent value="priorities" className="animate-scale-in">
+            <PrioritiesSection />
+          </TabsContent>
 
-        {/* Quick Actions */}
-        <div>
-          <h3 className="font-semibold mb-3">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {quickActions.map((action) => (
-              <Card
-                key={action.title}
-                className="p-4 cursor-pointer hover:shadow-glow transition-all"
-              >
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3`}
-                >
-                  <action.icon className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold mb-1">{action.title}</h4>
-                <p className="text-xs text-muted-foreground">{action.description}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
+          <TabsContent value="nutrition" className="animate-scale-in">
+            <NutritionSection />
+          </TabsContent>
 
-        {/* Next Best Actions / Insights */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold">Next Best Actions</h3>
-            <Button variant="ghost" size="sm">
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
+          <TabsContent value="activities" className="animate-scale-in">
+            <ActivitiesSection />
+          </TabsContent>
 
-          <div className="space-y-3">
-            {insights.map((insight, index) => (
-              <Card key={index} className="p-4">
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      insight.priority === "high"
-                        ? "bg-red-500/10 text-red-500"
-                        : insight.priority === "medium"
-                        ? "bg-yellow-500/10 text-yellow-500"
-                        : "bg-green-500/10 text-green-500"
-                    }`}
-                  >
-                    <insight.icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1">{insight.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {insight.description}
-                    </p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Daily Stats */}
-        <div>
-          <h3 className="font-semibold mb-3">Today's Progress</h3>
-          <Card className="p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Flame className="w-5 h-5 text-orange-500" />
-                <div>
-                  <p className="font-semibold">2,450</p>
-                  <p className="text-xs text-muted-foreground">Calories burned</p>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">Goal: 2,800</div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Activity className="w-5 h-5 text-blue-500" />
-                <div>
-                  <p className="font-semibold">8,234</p>
-                  <p className="text-xs text-muted-foreground">Steps</p>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">Goal: 10,000</div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Utensils className="w-5 h-5 text-green-500" />
-                <div>
-                  <p className="font-semibold">1,850 kcal</p>
-                  <p className="text-xs text-muted-foreground">Nutrition logged</p>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">Target: 2,200</div>
-            </div>
-          </Card>
-        </div>
+          <TabsContent value="healthcare" className="animate-scale-in">
+            <HealthCareSection />
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="grid grid-cols-5 gap-2">
-            <Button variant="ghost" className="flex-col h-auto py-2 text-primary">
-              <Activity className="w-5 h-5 mb-1" />
-              <span className="text-xs">Home</span>
-            </Button>
-            <Button variant="ghost" className="flex-col h-auto py-2">
-              <Utensils className="w-5 h-5 mb-1" />
-              <span className="text-xs">Nutrition</span>
-            </Button>
-            <Button variant="ghost" className="flex-col h-auto py-2">
-              <Apple className="w-5 h-5 mb-1" />
-              <span className="text-xs">Activities</span>
-            </Button>
-            <Button variant="ghost" className="flex-col h-auto py-2">
-              <TestTube className="w-5 h-5 mb-1" />
-              <span className="text-xs">Health</span>
-            </Button>
-            <Button variant="ghost" className="flex-col h-auto py-2">
-              <Brain className="w-5 h-5 mb-1" />
-              <span className="text-xs">AI Coach</span>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* AI Coach Floating Orb */}
+      <AICoachOrb />
     </div>
   );
 }
