@@ -1,5 +1,6 @@
 import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity, Plus, Calendar, TestTube, FileText, TrendingUp } from "lucide-react";
 import { IssueModal } from "@/components/modals/IssueModal";
+import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +9,7 @@ import { format, differenceInDays } from "date-fns";
 
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [labResults, setLabResults] = useState<any[]>([]);
   const [biomarkerScores, setBiomarkerScores] = useState<any[]>([]);
@@ -259,10 +261,21 @@ export default function HealthCareSection() {
             Upload a lab report or connect your health records to begin tracking your health metrics.
           </p>
           <div className="flex gap-3 justify-center">
-            <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-medium hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-shadow">
+            <button 
+              onClick={() => setUploadModalOpen(true)}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-medium hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-shadow"
+            >
               Upload File
             </button>
-            <button className="px-6 py-3 rounded-xl bg-card border border-accent-teal/20 text-accent-teal font-rounded font-medium hover:bg-accent-teal/5 transition-colors">
+            <button 
+              onClick={() => {
+                toast({
+                  title: "Coming Soon",
+                  description: "EHR integration will be available soon. Use 'Upload File' for now.",
+                });
+              }}
+              className="px-6 py-3 rounded-xl bg-card border border-accent-teal/20 text-accent-teal font-rounded font-medium hover:bg-accent-teal/5 transition-colors"
+            >
               Connect EHR
             </button>
           </div>
@@ -352,6 +365,9 @@ export default function HealthCareSection() {
           {quickChecks.map((check) => (
             <button
               key={check.title}
+              onClick={() => {
+                setIssueModalOpen(true);
+              }}
               className="p-6 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all text-left group"
             >
               <div className="flex items-start justify-between">
@@ -421,7 +437,16 @@ export default function HealthCareSection() {
         </div>
       </div>
 
-      <IssueModal open={issueModalOpen} onOpenChange={setIssueModalOpen} onSuccess={() => {}} />
+      <IssueModal 
+        open={issueModalOpen} 
+        onOpenChange={setIssueModalOpen} 
+        onSuccess={loadHealthData} 
+      />
+      <FileUploadModal
+        open={uploadModalOpen}
+        onOpenChange={setUploadModalOpen}
+        onSuccess={loadHealthData}
+      />
       <ChatDrawer 
         open={chatOpen} 
         onClose={() => setChatOpen(false)}
