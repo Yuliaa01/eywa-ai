@@ -71,10 +71,7 @@ export default function Auth() {
 
       if (error) throw error;
 
-      toast({
-        title: "Welcome to Eywa AI! 🎉",
-        description: "Your account has been created. Redirecting to dashboard...",
-      });
+      // Success - navigate without notification
     } catch (error: any) {
       // Handle validation errors separately for better user experience
       if (error instanceof z.ZodError) {
@@ -83,12 +80,14 @@ export default function Auth() {
           variant: "destructive",
           title: "Validation Error",
           description: firstError.message,
+          duration: 3000,
         });
       } else {
         toast({
           variant: "destructive",
           title: "Sign up failed",
           description: error.message,
+          duration: 3000,
         });
       }
     } finally {
@@ -114,10 +113,7 @@ export default function Auth() {
 
       if (error) throw error;
 
-      toast({
-        title: "Welcome back! 👋",
-        description: "Redirecting to your dashboard...",
-      });
+      // Success - navigate without notification
     } catch (error: any) {
       // Handle validation errors separately for better user experience
       if (error instanceof z.ZodError) {
@@ -126,12 +122,14 @@ export default function Auth() {
           variant: "destructive",
           title: "Validation Error",
           description: firstError.message,
+          duration: 3000,
         });
       } else {
         toast({
           variant: "destructive",
           title: "Sign in failed",
           description: error.message,
+          duration: 3000,
         });
       }
     } finally {
@@ -140,44 +138,44 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
       {/* Header */}
-      <div className="p-6 pb-0">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-            <Activity className="w-6 h-6 text-white" />
+      <div className="p-8 pb-0">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accentTeal/20 to-accentTealAlt/20 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+            <Activity className="w-6 h-6 text-accentTeal" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Eywa AI</h1>
-            <p className="text-xs text-muted-foreground">Your Health & Longevity Hub</p>
+            <h1 className="text-xl font-semibold text-foreground">Eywa AI</h1>
+            <p className="text-sm text-muted-foreground/80">Your Health & Longevity Hub</p>
           </div>
         </div>
       </div>
 
       {/* Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-primary mb-4 animate-pulse-glow">
-              <Heart className="w-8 h-8 text-white" />
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-accentTeal/10 to-accentTealAlt/10 backdrop-blur-xl border border-white/10 mb-6">
+              <Heart className="w-10 h-10 text-accentTeal" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Welcome to Eywa AI</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-3xl font-semibold mb-3 text-foreground">Welcome to Eywa AI</h2>
+            <p className="text-muted-foreground/70 text-base">
               Unify your health data. Personalize your journey.
             </p>
           </div>
 
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/5 backdrop-blur-xl border border-white/10 p-1">
+              <TabsTrigger value="signin" className="data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-xl">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="data-[state=active]:bg-white/10 data-[state=active]:backdrop-blur-xl">Sign Up</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">
-                    <Mail className="w-4 h-4 inline mr-2" />
+              <form onSubmit={handleSignIn} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="signin-email" className="text-foreground/80 text-sm">
+                    <Mail className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Email
                   </Label>
                   <Input
@@ -188,12 +186,13 @@ export default function Auth() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={loading}
+                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">
-                    <Lock className="w-4 h-4 inline mr-2" />
+                <div className="space-y-3">
+                  <Label htmlFor="signin-password" className="text-foreground/80 text-sm">
+                    <Lock className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Password
                   </Label>
                   <Input
@@ -204,14 +203,14 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
+                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
                   />
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full h-12 bg-gradient-to-r from-accentTeal to-accentTealAlt text-white font-medium rounded-2xl hover:opacity-90 transition-opacity"
                   disabled={loading}
-                  variant="gradient"
                 >
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
@@ -219,10 +218,10 @@ export default function Auth() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">
-                    <Mail className="w-4 h-4 inline mr-2" />
+              <form onSubmit={handleSignUp} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="signup-email" className="text-foreground/80 text-sm">
+                    <Mail className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Email
                   </Label>
                   <Input
@@ -233,12 +232,13 @@ export default function Auth() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={loading}
+                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">
-                    <Lock className="w-4 h-4 inline mr-2" />
+                <div className="space-y-3">
+                  <Label htmlFor="signup-password" className="text-foreground/80 text-sm">
+                    <Lock className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Password
                   </Label>
                   <Input
@@ -250,22 +250,22 @@ export default function Auth() {
                     required
                     disabled={loading}
                     minLength={8}
+                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground/60">
                     At least 8 characters with uppercase, lowercase, and number
                   </p>
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full h-12 bg-gradient-to-r from-accentTeal to-accentTealAlt text-white font-medium rounded-2xl hover:opacity-90 transition-opacity"
                   disabled={loading}
-                  variant="gradient"
                 >
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
 
-                <p className="text-xs text-center text-muted-foreground">
+                <p className="text-xs text-center text-muted-foreground/50">
                   By signing up, you agree to our privacy-first approach. Your health data stays yours.
                 </p>
               </form>
@@ -275,7 +275,7 @@ export default function Auth() {
       </div>
 
       {/* Footer */}
-      <div className="p-6 text-center text-xs text-muted-foreground">
+      <div className="p-8 text-center text-xs text-muted-foreground/50">
         <p>🔒 HIPAA-compliant • End-to-end encrypted</p>
       </div>
     </div>
