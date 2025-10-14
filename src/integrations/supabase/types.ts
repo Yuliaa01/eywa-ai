@@ -230,6 +230,39 @@ export type Database = {
         }
         Relationships: []
       }
+      data_access_grants: {
+        Row: {
+          expires_at: string | null
+          granted_at: string
+          id: string
+          notes: string | null
+          partner_id: string
+          revoked_at: string | null
+          scope: Json
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          notes?: string | null
+          partner_id: string
+          revoked_at?: string | null
+          scope?: Json
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          notes?: string | null
+          partner_id?: string
+          revoked_at?: string | null
+          scope?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       doctor_prompts: {
         Row: {
           created_at: string
@@ -857,6 +890,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          notes: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_test_orders: {
         Row: {
           collection_kit: boolean | null
@@ -972,7 +1032,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_partner_access: {
+        Args: { _partner_id: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       activity_category:
@@ -1002,6 +1072,7 @@ export type Database = {
         | "education"
         | "longevity"
       analyte_type: "lab" | "sensor" | "imaging" | "questionnaire"
+      app_role: "user" | "provider" | "admin" | "system" | "partner"
       biomarker_domain:
         | "vitamins"
         | "minerals"
@@ -1264,6 +1335,7 @@ export const Constants = {
         "longevity",
       ],
       analyte_type: ["lab", "sensor", "imaging", "questionnaire"],
+      app_role: ["user", "provider", "admin", "system", "partner"],
       biomarker_domain: [
         "vitamins",
         "minerals",
