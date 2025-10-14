@@ -1,6 +1,9 @@
-import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity } from "lucide-react";
+import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity, Plus } from "lucide-react";
+import { IssueModal } from "@/components/modals/IssueModal";
+import { useState } from "react";
 
 export default function HealthCareSection() {
+  const [issueModalOpen, setIssueModalOpen] = useState(false);
   const quickChecks = [
     {
       title: "Feeling Anxious?",
@@ -60,9 +63,19 @@ export default function HealthCareSection() {
       </div>
 
       {/* Quick Self-Checks */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {quickChecks.map((check) => (
-          <button
+      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Quick Check-Ins</h3>
+          <button 
+            onClick={() => setIssueModalOpen(true)}
+            className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+          >
+            <Plus className="w-4 h-4 text-[#12AFCB]" />
+          </button>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {quickChecks.map((check) => (
+            <button
             key={check.title}
             className="p-6 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all text-left group"
           >
@@ -80,6 +93,7 @@ export default function HealthCareSection() {
             </div>
           </button>
         ))}
+        </div>
       </div>
 
       {/* Doctor Feedback Panel */}
@@ -131,6 +145,8 @@ export default function HealthCareSection() {
           ))}
         </div>
       </div>
+
+      <IssueModal open={issueModalOpen} onOpenChange={setIssueModalOpen} onSuccess={() => {}} />
     </div>
   );
 }

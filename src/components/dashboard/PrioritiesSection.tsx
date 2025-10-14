@@ -1,7 +1,10 @@
 import { Target, TrendingUp, Calendar, Plus, ChevronRight, Zap, MapPin } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { GoalModal } from "@/components/modals/GoalModal";
+import { useState } from "react";
 
 export default function PrioritiesSection() {
+  const [goalModalOpen, setGoalModalOpen] = useState(false);
   const globalGoals = [
     {
       title: "Lower Stress",
@@ -51,7 +54,10 @@ export default function PrioritiesSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Global Goals</h3>
-            <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
+            <button 
+              onClick={() => setGoalModalOpen(true)}
+              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+            >
               <Plus className="w-4 h-4 text-[#12AFCB]" />
             </button>
           </div>
@@ -89,7 +95,10 @@ export default function PrioritiesSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Today & This Week</h3>
-            <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
+            <button 
+              onClick={() => setGoalModalOpen(true)}
+              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+            >
               <Plus className="w-4 h-4 text-[#12AFCB]" />
             </button>
           </div>
@@ -121,7 +130,10 @@ export default function PrioritiesSection() {
           <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
             Plans (Trips & Events)
           </h3>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] font-rounded font-medium text-sm transition-colors">
+          <button 
+            onClick={() => setGoalModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] font-rounded font-medium text-sm transition-colors"
+          >
             <Plus className="w-4 h-4" />
             Add Plan
           </button>
@@ -179,6 +191,14 @@ export default function PrioritiesSection() {
           ))}
         </div>
       </div>
+
+      <GoalModal 
+        open={goalModalOpen} 
+        onOpenChange={setGoalModalOpen}
+        onSuccess={() => {
+          // Optimistic update would go here
+        }}
+      />
     </div>
   );
 }

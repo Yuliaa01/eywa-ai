@@ -1,6 +1,14 @@
 import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight } from "lucide-react";
+import { MealModal } from "@/components/modals/MealModal";
+import { SupplementModal } from "@/components/modals/SupplementModal";
+import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 
 export default function NutritionSection() {
+  const [mealModalOpen, setMealModalOpen] = useState(false);
+  const [supplementModalOpen, setSupplementModalOpen] = useState(false);
+  const [fastingModalOpen, setFastingModalOpen] = useState(false);
   const macros = [
     { name: "Carbs", current: 180, target: 250, color: "#19D0E4", unit: "g" },
     { name: "Protein", current: 140, target: 180, color: "#12AFCB", unit: "g" },
@@ -133,9 +141,27 @@ export default function NutritionSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
-            <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
-              <Plus className="w-4 h-4 text-[#12AFCB]" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
+                  <Plus className="w-4 h-4 text-[#12AFCB]" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setMealModalOpen(true)}>
+                  <Utensils className="w-4 h-4 mr-2" />
+                  Add Meal
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSupplementModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Supplement
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFastingModalOpen(true)}>
+                  <Clock className="w-4 h-4 mr-2" />
+                  Start Fasting
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="space-y-4">
             {supplements.map((supplement) => (
@@ -201,6 +227,10 @@ export default function NutritionSection() {
           ))}
         </div>
       </div>
+
+      <MealModal open={mealModalOpen} onOpenChange={setMealModalOpen} onSuccess={() => {}} />
+      <SupplementModal open={supplementModalOpen} onOpenChange={setSupplementModalOpen} onSuccess={() => {}} />
+      <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={() => {}} />
     </div>
   );
 }

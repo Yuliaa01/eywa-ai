@@ -1,6 +1,71 @@
-import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock } from "lucide-react";
+import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus } from "lucide-react";
+import { WorkoutModal } from "@/components/modals/WorkoutModal";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function ActivitiesSection() {
+  const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
+
+  const handleAddMovement = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from("activity_suggestions").insert([{
+        user_id: user.id,
+        category: "movement" as any,
+        title: "Quick Movement Break",
+        duration_min: 10,
+        date: new Date().toISOString().split('T')[0],
+        reasoning: "Short movement to boost energy",
+      }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Movement added",
+        description: "Quick movement suggestion created.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBookSession = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from("activity_suggestions").insert([{
+        user_id: user.id,
+        category: "personal_session" as any,
+        title: "AI Personal Training Session",
+        duration_min: 60,
+        date: new Date().toISOString().split('T')[0],
+        context: "personal" as any,
+        reasoning: "Personalized coaching session",
+      }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Session booked",
+        description: "Your AI personal session has been scheduled.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
   const todaysPlan = {
     title: "Today's Workout",
     type: "Upper Body Strength",
@@ -128,11 +193,34 @@ export default function ActivitiesSection() {
 
       {/* AI Movement Suggestions */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
+            </div>
+            <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">AI Suggestions</h3>
           </div>
-          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">AI Suggestions</h3>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
+                <Plus className="w-4 h-4 text-[#12AFCB]" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setWorkoutModalOpen(true)}>
+                <Activity className="w-4 h-4 mr-2" />
+                Add Workout
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddMovement}>
+                <Zap className="w-4 h-4 mr-2" />
+                Add Movement
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleBookSession}>
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Session
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="space-y-3">
           {aiSuggestions.map((suggestion) => (
@@ -199,6 +287,8 @@ export default function ActivitiesSection() {
           ))}
         </div>
       </div>
+
+      <WorkoutModal open={workoutModalOpen} onOpenChange={setWorkoutModalOpen} onSuccess={() => {}} />
     </div>
   );
 }
