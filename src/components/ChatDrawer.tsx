@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 interface ChatDrawerProps {
   open: boolean;
   onClose: () => void;
+  initialMessage?: string;
 }
 
 interface Message {
@@ -13,11 +14,24 @@ interface Message {
   content: string;
 }
 
-export default function ChatDrawer({ open, onClose }: ChatDrawerProps) {
+export default function ChatDrawer({ open, onClose, initialMessage }: ChatDrawerProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle initial message when drawer opens
+  useEffect(() => {
+    if (open && initialMessage && messages.length === 0) {
+      setInput(initialMessage);
+      // Auto-send after a brief delay
+      setTimeout(() => {
+        if (initialMessage) {
+          sendMessage(initialMessage);
+        }
+      }, 300);
+    }
+  }, [open, initialMessage]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,10 +41,11 @@ export default function ChatDrawer({ open, onClose }: ChatDrawerProps) {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input.trim();
+    if (!textToSend || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
+    const userMessage: Message = { role: "user", content: textToSend };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -265,7 +280,7 @@ export default function ChatDrawer({ open, onClose }: ChatDrawerProps) {
                 style={{ minHeight: "48px", maxHeight: "120px" }}
               />
               <button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={isLoading || !input.trim()}
                 className="px-4 py-3 h-12 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-medium hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >

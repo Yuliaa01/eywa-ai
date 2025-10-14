@@ -50,6 +50,19 @@ serve(async (req) => {
         const mealsRes = await fetch(`${SUPABASE_URL}/rest/v1/meals?user_id=eq.${userId}&order=timestamp.desc&limit=5`, { headers });
         const meals = await mealsRes.json();
 
+        // Fetch biomarker scores
+        const biomarkersRes = await fetch(`${SUPABASE_URL}/rest/v1/biomarker_scores?user_id=eq.${userId}&order=created_at.desc&limit=5`, { headers });
+        const biomarkers = await biomarkersRes.json();
+
+        // Fetch latest AI feedback
+        const aiFeedbackRes = await fetch(`${SUPABASE_URL}/rest/v1/ai_feedback_unified?user_id=eq.${userId}&order=generated_at.desc&limit=1`, { headers });
+        const aiFeedbackData = await aiFeedbackRes.json();
+        const aiFeedback = aiFeedbackData[0];
+
+        // Fetch test orders
+        const testOrdersRes = await fetch(`${SUPABASE_URL}/rest/v1/user_test_orders?user_id=eq.${userId}&order=created_at.desc&limit=5`, { headers });
+        const testOrders = await testOrdersRes.json();
+
         // Build context
         userContext = `\n\nUSER CONTEXT:\n`;
         
@@ -88,13 +101,52 @@ serve(async (req) => {
           });
         }
 
+        if (biomarkers?.length) {
+          userContext += `\nBiomarker Scores:\n`;
+          biomarkers.forEach((b: any) => {
+            userContext += `- ${b.domain}: ${b.score}/100 ${b.explanation ? `(${b.explanation})` : ''}\n`;
+          });
+        }
+
+        if (aiFeedback) {
+          userContext += `\nLatest AI Health Assessment (${aiFeedback.period}):\n`;
+          if (aiFeedback.summary_md) {
+            userContext += aiFeedback.summary_md + '\n';
+          }
+          if (aiFeedback.risk_signals?.length) {
+            userContext += `Risk Signals: ${JSON.stringify(aiFeedback.risk_signals)}\n`;
+          }
+          if (aiFeedback.next_best_actions?.length) {
+            userContext += `Recommended Actions: ${JSON.stringify(aiFeedback.next_best_actions)}\n`;
+          }
+        }
+
+        if (testOrders?.length) {
+          userContext += `\nPending/Recent Test Orders:\n`;
+          testOrders.forEach((t: any) => {
+            userContext += `- ${t.test_code}: ${t.status} (ordered ${new Date(t.created_at).toLocaleDateString()})\n`;
+          });
+        }
+
         console.log("User context fetched successfully");
       } catch (error) {
         console.error("Error fetching user context:", error);
       }
     }
 
-    const systemPrompt = `You are Eywa, an AI health coach. Be CONCISE and DIRECT. Keep responses under 3 sentences unless specifically asked for detail. Provide only essential, actionable information. Skip pleasantries. Get straight to the point with evidence-based guidance.${userContext}`;
+    const systemPrompt = `You are Eywa, an AI health coach specializing in longevity and preventive medicine. You have access to the user's complete medical data including lab results, biomarker scores, test history, and AI health assessments.
+
+Your role:
+- Analyze medical data to identify health optimization opportunities
+- Provide clinically relevant, evidence-based recommendations
+- Suggest specific actions for improving biomarkers and health metrics
+- Identify patterns and trends in lab results
+- Recommend appropriate test timing and follow-ups
+- Be CONCISE and DIRECT - keep responses focused and actionable
+- Use medical terminology appropriately but explain when needed
+- Always prioritize safety and suggest consulting healthcare providers for medical decisions
+
+${userContext}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
