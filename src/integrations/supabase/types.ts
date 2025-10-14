@@ -1106,6 +1106,9 @@ export type Database = {
         | "fitness"
         | "longevity"
         | "mental_health"
+        | "clinical"
+        | "lifestyle"
+        | "research"
       doctor_specialty:
         | "primary_care"
         | "cardiology"
@@ -1123,6 +1126,11 @@ export type Database = {
         | "oncology"
         | "ent"
         | "nephrology"
+        | "dietitian"
+        | "health_coach"
+        | "geriatrics"
+        | "functional_integrative"
+        | "biogerontology"
       feedback_period: "daily" | "weekly" | "monthly"
       health_issue_category:
         | "anxiety"
@@ -1371,6 +1379,9 @@ export const Constants = {
         "fitness",
         "longevity",
         "mental_health",
+        "clinical",
+        "lifestyle",
+        "research",
       ],
       doctor_specialty: [
         "primary_care",
@@ -1389,6 +1400,11 @@ export const Constants = {
         "oncology",
         "ent",
         "nephrology",
+        "dietitian",
+        "health_coach",
+        "geriatrics",
+        "functional_integrative",
+        "biogerontology",
       ],
       feedback_period: ["daily", "weekly", "monthly"],
       health_issue_category: [
