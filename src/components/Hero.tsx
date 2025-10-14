@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Activity, Heart, Brain, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-health.jpg";
 
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background with gradient overlay */}
@@ -47,7 +49,12 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button variant="hero" size="lg" className="min-w-[200px]">
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="min-w-[200px]"
+              onClick={() => navigate("/auth")}
+            >
               Get Started
             </Button>
             <Button variant="outline" size="lg" className="min-w-[200px]">
