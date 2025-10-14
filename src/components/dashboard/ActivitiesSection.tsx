@@ -3,11 +3,14 @@ import { WorkoutModal } from "@/components/modals/WorkoutModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
-import WorkoutTimer from "./WorkoutTimer";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Pause, Square } from "lucide-react";
 
 export default function ActivitiesSection() {
   const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
+  const [workoutActive, setWorkoutActive] = useState(false);
+  const [workoutSeconds, setWorkoutSeconds] = useState(0);
 
   const handleAddMovement = async () => {
     try {
@@ -67,6 +70,37 @@ export default function ActivitiesSection() {
       });
     }
   };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (workoutActive) {
+      interval = setInterval(() => {
+        setWorkoutSeconds((s) => s + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [workoutActive]);
+
+  const formatTime = (totalSeconds: number) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleStartWorkout = () => {
+    setWorkoutActive(true);
+  };
+
+  const handlePauseWorkout = () => {
+    setWorkoutActive(false);
+  };
+
+  const handleStopWorkout = () => {
+    setWorkoutActive(false);
+    setWorkoutSeconds(0);
+  };
+
   const todaysPlan = {
     title: "Today's Workout",
     type: "Upper Body Strength",
@@ -122,10 +156,7 @@ export default function ActivitiesSection() {
 
   return (
     <div className="space-y-6">
-      {/* Workout Timer */}
-      <WorkoutTimer />
-
-      {/* Today's Workout */}
+      {/* Today's Workout with Timer */}
       <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -139,27 +170,64 @@ export default function ActivitiesSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
-            <div className="flex items-center gap-2 mb-1">
-              <Clock className="w-4 h-4 text-[#12AFCB]" />
-              <span className="text-sm text-[#5A6B7F]">Duration</span>
+        {!workoutActive ? (
+          <>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <Clock className="w-4 h-4 text-[#12AFCB]" />
+                  <span className="text-sm text-[#5A6B7F]">Duration</span>
+                </div>
+                <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.duration}</p>
+              </div>
+              <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="w-4 h-4 text-[#12AFCB]" />
+                  <span className="text-sm text-[#5A6B7F]">Calories</span>
+                </div>
+                <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.calories}</p>
+              </div>
             </div>
-            <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.duration}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
-            <div className="flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-[#12AFCB]" />
-              <span className="text-sm text-[#5A6B7F]">Calories</span>
-            </div>
-            <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.calories}</p>
-          </div>
-        </div>
 
-        <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white font-rounded font-semibold text-lg shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-          <Play className="w-6 h-6" />
-          Start Workout
-        </button>
+            <button 
+              onClick={handleStartWorkout}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white font-rounded font-semibold text-lg shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+            >
+              <Play className="w-6 h-6" />
+              Start Workout
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="py-8 text-center mb-6">
+              <div className="text-6xl font-bold font-rounded bg-gradient-to-r from-accent-teal to-accent-teal-alt bg-clip-text text-transparent">
+                {formatTime(workoutSeconds)}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {todaysPlan.type} in progress
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handlePauseWorkout}
+                variant="outline"
+                className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10"
+              >
+                <Pause className="w-5 h-5 mr-2" />
+                Pause
+              </Button>
+              <Button
+                onClick={handleStopWorkout}
+                variant="outline"
+                className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive"
+              >
+                <Square className="w-5 h-5 mr-2" />
+                Stop
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Motivation Pulse */}

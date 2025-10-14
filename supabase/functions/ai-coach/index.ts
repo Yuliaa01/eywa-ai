@@ -94,7 +94,7 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = `You are Eywa, an AI health coach and medical assistant. You provide personalized health guidance, analyze user data, and offer evidence-based recommendations. Be supportive, clear, and empathetic. Always remind users that you're not replacing professional medical advice for urgent matters.${userContext}`;
+    const systemPrompt = `You are Eywa, an AI health coach. Be CONCISE and DIRECT. Keep responses under 3 sentences unless specifically asked for detail. Provide only essential, actionable information. Skip pleasantries. Get straight to the point with evidence-based guidance.${userContext}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
