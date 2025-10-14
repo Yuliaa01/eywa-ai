@@ -6,8 +6,6 @@ import {
   Activity,
   Heart,
   Utensils,
-  TestTube,
-  Brain,
   Menu,
   Bell,
   Settings,
@@ -24,18 +22,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Import section components
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import PrioritiesSection from "@/components/dashboard/PrioritiesSection";
 import NutritionSection from "@/components/dashboard/NutritionSection";
 import ActivitiesSection from "@/components/dashboard/ActivitiesSection";
 import HealthCareSection from "@/components/dashboard/HealthCareSection";
-import AICoachOrb from "@/components/dashboard/AICoachOrb";
+import ProfileDrawer from "@/components/ProfileDrawer";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("priorities");
+  const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -100,9 +98,16 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             {/* User Greeting */}
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB]/20 to-[#12AFCB]/10 backdrop-blur-xl border border-[#12AFCB]/20 flex items-center justify-center">
-                <User className="w-6 h-6 text-[#12AFCB]" />
-              </div>
+              <button
+                onClick={() => setProfileOpen(true)}
+                className="w-12 h-12 rounded-2xl hover:ring-2 hover:ring-[#12AFCB] transition-all"
+              >
+                <Avatar className="w-12 h-12">
+                  <AvatarFallback className="bg-gradient-to-br from-[#12AFCB]/20 to-[#12AFCB]/10 backdrop-blur-xl border border-[#12AFCB]/20 text-[#12AFCB]">
+                    <User className="w-6 h-6" />
+                  </AvatarFallback>
+                </Avatar>
+              </button>
               <div>
                 <h1 className="font-rounded text-xl font-semibold text-[#0E1012]">
                   {greeting}, {userName}
@@ -207,8 +212,8 @@ export default function Dashboard() {
         </Tabs>
       </div>
 
-      {/* AI Coach Floating Orb */}
-      <AICoachOrb />
+      {/* Profile Drawer */}
+      <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }

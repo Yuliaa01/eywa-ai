@@ -1,0 +1,257 @@
+import { useState, useEffect } from "react";
+import { User, Heart, Lock, Link as LinkIcon, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/contexts/ThemeContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+export default function ProfileSettings() {
+  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState({
+    first_name: "",
+    last_name: "",
+    dob: "",
+    sex_at_birth: "",
+    height_cm: "",
+    weight_kg: "",
+  });
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      if (data) {
+        setProfile({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          dob: data.dob || "",
+          sex_at_birth: data.sex_at_birth || "",
+          height_cm: data.height_cm?.toString() || "",
+          weight_kg: data.weight_kg?.toString() || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("user_profiles")
+        .upsert({
+          id: user.id,
+          user_id: user.id,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          dob: profile.dob || null,
+          sex_at_birth: profile.sex_at_birth as any || null,
+          height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
+          weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile updated",
+        description: "Your changes have been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save profile changes.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border z-10">
+        <div className="max-w-3xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-xl hover:bg-accent/10 flex items-center justify-center transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-2xl font-rounded font-bold">Profile Settings</h1>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+        {/* Account Section */}
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
+            <User className="w-4 h-4" />
+            Account
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  value={profile.first_name}
+                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  value={profile.last_name}
+                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Medical Basics */}
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
+            <Heart className="w-4 h-4" />
+            Medical Basics
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="dob">Date of Birth</Label>
+              <Input
+                id="dob"
+                type="date"
+                value={profile.dob}
+                onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sex">Sex at Birth</Label>
+              <select
+                id="sex"
+                value={profile.sex_at_birth}
+                onChange={(e) => setProfile({ ...profile, sex_at_birth: e.target.value })}
+                className="w-full px-4 py-2 rounded-xl border border-input bg-background"
+              >
+                <option value="">Select...</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="height">Height (cm)</Label>
+                <Input
+                  id="height"
+                  type="number"
+                  value={profile.height_cm}
+                  onChange={(e) => setProfile({ ...profile, height_cm: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight (kg)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  value={profile.weight_kg}
+                  onChange={(e) => setProfile({ ...profile, weight_kg: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
+            <Lock className="w-4 h-4" />
+            Preferences
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Theme</Label>
+              <RadioGroup value={theme} onValueChange={(value: any) => setTheme(value)}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="light" id="light" />
+                  <Label htmlFor="light">Light</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="dark" id="dark" />
+                  <Label htmlFor="dark">Dark</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="system" id="system" />
+                  <Label htmlFor="system">System</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        </div>
+
+        {/* Connections */}
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
+            <LinkIcon className="w-4 h-4" />
+            Connections
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="rounded-lg">Fitbit</Badge>
+            <Badge variant="outline" className="rounded-lg">Oura</Badge>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex-1 rounded-xl"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex-1 rounded-xl"
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
