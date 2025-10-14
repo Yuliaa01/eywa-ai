@@ -71,12 +71,12 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F8FCFF] via-[#EFF8FB] to-[#E8FAFF]/30">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#12AFCB]/20 to-[#12AFCB]/10 backdrop-blur-xl border border-[#12AFCB]/20 flex items-center justify-center animate-glow-pulse">
-            <Activity className="w-8 h-8 text-[#12AFCB] animate-spin" />
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 flex items-center justify-center animate-glow-pulse">
+            <Activity className="w-8 h-8 text-accent-teal animate-spin" />
           </div>
-          <p className="text-sm text-[#5A6B7F] font-rounded">Loading your health hub...</p>
+          <p className="text-sm text-muted-foreground font-rounded">Loading your health hub...</p>
         </div>
       </div>
     );
@@ -91,28 +91,28 @@ export default function Dashboard() {
   })();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FCFF] via-[#EFF8FB] to-[#E8FAFF]/30 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-20 backdrop-blur-xl bg-white/60 border-b border-[#12AFCB]/10">
+      <header className="sticky top-0 z-20 backdrop-blur-xl bg-card/95 border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             {/* User Greeting */}
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setProfileOpen(true)}
-                className="w-12 h-12 rounded-2xl hover:ring-2 hover:ring-[#12AFCB] transition-all"
+                className="w-12 h-12 rounded-2xl hover:ring-2 hover:ring-accent transition-all"
               >
                 <Avatar className="w-12 h-12">
-                  <AvatarFallback className="bg-gradient-to-br from-[#12AFCB]/20 to-[#12AFCB]/10 backdrop-blur-xl border border-[#12AFCB]/20 text-[#12AFCB]">
+                  <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
                     <User className="w-6 h-6" />
                   </AvatarFallback>
                 </Avatar>
               </button>
               <div>
-                <h1 className="font-rounded text-xl font-semibold text-[#0E1012]">
+                <h1 className="font-rounded text-xl font-semibold text-foreground">
                   {greeting}, {userName}
                 </h1>
-                <p className="text-sm text-[#5A6B7F]">
+                <p className="text-sm text-muted-foreground">
                   {new Date().toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
@@ -127,18 +127,18 @@ export default function Dashboard() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-10 h-10 rounded-xl hover:bg-[#12AFCB]/10"
+                className="w-10 h-10 rounded-xl hover:bg-accent/10"
               >
-                <Bell className="w-5 h-5 text-[#5A6B7F]" />
+                <Bell className="w-5 h-5 text-muted-foreground" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="w-10 h-10 rounded-xl hover:bg-[#12AFCB]/10"
+                    className="w-10 h-10 rounded-xl hover:bg-accent/10"
                   >
-                    <Menu className="w-5 h-5 text-[#5A6B7F]" />
+                    <Menu className="w-5 h-5 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -162,31 +162,31 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           {/* Tab Navigation */}
-          <TabsList className="w-full grid grid-cols-4 bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-1.5 rounded-3xl h-auto">
+          <TabsList className="w-full grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
             <TabsTrigger
               value="priorities"
-              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Priorities
             </TabsTrigger>
             <TabsTrigger
               value="nutrition"
-              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
             >
               <Utensils className="w-4 h-4 mr-2" />
               Nutrition
             </TabsTrigger>
             <TabsTrigger
               value="activities"
-              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
             >
               <Activity className="w-4 h-4 mr-2" />
               Activities
             </TabsTrigger>
             <TabsTrigger
               value="healthcare"
-              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
             >
               <Heart className="w-4 h-4 mr-2" />
               Health Care
