@@ -1,1 +1,4 @@
 project_id = "xdzoyhzvjnumjgedwsbq"
+
+[functions.unify-feedback]
+verify_jwt = false
