@@ -12,6 +12,8 @@ import ChatDrawer from "@/components/ChatDrawer";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import DoctorHub from "./pages/DoctorHub";
 import LongevityFeedback from "./pages/LongevityFeedback";
@@ -61,6 +63,14 @@ const App = () => {
               <Route 
                 path="/auth" 
                 element={session ? <Navigate to="/onboarding" /> : <Auth />} 
+              />
+              <Route 
+                path="/auth/forgot-password" 
+                element={<ForgotPassword />} 
+              />
+              <Route 
+                path="/auth/reset-password" 
+                element={<ResetPassword />} 
               />
               <Route 
                 path="/onboarding" 

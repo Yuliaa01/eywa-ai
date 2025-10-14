@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Heart, Lock, Mail } from "lucide-react";
+import { Activity, Heart, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 
 // Security: Input validation schema to prevent malformed data and enforce password strength
@@ -28,6 +28,7 @@ const authSchema = z.object({
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -195,16 +196,34 @@ export default function Auth() {
                     <Lock className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Password
                   </Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signin-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={loading}
+                      className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12 pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-accentTeal transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  <div className="flex justify-end">
+                    <Link
+                      to="/auth/forgot-password"
+                      className="text-xs text-accentTeal/80 hover:text-accentTeal hover:underline transition-colors"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
                 </div>
 
                 <Button
@@ -241,17 +260,27 @@ export default function Auth() {
                     <Lock className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Password
                   </Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                    minLength={8}
-                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signup-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={loading}
+                      minLength={8}
+                      className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12 pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-accentTeal transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   <p className="text-xs text-muted-foreground/60">
                     At least 8 characters with uppercase, lowercase, and number
                   </p>
