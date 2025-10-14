@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, Link as LinkIcon, ArrowLeft } from "lucide-react";
+import { User, Heart, Lock, Link as LinkIcon, ArrowLeft, Upload, File, X, FileImage } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,9 +22,12 @@ export default function ProfileSettings() {
     height_cm: "",
     weight_kg: "",
   });
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadProfile();
+    loadFiles();
   }, []);
 
   const loadProfile = async () => {
@@ -89,6 +92,112 @@ export default function ProfileSettings() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadFiles = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase.storage
+        .from('user-files')
+        .list(`${user.id}/`, {
+          limit: 100,
+          offset: 0,
+          sortBy: { column: 'created_at', order: 'desc' }
+        });
+
+      if (error) throw error;
+      setUploadedFiles(data || []);
+    } catch (error) {
+      console.error("Error loading files:", error);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      for (const file of Array.from(files)) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-${file.name}`;
+
+        const { error } = await supabase.storage
+          .from('user-files')
+          .upload(fileName, file);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Files uploaded",
+        description: `${files.length} file(s) uploaded successfully.`,
+      });
+
+      loadFiles();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteFile = async (fileName: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.storage
+        .from('user-files')
+        .remove([`${user.id}/${fileName}`]);
+
+      if (error) throw error;
+
+      toast({
+        title: "File deleted",
+        description: "File removed successfully.",
+      });
+
+      loadFiles();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getFileUrl = async (fileName: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase.storage
+        .from('user-files')
+        .createSignedUrl(`${user.id}/${fileName}`, 3600);
+
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error("Error opening file:", error);
+    }
+  };
+
+  const isImageFile = (fileName: string) => {
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    return ext ? imageExtensions.includes(ext) : false;
   };
 
   return (
@@ -232,6 +341,78 @@ export default function ProfileSettings() {
             <Badge variant="outline" className="rounded-lg">Fitbit</Badge>
             <Badge variant="outline" className="rounded-lg">Oura</Badge>
           </div>
+        </div>
+
+        {/* Uploaded Files */}
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
+              <File className="w-4 h-4" />
+              Uploaded Files
+            </div>
+            <label htmlFor="file-upload">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploading}
+                className="rounded-xl cursor-pointer"
+                onClick={() => document.getElementById('file-upload')?.click()}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {uploading ? "Uploading..." : "Upload Files"}
+              </Button>
+              <input
+                id="file-upload"
+                type="file"
+                multiple
+                accept="image/*,.pdf"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {uploadedFiles.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Upload className="w-12 h-12 mx-auto mb-2 opacity-20" />
+              <p className="text-sm">No files uploaded yet</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {uploadedFiles.map((file) => (
+                <div
+                  key={file.name}
+                  className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors flex items-center gap-3"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    {isImageFile(file.name) ? (
+                      <FileImage className="w-5 h-5 text-accent" />
+                    ) : (
+                      <File className="w-5 h-5 text-accent" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <button
+                      onClick={() => getFileUrl(file.name)}
+                      className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
+                    >
+                      {file.name.split('-').slice(1).join('-')}
+                    </button>
+                    <p className="text-xs text-muted-foreground">
+                      {(file.metadata?.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteFile(file.name)}
+                    className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors flex-shrink-0"
+                  >
+                    <X className="w-4 h-4 text-destructive" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Save Button */}
