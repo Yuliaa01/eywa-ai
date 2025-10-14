@@ -36,13 +36,13 @@ export default function Auth() {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        navigate("/onboarding");
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        navigate("/dashboard");
+        navigate("/onboarding");
       }
     });
 
@@ -60,7 +60,7 @@ export default function Auth() {
         password,
       });
 
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${window.location.origin}/onboarding`;
       const { error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
