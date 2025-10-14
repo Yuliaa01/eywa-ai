@@ -36,6 +36,10 @@ export default function ChatDrawer({ open, onClose }: ChatDrawerProps) {
     setIsLoading(true);
 
     try {
+      // Get current user ID
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`;
       const response = await fetch(CHAT_URL, {
         method: "POST",
@@ -43,7 +47,10 @@ export default function ChatDrawer({ open, onClose }: ChatDrawerProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          userId: user?.id 
+        }),
       });
 
       if (!response.ok) {

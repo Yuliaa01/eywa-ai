@@ -4,6 +4,7 @@ import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import FastingTimer from "./FastingTimer";
 
 export default function NutritionSection() {
   const [mealModalOpen, setMealModalOpen] = useState(false);
@@ -96,46 +97,8 @@ export default function NutritionSection() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Fasting Tracker */}
-        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Fasting Window</h3>
-            <span className="px-3 py-1 rounded-full bg-[#12AFCB]/10 text-[#12AFCB] text-sm font-rounded font-medium">
-              {fastingWindow.type}
-            </span>
-          </div>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2 text-[#5A6B7F]">
-                <Clock className="w-4 h-4" />
-                Start: {fastingWindow.start}
-              </div>
-              <div className="flex items-center gap-2 text-[#5A6B7F]">
-                <Clock className="w-4 h-4" />
-                End: {fastingWindow.end}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-[#5A6B7F]">Progress</span>
-                <span className="font-rounded font-semibold text-[#12AFCB]">
-                  {fastingWindow.progress}%
-                </span>
-              </div>
-              <div className="relative h-3 rounded-full bg-[#12AFCB]/10 overflow-hidden">
-                <div
-                  className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] shimmer"
-                  style={{ width: `${fastingWindow.progress}%` }}
-                />
-              </div>
-            </div>
-            <p className="text-sm text-[#5A6B7F] text-center">
-              {fastingWindow.progress < 100
-                ? `${Math.round((100 - fastingWindow.progress) * 0.16)} hours remaining`
-                : "Fasting window complete! 🎉"}
-            </p>
-          </div>
-        </div>
+        {/* Fasting Tracker with Timer */}
+        <FastingTimer fastingWindow={fastingWindow} />
 
         {/* Supplements */}
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">

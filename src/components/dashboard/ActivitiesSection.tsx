@@ -4,6 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import WorkoutTimer from "./WorkoutTimer";
 
 export default function ActivitiesSection() {
   const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
@@ -121,6 +122,9 @@ export default function ActivitiesSection() {
 
   return (
     <div className="space-y-6">
+      {/* Workout Timer */}
+      <WorkoutTimer />
+
       {/* Today's Workout */}
       <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
         <div className="flex items-start justify-between mb-6">
