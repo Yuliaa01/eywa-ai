@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { filePath, fileName } = await req.json();
+    const { fileId, filePath, fileName } = await req.json();
 
     if (!filePath) {
       throw new Error('File path is required');
@@ -35,6 +35,14 @@ serve(async (req) => {
     }
 
     console.log('Analyzing file:', fileName, 'for user:', user.id);
+
+    // Update status to parsing
+    if (fileId) {
+      await supabase
+        .from('uploaded_files')
+        .update({ status: 'parsing' })
+        .eq('id', fileId);
+    }
 
     // Download file from storage
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -120,7 +128,7 @@ Format your response as JSON with this structure:
 
     console.log('Storing extracted data...');
 
-    // Store lab results
+    // Store lab results with provenance
     if (parsedAnalysis.lab_results && Array.isArray(parsedAnalysis.lab_results)) {
       for (const lab of parsedAnalysis.lab_results) {
         await supabase.from('lab_results').insert({
@@ -133,6 +141,11 @@ Format your response as JSON with this structure:
           reference_high: lab.reference_high,
           source: 'manual',
           reported_at: new Date().toISOString(),
+          provenance: fileId ? {
+            file_id: fileId,
+            file_name: fileName,
+            parsed_at: new Date().toISOString()
+          } : null,
         });
       }
     }
@@ -160,6 +173,17 @@ Format your response as JSON with this structure:
 
     console.log('Analysis complete and data stored');
 
+    // Update file status to parsed
+    if (fileId) {
+      await supabase
+        .from('uploaded_files')
+        .update({ 
+          status: 'parsed',
+          parsed_at: new Date().toISOString()
+        })
+        .eq('id', fileId);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -172,6 +196,27 @@ Format your response as JSON with this structure:
 
   } catch (error: any) {
     console.error('Error in analyze-health-file:', error);
+    
+    // Update file status to error if fileId exists
+    const { fileId } = await req.json().catch(() => ({}));
+    if (fileId) {
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        await supabase
+          .from('uploaded_files')
+          .update({ 
+            status: 'error',
+            error_message: error.message
+          })
+          .eq('id', fileId);
+      } catch (e) {
+        console.error('Failed to update error status:', e);
+      }
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

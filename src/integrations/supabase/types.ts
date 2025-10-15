@@ -506,6 +506,7 @@ export type Database = {
           collected_at: string | null
           created_at: string
           id: string
+          provenance: Json | null
           reference_high: number | null
           reference_low: number | null
           reference_text: string | null
@@ -522,6 +523,7 @@ export type Database = {
           collected_at?: string | null
           created_at?: string
           id?: string
+          provenance?: Json | null
           reference_high?: number | null
           reference_low?: number | null
           reference_text?: string | null
@@ -538,6 +540,7 @@ export type Database = {
           collected_at?: string | null
           created_at?: string
           id?: string
+          provenance?: Json | null
           reference_high?: number | null
           reference_low?: number | null
           reference_text?: string | null
@@ -818,6 +821,48 @@ export type Database = {
           specimen?: Database["public"]["Enums"]["specimen_type"] | null
           suggested_cadence?: string | null
           units?: string | null
+        }
+        Relationships: []
+      }
+      uploaded_files: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          name: string
+          parsed_at: string | null
+          size: number
+          status: string
+          storage_path: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          name: string
+          parsed_at?: string | null
+          size: number
+          status?: string
+          storage_path: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          name?: string
+          parsed_at?: string | null
+          size?: number
+          status?: string
+          storage_path?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

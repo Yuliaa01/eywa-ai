@@ -20,6 +20,28 @@ export default function HealthCareSection() {
 
   useEffect(() => {
     loadHealthData();
+
+    // Subscribe to uploaded_files changes for real-time updates
+    const channel = supabase
+      .channel('uploaded_files_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'uploaded_files',
+          filter: `status=eq.parsed`
+        },
+        () => {
+          console.log('File parsed, refreshing health data...');
+          loadHealthData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadHealthData = async () => {

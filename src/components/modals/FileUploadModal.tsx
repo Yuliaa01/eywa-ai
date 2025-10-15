@@ -64,6 +64,22 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
 
       if (uploadError) throw uploadError;
 
+      // Create uploaded_files record
+      const { data: fileRecord, error: recordError } = await supabase
+        .from('uploaded_files')
+        .insert({
+          user_id: user.id,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          storage_path: filePath,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (recordError) throw recordError;
+
       toast({
         title: "File uploaded successfully",
         description: "Processing and analyzing your health data...",
@@ -74,7 +90,7 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
 
       // Call AI analysis function
       const { data, error: analysisError } = await supabase.functions.invoke('analyze-health-file', {
-        body: { filePath, fileName: file.name }
+        body: { fileId: fileRecord.id, filePath, fileName: file.name }
       });
 
       if (analysisError) throw analysisError;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, Link as LinkIcon, ArrowLeft, Upload, File, X, FileImage } from "lucide-react";
+import { User, Heart, Lock, Link as LinkIcon, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,13 +99,11 @@ export default function ProfileSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase.storage
-        .from('user-files')
-        .list(`${user.id}/`, {
-          limit: 100,
-          offset: 0,
-          sortBy: { column: 'created_at', order: 'desc' }
-        });
+      const { data, error } = await supabase
+        .from('uploaded_files')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setUploadedFiles(data || []);
@@ -124,19 +122,43 @@ export default function ProfileSettings() {
       if (!user) throw new Error("Not authenticated");
 
       for (const file of Array.from(files)) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}-${file.name}`;
+        const fileName = `${Date.now()}-${file.name}`;
+        const filePath = `${user.id}/${fileName}`;
 
-        const { error } = await supabase.storage
+        // Upload to storage
+        const { error: uploadError } = await supabase.storage
           .from('user-files')
-          .upload(fileName, file);
+          .upload(filePath, file);
 
-        if (error) throw error;
+        if (uploadError) throw uploadError;
+
+        // Create uploaded_files record
+        const { data: fileRecord, error: recordError } = await supabase
+          .from('uploaded_files')
+          .insert({
+            user_id: user.id,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            storage_path: filePath,
+            status: 'pending',
+          })
+          .select()
+          .single();
+
+        if (recordError) throw recordError;
+
+        // Trigger analysis in background
+        supabase.functions.invoke('analyze-health-file', {
+          body: { fileId: fileRecord.id, filePath, fileName: file.name }
+        }).then(() => {
+          loadFiles();
+        });
       }
 
       toast({
         title: "Files uploaded",
-        description: `${files.length} file(s) uploaded successfully.`,
+        description: `${files.length} file(s) uploaded and queued for analysis.`,
       });
 
       loadFiles();
@@ -151,20 +173,35 @@ export default function ProfileSettings() {
     }
   };
 
-  const handleDeleteFile = async (fileName: string) => {
+  const handleDeleteFile = async (fileId: string, storagePath: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase.storage
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
         .from('user-files')
-        .remove([`${user.id}/${fileName}`]);
+        .remove([storagePath]);
 
-      if (error) throw error;
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('uploaded_files')
+        .delete()
+        .eq('id', fileId);
+
+      if (dbError) throw dbError;
+
+      // Delete related lab results
+      await supabase
+        .from('lab_results')
+        .delete()
+        .contains('provenance', { file_id: fileId });
 
       toast({
         title: "File deleted",
-        description: "File removed successfully.",
+        description: "File and related data removed successfully.",
       });
 
       loadFiles();
@@ -177,20 +214,60 @@ export default function ProfileSettings() {
     }
   };
 
-  const getFileUrl = async (fileName: string) => {
+  const getFileUrl = async (storagePath: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data } = await supabase.storage
         .from('user-files')
-        .createSignedUrl(`${user.id}/${fileName}`, 3600);
+        .createSignedUrl(storagePath, 3600);
 
       if (data?.signedUrl) {
         window.open(data.signedUrl, '_blank');
       }
     } catch (error) {
       console.error("Error opening file:", error);
+    }
+  };
+
+  const handleReanalyze = async (fileId: string, filePath: string, fileName: string) => {
+    try {
+      await supabase
+        .from('uploaded_files')
+        .update({ status: 'pending', error_message: null })
+        .eq('id', fileId);
+
+      const { error } = await supabase.functions.invoke('analyze-health-file', {
+        body: { fileId, filePath, fileName }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Analysis started",
+        description: "File is being re-analyzed.",
+      });
+
+      loadFiles();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="rounded-lg text-muted-foreground">Queued</Badge>;
+      case 'parsing':
+        return <Badge variant="outline" className="rounded-lg"><Loader2 className="w-3 h-3 mr-1 animate-spin" />Analyzing...</Badge>;
+      case 'parsed':
+        return <Badge variant="outline" className="rounded-lg text-accent-teal"><CheckCircle className="w-3 h-3 mr-1" />Parsed</Badge>;
+      case 'error':
+        return <Badge variant="outline" className="rounded-lg text-amber-500"><AlertCircle className="w-3 h-3 mr-1" />Needs review</Badge>;
+      default:
+        return null;
     }
   };
 
@@ -379,36 +456,56 @@ export default function ProfileSettings() {
               <p className="text-sm">No files uploaded yet</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {uploadedFiles.map((file) => (
+            <div className="space-y-3">
+              {uploadedFiles.map((file: any) => (
                 <div
-                  key={file.name}
-                  className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors flex items-center gap-3"
+                  key={file.id}
+                  className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                    {isImageFile(file.name) ? (
-                      <FileImage className="w-5 h-5 text-accent" />
-                    ) : (
-                      <File className="w-5 h-5 text-accent" />
-                    )}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      {isImageFile(file.name) ? (
+                        <FileImage className="w-5 h-5 text-accent" />
+                      ) : (
+                        <File className="w-5 h-5 text-accent" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <button
+                        onClick={() => getFileUrl(file.storage_path)}
+                        className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
+                      >
+                        {file.name}
+                      </button>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs text-muted-foreground">
+                          {(file.size / 1024).toFixed(1)} KB
+                        </p>
+                        {getStatusBadge(file.status)}
+                      </div>
+                      {file.error_message && (
+                        <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      {file.status === 'error' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReanalyze(file.id, file.storage_path, file.name)}
+                          className="rounded-lg"
+                        >
+                          Analyze again
+                        </Button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteFile(file.id, file.storage_path)}
+                        className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
+                      >
+                        <X className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <button
-                      onClick={() => getFileUrl(file.name)}
-                      className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
-                    >
-                      {file.name.split('-').slice(1).join('-')}
-                    </button>
-                    <p className="text-xs text-muted-foreground">
-                      {(file.metadata?.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteFile(file.name)}
-                    className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors flex-shrink-0"
-                  >
-                    <X className="w-4 h-4 text-destructive" />
-                  </button>
                 </div>
               ))}
             </div>
