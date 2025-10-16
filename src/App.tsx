@@ -19,6 +19,8 @@ import DoctorHub from "./pages/DoctorHub";
 import LongevityFeedback from "./pages/LongevityFeedback";
 import Onboarding from "./pages/Onboarding";
 import ProfileSettings from "./pages/settings/Profile";
+import Subscription from "./pages/settings/Subscription";
+import Connections from "./pages/Connections";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,14 @@ const AppContent = ({ session }: { session: Session | null }) => {
         <Route 
           path="/settings/profile" 
           element={session ? <ProfileSettings /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/settings/subscription" 
+          element={session ? <Subscription /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/connections" 
+          element={session ? <Connections /> : <Navigate to="/auth" />} 
         />
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

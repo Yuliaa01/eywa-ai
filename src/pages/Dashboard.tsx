@@ -6,12 +6,13 @@ import {
   Activity,
   Heart,
   Utensils,
-  Menu,
   Bell,
   Settings,
   LogOut,
   Sparkles,
   User,
+  CreditCard,
+  Link2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,13 +28,11 @@ import PrioritiesSection from "@/components/dashboard/PrioritiesSection";
 import NutritionSection from "@/components/dashboard/NutritionSection";
 import ActivitiesSection from "@/components/dashboard/ActivitiesSection";
 import HealthCareSection from "@/components/dashboard/HealthCareSection";
-import ProfileDrawer from "@/components/ProfileDrawer";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("priorities");
-  const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -98,16 +97,11 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             {/* User Greeting */}
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setProfileOpen(true)}
-                className="w-12 h-12 rounded-2xl hover:ring-2 hover:ring-accent transition-all"
-              >
-                <Avatar className="w-12 h-12">
-                  <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
-                    <User className="w-6 h-6" />
-                  </AvatarFallback>
-                </Avatar>
-              </button>
+              <Avatar className="w-12 h-12">
+                <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
+                  <User className="w-6 h-6" />
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <h1 className="font-rounded text-xl font-semibold text-foreground">
                   {greeting}, {userName}
@@ -131,23 +125,48 @@ export default function Dashboard() {
               >
                 <Bell className="w-5 h-5 text-muted-foreground" />
               </Button>
+              
+              {/* Avatar Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-10 h-10 rounded-xl hover:bg-accent/10"
-                  >
-                    <Menu className="w-5 h-5 text-muted-foreground" />
-                  </Button>
+                  <button className="w-10 h-10 rounded-xl hover:ring-2 hover:ring-accent transition-all focus:outline-none focus:ring-2 focus:ring-accent">
+                    <Avatar className="w-10 h-10">
+                      <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
+                        <User className="w-5 h-5" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => navigate("/settings/profile")}>
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-56 bg-card/95 backdrop-blur-xl border-border shadow-lg z-50"
+                >
+                  <DropdownMenuItem 
+                    onClick={() => navigate("/settings/profile")}
+                    className="cursor-pointer focus:bg-accent/10"
+                  >
                     <Settings className="w-4 h-4 mr-2" />
-                    Settings
+                    Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate("/settings/subscription")}
+                    className="cursor-pointer focus:bg-accent/10"
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Subscription & Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate("/connections")}
+                    className="cursor-pointer focus:bg-accent/10"
+                  >
+                    <Link2 className="w-4 h-4 mr-2" />
+                    Connections
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem 
+                    onClick={handleSignOut}
+                    className="cursor-pointer focus:bg-accent/10 text-destructive focus:text-destructive"
+                  >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
@@ -211,9 +230,6 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Profile Drawer */}
-      <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }
