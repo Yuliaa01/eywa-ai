@@ -96,35 +96,42 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             {/* User Greeting */}
-            <div className="flex items-center gap-4">
-              <Avatar className="w-12 h-12">
-                <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
-                  <User className="w-6 h-6" />
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="font-rounded text-xl font-semibold text-foreground">
-                  {greeting}, {userName}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
+            <div>
+              <h1 className="font-rounded text-xl font-semibold text-foreground">
+                {greeting}, {userName}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </p>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-10 h-10 rounded-xl hover:bg-accent/10"
-              >
-                <Bell className="w-5 h-5 text-muted-foreground" />
-              </Button>
+              {/* Notification Dropdown Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 h-10 rounded-xl hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent"
+                  >
+                    <Bell className="w-5 h-5 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-80 bg-card/95 backdrop-blur-xl border-border shadow-lg z-50"
+                >
+                  <div className="p-4">
+                    <h3 className="font-rounded font-semibold text-sm text-foreground mb-2">Notifications</h3>
+                    <p className="text-sm text-muted-foreground">No new notifications</p>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
               
               {/* Avatar Dropdown Menu */}
               <DropdownMenu>
