@@ -34,8 +34,11 @@ const Hero = () => {
           </div>
 
           {/* Main heading */}
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-primary bg-clip-text text-transparent">
-            Your personal 360° AI-driven health companion
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+            Your personal
+            <span className="block bg-gradient-primary bg-clip-text text-transparent mt-2">
+              360° AI-driven health companion
+            </span>
           </h1>
 
           {/* Description */}
