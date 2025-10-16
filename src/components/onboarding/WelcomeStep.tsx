@@ -2,6 +2,7 @@ import { Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WelcomeStepProps {
   onNext: () => void;
@@ -11,6 +12,12 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
   const navigate = useNavigate();
   const [showDataUsage, setShowDataUsage] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+
+  const handleSignIn = async () => {
+    // Sign out first if there's an existing session
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
 
   return (
     <>
@@ -147,7 +154,7 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         
         <div className="flex items-center justify-center gap-6 text-[0.875rem]">
           <button 
-            onClick={() => navigate("/auth")}
+            onClick={handleSignIn}
             className="text-[#12AFCB] hover:underline transition-colors font-medium"
           >
             Sign In
