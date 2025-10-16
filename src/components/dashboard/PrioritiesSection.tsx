@@ -5,6 +5,12 @@ import { useState } from "react";
 
 export default function PrioritiesSection() {
   const [goalModalOpen, setGoalModalOpen] = useState(false);
+  const [goalMode, setGoalMode] = useState<'global' | 'temporary' | 'plan'>('global');
+
+  const openModal = (mode: 'global' | 'temporary' | 'plan') => {
+    setGoalMode(mode);
+    setGoalModalOpen(true);
+  };
   const globalGoals = [
     {
       title: "Lower Stress",
@@ -55,8 +61,8 @@ export default function PrioritiesSection() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Global Goals</h3>
             <button 
-              onClick={() => setGoalModalOpen(true)}
-              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+              onClick={() => openModal('global')}
+              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
             >
               <Plus className="w-4 h-4 text-[#12AFCB]" />
             </button>
@@ -96,8 +102,8 @@ export default function PrioritiesSection() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Today & This Week</h3>
             <button 
-              onClick={() => setGoalModalOpen(true)}
-              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+              onClick={() => openModal('temporary')}
+              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
             >
               <Plus className="w-4 h-4 text-[#12AFCB]" />
             </button>
@@ -131,8 +137,8 @@ export default function PrioritiesSection() {
             Plans (Trips & Events)
           </h3>
           <button 
-            onClick={() => setGoalModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] font-rounded font-medium text-sm transition-colors"
+            onClick={() => openModal('plan')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 text-[#12AFCB] font-rounded font-medium text-sm transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
             Add Plan
@@ -195,6 +201,7 @@ export default function PrioritiesSection() {
       <GoalModal 
         open={goalModalOpen} 
         onOpenChange={setGoalModalOpen}
+        mode={goalMode}
         onSuccess={() => {
           // Optimistic update would go here
         }}

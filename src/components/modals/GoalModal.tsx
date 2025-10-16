@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,12 +12,14 @@ interface GoalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  mode?: 'global' | 'temporary' | 'plan';
 }
 
-export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
+export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global' }: GoalModalProps) {
   const [loading, setLoading] = useState(false);
+  const [timeScope, setTimeScope] = useState<'day' | 'week'>('day');
   const [formData, setFormData] = useState({
-    type: "global_goal",
+    type: mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip",
     title: "",
     description: "",
     start_date: "",
@@ -27,17 +29,61 @@ export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
     units: "",
   });
 
+  // Auto-set dates when timeScope changes for temporary goals
+  const updateDatesForScope = (scope: 'day' | 'week') => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
+    if (scope === 'day') {
+      setFormData(prev => ({ ...prev, start_date: todayStr, end_date: todayStr }));
+    } else {
+      // Week: Monday to Sunday
+      const dayOfWeek = today.getDay();
+      const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const monday = new Date(today);
+      monday.setDate(today.getDate() + diff);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      const mondayStr = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
+      const sundayStr = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`;
+
+      setFormData(prev => ({ ...prev, start_date: mondayStr, end_date: sundayStr }));
+    }
+  };
+
+  // Initialize dates when modal opens with temporary mode
+  useEffect(() => {
+    if (open && mode === 'temporary') {
+      updateDatesForScope(timeScope);
+    }
+  }, [open, mode]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (formData.title.length < 3) {
+      toast({
+        title: "Validation Error",
+        description: "Title must be at least 3 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase.from("priorities").insert({
+      const insertData: any = {
         user_id: user.id,
-        type: formData.type as any,
+        type: formData.type,
         title: formData.title,
         description: formData.description || null,
         start_date: formData.start_date || null,
@@ -46,19 +92,26 @@ export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
         target_value: formData.target_value ? parseFloat(formData.target_value) : null,
         units: formData.units || null,
         status: "planned",
-      });
+      };
+
+      const { error } = await supabase.from("priorities").insert(insertData);
 
       if (error) throw error;
 
+      const goalTypeLabel = mode === 'global' ? 'Global goal' : mode === 'temporary' ? `Goal added to ${timeScope === 'day' ? 'Today' : 'This Week'}` : 'Plan';
+      
       toast({
-        title: "Goal created",
-        description: "Your new goal has been added successfully.",
+        title: mode === 'global' ? "Global goal created" : mode === 'temporary' ? "Goal added" : "Plan created",
+        description: mode === 'global' ? "Your global goal has been added successfully." : mode === 'temporary' ? `Goal added to ${timeScope === 'day' ? 'Today' : 'This Week'}.` : "Your plan has been created.",
       });
 
       onSuccess?.();
       onOpenChange(false);
+      
+      // Reset form
+      const newType = mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip";
       setFormData({
-        type: "global_goal",
+        type: newType,
         title: "",
         description: "",
         start_date: "",
@@ -67,6 +120,7 @@ export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
         target_value: "",
         units: "",
       });
+      setTimeScope('day');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -80,28 +134,65 @@ export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20">
+      <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20 animate-scale-in">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-rounded">Add New Goal</DialogTitle>
+          <DialogTitle className="text-2xl font-rounded">
+            {mode === 'global' ? 'Add Global Goal' : mode === 'temporary' ? 'Add Daily/Weekly Goal' : 'Add Plan'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>Type</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) => setFormData({ ...formData, type: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="global_goal">Global Goal</SelectItem>
-                <SelectItem value="temporary_goal">Temporary Goal</SelectItem>
-                <SelectItem value="plan_trip">Trip Plan</SelectItem>
-                <SelectItem value="plan_event">Event Plan</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Scope Switcher for Temporary Goals */}
+          {mode === 'temporary' && (
+            <div className="flex gap-2 p-1 bg-[#12AFCB]/5 rounded-xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setTimeScope('day');
+                  updateDatesForScope('day');
+                }}
+                className={`flex-1 py-2 px-4 rounded-lg font-rounded font-medium text-sm transition-all duration-200 ${
+                  timeScope === 'day'
+                    ? 'bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white shadow-[0_4px_20px_rgba(18,175,203,0.3)]'
+                    : 'text-[#5A6B7F] hover:text-[#12AFCB]'
+                }`}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTimeScope('week');
+                  updateDatesForScope('week');
+                }}
+                className={`flex-1 py-2 px-4 rounded-lg font-rounded font-medium text-sm transition-all duration-200 ${
+                  timeScope === 'week'
+                    ? 'bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white shadow-[0_4px_20px_rgba(18,175,203,0.3)]'
+                    : 'text-[#5A6B7F] hover:text-[#12AFCB]'
+                }`}
+              >
+                This Week
+              </button>
+            </div>
+          )}
+
+          {/* Type Selector for Plan mode */}
+          {mode === 'plan' && (
+            <div className="space-y-2">
+              <Label>Plan Type</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => setFormData({ ...formData, type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="plan_trip">Trip Plan</SelectItem>
+                  <SelectItem value="plan_event">Event Plan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Title *</Label>
@@ -123,24 +214,39 @@ export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Start Date</Label>
-              <Input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-              />
+          {/* Date fields - shown for temporary and plan modes */}
+          {(mode === 'temporary' || mode === 'plan') && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>End Date</Label>
+                <Input
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                />
+              </div>
             </div>
+          )}
+
+          {/* Optional end date for global goals */}
+          {mode === 'global' && (
             <div className="space-y-2">
-              <Label>End Date</Label>
+              <Label>End Date (optional)</Label>
               <Input
                 type="date"
                 value={formData.end_date}
                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
               />
             </div>
-          </div>
+          )}
 
           <div className="space-y-2">
             <Label>Target Metric (optional)</Label>
@@ -182,8 +288,12 @@ export function GoalModal({ open, onOpenChange, onSuccess }: GoalModalProps) {
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? "Creating..." : "Create Goal"}
+            <Button 
+              type="submit" 
+              className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] hover:shadow-[0_4px_20px_rgba(18,175,203,0.4)] transition-all duration-200" 
+              disabled={loading}
+            >
+              {loading ? "Creating..." : mode === 'plan' ? "Create Plan" : "Create Goal"}
             </Button>
           </div>
         </form>
