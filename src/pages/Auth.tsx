@@ -35,15 +35,29 @@ export default function Auth() {
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    const checkUserAndRedirect = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('onboarding_completed')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (profile?.onboarding_completed) {
+        navigate("/dashboard");
+      } else {
         navigate("/onboarding");
+      }
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        checkUserAndRedirect(session.user.id);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        navigate("/onboarding");
+      if (event === 'SIGNED_IN' && session?.user) {
+        checkUserAndRedirect(session.user.id);
       }
     });
 
