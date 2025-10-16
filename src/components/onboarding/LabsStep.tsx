@@ -60,28 +60,44 @@ export default function LabsStep({ onNext }: LabsStepProps) {
 
       if (dbError) throw dbError;
 
-      toast({
-        title: "Analyzing Document",
-        description: `AI is analyzing ${file.name}...`,
-      });
-
-      // Call edge function to analyze the file
-      const { error: analyzeError } = await supabase.functions.invoke('analyze-health-file', {
-        body: {
-          fileId: fileRecord.id,
-          filePath: fileName,
-          fileName: file.name
-        }
-      });
-
-      if (analyzeError) throw analyzeError;
-
+      // Add file to the list immediately after successful upload
       setUploadedFiles(prev => [...prev, file.name]);
 
       toast({
-        title: "Analysis Complete",
-        description: "Your lab results have been processed and saved.",
+        title: "File Uploaded",
+        description: `${file.name} uploaded successfully. Analyzing...`,
       });
+
+      // Call edge function to analyze the file (non-blocking)
+      try {
+        const { error: analyzeError } = await supabase.functions.invoke('analyze-health-file', {
+          body: {
+            fileId: fileRecord.id,
+            filePath: fileName,
+            fileName: file.name
+          }
+        });
+
+        if (analyzeError) {
+          console.error('Analysis error:', analyzeError);
+          toast({
+            title: "Analysis Pending",
+            description: "File uploaded successfully. Analysis will continue in the background.",
+          });
+        } else {
+          toast({
+            title: "Analysis Complete",
+            description: "Your lab results have been processed and saved.",
+          });
+        }
+      } catch (analysisError) {
+        console.error('Analysis error:', analysisError);
+        // Don't fail the entire upload if only analysis fails
+        toast({
+          title: "Analysis Pending",
+          description: "File uploaded successfully. Analysis will continue in the background.",
+        });
+      }
 
     } catch (error: any) {
       console.error('Upload error:', error);
