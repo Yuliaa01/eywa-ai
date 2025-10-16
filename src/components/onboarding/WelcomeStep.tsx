@@ -1,12 +1,113 @@
 import { Shield } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface WelcomeStepProps {
   onNext: () => void;
 }
 
 export default function WelcomeStep({ onNext }: WelcomeStepProps) {
+  const navigate = useNavigate();
+  const [showDataUsage, setShowDataUsage] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+
   return (
-    <div className="space-y-8 animate-scale-in">
+    <>
+      <Dialog open={showDataUsage} onOpenChange={setShowDataUsage}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>How Your Data Is Used</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-muted-foreground">
+            <p>At Eywa AI, we take your privacy seriously. Here's how we handle your data:</p>
+            
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Data Collection</h3>
+                <p>We collect health metrics, lab results, wearable device data, and lifestyle information you provide to deliver personalized health insights.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Data Usage</h3>
+                <p>Your data is used exclusively to:</p>
+                <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                  <li>Generate personalized health recommendations</li>
+                  <li>Track your health trends over time</li>
+                  <li>Improve our AI models (anonymized data only)</li>
+                  <li>Facilitate communication with healthcare providers (with your consent)</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Data Security</h3>
+                <p>All data is encrypted in transit and at rest. We use industry-standard security practices and comply with HIPAA regulations.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Data Sharing</h3>
+                <p>We never sell your data. Data is only shared with third parties when you explicitly consent or as required by law.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Your Rights</h3>
+                <p>You have the right to access, export, or delete your data at any time through your account settings.</p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTerms} onOpenChange={setShowTerms}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Terms of Service</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">Last updated: October 2025</p>
+            
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">1. Acceptance of Terms</h3>
+                <p>By accessing or using Eywa AI, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">2. Medical Disclaimer</h3>
+                <p>Eywa AI provides health information and guidance but does not provide medical diagnosis, treatment, or professional medical advice. Always consult with qualified healthcare professionals for medical decisions.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">3. User Responsibilities</h3>
+                <p>You are responsible for:</p>
+                <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                  <li>Providing accurate health information</li>
+                  <li>Maintaining the confidentiality of your account</li>
+                  <li>Using the service in compliance with applicable laws</li>
+                  <li>Not sharing medical advice from Eywa AI as your own professional opinion</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">4. Service Availability</h3>
+                <p>We strive to maintain service availability but do not guarantee uninterrupted access. We reserve the right to modify or discontinue features with notice.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">5. Limitation of Liability</h3>
+                <p>Eywa AI and its affiliates shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">6. Termination</h3>
+                <p>We reserve the right to terminate or suspend your account for violations of these terms or for any reason with notice.</p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div className="space-y-8 animate-scale-in">
       <div className="text-center space-y-6">
         <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] transition-all duration-300">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#12AFCB]/70 flex items-center justify-center">
@@ -45,19 +146,29 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         </button>
         
         <div className="flex items-center justify-center gap-6 text-[0.875rem]">
-          <button className="text-[#12AFCB] hover:underline transition-colors font-medium">
+          <button 
+            onClick={() => navigate("/auth")}
+            className="text-[#12AFCB] hover:underline transition-colors font-medium"
+          >
             Sign In
           </button>
           <span className="text-[#5A6B7F]">·</span>
-          <button className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors">
+          <button 
+            onClick={() => setShowDataUsage(true)}
+            className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors"
+          >
             How your data is used
           </button>
           <span className="text-[#5A6B7F]">·</span>
-          <button className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors">
+          <button 
+            onClick={() => setShowTerms(true)}
+            className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors"
+          >
             Terms
           </button>
         </div>
       </div>
     </div>
+    </>
   );
 }
