@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,26 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [onboardingData, setOnboardingData] = useState<any>({});
 
+  useEffect(() => {
+    // Check if user has already completed onboarding
+    const checkOnboardingStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('onboarding_completed')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile?.onboarding_completed) {
+        navigate("/dashboard");
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [navigate]);
+
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
       setCurrentStep(currentStep + 1);
@@ -37,6 +57,7 @@ export default function Onboarding() {
       await supabase.from('user_profiles').upsert({
         user_id: user.id,
         ...onboardingData.profile,
+        onboarding_completed: true,
         updated_at: new Date().toISOString(),
       });
 
