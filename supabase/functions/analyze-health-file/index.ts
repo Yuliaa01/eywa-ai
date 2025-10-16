@@ -12,8 +12,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let fileId: string | undefined;
+
   try {
-    const { fileId, filePath, fileName } = await req.json();
+    const { fileId: fId, filePath, fileName } = await req.json();
+    fileId = fId;
 
     if (!filePath) {
       throw new Error('File path is required');
@@ -198,7 +201,6 @@ Format your response as JSON with this structure:
     console.error('Error in analyze-health-file:', error);
     
     // Update file status to error if fileId exists
-    const { fileId } = await req.json().catch(() => ({}));
     if (fileId) {
       try {
         const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
