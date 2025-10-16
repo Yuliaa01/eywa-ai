@@ -48,11 +48,8 @@ const Goals = () => {
     <section className="py-20 px-4 bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12 space-y-4 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold">
-            Track Your
-            <span className="block bg-gradient-primary bg-clip-text text-transparent mt-2">
-              Health Goals
-            </span>
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            Track your goals
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Set global longevity targets and short-term health objectives
@@ -64,10 +61,6 @@ const Goals = () => {
           <Card className="p-8 bg-gradient-card border shadow-card">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold">Global Goals</h3>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Goal
-              </Button>
             </div>
             <div className="space-y-6">
               {globalGoals.map((goal) => (
@@ -80,10 +73,6 @@ const Goals = () => {
           <Card className="p-8 bg-gradient-card border shadow-card">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold">This Week</h3>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Goal
-              </Button>
             </div>
             <div className="space-y-4">
               {temporaryGoals.map((goal) => (

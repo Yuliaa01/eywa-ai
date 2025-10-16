@@ -37,7 +37,7 @@ const Hero = () => {
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
             Your Personal
             <span className="block bg-gradient-primary bg-clip-text text-transparent mt-2">
-              Health AI Hub
+              360° AI-driven health companion
             </span>
           </h1>
 
@@ -57,7 +57,14 @@ const Hero = () => {
             >
               Get Started
             </Button>
-            <Button variant="outline" size="lg" className="min-w-[200px]">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="min-w-[200px]"
+              onClick={() => {
+                document.getElementById('health-metrics')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               Learn More
             </Button>
           </div>
