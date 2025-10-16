@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import ConnectionsStep from "@/components/onboarding/ConnectionsStep";
 import ProfileAutofillStep from "@/components/onboarding/ProfileAutofillStep";
@@ -45,6 +46,29 @@ export default function Onboarding() {
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Mark onboarding as completed
+      await supabase.from('user_profiles').upsert({
+        user_id: user.id,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to skip onboarding. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   };
 
@@ -179,6 +203,17 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FCFF] via-[#EFF8FB] to-[#E8FAFF]/30 p-6">
       <div className="max-w-3xl mx-auto py-12 space-y-12">
+        {/* Close Button */}
+        {currentStep > 0 && (
+          <button
+            onClick={handleSkip}
+            className="fixed top-6 right-6 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] hover:bg-white transition-all duration-300 flex items-center justify-center group z-50"
+            aria-label="Skip onboarding"
+          >
+            <X className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] transition-colors" />
+          </button>
+        )}
+
         {/* Progress Indicator */}
         {currentStep > 0 && (
           <div className="space-y-3">

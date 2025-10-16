@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
@@ -23,10 +23,65 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AppContent = ({ session }: { session: Session | null }) => {
+  const [chatOpen, setChatOpen] = useState(false);
+  const location = useLocation();
+  const isOnboarding = location.pathname === '/onboarding';
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route 
+          path="/auth" 
+          element={session ? <Navigate to="/onboarding" /> : <Auth />} 
+        />
+        <Route 
+          path="/auth/forgot-password" 
+          element={<ForgotPassword />} 
+        />
+        <Route 
+          path="/auth/reset-password" 
+          element={<ResetPassword />} 
+        />
+        <Route 
+          path="/onboarding" 
+          element={session ? <Onboarding /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/dashboard" 
+          element={session ? <Dashboard /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/doctor-hub" 
+          element={session ? <DoctorHub /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/longevity-feedback" 
+          element={session ? <LongevityFeedback /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/settings/profile" 
+          element={session ? <ProfileSettings /> : <Navigate to="/auth" />} 
+        />
+        <Route path="/404" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/404" replace />} />
+      </Routes>
+      
+      {/* Global AI Coach - hidden on onboarding */}
+      {session && !isOnboarding && (
+        <>
+          <CoachOrb onOpen={() => setChatOpen(true)} />
+          <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
+        </>
+      )}
+    </>
+  );
+};
+
 const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -58,51 +113,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route 
-                path="/auth" 
-                element={session ? <Navigate to="/onboarding" /> : <Auth />} 
-              />
-              <Route 
-                path="/auth/forgot-password" 
-                element={<ForgotPassword />} 
-              />
-              <Route 
-                path="/auth/reset-password" 
-                element={<ResetPassword />} 
-              />
-              <Route 
-                path="/onboarding" 
-                element={session ? <Onboarding /> : <Navigate to="/auth" />} 
-              />
-              <Route 
-                path="/dashboard" 
-                element={session ? <Dashboard /> : <Navigate to="/auth" />} 
-              />
-              <Route 
-                path="/doctor-hub" 
-                element={session ? <DoctorHub /> : <Navigate to="/auth" />} 
-              />
-              <Route 
-                path="/longevity-feedback" 
-                element={session ? <LongevityFeedback /> : <Navigate to="/auth" />} 
-              />
-              <Route 
-                path="/settings/profile" 
-                element={session ? <ProfileSettings /> : <Navigate to="/auth" />} 
-              />
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
-            
-            {/* Global AI Coach */}
-            {session && (
-              <>
-                <CoachOrb onOpen={() => setChatOpen(true)} />
-                <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
-              </>
-            )}
+            <AppContent session={session} />
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
