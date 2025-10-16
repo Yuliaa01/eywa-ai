@@ -882,6 +882,7 @@ export type Database = {
           last_name: string | null
           locale: string | null
           medications: string[] | null
+          onboarding_completed: boolean | null
           sex_at_birth: Database["public"]["Enums"]["sex_at_birth"] | null
           sleep_schedule_notes: string | null
           timezone: string | null
@@ -904,6 +905,7 @@ export type Database = {
           last_name?: string | null
           locale?: string | null
           medications?: string[] | null
+          onboarding_completed?: boolean | null
           sex_at_birth?: Database["public"]["Enums"]["sex_at_birth"] | null
           sleep_schedule_notes?: string | null
           timezone?: string | null
@@ -926,6 +928,7 @@ export type Database = {
           last_name?: string | null
           locale?: string | null
           medications?: string[] | null
+          onboarding_completed?: boolean | null
           sex_at_birth?: Database["public"]["Enums"]["sex_at_birth"] | null
           sleep_schedule_notes?: string | null
           timezone?: string | null
