@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { FileText, Camera, Upload } from "lucide-react";
+import { FileText, Camera, Upload, Loader2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabsStepProps {
   onNext: () => void;
@@ -9,15 +10,90 @@ interface LabsStepProps {
 export default function LabsStep({ onNext }: LabsStepProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'upload' | 'camera' | 'fhir'>('upload');
+  const [uploading, setUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: "Processing Lab Report",
-        description: `Analyzing ${file.name}...`,
-        duration: 3000,
+        title: "File Too Large",
+        description: "Please select a file smaller than 10MB",
+        variant: "destructive",
       });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Create unique file path
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('user-files')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Create record in uploaded_files table
+      const { data: fileRecord, error: dbError } = await supabase
+        .from('uploaded_files')
+        .insert({
+          user_id: user.id,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          storage_path: fileName,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Analyzing Document",
+        description: `AI is analyzing ${file.name}...`,
+      });
+
+      // Call edge function to analyze the file
+      const { error: analyzeError } = await supabase.functions.invoke('analyze-health-file', {
+        body: {
+          fileId: fileRecord.id,
+          filePath: fileName,
+          fileName: file.name
+        }
+      });
+
+      if (analyzeError) throw analyzeError;
+
+      setUploadedFiles(prev => [...prev, file.name]);
+
+      toast({
+        title: "Analysis Complete",
+        description: "Your lab results have been processed and saved.",
+      });
+
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      // Reset file input
+      event.target.value = '';
     }
   };
 
@@ -62,24 +138,46 @@ export default function LabsStep({ onNext }: LabsStepProps) {
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8">
         {activeTab === 'upload' && (
           <div className="space-y-6">
-            <div className="border-2 border-dashed border-[#12AFCB]/20 rounded-3xl p-12 text-center hover:border-[#12AFCB]/40 hover:bg-white/80 transition-all duration-standard cursor-pointer">
+            <div className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-standard ${
+              uploading 
+                ? 'border-[#12AFCB]/40 bg-white/80' 
+                : 'border-[#12AFCB]/20 hover:border-[#12AFCB]/40 hover:bg-white/80 cursor-pointer'
+            }`}>
               <input
                 type="file"
                 accept=".pdf,.png,.jpg,.jpeg"
                 onChange={handleFileUpload}
                 className="hidden"
                 id="file-upload"
+                disabled={uploading}
               />
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Upload className="w-12 h-12 text-[#12AFCB] mx-auto mb-4" />
+              <label htmlFor="file-upload" className={uploading ? '' : 'cursor-pointer'}>
+                {uploading ? (
+                  <Loader2 className="w-12 h-12 text-[#12AFCB] mx-auto mb-4 animate-spin" />
+                ) : (
+                  <Upload className="w-12 h-12 text-[#12AFCB] mx-auto mb-4" />
+                )}
                 <p className="text-[1.0625rem] font-semibold text-[#0E1012] mb-2">
-                  Drop files here or click to upload
+                  {uploading ? 'Analyzing document...' : 'Drop files here or click to upload'}
                 </p>
                 <p className="text-[0.875rem] text-[#5A6B7F]">
                   PDF, PNG, or JPG (max 10MB)
                 </p>
               </label>
             </div>
+            
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[0.875rem] font-medium text-[#0E1012]">Uploaded Files:</p>
+                {uploadedFiles.map((fileName, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-3 rounded-xl bg-white/60 border border-[#12AFCB]/10">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-[#5A6B7F] truncate">{fileName}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <p className="text-[0.875rem] text-[#5A6B7F] text-center">
               AI will extract values and match to our test catalog
             </p>
@@ -100,24 +198,45 @@ export default function LabsStep({ onNext }: LabsStepProps) {
 
         {activeTab === 'fhir' && (
           <div className="space-y-6">
-            <div className="border-2 border-dashed border-[#12AFCB]/20 rounded-3xl p-12 text-center hover:border-[#12AFCB]/40 hover:bg-white/80 transition-all duration-standard cursor-pointer">
+            <div className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-standard ${
+              uploading 
+                ? 'border-[#12AFCB]/40 bg-white/80' 
+                : 'border-[#12AFCB]/20 hover:border-[#12AFCB]/40 hover:bg-white/80 cursor-pointer'
+            }`}>
               <input
                 type="file"
                 accept=".json,.xml"
                 onChange={handleFileUpload}
                 className="hidden"
                 id="fhir-upload"
+                disabled={uploading}
               />
-              <label htmlFor="fhir-upload" className="cursor-pointer">
-                <FileText className="w-12 h-12 text-[#12AFCB] mx-auto mb-4" />
+              <label htmlFor="fhir-upload" className={uploading ? '' : 'cursor-pointer'}>
+                {uploading ? (
+                  <Loader2 className="w-12 h-12 text-[#12AFCB] mx-auto mb-4 animate-spin" />
+                ) : (
+                  <FileText className="w-12 h-12 text-[#12AFCB] mx-auto mb-4" />
+                )}
                 <p className="text-[1.0625rem] font-semibold text-[#0E1012] mb-2">
-                  Upload FHIR Bundle or CCDA
+                  {uploading ? 'Processing FHIR data...' : 'Upload FHIR Bundle or CCDA'}
                 </p>
                 <p className="text-[0.875rem] text-[#5A6B7F]">
                   JSON or XML format
                 </p>
               </label>
             </div>
+            
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[0.875rem] font-medium text-[#0E1012]">Uploaded Files:</p>
+                {uploadedFiles.map((fileName, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-3 rounded-xl bg-white/60 border border-[#12AFCB]/10">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-[#5A6B7F] truncate">{fileName}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

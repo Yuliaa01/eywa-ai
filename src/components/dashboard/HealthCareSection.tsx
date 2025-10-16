@@ -198,6 +198,77 @@ export default function HealthCareSection() {
 
   return (
     <div className="space-y-6">
+      {/* AI Analysis Summary */}
+      {aiFeedback && (
+        <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 via-accent-teal-alt/5 to-transparent backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_8px_40px_rgba(18,175,203,0.15)]">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center animate-glow-pulse flex-shrink-0">
+              <Sparkles className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-rounded text-2xl font-bold text-foreground">
+                  AI Health Analysis
+                </h3>
+                <div className="px-3 py-1 rounded-lg bg-accent-teal/10 text-accent-teal text-xs font-rounded font-semibold">
+                  Latest
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Generated {format(new Date(aiFeedback.generated_at), "MMM d, yyyy 'at' h:mm a")}
+              </p>
+            </div>
+          </div>
+
+          {/* Summary */}
+          {aiFeedback.summary_md && (
+            <div className="p-6 rounded-2xl bg-card/80 border border-border mb-6">
+              <h4 className="font-rounded font-semibold text-foreground mb-3 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-accent-teal" />
+                Medical Summary
+              </h4>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {aiFeedback.summary_md}
+              </p>
+            </div>
+          )}
+
+          {/* AI Recommendations */}
+          {aiFeedback.next_best_actions && (
+            <div className="p-6 rounded-2xl bg-card/80 border border-border">
+              <h4 className="font-rounded font-semibold text-foreground mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-accent-teal" />
+                Recommended Actions
+              </h4>
+              <div className="space-y-3">
+                {typeof aiFeedback.next_best_actions === 'string' 
+                  ? JSON.parse(aiFeedback.next_best_actions).map((action: string, idx: number) => (
+                      <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10 hover:border-accent-teal/20 transition-all">
+                        <div className="w-6 h-6 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-xs font-bold text-accent-teal">{idx + 1}</span>
+                        </div>
+                        <p className="text-sm text-foreground flex-1">{action}</p>
+                      </div>
+                    ))
+                  : Array.isArray(aiFeedback.next_best_actions) 
+                  ? aiFeedback.next_best_actions.map((action: any, idx: number) => (
+                      <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10 hover:border-accent-teal/20 transition-all">
+                        <div className="w-6 h-6 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-xs font-bold text-accent-teal">{idx + 1}</span>
+                        </div>
+                        <p className="text-sm text-foreground flex-1">
+                          {typeof action === 'string' ? action : action.title || action.action}
+                        </p>
+                      </div>
+                    ))
+                  : null
+                }
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Medical Overview Card */}
       {labSummary ? (
         <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
