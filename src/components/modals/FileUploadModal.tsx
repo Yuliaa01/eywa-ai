@@ -51,8 +51,32 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
     setUploading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      // Get current session and refresh if needed
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        toast({
+          title: "Session expired",
+          description: "Please sign in again to continue",
+          variant: "destructive",
+        });
+        await supabase.auth.signOut();
+        window.location.href = '/auth';
+        return;
+      }
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        toast({
+          title: "Authentication error",
+          description: "Please sign in again to continue",
+          variant: "destructive",
+        });
+        await supabase.auth.signOut();
+        window.location.href = '/auth';
+        return;
+      }
 
       // Upload to storage
       const fileName = `${Date.now()}-${file.name}`;
