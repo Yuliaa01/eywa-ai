@@ -46,20 +46,33 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
     location_name: initialValues?.location_name || "",
   });
 
-  // Update form when initialValues change
+  // Update form when modal opens or mode changes
   useEffect(() => {
-    if (initialValues) {
-      setFormData({
-        type: mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip",
-        title: initialValues.title || "",
-        description: initialValues.description || "",
-        start_date: initialValues.start_date || "",
-        end_date: initialValues.end_date || "",
-        location_name: initialValues.location_name || "",
-      });
-      setTimeScope(initialValues.time_scope || 'day');
+    if (open) {
+      if (initialValues) {
+        setFormData({
+          type: mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip",
+          title: initialValues.title || "",
+          description: initialValues.description || "",
+          start_date: initialValues.start_date || "",
+          end_date: initialValues.end_date || "",
+          location_name: initialValues.location_name || "",
+        });
+        setTimeScope(initialValues.time_scope || 'day');
+      } else {
+        // Reset form for new goal
+        setFormData({
+          type: mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip",
+          title: "",
+          description: "",
+          start_date: "",
+          end_date: "",
+          location_name: "",
+        });
+        setTimeScope('day');
+      }
     }
-  }, [initialValues, mode]);
+  }, [open, initialValues, mode]);
 
   // Initialize dates when modal opens with temporary mode
   useEffect(() => {
