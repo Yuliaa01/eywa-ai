@@ -1,56 +1,113 @@
-import { Target, TrendingUp, Calendar, Plus, ChevronRight, Zap, MapPin } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Target, Calendar, Plus, Zap, MapPin } from "lucide-react";
 import { GoalModal } from "@/components/modals/GoalModal";
-import { useState } from "react";
+import { GoalActions } from "@/components/priorities/GoalActions";
+import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
+import { AISuggestionsPanel } from "@/components/priorities/AISuggestionsPanel";
+import { useState, useEffect } from "react";
+import { fetchActivePriorities, deletePriority, restorePriority, Priority } from "@/api/priorities";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PrioritiesSection() {
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalMode, setGoalMode] = useState<'global' | 'temporary' | 'plan'>('global');
+  const [editMode, setEditMode] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Priority | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingGoal, setDeletingGoal] = useState<Priority | null>(null);
+  const [globalGoals, setGlobalGoals] = useState<Priority[]>([]);
+  const [temporaryGoals, setTemporaryGoals] = useState<Priority[]>([]);
+  const [plans, setPlans] = useState<Priority[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadGoals();
+  }, []);
+
+  const loadGoals = async () => {
+    try {
+      const [globals, temps, planData] = await Promise.all([
+        fetchActivePriorities('global_goal'),
+        fetchActivePriorities('temporary_goal'),
+        Promise.all([
+          fetchActivePriorities('plan_trip'),
+          fetchActivePriorities('plan_event'),
+        ]).then(([trips, events]) => [...trips, ...events]),
+      ]);
+      setGlobalGoals(globals);
+      setTemporaryGoals(temps);
+      setPlans(planData);
+    } catch (error) {
+      console.error('Error loading goals:', error);
+    }
+  };
 
   const openModal = (mode: 'global' | 'temporary' | 'plan') => {
     setGoalMode(mode);
+    setEditMode(false);
+    setEditingGoal(null);
     setGoalModalOpen(true);
   };
-  const globalGoals = [
-    {
-      title: "Lower Stress",
-      progress: 72,
-      target: "HRV >65ms",
-      current: "58ms",
-      color: "#12AFCB",
-    },
-    {
-      title: "Improve VO₂ max",
-      progress: 45,
-      target: "50 mL/kg/min",
-      current: "42.5",
-      color: "#19D0E4",
-    },
-  ];
 
-  const temporaryGoals = [
-    { title: "Fasting focus", progress: 85, deadline: "16:8 today", color: "#12AFCB" },
-    { title: "Hydration target", progress: 60, deadline: "2.5L today", color: "#19D0E4" },
-  ];
+  const handleEdit = (goal: Priority) => {
+    setEditMode(true);
+    setEditingGoal(goal);
+    if (goal.type === 'global_goal') setGoalMode('global');
+    else if (goal.type === 'temporary_goal') setGoalMode('temporary');
+    else setGoalMode('plan');
+    setGoalModalOpen(true);
+  };
 
-  const plans = [
-    {
-      title: "NYC Trip Prep",
-      date: "Mar 15-22",
-      suggestions: ["Adjust sleep +1hr", "Pack supplements", "Book workouts"],
-    },
-    {
-      title: "Marathon Training",
-      date: "Weeks 1-12",
-      suggestions: ["Recovery weeks marked", "Nutrition plan ready"],
-    },
-  ];
+  const handleDeleteClick = (goal: Priority) => {
+    setDeletingGoal(goal);
+    setDeleteDialogOpen(true);
+  };
 
-  const aiSuggestions = [
-    "Schedule 20-min meditation today",
-    "Add omega-3 supplement (low index)",
-    "Book VO₂max test next month",
-  ];
+  const handleDeleteConfirm = async () => {
+    if (!deletingGoal) return;
+
+    try {
+      await deletePriority(deletingGoal.id);
+      setDeleteDialogOpen(false);
+      
+      toast({
+        title: "Goal deleted",
+        description: deletingGoal.title,
+        action: (
+          <button
+            onClick={() => handleUndo(deletingGoal.id)}
+            className="px-3 py-1 text-sm font-medium text-[#12AFCB] hover:text-[#19D0E4]"
+          >
+            Undo
+          </button>
+        ),
+        duration: 10000,
+      });
+      
+      loadGoals();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete goal",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUndo = async (id: string) => {
+    try {
+      await restorePriority(id);
+      toast({
+        title: "Goal restored",
+      });
+      loadGoals();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to restore goal",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -68,32 +125,33 @@ export default function PrioritiesSection() {
             </button>
           </div>
           <div className="space-y-6">
-            {globalGoals.map((goal) => (
-              <div key={goal.title} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
-                      <Target className="w-5 h-5 text-[#12AFCB]" />
+            {globalGoals.length === 0 ? (
+              <p className="text-sm text-[#5A6B7F]">No global goals yet. Click + to add one.</p>
+            ) : (
+              globalGoals.map((goal) => (
+                <div key={goal.id} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
+                        <Target className="w-5 h-5 text-[#12AFCB]" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-rounded font-semibold text-[#0E1012]">{goal.title}</h4>
+                        {goal.target_metric && (
+                          <p className="text-sm text-[#5A6B7F]">
+                            Target: {goal.target_value} {goal.units}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-rounded font-semibold text-[#0E1012]">{goal.title}</h4>
-                      <p className="text-sm text-[#5A6B7F]">
-                        {goal.current} / {goal.target}
-                      </p>
-                    </div>
+                    <GoalActions 
+                      onEdit={() => handleEdit(goal)} 
+                      onDelete={() => handleDeleteClick(goal)} 
+                    />
                   </div>
-                  <span className="text-sm font-rounded font-semibold text-[#12AFCB]">
-                    {goal.progress}%
-                  </span>
                 </div>
-                <div className="relative h-2 rounded-full bg-[#12AFCB]/10 overflow-hidden">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] shimmer"
-                    style={{ width: `${goal.progress}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -109,23 +167,27 @@ export default function PrioritiesSection() {
             </button>
           </div>
           <div className="space-y-5">
-            {temporaryGoals.map((goal) => (
-              <div key={goal.title} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Zap className="w-5 h-5 text-[#12AFCB]" />
-                    <h4 className="font-rounded font-medium text-[#0E1012]">{goal.title}</h4>
+            {temporaryGoals.length === 0 ? (
+              <p className="text-sm text-[#5A6B7F]">No daily/weekly goals yet. Click + to add one.</p>
+            ) : (
+              temporaryGoals.map((goal) => (
+                <div key={goal.id} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <Zap className="w-5 h-5 text-[#12AFCB]" />
+                      <h4 className="font-rounded font-medium text-[#0E1012]">{goal.title}</h4>
+                      <span className="text-xs text-[#5A6B7F]">
+                        {goal.time_scope === 'day' ? 'Today' : 'This Week'}
+                      </span>
+                    </div>
+                    <GoalActions 
+                      onEdit={() => handleEdit(goal)} 
+                      onDelete={() => handleDeleteClick(goal)} 
+                    />
                   </div>
-                  <span className="text-xs text-[#5A6B7F]">{goal.deadline}</span>
                 </div>
-                <div className="relative h-1.5 rounded-full bg-[#12AFCB]/10 overflow-hidden">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-[#12AFCB]"
-                    style={{ width: `${goal.progress}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -145,66 +207,66 @@ export default function PrioritiesSection() {
           </button>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          {plans.map((plan) => (
-            <div
-              key={plan.title}
-              className="p-6 rounded-2xl bg-white/80 border border-[#12AFCB]/10 hover:border-[#12AFCB]/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all group"
-            >
-              <div className="flex items-start gap-3 mb-4">
-                <MapPin className="w-5 h-5 text-[#12AFCB] mt-0.5" />
-                <div className="flex-1">
-                  <h4 className="font-rounded font-semibold text-[#0E1012] mb-1">{plan.title}</h4>
-                  <p className="text-sm text-[#5A6B7F] flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {plan.date}
-                  </p>
+          {plans.length === 0 ? (
+            <p className="text-sm text-[#5A6B7F] col-span-2">No plans yet. Click "Add Plan" to create one.</p>
+          ) : (
+            plans.map((plan) => (
+              <div
+                key={plan.id}
+                className="p-6 rounded-2xl bg-white/80 border border-[#12AFCB]/10 hover:border-[#12AFCB]/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all group"
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <MapPin className="w-5 h-5 text-[#12AFCB] mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="font-rounded font-semibold text-[#0E1012] mb-1">{plan.title}</h4>
+                    <p className="text-sm text-[#5A6B7F] flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {plan.start_date && plan.end_date && 
+                        `${new Date(plan.start_date).toLocaleDateString()} - ${new Date(plan.end_date).toLocaleDateString()}`
+                      }
+                    </p>
+                    {plan.description && (
+                      <p className="text-sm text-[#5A6B7F] mt-2">{plan.description}</p>
+                    )}
+                  </div>
+                  <GoalActions 
+                    onEdit={() => handleEdit(plan)} 
+                    onDelete={() => handleDeleteClick(plan)} 
+                  />
                 </div>
               </div>
-              <div className="space-y-2">
-                {plan.suggestions.map((suggestion, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-sm text-[#5A6B7F]">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#12AFCB] mt-1.5" />
-                    {suggestion}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* AI Suggestions */}
-      <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center animate-glow-pulse">
-            <TrendingUp className="w-5 h-5 text-white" />
-          </div>
-          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
-            AI Daily Suggestions
-          </h3>
-        </div>
-        <div className="space-y-3">
-          {aiSuggestions.map((suggestion, idx) => (
-            <button
-              key={idx}
-              className="w-full p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all text-left group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[#0E1012] font-rounded font-medium">{suggestion}</span>
-                <ChevronRight className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] group-hover:translate-x-1 transition-all" />
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+      <AISuggestionsPanel />
 
       <GoalModal 
         open={goalModalOpen} 
         onOpenChange={setGoalModalOpen}
         mode={goalMode}
-        onSuccess={() => {
-          // Optimistic update would go here
-        }}
+        editMode={editMode}
+        initialValues={editingGoal ? {
+          id: editingGoal.id,
+          title: editingGoal.title,
+          description: editingGoal.description || '',
+          start_date: editingGoal.start_date || '',
+          end_date: editingGoal.end_date || '',
+          target_metric: editingGoal.target_metric || '',
+          target_value: editingGoal.target_value?.toString() || '',
+          units: editingGoal.units || '',
+          time_scope: editingGoal.time_scope,
+        } : undefined}
+        onSuccess={loadGoals}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title={deletingGoal?.title || ''}
       />
     </div>
   );

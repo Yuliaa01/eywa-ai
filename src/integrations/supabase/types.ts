@@ -682,6 +682,7 @@ export type Database = {
           status: Database["public"]["Enums"]["priority_status"]
           target_metric: string | null
           target_value: number | null
+          time_scope: string | null
           title: string
           type: Database["public"]["Enums"]["priority_type"]
           units: string | null
@@ -698,6 +699,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["priority_status"]
           target_metric?: string | null
           target_value?: number | null
+          time_scope?: string | null
           title: string
           type: Database["public"]["Enums"]["priority_type"]
           units?: string | null
@@ -714,6 +716,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["priority_status"]
           target_metric?: string | null
           target_value?: number | null
+          time_scope?: string | null
           title?: string
           type?: Database["public"]["Enums"]["priority_type"]
           units?: string | null

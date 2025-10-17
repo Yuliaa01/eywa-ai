@@ -13,21 +13,50 @@ interface GoalModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   mode?: 'global' | 'temporary' | 'plan';
+  editMode?: boolean;
+  initialValues?: {
+    id?: string;
+    title: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    target_metric?: string;
+    target_value?: string;
+    units?: string;
+    time_scope?: 'day' | 'week';
+  };
 }
 
-export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global' }: GoalModalProps) {
+export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', editMode = false, initialValues }: GoalModalProps) {
   const [loading, setLoading] = useState(false);
-  const [timeScope, setTimeScope] = useState<'day' | 'week'>('day');
+  const [timeScope, setTimeScope] = useState<'day' | 'week'>(initialValues?.time_scope || 'day');
   const [formData, setFormData] = useState({
     type: mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip",
-    title: "",
-    description: "",
-    start_date: "",
-    end_date: "",
-    target_metric: "",
-    target_value: "",
-    units: "",
+    title: initialValues?.title || "",
+    description: initialValues?.description || "",
+    start_date: initialValues?.start_date || "",
+    end_date: initialValues?.end_date || "",
+    target_metric: initialValues?.target_metric || "",
+    target_value: initialValues?.target_value || "",
+    units: initialValues?.units || "",
   });
+
+  // Update form when initialValues change
+  useEffect(() => {
+    if (initialValues) {
+      setFormData({
+        type: mode === 'global' ? "global_goal" : mode === 'temporary' ? "temporary_goal" : "plan_trip",
+        title: initialValues.title || "",
+        description: initialValues.description || "",
+        start_date: initialValues.start_date || "",
+        end_date: initialValues.end_date || "",
+        target_metric: initialValues.target_metric || "",
+        target_value: initialValues.target_value || "",
+        units: initialValues.units || "",
+      });
+      setTimeScope(initialValues.time_scope || 'day');
+    }
+  }, [initialValues, mode]);
 
   // Auto-set dates when timeScope changes for temporary goals
   const updateDatesForScope = (scope: 'day' | 'week') => {
@@ -81,8 +110,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global' }: Go
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const insertData: any = {
-        user_id: user.id,
+      const saveData: any = {
         type: formData.type,
         title: formData.title,
         description: formData.description || null,
@@ -94,15 +122,26 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global' }: Go
         status: "planned",
       };
 
-      const { error } = await supabase.from("priorities").insert(insertData);
+      if (mode === 'temporary') {
+        saveData.time_scope = timeScope;
+      }
+
+      let error;
+      if (editMode && initialValues?.id) {
+        ({ error } = await supabase
+          .from("priorities")
+          .update(saveData)
+          .eq('id', initialValues.id));
+      } else {
+        saveData.user_id = user.id;
+        ({ error } = await supabase.from("priorities").insert(saveData));
+      }
 
       if (error) throw error;
 
-      const goalTypeLabel = mode === 'global' ? 'Global goal' : mode === 'temporary' ? `Goal added to ${timeScope === 'day' ? 'Today' : 'This Week'}` : 'Plan';
-      
       toast({
-        title: mode === 'global' ? "Global goal created" : mode === 'temporary' ? "Goal added" : "Plan created",
-        description: mode === 'global' ? "Your global goal has been added successfully." : mode === 'temporary' ? `Goal added to ${timeScope === 'day' ? 'Today' : 'This Week'}.` : "Your plan has been created.",
+        title: editMode ? "Goal updated" : (mode === 'global' ? "Global goal created" : mode === 'temporary' ? "Goal added" : "Plan created"),
+        description: editMode ? "Your changes have been saved." : (mode === 'global' ? "Your global goal has been added successfully." : mode === 'temporary' ? `Goal added to ${timeScope === 'day' ? 'Today' : 'This Week'}.` : "Your plan has been created."),
       });
 
       onSuccess?.();
@@ -137,7 +176,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global' }: Go
       <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20 animate-scale-in">
         <DialogHeader>
           <DialogTitle className="text-2xl font-rounded">
-            {mode === 'global' ? 'Add Global Goal' : mode === 'temporary' ? 'Add Daily/Weekly Goal' : 'Add Plan'}
+            {editMode ? 'Edit Goal' : (mode === 'global' ? 'Add Global Goal' : mode === 'temporary' ? 'Add Daily/Weekly Goal' : 'Add Plan')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -293,7 +332,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global' }: Go
               className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] hover:shadow-[0_4px_20px_rgba(18,175,203,0.4)] transition-all duration-200" 
               disabled={loading}
             >
-              {loading ? "Creating..." : mode === 'plan' ? "Create Plan" : "Create Goal"}
+              {loading ? (editMode ? "Saving..." : "Creating...") : (editMode ? "Save Changes" : (mode === 'plan' ? "Create Plan" : "Create Goal"))}
             </Button>
           </div>
         </form>

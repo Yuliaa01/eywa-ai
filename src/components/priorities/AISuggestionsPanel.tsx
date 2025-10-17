@@ -1,0 +1,175 @@
+import { useEffect, useState } from "react";
+import { TrendingUp, Activity, Utensils, Moon, Heart, Brain, Stethoscope, ChevronRight, Check, X } from "lucide-react";
+import { fetchTodaySuggestions, completeSuggestion, dismissSuggestion, AISuggestion } from "@/api/ai-suggestions";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+
+const categoryIcons = {
+  movement: Activity,
+  nutrition: Utensils,
+  sleep: Moon,
+  recovery: Heart,
+  mindset: Brain,
+  medical: Stethoscope,
+};
+
+const categoryColors = {
+  movement: "text-blue-500",
+  nutrition: "text-green-500",
+  sleep: "text-purple-500",
+  recovery: "text-pink-500",
+  mindset: "text-amber-500",
+  medical: "text-red-500",
+};
+
+export function AISuggestionsPanel() {
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadSuggestions();
+  }, []);
+
+  const loadSuggestions = async () => {
+    try {
+      const data = await fetchTodaySuggestions();
+      setSuggestions(data.slice(0, 3)); // Show top 3
+    } catch (error) {
+      console.error('Error loading suggestions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleComplete = async (id: string, title: string) => {
+    try {
+      await completeSuggestion(id);
+      setSuggestions(prev => prev.filter(s => s.id !== id));
+      toast({
+        title: "Suggestion completed",
+        description: `"${title}" marked as done`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to complete suggestion",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDismiss = async (id: string) => {
+    try {
+      await dismissSuggestion(id);
+      setSuggestions(prev => prev.filter(s => s.id !== id));
+      toast({
+        title: "Suggestion dismissed",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to dismiss suggestion",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center animate-glow-pulse">
+            <TrendingUp className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
+            AI Daily Suggestions
+          </h3>
+        </div>
+        <p className="text-sm text-[#5A6B7F]">Loading suggestions...</p>
+      </div>
+    );
+  }
+
+  if (suggestions.length === 0) {
+    return (
+      <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center animate-glow-pulse">
+            <TrendingUp className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
+            AI Daily Suggestions
+          </h3>
+        </div>
+        <p className="text-sm text-[#5A6B7F]">
+          Connect apps or set a goal to unlock tailored suggestions.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center animate-glow-pulse">
+          <TrendingUp className="w-5 h-5 text-white" />
+        </div>
+        <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
+          AI Daily Suggestions
+        </h3>
+      </div>
+      <div className="space-y-3">
+        {suggestions.map((suggestion) => {
+          const CategoryIcon = categoryIcons[suggestion.category];
+          const colorClass = categoryColors[suggestion.category];
+
+          return (
+            <div
+              key={suggestion.id}
+              className="group p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
+            >
+              <div className="flex items-start gap-3">
+                <CategoryIcon className={`w-5 h-5 mt-0.5 ${colorClass}`} />
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-[#0E1012] font-rounded font-medium mb-1">
+                    {suggestion.title}
+                  </h4>
+                  {suggestion.reasoning && (
+                    <p className="text-sm text-[#5A6B7F] line-clamp-2">
+                      {suggestion.reasoning}
+                    </p>
+                  )}
+                  {suggestion.duration_min && (
+                    <p className="text-xs text-[#5A6B7F] mt-1">
+                      ~{suggestion.duration_min} min
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleComplete(suggestion.id, suggestion.title)}
+                    className="h-8 w-8 rounded-lg hover:bg-green-50 hover:text-green-600"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDismiss(suggestion.id)}
+                    className="h-8 w-8 rounded-lg hover:bg-red-50 hover:text-red-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                  <ChevronRight className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] group-hover:translate-x-1 transition-all" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
