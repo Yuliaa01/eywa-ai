@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { createPriority, updatePriority } from "@/api/priorities";
 
 interface GoalModalProps {
   open: boolean;
@@ -111,9 +111,6 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
       const saveData: any = {
         type: formData.type,
         title: formData.title,
@@ -124,22 +121,16 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         status: "planned",
       };
 
+      // Only add time_scope for temporary goals
       if (mode === 'temporary') {
         saveData.time_scope = timeScope;
       }
 
-      let error;
       if (editMode && initialValues?.id) {
-        ({ error } = await supabase
-          .from("priorities")
-          .update(saveData)
-          .eq('id', initialValues.id));
+        await updatePriority(initialValues.id, saveData);
       } else {
-        saveData.user_id = user.id;
-        ({ error } = await supabase.from("priorities").insert(saveData));
+        await createPriority(saveData);
       }
-
-      if (error) throw error;
 
       toast({
         title: editMode ? "Goal updated" : (mode === 'global' ? "Global goal created" : mode === 'temporary' ? "Goal added" : "Plan created"),
