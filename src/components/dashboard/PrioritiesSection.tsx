@@ -33,8 +33,38 @@ export default function PrioritiesSection() {
           fetchActivePriorities('plan_event'),
         ]).then(([trips, events]) => [...trips, ...events]),
       ]);
-      setGlobalGoals(globals);
-      setTemporaryGoals(temps);
+      
+      // Filter global goals: only global_goal type
+      const filteredGlobals = globals.filter(g => g.type === 'global_goal');
+      
+      // Filter temporary goals: only temporary_goal with day/week scope and valid dates
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString().split('T')[0];
+      
+      const filteredTemps = temps.filter(g => {
+        if (g.type !== 'temporary_goal') return false;
+        if (!g.time_scope || (g.time_scope !== 'day' && g.time_scope !== 'week')) return false;
+        
+        // Day scope: must match today
+        if (g.time_scope === 'day') {
+          return g.start_date === todayStr;
+        }
+        
+        // Week scope: today must be between start and end
+        if (g.time_scope === 'week' && g.start_date && g.end_date) {
+          const startDate = new Date(g.start_date);
+          const endDate = new Date(g.end_date);
+          startDate.setHours(0, 0, 0, 0);
+          endDate.setHours(23, 59, 59, 999);
+          return today >= startDate && today <= endDate;
+        }
+        
+        return false;
+      });
+      
+      setGlobalGoals(filteredGlobals);
+      setTemporaryGoals(filteredTemps);
       setPlans(planData);
     } catch (error) {
       console.error('Error loading goals:', error);

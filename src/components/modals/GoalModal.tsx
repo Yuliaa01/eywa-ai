@@ -61,6 +61,13 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
     }
   }, [initialValues, mode]);
 
+  // Initialize dates when modal opens with temporary mode
+  useEffect(() => {
+    if (open && mode === 'temporary' && !editMode) {
+      updateDatesForScope(timeScope);
+    }
+  }, [open, mode, editMode]);
+
   // Auto-set dates when timeScope changes for temporary goals
   const updateDatesForScope = (scope: 'day' | 'week') => {
     const today = new Date();
@@ -87,12 +94,6 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
     }
   };
 
-  // Initialize dates when modal opens with temporary mode
-  useEffect(() => {
-    if (open && mode === 'temporary') {
-      updateDatesForScope(timeScope);
-    }
-  }, [open, mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,24 +173,28 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20 animate-scale-in">
+      <DialogContent 
+        className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20 animate-scale-in"
+        aria-labelledby="goal-modal-title"
+      >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-rounded">
-            {editMode ? 'Edit Goal' : (mode === 'global' ? 'Add Global Goal' : mode === 'temporary' ? 'Add Daily/Weekly Goal' : 'Add Plan')}
+          <DialogTitle id="goal-modal-title" className="text-2xl font-rounded">
+            {editMode ? 'Edit Goal' : (mode === 'global' ? 'Add Global Goal' : mode === 'temporary' ? 'Add Today/Week Goal' : 'Add Plan')}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" role="form" aria-label="Goal form">
           {/* Quick Suggestions */}
           {!editMode && (
             <div className="space-y-2">
               <Label className="text-sm text-[#5A6B7F]">Quick Suggestions</Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Quick suggestion chips">
                 {QUICK_SUGGESTIONS.map((suggestion) => (
                   <button
                     key={suggestion.label}
                     type="button"
                     onClick={() => setFormData({ ...formData, title: suggestion.title })}
-                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20 hover:scale-[1.02] transition-all duration-200"
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20 hover:scale-[1.02] active:scale-95 transition-all duration-200"
+                    aria-label={`Set title to ${suggestion.label}`}
                   >
                     {suggestion.label}
                   </button>
@@ -200,7 +205,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
 
           {/* Scope Switcher for Temporary Goals */}
           {mode === 'temporary' && (
-            <div className="flex gap-2 p-1 bg-[#12AFCB]/5 rounded-xl">
+            <div className="flex gap-2 p-1 bg-[#12AFCB]/5 rounded-xl" role="group" aria-label="Time scope selector">
               <button
                 type="button"
                 onClick={() => {
@@ -212,6 +217,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
                     ? 'bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white shadow-[0_4px_20px_rgba(18,175,203,0.3)]'
                     : 'text-[#5A6B7F] hover:text-[#12AFCB]'
                 }`}
+                aria-pressed={timeScope === 'day'}
               >
                 Today
               </button>
@@ -226,6 +232,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
                     ? 'bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white shadow-[0_4px_20px_rgba(18,175,203,0.3)]'
                     : 'text-[#5A6B7F] hover:text-[#12AFCB]'
                 }`}
+                aria-pressed={timeScope === 'week'}
               >
                 This Week
               </button>
@@ -252,51 +259,62 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
           )}
 
           <div className="space-y-2">
-            <Label>Title *</Label>
+            <Label htmlFor="goal-title">Title *</Label>
             <Input
+              id="goal-title"
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g., Lower Stress, NYC Trip"
+              aria-required="true"
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label htmlFor="goal-description">Description</Label>
             <Textarea
+              id="goal-description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Optional details..."
               rows={3}
+              aria-label="Goal description"
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Location (optional)</Label>
+            <Label htmlFor="goal-location">Location (optional)</Label>
             <Input
+              id="goal-location"
               value={formData.location_name}
               onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
               placeholder="e.g., Central Park, 24/7 Gym, Green Bowl Café"
+              aria-label="Location for this goal"
+              aria-autocomplete="list"
             />
           </div>
 
-          {/* Date fields - shown for temporary and plan modes */}
-          {(mode === 'temporary' || mode === 'plan') && (
+          {/* Date fields - shown for plan mode only */}
+          {mode === 'plan' && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Start Date</Label>
+                <Label htmlFor="plan-start-date">Start Date</Label>
                 <Input
+                  id="plan-start-date"
                   type="date"
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                  aria-label="Plan start date"
                 />
               </div>
               <div className="space-y-2">
-                <Label>End Date</Label>
+                <Label htmlFor="plan-end-date">End Date</Label>
                 <Input
+                  id="plan-end-date"
                   type="date"
                   value={formData.end_date}
                   onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                  aria-label="Plan end date"
                 />
               </div>
             </div>
@@ -305,11 +323,13 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
           {/* Optional end date for global goals */}
           {mode === 'global' && (
             <div className="space-y-2">
-              <Label>End Date (optional)</Label>
+              <Label htmlFor="global-end-date">End Date (optional)</Label>
               <Input
+                id="global-end-date"
                 type="date"
                 value={formData.end_date}
                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                aria-label="Optional end date for global goal"
               />
             </div>
           )}
