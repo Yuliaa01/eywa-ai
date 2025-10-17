@@ -678,6 +678,8 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
+          location_coords: unknown | null
+          location_name: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["priority_status"]
           target_metric: string | null
@@ -695,6 +697,8 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          location_coords?: unknown | null
+          location_name?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["priority_status"]
           target_metric?: string | null
@@ -712,6 +716,8 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          location_coords?: unknown | null
+          location_name?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["priority_status"]
           target_metric?: string | null

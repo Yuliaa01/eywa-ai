@@ -137,11 +137,6 @@ export default function PrioritiesSection() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-rounded font-semibold text-[#0E1012]">{goal.title}</h4>
-                        {goal.target_metric && (
-                          <p className="text-sm text-[#5A6B7F]">
-                            Target: {goal.target_value} {goal.units}
-                          </p>
-                        )}
                       </div>
                     </div>
                     <GoalActions 
@@ -254,9 +249,7 @@ export default function PrioritiesSection() {
           description: editingGoal.description || '',
           start_date: editingGoal.start_date || '',
           end_date: editingGoal.end_date || '',
-          target_metric: editingGoal.target_metric || '',
-          target_value: editingGoal.target_value?.toString() || '',
-          units: editingGoal.units || '',
+          location_name: editingGoal.location_name || '',
           time_scope: editingGoal.time_scope,
         } : undefined}
         onSuccess={loadGoals}

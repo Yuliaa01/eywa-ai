@@ -20,12 +20,19 @@ interface GoalModalProps {
     description?: string;
     start_date?: string;
     end_date?: string;
-    target_metric?: string;
-    target_value?: string;
-    units?: string;
+    location_name?: string;
     time_scope?: 'day' | 'week';
   };
 }
+
+const QUICK_SUGGESTIONS = [
+  { label: "Lower stress", title: "Lower stress" },
+  { label: "Improve VO₂max", title: "Improve VO₂max" },
+  { label: "Better sleep quality", title: "Better sleep quality" },
+  { label: "Fasting focus (16:8)", title: "Fasting focus (16:8)" },
+  { label: "Hydration target", title: "Hydration target" },
+  { label: "Daily steps / movement", title: "Daily steps / movement" },
+];
 
 export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', editMode = false, initialValues }: GoalModalProps) {
   const [loading, setLoading] = useState(false);
@@ -36,9 +43,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
     description: initialValues?.description || "",
     start_date: initialValues?.start_date || "",
     end_date: initialValues?.end_date || "",
-    target_metric: initialValues?.target_metric || "",
-    target_value: initialValues?.target_value || "",
-    units: initialValues?.units || "",
+    location_name: initialValues?.location_name || "",
   });
 
   // Update form when initialValues change
@@ -50,9 +55,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         description: initialValues.description || "",
         start_date: initialValues.start_date || "",
         end_date: initialValues.end_date || "",
-        target_metric: initialValues.target_metric || "",
-        target_value: initialValues.target_value || "",
-        units: initialValues.units || "",
+        location_name: initialValues.location_name || "",
       });
       setTimeScope(initialValues.time_scope || 'day');
     }
@@ -116,9 +119,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         description: formData.description || null,
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
-        target_metric: formData.target_metric || null,
-        target_value: formData.target_value ? parseFloat(formData.target_value) : null,
-        units: formData.units || null,
+        location_name: formData.location_name || null,
         status: "planned",
       };
 
@@ -155,9 +156,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         description: "",
         start_date: "",
         end_date: "",
-        target_metric: "",
-        target_value: "",
-        units: "",
+        location_name: "",
       });
       setTimeScope('day');
     } catch (error: any) {
@@ -180,6 +179,25 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Quick Suggestions */}
+          {!editMode && (
+            <div className="space-y-2">
+              <Label className="text-sm text-[#5A6B7F]">Quick Suggestions</Label>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion.label}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, title: suggestion.title })}
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20 hover:scale-[1.02] transition-all duration-200"
+                  >
+                    {suggestion.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Scope Switcher for Temporary Goals */}
           {mode === 'temporary' && (
             <div className="flex gap-2 p-1 bg-[#12AFCB]/5 rounded-xl">
@@ -253,6 +271,15 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
             />
           </div>
 
+          <div className="space-y-2">
+            <Label>Location (optional)</Label>
+            <Input
+              value={formData.location_name}
+              onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
+              placeholder="e.g., Central Park, 24/7 Gym, Green Bowl Café"
+            />
+          </div>
+
           {/* Date fields - shown for temporary and plan modes */}
           {(mode === 'temporary' || mode === 'plan') && (
             <div className="grid grid-cols-2 gap-4">
@@ -286,36 +313,6 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
               />
             </div>
           )}
-
-          <div className="space-y-2">
-            <Label>Target Metric (optional)</Label>
-            <Input
-              value={formData.target_metric}
-              onChange={(e) => setFormData({ ...formData, target_metric: e.target.value })}
-              placeholder="e.g., HRV, VO₂ max"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Target Value</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={formData.target_value}
-                onChange={(e) => setFormData({ ...formData, target_value: e.target.value })}
-                placeholder="e.g., 65"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Units</Label>
-              <Input
-                value={formData.units}
-                onChange={(e) => setFormData({ ...formData, units: e.target.value })}
-                placeholder="e.g., ms, mL/kg/min"
-              />
-            </div>
-          </div>
 
           <div className="flex gap-3 pt-4">
             <Button

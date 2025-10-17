@@ -8,9 +8,7 @@ export interface Priority {
   description?: string;
   start_date?: string;
   end_date?: string;
-  target_metric?: string;
-  target_value?: number;
-  units?: string;
+  location_name?: string;
   status: 'planned' | 'in_progress' | 'completed' | 'paused';
   time_scope?: 'day' | 'week';
   created_at: string;
