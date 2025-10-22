@@ -206,16 +206,11 @@ export default function ActivitiesSection() {
     <div className="space-y-6">
       {/* Today's Workout with Timer */}
       <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h3 className="font-rounded text-2xl font-semibold text-[#0E1012] mb-2">
-              {todaysPlan.title}
-            </h3>
-            <p className="text-[#5A6B7F]">{todaysPlan.type}</p>
-          </div>
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center animate-glow-pulse">
-            <Play className="w-8 h-8 text-white" />
-          </div>
+        <div className="mb-6">
+          <h3 className="font-rounded text-2xl font-semibold text-[#0E1012] mb-2">
+            {todaysPlan.title}
+          </h3>
+          <p className="text-[#5A6B7F]">{todaysPlan.type}</p>
         </div>
 
         {!workoutActive && workoutSeconds === 0 ? (
