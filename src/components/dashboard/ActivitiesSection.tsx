@@ -98,6 +98,10 @@ export default function ActivitiesSection() {
     setWorkoutActive(false);
   };
 
+  const handleResumeWorkout = () => {
+    setWorkoutActive(true);
+  };
+
   const handleStopWorkout = () => {
     setSaveWorkoutDialogOpen(true);
   };
@@ -214,7 +218,7 @@ export default function ActivitiesSection() {
           </div>
         </div>
 
-        {!workoutActive ? (
+        {!workoutActive && workoutSeconds === 0 ? (
           <>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
@@ -240,6 +244,35 @@ export default function ActivitiesSection() {
               <Play className="w-6 h-6" />
               Start Workout
             </button>
+          </>
+        ) : !workoutActive && workoutSeconds > 0 ? (
+          <>
+            <div className="py-8 text-center mb-6">
+              <div className="text-6xl font-bold font-rounded bg-gradient-to-r from-accent-teal to-accent-teal-alt bg-clip-text text-transparent">
+                {formatTime(workoutSeconds)}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Workout paused
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleResumeWorkout}
+                className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] hover:opacity-90"
+              >
+                <Play className="w-5 h-5 mr-2" />
+                Resume
+              </Button>
+              <Button
+                onClick={handleStopWorkout}
+                variant="outline"
+                className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive"
+              >
+                <Square className="w-5 h-5 mr-2" />
+                Stop
+              </Button>
+            </div>
           </>
         ) : (
           <>
