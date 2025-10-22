@@ -1,5 +1,6 @@
 import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus } from "lucide-react";
 import { WorkoutModal } from "@/components/modals/WorkoutModal";
+import { SaveWorkoutDialog } from "@/components/modals/SaveWorkoutDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -9,6 +10,7 @@ import { Pause, Square } from "lucide-react";
 
 export default function ActivitiesSection() {
   const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
+  const [saveWorkoutDialogOpen, setSaveWorkoutDialogOpen] = useState(false);
   const [workoutActive, setWorkoutActive] = useState(false);
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
 
@@ -97,8 +99,50 @@ export default function ActivitiesSection() {
   };
 
   const handleStopWorkout = () => {
+    setSaveWorkoutDialogOpen(true);
+  };
+
+  const handleSaveWorkout = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from("workout_plans").insert([{
+        user_id: user.id,
+        block_name: todaysPlan.type,
+        sessions: [{
+          duration: workoutSeconds,
+          completed_at: new Date().toISOString(),
+        }],
+      }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Workout saved",
+        description: `${todaysPlan.type} (${formatTime(workoutSeconds)}) has been saved.`,
+      });
+
+      setWorkoutActive(false);
+      setWorkoutSeconds(0);
+      setSaveWorkoutDialogOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDiscardWorkout = () => {
     setWorkoutActive(false);
     setWorkoutSeconds(0);
+    setSaveWorkoutDialogOpen(false);
+    toast({
+      title: "Workout discarded",
+      description: "Your workout was not saved.",
+    });
   };
 
   const todaysPlan = {
@@ -361,6 +405,13 @@ export default function ActivitiesSection() {
       </div>
 
       <WorkoutModal open={workoutModalOpen} onOpenChange={setWorkoutModalOpen} onSuccess={() => {}} />
+      <SaveWorkoutDialog
+        open={saveWorkoutDialogOpen}
+        onOpenChange={setSaveWorkoutDialogOpen}
+        onSave={handleSaveWorkout}
+        onDiscard={handleDiscardWorkout}
+        duration={formatTime(workoutSeconds)}
+      />
     </div>
   );
 }
