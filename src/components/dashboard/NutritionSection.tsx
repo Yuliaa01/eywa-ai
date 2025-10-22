@@ -98,7 +98,10 @@ export default function NutritionSection() {
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Fasting Tracker with Timer */}
-        <FastingTimer fastingWindow={fastingWindow} />
+        <FastingTimer 
+          fastingWindow={fastingWindow} 
+          onStartFasting={() => setFastingModalOpen(true)}
+        />
 
         {/* Supplements */}
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
@@ -118,10 +121,6 @@ export default function NutritionSection() {
                 <DropdownMenuItem onClick={() => setSupplementModalOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Supplement
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFastingModalOpen(true)}>
-                  <Clock className="w-4 h-4 mr-2" />
-                  Start Fasting
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

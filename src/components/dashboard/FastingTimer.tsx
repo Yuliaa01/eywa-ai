@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Play, Pause, Square, Clock } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -11,9 +11,10 @@ interface FastingTimerProps {
     progress: number;
     type: string;
   };
+  onStartFasting: () => void;
 }
 
-export default function FastingTimer({ fastingWindow }: FastingTimerProps) {
+export default function FastingTimer({ fastingWindow, onStartFasting }: FastingTimerProps) {
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentProgress, setCurrentProgress] = useState(fastingWindow.progress);
@@ -102,9 +103,17 @@ export default function FastingTimer({ fastingWindow }: FastingTimerProps) {
     <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
-        <span className="px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-rounded font-medium">
-          {fastingWindow.type}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-rounded font-medium">
+            {fastingWindow.type}
+          </span>
+          <button 
+            onClick={onStartFasting}
+            className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+          >
+            <Plus className="w-4 h-4 text-[#12AFCB]" />
+          </button>
+        </div>
       </div>
       
       <div className="space-y-6">
