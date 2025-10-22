@@ -21,6 +21,7 @@ import Onboarding from "./pages/Onboarding";
 import ProfileSettings from "./pages/settings/Profile";
 import Subscription from "./pages/settings/Subscription";
 import Connections from "./pages/Connections";
+import LocalEvents from "./pages/LocalEvents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,10 @@ const AppContent = ({ session }: { session: Session | null }) => {
         <Route 
           path="/connections" 
           element={session ? <Connections /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/local-events" 
+          element={session ? <LocalEvents /> : <Navigate to="/auth" />} 
         />
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

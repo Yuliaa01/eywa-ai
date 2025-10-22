@@ -7,8 +7,10 @@ import { toast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Pause, Square } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ActivitiesSection() {
+  const navigate = useNavigate();
   const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
   const [saveWorkoutDialogOpen, setSaveWorkoutDialogOpen] = useState(false);
   const [workoutActive, setWorkoutActive] = useState(false);
@@ -400,7 +402,10 @@ export default function ActivitiesSection() {
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Local Events</h3>
-          <button className="text-[#12AFCB] font-rounded font-medium text-sm hover:underline">
+          <button 
+            onClick={() => navigate("/local-events")}
+            className="text-[#12AFCB] font-rounded font-medium text-sm hover:underline"
+          >
             View All
           </button>
         </div>
