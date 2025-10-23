@@ -19,7 +19,7 @@ export type Database = {
           accepted: boolean | null
           category: Database["public"]["Enums"]["activity_category"]
           completed_at: string | null
-          context: Database["public"]["Enums"]["activity_context"] | null
+          context: Json | null
           created_at: string
           date: string
           duration_min: number | null
@@ -32,7 +32,7 @@ export type Database = {
           accepted?: boolean | null
           category: Database["public"]["Enums"]["activity_category"]
           completed_at?: string | null
-          context?: Database["public"]["Enums"]["activity_context"] | null
+          context?: Json | null
           created_at?: string
           date: string
           duration_min?: number | null
@@ -45,7 +45,7 @@ export type Database = {
           accepted?: boolean | null
           category?: Database["public"]["Enums"]["activity_category"]
           completed_at?: string | null
-          context?: Database["public"]["Enums"]["activity_context"] | null
+          context?: Json | null
           created_at?: string
           date?: string
           duration_min?: number | null
