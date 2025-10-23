@@ -1,15 +1,18 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
+import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import FastingTimer from "./FastingTimer";
 
 export default function NutritionSection() {
   const [mealModalOpen, setMealModalOpen] = useState(false);
+  const [photoMealModalOpen, setPhotoMealModalOpen] = useState(false);
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
   const [fastingModalOpen, setFastingModalOpen] = useState(false);
+  const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('breakfast');
   const macros = [
     { name: "Carbs", current: 180, target: 250, color: "#19D0E4", unit: "g" },
     { name: "Protein", current: 140, target: 180, color: "#12AFCB", unit: "g" },
@@ -43,6 +46,15 @@ export default function NutritionSection() {
       tags: ["High-protein", "Low-carb"],
     },
   ];
+
+  const handleAddMeal = (type: 'manual' | 'photo', mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') => {
+    setSelectedMealType(mealType);
+    if (type === 'manual') {
+      setMealModalOpen(true);
+    } else {
+      setPhotoMealModalOpen(true);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -96,6 +108,64 @@ export default function NutritionSection() {
         </div>
       </div>
 
+      {/* Today's Meals */}
+      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Today's Meals</h3>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200">
+                <Plus className="w-4 h-4 text-[#12AFCB]" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F]">Breakfast</div>
+              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'breakfast')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Manual Entry
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'breakfast')}>
+                <Camera className="w-4 h-4 mr-2" />
+                Photo AI Analyze
+              </DropdownMenuItem>
+              
+              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F] mt-2">Lunch</div>
+              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'lunch')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Manual Entry
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'lunch')}>
+                <Camera className="w-4 h-4 mr-2" />
+                Photo AI Analyze
+              </DropdownMenuItem>
+              
+              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F] mt-2">Snack</div>
+              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'snack')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Manual Entry
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'snack')}>
+                <Camera className="w-4 h-4 mr-2" />
+                Photo AI Analyze
+              </DropdownMenuItem>
+              
+              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F] mt-2">Dinner</div>
+              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'dinner')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Manual Entry
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'dinner')}>
+                <Camera className="w-4 h-4 mr-2" />
+                Photo AI Analyze
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="space-y-3">
+          <p className="text-sm text-[#5A6B7F]">No meals logged yet today. Click + to add a meal.</p>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-6">
         {/* Fasting Tracker with Timer */}
         <FastingTimer 
@@ -107,23 +177,12 @@ export default function NutritionSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
-                  <Plus className="w-4 h-4 text-[#12AFCB]" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setMealModalOpen(true)}>
-                  <Utensils className="w-4 h-4 mr-2" />
-                  Add Meal
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSupplementModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Supplement
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button 
+              onClick={() => setSupplementModalOpen(true)}
+              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+            >
+              <Plus className="w-4 h-4 text-[#12AFCB]" />
+            </button>
           </div>
           <div className="space-y-4">
             {supplements.map((supplement) => (
@@ -190,7 +249,19 @@ export default function NutritionSection() {
         </div>
       </div>
 
-      <MealModal open={mealModalOpen} onOpenChange={setMealModalOpen} onSuccess={() => {}} />
+      <MealModal 
+        open={mealModalOpen} 
+        onOpenChange={setMealModalOpen} 
+        onSuccess={() => {}} 
+        mealType={selectedMealType}
+      />
+      <FileUploadModal 
+        open={photoMealModalOpen} 
+        onOpenChange={setPhotoMealModalOpen} 
+        onSuccess={() => {}}
+        uploadType="meal-photo"
+        mealType={selectedMealType}
+      />
       <SupplementModal open={supplementModalOpen} onOpenChange={setSupplementModalOpen} onSuccess={() => {}} />
       <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={() => {}} />
     </div>

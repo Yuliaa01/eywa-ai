@@ -9,9 +9,11 @@ interface FileUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  uploadType?: 'health-record' | 'meal-photo';
+  mealType?: 'breakfast' | 'lunch' | 'snack' | 'dinner';
 }
 
-export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadModalProps) {
+export function FileUploadModal({ open, onOpenChange, onSuccess, uploadType = 'health-record', mealType = 'breakfast' }: FileUploadModalProps) {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -20,12 +22,17 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Check file type
-      const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      // Check file type based on upload type
+      const validTypes = uploadType === 'meal-photo' 
+        ? ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+        : ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      
       if (!validTypes.includes(selectedFile.type)) {
         toast({
           title: "Invalid file type",
-          description: "Please upload a PDF or image file (JPG, PNG)",
+          description: uploadType === 'meal-photo' 
+            ? "Please upload an image file (JPG, PNG, WEBP)"
+            : "Please upload a PDF or image file (JPG, PNG)",
           variant: "destructive",
         });
         return;
@@ -144,12 +151,18 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-card/95 backdrop-blur-xl border-border">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-rounded">Upload Health Records</DialogTitle>
+          <DialogTitle className="text-2xl font-rounded">
+            {uploadType === 'meal-photo' 
+              ? `Upload ${mealType.charAt(0).toUpperCase() + mealType.slice(1)} Photo`
+              : 'Upload Health Records'}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
           <div className="text-sm text-muted-foreground">
-            Upload lab results, medical reports, or health scans. Our AI will analyze the data and provide personalized insights.
+            {uploadType === 'meal-photo'
+              ? `Take or upload a photo of your ${mealType}. Our AI will analyze the nutritional content.`
+              : 'Upload lab results, medical reports, or health scans. Our AI will analyze the data and provide personalized insights.'}
           </div>
 
           <div 
@@ -159,7 +172,7 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
+              accept={uploadType === 'meal-photo' ? 'image/*' : '.pdf,.jpg,.jpeg,.png'}
               onChange={handleFileSelect}
               className="hidden"
             />
@@ -178,10 +191,12 @@ export function FileUploadModal({ open, onOpenChange, onSuccess }: FileUploadMod
               <>
                 <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
                 <div className="font-medium text-foreground mb-1">
-                  Click to select file
+                  Click to select {uploadType === 'meal-photo' ? 'photo' : 'file'}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  PDF or images (JPG, PNG) up to 20MB
+                  {uploadType === 'meal-photo'
+                    ? 'Photos (JPG, PNG, WEBP) up to 20MB'
+                    : 'PDF or images (JPG, PNG) up to 20MB'}
                 </div>
               </>
             )}

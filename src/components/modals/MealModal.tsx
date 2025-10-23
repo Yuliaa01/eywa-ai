@@ -12,6 +12,7 @@ interface MealModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  mealType?: 'breakfast' | 'lunch' | 'snack' | 'dinner';
 }
 
 interface MealItem {
@@ -20,7 +21,7 @@ interface MealItem {
   calories?: number;
 }
 
-export function MealModal({ open, onOpenChange, onSuccess }: MealModalProps) {
+export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast' }: MealModalProps) {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<MealItem[]>([{ name: "", quantity: "" }]);
   const [notes, setNotes] = useState("");
@@ -89,7 +90,9 @@ export function MealModal({ open, onOpenChange, onSuccess }: MealModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-rounded">Log Meal</DialogTitle>
+          <DialogTitle className="text-2xl font-rounded">
+            Log {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
