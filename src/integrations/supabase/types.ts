@@ -567,7 +567,7 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
-          geo: unknown | null
+          geo: unknown
           id: string
           menu_json: Json | null
           name: string
@@ -577,7 +577,7 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
-          geo?: unknown | null
+          geo?: unknown
           id?: string
           menu_json?: Json | null
           name: string
@@ -587,7 +587,7 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
-          geo?: unknown | null
+          geo?: unknown
           id?: string
           menu_json?: Json | null
           name?: string
@@ -678,7 +678,7 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
-          location_coords: unknown | null
+          location_coords: unknown
           location_name: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["priority_status"]
@@ -697,7 +697,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
-          location_coords?: unknown | null
+          location_coords?: unknown
           location_name?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["priority_status"]
@@ -716,7 +716,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
-          location_coords?: unknown | null
+          location_coords?: unknown
           location_name?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["priority_status"]
@@ -1111,6 +1111,11 @@ export type Database = {
         | "yoga"
         | "hiit"
         | "recovery"
+        | "movement"
+        | "nutrition"
+        | "sleep"
+        | "mindset"
+        | "medical"
       activity_context: "home" | "outdoor" | "gym"
       ai_agent_type:
         | "planner"
@@ -1379,6 +1384,11 @@ export const Constants = {
         "yoga",
         "hiit",
         "recovery",
+        "movement",
+        "nutrition",
+        "sleep",
+        "mindset",
+        "medical",
       ],
       activity_context: ["home", "outdoor", "gym"],
       ai_agent_type: [
