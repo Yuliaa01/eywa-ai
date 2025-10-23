@@ -141,6 +141,9 @@ export default function PrioritiesSection() {
 
   return (
     <div className="space-y-6">
+      {/* AI Suggestions */}
+      <AISuggestionsPanel />
+
       {/* Goals & Wishes */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Global Goals */}
@@ -265,10 +268,7 @@ export default function PrioritiesSection() {
         </div>
       </div>
 
-      {/* AI Suggestions */}
-      <AISuggestionsPanel />
-
-      <GoalModal 
+      <GoalModal
         open={goalModalOpen} 
         onOpenChange={setGoalModalOpen}
         mode={goalMode}

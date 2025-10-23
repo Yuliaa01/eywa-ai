@@ -46,26 +46,41 @@ serve(async (req) => {
       });
     }
 
-    // Fetch context data
-    const [prioritiesRes, profileRes, mealsRes, supplementsRes] = await Promise.all([
+    // Fetch context data including health care data and goals
+    const [prioritiesRes, profileRes, mealsRes, supplementsRes, labResultsRes, testOrdersRes] = await Promise.all([
       supabase.from('priorities').select('*').eq('user_id', user.id).is('deleted_at', null),
       supabase.from('user_profiles').select('*').eq('user_id', user.id).single(),
       supabase.from('meals').select('*').eq('user_id', user.id).gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
       supabase.from('supplements').select('*').eq('user_id', user.id).is('deleted_at', null),
+      supabase.from('lab_results').select('*').eq('user_id', user.id).order('collected_at', { ascending: false }).limit(50),
+      supabase.from('user_test_orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
     ]);
 
+    const priorities = prioritiesRes.data || [];
+    const globalGoals = priorities.filter(p => p.type === 'global_goal');
+    const weekGoals = priorities.filter(p => p.type === 'temporary_goal' && p.time_scope === 'week');
+    const plans = priorities.filter(p => p.type === 'plan_trip' || p.type === 'plan_event');
+
     const context = {
-      goals: prioritiesRes.data || [],
+      globalGoals,
+      weekGoals,
+      plans,
       profile: profileRes.data || {},
       recentMeals: mealsRes.data || [],
       supplements: supplementsRes.data || [],
+      labResults: labResultsRes.data || [],
+      testOrders: testOrdersRes.data || [],
     };
 
     // Call Lovable AI to generate suggestions
     const systemPrompt = `You are Eywa AI's Planner. Generate 6 concise, safe, actionable suggestions for today.
-Given context about user's goals, profile, nutrition, and supplements, create personalized recommendations.
+Given context about user's global goals, weekly goals, plans (trips/events), health care data (lab results, test orders), profile, nutrition, and supplements, create personalized recommendations.
 Return a JSON array with exactly 6 items, each having: title (max 60 chars), reasoning (max 100 chars), category (movement/nutrition/sleep/recovery/mindset/medical), and duration_min (optional).
-Prioritize actions that advance active goals. Vary categories. Never suggest items conflicting with diet/allergies.`;
+Prioritize actions based on:
+1. Lab results that need attention or follow-up
+2. Goals that can be advanced (global goals, weekly goals, upcoming plans)
+3. Health patterns from recent data
+Vary categories. Never suggest items conflicting with diet/allergies. Focus on actionable next steps based on health data and goals.`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
