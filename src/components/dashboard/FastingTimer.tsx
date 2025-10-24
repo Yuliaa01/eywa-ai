@@ -14,92 +14,37 @@ interface FastingTimerProps {
     type: string;
   };
   onStartFasting: () => void;
+  onRefresh?: () => void;
 }
 
-export default function FastingTimer({ fastingWindow, onStartFasting }: FastingTimerProps) {
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh }: FastingTimerProps) {
   const [currentProgress, setCurrentProgress] = useState(fastingWindow.progress);
+  const [hasActiveFast, setHasActiveFast] = useState(false);
 
+  // Sync progress with prop changes and check if there's an active fast
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isActive && !isPaused) {
-      interval = setInterval(() => {
-        setCurrentProgress((prev) => {
-          if (prev >= 100) {
-            setIsActive(false);
-            toast({
-              title: "Fasting complete! 🎉",
-              description: "You've completed your fasting window.",
-            });
-            return 100;
-          }
-          return prev + 0.1; // Increment progress (adjust based on actual time)
-        });
-      }, 1000);
-    }
+    setCurrentProgress(fastingWindow.progress);
+    setHasActiveFast(fastingWindow.progress > 0 && fastingWindow.progress < 100);
+  }, [fastingWindow.progress]);
+
+  // Auto-update progress every minute for active fasts
+  useEffect(() => {
+    if (!hasActiveFast) return;
+
+    const interval = setInterval(() => {
+      onRefresh?.();
+    }, 60000); // Update every minute
+
     return () => clearInterval(interval);
-  }, [isActive, isPaused]);
+  }, [hasActiveFast, onRefresh]);
 
-  const handleStart = async () => {
-    setIsActive(true);
-    setIsPaused(false);
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Start a new fasting window
-      const startTime = new Date();
-      const endTime = new Date(startTime.getTime() + 16 * 60 * 60 * 1000); // 16 hours later
-
-      await supabase.from("fasting_windows").insert({
-        user_id: user.id,
-        start_at: startTime.toISOString(),
-        end_at: endTime.toISOString(),
-        protocol: "16:8",
-      });
-
-      toast({
-        title: "Fasting started",
-        description: "Good luck with your fast!",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  // Calculate hours remaining based on protocol
+  const calculateHoursRemaining = () => {
+    const protocolHours = parseInt(fastingWindow.type.split(":")[0]) || 16;
+    return Math.max(0, Math.ceil((100 - currentProgress) * protocolHours / 100));
   };
 
-  const handlePause = () => {
-    setIsPaused(true);
-    toast({
-      title: "Fasting paused",
-      description: "You can resume anytime.",
-    });
-  };
-
-  const handleResume = () => {
-    setIsPaused(false);
-    toast({
-      title: "Fasting resumed",
-      description: "Keep going!",
-    });
-  };
-
-  const handleStop = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setCurrentProgress(0);
-    toast({
-      title: "Fasting stopped",
-      description: "Progress has been reset.",
-    });
-  };
-
-  const hoursRemaining = Math.round((100 - currentProgress) * 0.16);
+  const hoursRemaining = calculateHoursRemaining();
 
   return (
     <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
@@ -165,48 +110,14 @@ export default function FastingTimer({ fastingWindow, onStartFasting }: FastingT
             : "Fasting window complete! 🎉"}
         </p>
 
-        {/* Timer Controls */}
-        <div className="flex gap-2 pt-2">
-          {!isActive ? (
-            <Button
-              onClick={handleStart}
-              className="flex-1 bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)]"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Start
-            </Button>
-          ) : (
-            <>
-              {!isPaused ? (
-                <Button
-                  onClick={handlePause}
-                  variant="outline"
-                  className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10"
-                >
-                  <Pause className="w-4 h-4 mr-2" />
-                  Pause
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleResume}
-                  variant="outline"
-                  className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10"
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Resume
-                </Button>
-              )}
-              <Button
-                onClick={handleStop}
-                variant="outline"
-                className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive"
-              >
-                <Square className="w-4 h-4 mr-2" />
-                Stop
-              </Button>
-            </>
-          )}
-        </div>
+        {/* Timer Status */}
+        {!hasActiveFast && currentProgress === 0 && (
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Click the <Plus className="inline w-4 h-4 mx-1" /> button above to start a new fasting window
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

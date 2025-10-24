@@ -243,6 +243,7 @@ export default function NutritionSection() {
         <FastingTimer 
           fastingWindow={fastingWindow} 
           onStartFasting={() => setFastingModalOpen(true)}
+          onRefresh={handleFastingSuccess}
         />
 
         {/* Supplements */}
