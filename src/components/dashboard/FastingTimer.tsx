@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Play, Pause, Square, Clock, Plus } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { FastingCalendar } from "./FastingCalendar";
 
 interface FastingTimerProps {
   fastingWindow: {
@@ -107,9 +109,23 @@ export default function FastingTimer({ fastingWindow, onStartFasting }: FastingT
           <span className="px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-rounded font-medium">
             {fastingWindow.type}
           </span>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button 
+                className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+                title="View fasting calendar"
+              >
+                <CalendarIcon className="w-4 h-4 text-[#12AFCB]" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <FastingCalendar />
+            </DialogContent>
+          </Dialog>
           <button 
             onClick={onStartFasting}
             className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
+            title="Start new fasting window"
           >
             <Plus className="w-4 h-4 text-[#12AFCB]" />
           </button>

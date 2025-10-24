@@ -4,7 +4,8 @@ import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import FastingTimer from "./FastingTimer";
 
 export default function NutritionSection() {
@@ -13,6 +14,13 @@ export default function NutritionSection() {
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
   const [fastingModalOpen, setFastingModalOpen] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('breakfast');
+  const [fastingWindow, setFastingWindow] = useState({
+    start: "20:00",
+    end: "12:00",
+    progress: 0,
+    type: "16:8",
+  });
+
   const macros = [
     { name: "Carbs", current: 180, target: 250, color: "#19D0E4", unit: "g" },
     { name: "Protein", current: 140, target: 180, color: "#12AFCB", unit: "g" },
@@ -25,11 +33,75 @@ export default function NutritionSection() {
     { name: "Magnesium", dosage: "400mg", time: "Evening" },
   ];
 
-  const fastingWindow = {
-    start: "20:00",
-    end: "12:00",
-    progress: 75,
-    type: "16:8",
+  // Fetch active fasting window
+  useEffect(() => {
+    const fetchFastingWindow = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("fasting_windows")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("end_at", new Date().toISOString())
+        .order("start_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data && !error) {
+        const startTime = new Date(data.start_at);
+        const endTime = new Date(data.end_at);
+        const now = new Date();
+        const totalDuration = endTime.getTime() - startTime.getTime();
+        const elapsed = now.getTime() - startTime.getTime();
+        const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+
+        setFastingWindow({
+          start: startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
+          end: endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
+          progress,
+          type: data.protocol || "16:8",
+        });
+      }
+    };
+
+    fetchFastingWindow();
+    const interval = setInterval(fetchFastingWindow, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleFastingSuccess = () => {
+    // Refetch fasting window after creating a new one
+    const fetchFastingWindow = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("fasting_windows")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("end_at", new Date().toISOString())
+        .order("start_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data && !error) {
+        const startTime = new Date(data.start_at);
+        const endTime = new Date(data.end_at);
+        const now = new Date();
+        const totalDuration = endTime.getTime() - startTime.getTime();
+        const elapsed = now.getTime() - startTime.getTime();
+        const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+
+        setFastingWindow({
+          start: startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
+          end: endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
+          progress,
+          type: data.protocol || "16:8",
+        });
+      }
+    };
+    fetchFastingWindow();
   };
 
   const nearbyCafes = [
@@ -263,7 +335,7 @@ export default function NutritionSection() {
         mealType={selectedMealType}
       />
       <SupplementModal open={supplementModalOpen} onOpenChange={setSupplementModalOpen} onSuccess={() => {}} />
-      <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={() => {}} />
+      <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={handleFastingSuccess} />
     </div>
   );
 }
