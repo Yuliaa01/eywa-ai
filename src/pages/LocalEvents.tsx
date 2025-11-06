@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import RestaurantMap from "@/components/RestaurantMap";
+import { Input } from "@/components/ui/input";
 
 export default function LocalEvents() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [mapboxToken, setMapboxToken] = useState('');
   const [userPreferences, setUserPreferences] = useState<{
     diet: string[];
     allergies: string[];
@@ -163,20 +166,43 @@ export default function LocalEvents() {
         {/* Map View */}
         {viewMode === 'map' && (
           <div className="mb-6 rounded-3xl overflow-hidden border border-border shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-            <div className="w-full h-[500px] bg-card/60 backdrop-blur-xl flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/5 to-accent-teal-alt/5" />
-              <div className="relative z-10 text-center space-y-4 p-8">
-                <Map className="w-16 h-16 text-accent-teal mx-auto" />
-                <div>
-                  <h3 className="font-rounded text-xl font-semibold text-foreground mb-2">
-                    Interactive Map View
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Map integration coming soon. You can view all locations in the list below.
-                  </p>
+            {mapboxToken ? (
+              <div className="w-full h-[500px]">
+                <RestaurantMap restaurants={nearbyPlaces} mapboxToken={mapboxToken} />
+              </div>
+            ) : (
+              <div className="w-full h-[500px] bg-card/60 backdrop-blur-xl flex items-center justify-center relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/5 to-accent-teal-alt/5" />
+                <div className="relative z-10 text-center space-y-4 p-8 max-w-md">
+                  <Map className="w-16 h-16 text-accent-teal mx-auto" />
+                  <div>
+                    <h3 className="font-rounded text-xl font-semibold text-foreground mb-2">
+                      Enter Mapbox Token
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      To view the interactive map, please enter your Mapbox public token.
+                      Get one free at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-accent-teal hover:underline">mapbox.com</a>
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="pk.eyJ1..."
+                        value={mapboxToken}
+                        onChange={(e) => setMapboxToken(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={() => {}}
+                        disabled={!mapboxToken}
+                        className="bg-gradient-to-r from-accent-teal to-accent-teal-alt"
+                      >
+                        Load Map
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
