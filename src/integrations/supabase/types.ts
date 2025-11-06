@@ -429,6 +429,42 @@ export type Database = {
         }
         Relationships: []
       }
+      grocery_list_items: {
+        Row: {
+          category: string | null
+          checked: boolean
+          created_at: string
+          id: string
+          ingredient: string
+          quantity: string | null
+          source_meal_plan_ids: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          checked?: boolean
+          created_at?: string
+          id?: string
+          ingredient: string
+          quantity?: string | null
+          source_meal_plan_ids?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          checked?: boolean
+          created_at?: string
+          id?: string
+          ingredient?: string
+          quantity?: string | null
+          source_meal_plan_ids?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       health_issues: {
         Row: {
           category: Database["public"]["Enums"]["health_issue_category"]

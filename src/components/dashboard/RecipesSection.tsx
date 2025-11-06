@@ -34,6 +34,16 @@ export default function RecipesSection() {
     loadSavedRecipes();
   }, []);
 
+  useEffect(() => {
+    // Auto-generate 3 recipes if user has no recipes
+    if (recipes.length === 0 && !loading) {
+      const timer = setTimeout(() => {
+        generateRecipes();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [recipes.length, loading]);
+
   const loadSavedRecipes = async () => {
     try {
       const { data, error } = await supabase

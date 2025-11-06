@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import FastingTimer from "./FastingTimer";
 import RecipesSection from "./RecipesSection";
 import MealPlannerSection from "./MealPlannerSection";
+import GroceryListSection from "./GroceryListSection";
 
 export default function NutritionSection() {
   const navigate = useNavigate();
@@ -229,6 +230,9 @@ export default function NutritionSection() {
 
       {/* Weekly Meal Planner */}
       <MealPlannerSection />
+
+      {/* Grocery List */}
+      <GroceryListSection />
 
       {/* Nearby Cafés & Restaurants */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
