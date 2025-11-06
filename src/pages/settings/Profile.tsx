@@ -27,6 +27,12 @@ export default function ProfileSettings() {
   const [dietPreferences, setDietPreferences] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [macroMode, setMacroMode] = useState<'ai' | 'manual'>('ai');
+  const [manualMacros, setManualMacros] = useState({
+    calories: '',
+    protein: '',
+    carbs: '',
+    fats: ''
+  });
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -62,6 +68,12 @@ export default function ProfileSettings() {
           setViewMode(preferences.viewMode || 'standard');
           setAiTone(preferences.aiTone || 'friendly');
           setMacroMode(preferences.macroMode || 'ai');
+          setManualMacros({
+            calories: preferences.manualMacros?.calories || '',
+            protein: preferences.manualMacros?.protein || '',
+            carbs: preferences.manualMacros?.carbs || '',
+            fats: preferences.manualMacros?.fats || ''
+          });
         } catch {
           setViewMode('standard');
           setAiTone('friendly');
@@ -83,8 +95,13 @@ export default function ProfileSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Store view mode, AI tone, and macro mode in locale field as JSON
-      const preferences = JSON.stringify({ viewMode, aiTone, macroMode });
+      // Store view mode, AI tone, macro mode, and manual macros in locale field as JSON
+      const preferences = JSON.stringify({ 
+        viewMode, 
+        aiTone, 
+        macroMode,
+        manualMacros: macroMode === 'manual' ? manualMacros : undefined
+      });
       
       const { error } = await supabase
         .from("user_profiles")
@@ -473,33 +490,83 @@ export default function ProfileSettings() {
             {/* Macro Targets */}
             <div className="space-y-3">
               <Label>Macro Targets</Label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setMacroMode('ai')}
-                  className={`p-6 rounded-2xl transition-all duration-standard ${
+                  className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${
                     macroMode === 'ai'
-                      ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB]'
-                      : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80'
+                      ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                      : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                   }`}
                 >
-                  <Sparkles className={`w-8 h-8 mb-2 ${macroMode === 'ai' ? 'text-[#12AFCB]' : 'text-[#5A6B7F]'}`} />
-                  <div className="text-[1rem] font-semibold text-[#0E1012] mb-1">AI Auto</div>
-                  <div className="text-[0.875rem] text-[#5A6B7F]">Personalized by AI</div>
+                  <Sparkles className="w-4 h-4" />
+                  AI Auto
                 </button>
 
                 <button
                   onClick={() => setMacroMode('manual')}
-                  className={`p-6 rounded-2xl transition-all duration-standard ${
+                  className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${
                     macroMode === 'manual'
-                      ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB]'
-                      : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80'
+                      ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                      : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                   }`}
                 >
-                  <Utensils className={`w-8 h-8 mb-2 ${macroMode === 'manual' ? 'text-[#12AFCB]' : 'text-[#5A6B7F]'}`} />
-                  <div className="text-[1rem] font-semibold text-[#0E1012] mb-1">Manual</div>
-                  <div className="text-[0.875rem] text-[#5A6B7F]">Set your own</div>
+                  <Utensils className="w-4 h-4" />
+                  Manual
                 </button>
               </div>
+              
+              {/* Manual Macro Inputs */}
+              {macroMode === 'manual' && (
+                <div className="mt-4 space-y-3 p-4 rounded-2xl bg-white/60 border border-[#12AFCB]/10">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="calories">Calories (kcal)</Label>
+                      <Input
+                        id="calories"
+                        type="number"
+                        placeholder="2000"
+                        value={manualMacros.calories}
+                        onChange={(e) => setManualMacros({ ...manualMacros, calories: e.target.value })}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="protein">Protein (g)</Label>
+                      <Input
+                        id="protein"
+                        type="number"
+                        placeholder="150"
+                        value={manualMacros.protein}
+                        onChange={(e) => setManualMacros({ ...manualMacros, protein: e.target.value })}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="carbs">Carbs (g)</Label>
+                      <Input
+                        id="carbs"
+                        type="number"
+                        placeholder="200"
+                        value={manualMacros.carbs}
+                        onChange={(e) => setManualMacros({ ...manualMacros, carbs: e.target.value })}
+                        className="rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="fats">Fats (g)</Label>
+                      <Input
+                        id="fats"
+                        type="number"
+                        placeholder="70"
+                        value={manualMacros.fats}
+                        onChange={(e) => setManualMacros({ ...manualMacros, fats: e.target.value })}
+                        className="rounded-xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
