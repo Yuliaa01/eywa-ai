@@ -81,10 +81,22 @@ export default function Onboarding() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Prepare preferences for locale field
+      const preferences = onboardingData.preferences || {};
+      const nutrition = onboardingData.nutrition || {};
+      const localeData = JSON.stringify({
+        viewMode: preferences.viewMode || 'standard',
+        aiTone: preferences.aiTone || 'friendly',
+        macroMode: nutrition.macroMode || 'ai'
+      });
+
       // Save all onboarding data
       await supabase.from('user_profiles').upsert({
         user_id: user.id,
         ...onboardingData.profile,
+        diet_preferences: nutrition.diet || [],
+        allergies: nutrition.allergies || [],
+        locale: localeData,
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
       });

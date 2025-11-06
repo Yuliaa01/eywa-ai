@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,9 @@ export default function ProfileSettings() {
   });
   const [viewMode, setViewMode] = useState('standard');
   const [aiTone, setAiTone] = useState('friendly');
+  const [dietPreferences, setDietPreferences] = useState<string[]>([]);
+  const [allergies, setAllergies] = useState<string[]>([]);
+  const [macroMode, setMacroMode] = useState<'ai' | 'manual'>('ai');
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -53,15 +56,21 @@ export default function ProfileSettings() {
           height_cm: data.height_cm?.toString() || "",
           weight_kg: data.weight_kg?.toString() || "",
         });
-        // Load view mode and AI tone from locale field (stored as JSON)
+        // Load view mode, AI tone, and macro mode from locale field (stored as JSON)
         try {
           const preferences = data.locale ? JSON.parse(data.locale) : {};
           setViewMode(preferences.viewMode || 'standard');
           setAiTone(preferences.aiTone || 'friendly');
+          setMacroMode(preferences.macroMode || 'ai');
         } catch {
           setViewMode('standard');
           setAiTone('friendly');
+          setMacroMode('ai');
         }
+        
+        // Load nutrition data
+        setDietPreferences(data.diet_preferences || []);
+        setAllergies(data.allergies || []);
       }
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -74,8 +83,8 @@ export default function ProfileSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Store view mode and AI tone in locale field as JSON
-      const preferences = JSON.stringify({ viewMode, aiTone });
+      // Store view mode, AI tone, and macro mode in locale field as JSON
+      const preferences = JSON.stringify({ viewMode, aiTone, macroMode });
       
       const { error } = await supabase
         .from("user_profiles")
@@ -88,6 +97,8 @@ export default function ProfileSettings() {
           sex_at_birth: profile.sex_at_birth as any || null,
           height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
           weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
+          diet_preferences: dietPreferences,
+          allergies: allergies,
           locale: preferences,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
@@ -391,6 +402,103 @@ export default function ProfileSettings() {
                   onChange={(e) => setProfile({ ...profile, weight_kg: e.target.value })}
                   className="rounded-xl"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Nutrition & Sensitivities */}
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-6">
+          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
+            <Utensils className="w-4 h-4" />
+            Nutrition & Sensitivities
+          </div>
+          
+          <div className="space-y-6">
+            {/* Diet Preferences */}
+            <div className="space-y-3">
+              <Label>Diet Preferences</Label>
+              <div className="flex flex-wrap gap-3">
+                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free', 'Halal', 'Kosher'].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      if (dietPreferences.includes(option)) {
+                        setDietPreferences(dietPreferences.filter(d => d !== option));
+                      } else {
+                        setDietPreferences([...dietPreferences, option]);
+                      }
+                    }}
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                      dietPreferences.includes(option)
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Allergies & Intolerances */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                <Label>Allergies & Intolerances</Label>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      if (allergies.includes(option)) {
+                        setAllergies(allergies.filter(a => a !== option));
+                      } else {
+                        setAllergies([...allergies, option]);
+                      }
+                    }}
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                      allergies.includes(option)
+                        ? 'bg-red-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Macro Targets */}
+            <div className="space-y-3">
+              <Label>Macro Targets</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setMacroMode('ai')}
+                  className={`p-6 rounded-2xl transition-all duration-standard ${
+                    macroMode === 'ai'
+                      ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB]'
+                      : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80'
+                  }`}
+                >
+                  <Sparkles className={`w-8 h-8 mb-2 ${macroMode === 'ai' ? 'text-[#12AFCB]' : 'text-[#5A6B7F]'}`} />
+                  <div className="text-[1rem] font-semibold text-[#0E1012] mb-1">AI Auto</div>
+                  <div className="text-[0.875rem] text-[#5A6B7F]">Personalized by AI</div>
+                </button>
+
+                <button
+                  onClick={() => setMacroMode('manual')}
+                  className={`p-6 rounded-2xl transition-all duration-standard ${
+                    macroMode === 'manual'
+                      ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB]'
+                      : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80'
+                  }`}
+                >
+                  <Utensils className={`w-8 h-8 mb-2 ${macroMode === 'manual' ? 'text-[#12AFCB]' : 'text-[#5A6B7F]'}`} />
+                  <div className="text-[1rem] font-semibold text-[#0E1012] mb-1">Manual</div>
+                  <div className="text-[0.875rem] text-[#5A6B7F]">Set your own</div>
+                </button>
               </div>
             </div>
           </div>
