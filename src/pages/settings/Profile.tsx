@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -406,7 +406,10 @@ export default function ProfileSettings() {
           <div className="space-y-6">
             {/* Theme */}
             <div className="space-y-3">
-              <Label>Theme</Label>
+              <div className="flex items-center gap-2">
+                <Palette className="w-4 h-4 text-accent" />
+                <Label>Theme</Label>
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: 'Light', value: 'light' },
