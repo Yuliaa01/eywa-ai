@@ -14,9 +14,10 @@ interface Restaurant {
 interface RestaurantMapProps {
   restaurants: Restaurant[];
   mapboxToken: string;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
-const RestaurantMap = ({ restaurants, mapboxToken }: RestaurantMapProps) => {
+const RestaurantMap = ({ restaurants, mapboxToken, userLocation }: RestaurantMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -26,14 +27,20 @@ const RestaurantMap = ({ restaurants, mapboxToken }: RestaurantMapProps) => {
 
     mapboxgl.accessToken = mapboxToken;
 
-    // Calculate center point from all restaurants
-    const avgLat = restaurants.reduce((sum, r) => sum + r.coords.lat, 0) / restaurants.length;
-    const avgLng = restaurants.reduce((sum, r) => sum + r.coords.lng, 0) / restaurants.length;
+    // Use user location or calculate center from restaurants
+    let centerLat, centerLng;
+    if (userLocation) {
+      centerLat = userLocation.lat;
+      centerLng = userLocation.lng;
+    } else {
+      centerLat = restaurants.reduce((sum, r) => sum + r.coords.lat, 0) / restaurants.length;
+      centerLng = restaurants.reduce((sum, r) => sum + r.coords.lng, 0) / restaurants.length;
+    }
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/light-v11',
-      center: [avgLng, avgLat],
+      center: [centerLng, centerLat],
       zoom: 13,
     });
 
@@ -43,6 +50,28 @@ const RestaurantMap = ({ restaurants, mapboxToken }: RestaurantMapProps) => {
       }),
       'top-right'
     );
+
+    // Add user location marker if available
+    if (userLocation) {
+      const userMarkerEl = document.createElement('div');
+      userMarkerEl.style.width = '20px';
+      userMarkerEl.style.height = '20px';
+      userMarkerEl.style.borderRadius = '50%';
+      userMarkerEl.style.backgroundColor = '#3b82f6';
+      userMarkerEl.style.border = '4px solid white';
+      userMarkerEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+      
+      const userMarker = new mapboxgl.Marker(userMarkerEl)
+        .setLngLat([userLocation.lng, userLocation.lat])
+        .setPopup(new mapboxgl.Popup({ offset: 15 }).setHTML(`
+          <div style="padding: 6px; text-align: center;">
+            <p style="margin: 0; font-weight: 600; color: hsl(var(--foreground));">Your Location</p>
+          </div>
+        `))
+        .addTo(map.current);
+      
+      markers.current.push(userMarker);
+    }
 
     // Add markers for each restaurant
     restaurants.forEach((restaurant) => {
@@ -83,7 +112,7 @@ const RestaurantMap = ({ restaurants, mapboxToken }: RestaurantMapProps) => {
       markers.current = [];
       map.current?.remove();
     };
-  }, [restaurants, mapboxToken]);
+  }, [restaurants, mapboxToken, userLocation]);
 
   return (
     <div className="relative w-full h-full">

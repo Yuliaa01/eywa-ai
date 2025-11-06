@@ -10,6 +10,7 @@ export default function LocalEvents() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [mapboxToken, setMapboxToken] = useState('pk.eyJ1IjoieXVsaWEtIiwiYSI6ImNtaG56bDQ5eTA2N3Mya3B5MWQwdWJqZGkifQ.6R4LNHZdElnG_PQyz6Jk7w');
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [userPreferences, setUserPreferences] = useState<{
     diet: string[];
     allergies: string[];
@@ -20,6 +21,26 @@ export default function LocalEvents() {
     const savedToken = localStorage.getItem('mapbox_token');
     if (savedToken) {
       setMapboxToken(savedToken);
+    }
+    
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          // Default to NYC if geolocation fails
+          setUserLocation({ lat: 40.7580, lng: -73.9855 });
+        }
+      );
+    } else {
+      // Default to NYC if geolocation not supported
+      setUserLocation({ lat: 40.7580, lng: -73.9855 });
     }
   }, []);
 
@@ -47,7 +68,8 @@ export default function LocalEvents() {
     }
   };
 
-  const nearbyPlaces = [
+  // Generate nearby places based on user location
+  const nearbyPlaces = userLocation ? [
     {
       name: "Green Bowl Café",
       type: "Café",
@@ -58,7 +80,7 @@ export default function LocalEvents() {
       address: "123 Main St",
       match: "95% match",
       hours: "7:00 AM - 8:00 PM",
-      coords: { lat: 40.7580, lng: -73.9855 }
+      coords: { lat: userLocation.lat + 0.002, lng: userLocation.lng - 0.003 }
     },
     {
       name: "Protein Kitchen",
@@ -70,7 +92,7 @@ export default function LocalEvents() {
       address: "456 Park Ave",
       match: "90% match",
       hours: "11:00 AM - 10:00 PM",
-      coords: { lat: 40.7614, lng: -73.9776 }
+      coords: { lat: userLocation.lat + 0.005, lng: userLocation.lng + 0.008 }
     },
     {
       name: "Fresh & Fit",
@@ -82,7 +104,7 @@ export default function LocalEvents() {
       address: "789 Broadway",
       match: "88% match",
       hours: "6:30 AM - 7:00 PM",
-      coords: { lat: 40.7489, lng: -73.9680 }
+      coords: { lat: userLocation.lat - 0.012, lng: userLocation.lng + 0.018 }
     },
     {
       name: "Mediterranean Delight",
@@ -94,7 +116,7 @@ export default function LocalEvents() {
       address: "321 5th Ave",
       match: "85% match",
       hours: "11:30 AM - 9:30 PM",
-      coords: { lat: 40.7831, lng: -73.9712 }
+      coords: { lat: userLocation.lat + 0.033, lng: userLocation.lng - 0.015 }
     },
     {
       name: "Juice Bar Plus",
@@ -106,7 +128,7 @@ export default function LocalEvents() {
       address: "654 Lexington Ave",
       match: "82% match",
       hours: "7:00 AM - 6:00 PM",
-      coords: { lat: 40.7589, lng: -73.9664 }
+      coords: { lat: userLocation.lat + 0.001, lng: userLocation.lng + 0.011 }
     },
     {
       name: "Paleo Paradise",
@@ -118,9 +140,9 @@ export default function LocalEvents() {
       address: "987 Madison Ave",
       match: "80% match",
       hours: "10:00 AM - 9:00 PM",
-      coords: { lat: 40.7736, lng: -73.9566 }
+      coords: { lat: userLocation.lat + 0.020, lng: userLocation.lng + 0.013 }
     },
-  ];
+  ] : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent-teal/5 p-6">
@@ -178,7 +200,7 @@ export default function LocalEvents() {
           <div className="mb-6 rounded-3xl overflow-hidden border border-border shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
             {mapboxToken ? (
               <div className="w-full h-[500px]">
-                <RestaurantMap restaurants={nearbyPlaces} mapboxToken={mapboxToken} />
+                <RestaurantMap restaurants={nearbyPlaces} mapboxToken={mapboxToken} userLocation={userLocation} />
               </div>
             ) : (
               <div className="w-full h-[500px] bg-card/60 backdrop-blur-xl flex items-center justify-center relative">
