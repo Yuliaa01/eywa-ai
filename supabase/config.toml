@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.analyze-health-file]
 verify_jwt = true
+
+[functions.generate-recipes]
+verify_jwt = true

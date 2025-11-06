@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import FastingTimer from "./FastingTimer";
+import RecipesSection from "./RecipesSection";
 
 export default function NutritionSection() {
   const navigate = useNavigate();
@@ -221,6 +222,9 @@ export default function NutritionSection() {
           </div>
         </div>
       </div>
+
+      {/* AI Recipe Suggestions */}
+      <RecipesSection />
 
       {/* Nearby Cafés & Restaurants */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
