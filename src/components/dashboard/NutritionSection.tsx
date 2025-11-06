@@ -33,46 +33,16 @@ export default function NutritionSection() {
     { name: "Magnesium", dosage: "400mg", time: "Evening" },
   ];
 
-  // Fetch active fasting window
+  // Fetch active fasting window - using extracted function
   useEffect(() => {
-    const fetchFastingWindow = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("fasting_windows")
-        .select("*")
-        .eq("user_id", user.id)
-        .gte("end_at", new Date().toISOString())
-        .order("start_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (data && !error) {
-        const startTime = new Date(data.start_at);
-        const endTime = new Date(data.end_at);
-        const now = new Date();
-        const totalDuration = endTime.getTime() - startTime.getTime();
-        const elapsed = now.getTime() - startTime.getTime();
-        const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
-
-        setFastingWindow({
-          start: startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
-          end: endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
-          progress,
-          type: data.protocol || "16:8",
-        });
-      }
-    };
-
     fetchFastingWindow();
     const interval = setInterval(fetchFastingWindow, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
 
-  const handleFastingSuccess = () => {
-    // Refetch fasting window after creating a new one
-    const fetchFastingWindow = async () => {
+  // Extracted fetchFastingWindow to avoid duplication
+  const fetchFastingWindow = async () => {
+    try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -100,7 +70,12 @@ export default function NutritionSection() {
           type: data.protocol || "16:8",
         });
       }
-    };
+    } catch (error) {
+      console.error("Error fetching fasting window:", error);
+    }
+  };
+
+  const handleFastingSuccess = () => {
     fetchFastingWindow();
   };
 

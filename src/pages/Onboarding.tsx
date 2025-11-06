@@ -22,6 +22,7 @@ export default function Onboarding() {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [onboardingData, setOnboardingData] = useState<any>({});
+  const [isCompleting, setIsCompleting] = useState(false);
 
   useEffect(() => {
     // Check if user has already completed onboarding
@@ -73,6 +74,9 @@ export default function Onboarding() {
   };
 
   const handleComplete = async () => {
+    if (isCompleting) return;
+    
+    setIsCompleting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -109,12 +113,15 @@ export default function Onboarding() {
 
       navigate("/dashboard");
     } catch (error) {
+      console.error("Onboarding completion error:", error);
       toast({
         title: "Error",
         description: "Failed to save onboarding data. Please try again.",
         variant: "destructive",
         duration: 3000,
       });
+    } finally {
+      setIsCompleting(false);
     }
   };
 

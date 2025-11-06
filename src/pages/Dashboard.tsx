@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   Activity,
   Heart,
@@ -30,7 +31,7 @@ import ActivitiesSection from "@/components/dashboard/ActivitiesSection";
 import HealthCareSection from "@/components/dashboard/HealthCareSection";
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("priorities");
   const navigate = useNavigate();
@@ -49,15 +50,24 @@ export default function Dashboard() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
-        setUser(session.user);
+      try {
+        if (!session) {
+          navigate("/auth");
+        } else {
+          setUser(session.user);
+        }
+      } catch (error) {
+        console.error("Auth state change error:", error);
+        toast({
+          title: "Authentication Error",
+          description: "Please try signing in again.",
+          variant: "destructive",
+        });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();

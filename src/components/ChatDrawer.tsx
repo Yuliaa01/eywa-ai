@@ -2,6 +2,7 @@ import { Brain, X, Send } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import DOMPurify from "dompurify";
 
 interface ChatDrawerProps {
   open: boolean;
@@ -25,11 +26,13 @@ export default function ChatDrawer({ open, onClose, initialMessage }: ChatDrawer
     if (open && initialMessage && messages.length === 0) {
       setInput(initialMessage);
       // Auto-send after a brief delay
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (initialMessage) {
           sendMessage(initialMessage);
         }
       }, 300);
+      
+      return () => clearTimeout(timer);
     }
   }, [open, initialMessage]);
 
@@ -125,7 +128,12 @@ export default function ChatDrawer({ open, onClose, initialMessage }: ChatDrawer
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
-              assistantMessage += content;
+              // Sanitize content to prevent XSS
+              const sanitizedContent = DOMPurify.sanitize(content, {
+                ALLOWED_TAGS: [],
+                ALLOWED_ATTR: [],
+              });
+              assistantMessage += sanitizedContent;
               setMessages((prev) => {
                 const newMessages = [...prev];
                 newMessages[newMessages.length - 1] = {

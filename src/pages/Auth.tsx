@@ -65,8 +65,13 @@ export default function Auth() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        checkUserAndRedirect(session.user.id);
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          checkUserAndRedirect(session.user.id);
+        }
+      } catch (error) {
+        console.error("Auth state change error:", error);
+        setCheckingAuth(false);
       }
     });
 
@@ -124,38 +129,30 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Security: Validate inputs before submitting to prevent malformed data
-      const validatedData = authSchema.parse({
-        email: email.trim(),
-        password,
-      });
+      // Basic validation for sign-in (no password strength requirements)
+      if (!email || !password) {
+        throw new Error("Please enter both email and password");
+      }
+
+      if (!email.includes("@")) {
+        throw new Error("Please enter a valid email address");
+      }
 
       const { error } = await supabase.auth.signInWithPassword({
-        email: validatedData.email,
-        password: validatedData.password,
+        email: email.trim(),
+        password,
       });
 
       if (error) throw error;
 
       // Success - navigate without notification
     } catch (error: any) {
-      // Handle validation errors separately for better user experience
-      if (error instanceof z.ZodError) {
-        const firstError = error.errors[0];
-        toast({
-          variant: "destructive",
-          title: "Validation Error",
-          description: firstError.message,
-          duration: 3000,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Sign in failed",
-          description: error.message,
-          duration: 3000,
-        });
-      }
+      toast({
+        variant: "destructive",
+        title: "Sign in failed",
+        description: error.message,
+        duration: 3000,
+      });
     } finally {
       setLoading(false);
     }

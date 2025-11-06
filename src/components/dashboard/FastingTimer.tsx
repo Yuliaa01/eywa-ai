@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -65,19 +65,25 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     }
   }, [hasActiveFast]);
 
+  // Wrap onRefresh in useCallback to prevent memory leaks
+  const handleRefresh = useCallback(() => {
+    onRefresh?.();
+  }, [onRefresh]);
+
   // Auto-update progress every minute for active fasts
   useEffect(() => {
     if (!hasActiveFast || isPaused) return;
 
     const interval = setInterval(() => {
-      onRefresh?.();
+      handleRefresh();
     }, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, [hasActiveFast, isPaused, onRefresh]);
+  }, [hasActiveFast, isPaused, handleRefresh]);
 
-  // Calculate hours remaining based on protocol
+  // Calculate hours remaining based on protocol with null checks
   const calculateHoursRemaining = () => {
+    if (!fastingWindow?.type) return 0;
     const protocolHours = parseInt(fastingWindow.type.split(":")[0]) || 16;
     return Math.max(0, Math.ceil((100 - currentProgress) * protocolHours / 100));
   };
@@ -128,7 +134,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   };
 
   const handleUpdateStartTime = async () => {
-    if (!activeFastId || !newStartTime) return;
+    if (!activeFastId || !newStartTime || !fastingWindow?.type) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -170,7 +176,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-rounded font-medium">
-            {fastingWindow.type}
+            {fastingWindow?.type || "16:8"}
           </span>
           <Dialog>
             <DialogTrigger asChild>

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
+import { z } from "zod";
 
 interface MealModalProps {
   open: boolean;
@@ -20,6 +21,19 @@ interface MealItem {
   quantity: string;
   calories?: number;
 }
+
+// Validation schema
+const mealItemSchema = z.object({
+  name: z.string().trim().min(1, "Food name is required").max(100, "Food name is too long"),
+  quantity: z.string().trim().min(1, "Quantity is required").max(50, "Quantity is too long"),
+  calories: z.number().optional(),
+});
+
+const mealSchema = z.object({
+  timestamp: z.string().min(1, "Timestamp is required"),
+  items: z.array(mealItemSchema).min(1, "At least one meal item is required"),
+  notes: z.string().max(1000, "Notes are too long").optional(),
+});
 
 export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast' }: MealModalProps) {
   const [loading, setLoading] = useState(false);
@@ -52,6 +66,19 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
       if (!user) throw new Error("Not authenticated");
 
       const validItems = items.filter(item => item.name && item.quantity);
+      
+      // Validate the meal data
+      const validation = mealSchema.safeParse({
+        timestamp,
+        items: validItems,
+        notes: notes || undefined,
+      });
+
+      if (!validation.success) {
+        const firstError = validation.error.errors[0];
+        throw new Error(firstError.message);
+      }
+
       if (validItems.length === 0) {
         throw new Error("Add at least one meal item");
       }

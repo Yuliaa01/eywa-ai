@@ -105,7 +105,11 @@ const App = () => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      try {
+        setSession(session);
+      } catch (error) {
+        console.error("Auth state change error:", error);
+      }
     });
 
     return () => subscription.unsubscribe();
