@@ -25,12 +25,12 @@ export default function NutritionSection() {
     progress: 0,
     type: "16:8",
   });
-
-  const macros = [
-    { name: "Carbs", current: 180, target: 250, color: "#19D0E4", unit: "g" },
-    { name: "Protein", current: 140, target: 180, color: "#12AFCB", unit: "g" },
-    { name: "Fat", current: 65, target: 80, color: "#0E8FA6", unit: "g" },
-  ];
+  const [todaysMeals, setTodaysMeals] = useState<any[]>([]);
+  const [macros, setMacros] = useState([
+    { name: "Carbs", current: 0, target: 250, color: "#19D0E4", unit: "g" },
+    { name: "Protein", current: 0, target: 180, color: "#12AFCB", unit: "g" },
+    { name: "Fat", current: 0, target: 80, color: "#0E8FA6", unit: "g" },
+  ]);
 
   const supplements = [
     { name: "Vitamin D", dosage: "4000 IU", time: "Morning" },
@@ -38,12 +38,61 @@ export default function NutritionSection() {
     { name: "Magnesium", dosage: "400mg", time: "Evening" },
   ];
 
-  // Fetch active fasting window - using extracted function
+  // Fetch active fasting window and today's meals
   useEffect(() => {
     fetchFastingWindow();
-    const interval = setInterval(fetchFastingWindow, 60000); // Update every minute
+    fetchTodaysMeals();
+    const interval = setInterval(() => {
+      fetchFastingWindow();
+      fetchTodaysMeals();
+    }, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
+
+  const fetchTodaysMeals = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const { data, error } = await supabase
+        .from('meals')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('timestamp', today.toISOString())
+        .lt('timestamp', tomorrow.toISOString())
+        .order('timestamp', { ascending: false });
+
+      if (error) throw error;
+
+      setTodaysMeals(data || []);
+
+      // Calculate total macros
+      let totalCarbs = 0;
+      let totalProtein = 0;
+      let totalFat = 0;
+
+      data?.forEach((meal: any) => {
+        if (meal.nutrition_totals) {
+          totalCarbs += meal.nutrition_totals.carbs || 0;
+          totalProtein += meal.nutrition_totals.protein || 0;
+          totalFat += meal.nutrition_totals.fat || 0;
+        }
+      });
+
+      setMacros([
+        { name: "Carbs", current: Math.round(totalCarbs), target: 250, color: "#19D0E4", unit: "g" },
+        { name: "Protein", current: Math.round(totalProtein), target: 180, color: "#12AFCB", unit: "g" },
+        { name: "Fat", current: Math.round(totalFat), target: 80, color: "#0E8FA6", unit: "g" },
+      ]);
+    } catch (error) {
+      console.error('Error fetching today\'s meals:', error);
+    }
+  };
 
   // Extracted fetchFastingWindow to avoid duplication
   const fetchFastingWindow = async () => {
@@ -105,6 +154,10 @@ export default function NutritionSection() {
     } else {
       setPhotoMealModalOpen(true);
     }
+  };
+
+  const handleMealSuccess = () => {
+    fetchTodaysMeals();
   };
 
   return (
@@ -182,7 +235,44 @@ export default function NutritionSection() {
           </DropdownMenu>
         </div>
         <div className="space-y-3">
-          <p className="text-sm text-[#5A6B7F]">No meals logged yet today. Click + to add a meal.</p>
+          {todaysMeals.length === 0 ? (
+            <p className="text-sm text-[#5A6B7F]">No meals logged yet today. Click + to add a meal.</p>
+          ) : (
+            todaysMeals.map((meal) => (
+              <div
+                key={meal.id}
+                className="flex items-center justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10"
+              >
+                <div className="flex-1">
+                  <h4 className="font-rounded font-medium text-[#0E1012] mb-1">
+                    {meal.items?.map((item: any) => item.name).join(', ')}
+                  </h4>
+                  <p className="text-xs text-[#5A6B7F]">
+                    {new Date(meal.timestamp).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+                {meal.nutrition_totals && (
+                  <div className="flex gap-3 text-sm">
+                    <span className="text-[#5A6B7F]">
+                      <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.calories}</span> cal
+                    </span>
+                    <span className="text-[#5A6B7F]">
+                      P: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.protein}g</span>
+                    </span>
+                    <span className="text-[#5A6B7F]">
+                      C: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.carbs}g</span>
+                    </span>
+                    <span className="text-[#5A6B7F]">
+                      F: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.fat}g</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -285,13 +375,13 @@ export default function NutritionSection() {
       <MealModal 
         open={mealModalOpen} 
         onOpenChange={setMealModalOpen} 
-        onSuccess={() => {}} 
+        onSuccess={handleMealSuccess} 
         mealType={selectedMealType}
       />
       <FileUploadModal 
         open={photoMealModalOpen} 
         onOpenChange={setPhotoMealModalOpen} 
-        onSuccess={() => {}}
+        onSuccess={handleMealSuccess}
         uploadType="meal-photo"
         mealType={selectedMealType}
       />

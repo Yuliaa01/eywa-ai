@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ChefHat, Clock, Users, Flame, Loader2, Heart, Grid3x3, List } from "lucide-react";
+import { ChefHat, Clock, Users, Flame, Loader2, Heart, Grid3x3, List, CalendarPlus, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AddToMealPlanDialog } from "@/components/modals/AddToMealPlanDialog";
 
 interface Recipe {
   name: string;
@@ -29,6 +30,9 @@ export default function RecipesSection() {
   const [savingRecipe, setSavingRecipe] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [addToMealPlanOpen, setAddToMealPlanOpen] = useState(false);
+  const [selectedRecipeForPlan, setSelectedRecipeForPlan] = useState<Recipe | null>(null);
+  const [addingToToday, setAddingToToday] = useState<string | null>(null);
 
   useEffect(() => {
     loadSavedRecipes();
@@ -209,6 +213,60 @@ export default function RecipesSection() {
     ? recipes 
     : recipes.filter(recipe => recipe.category === selectedCategory);
 
+  const handleAddToMealPlan = (recipe: Recipe, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedRecipeForPlan(recipe);
+    setAddToMealPlanOpen(true);
+  };
+
+  const handleAddToToday = async (recipe: Recipe, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAddingToToday(recipe.name);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Add to meals table
+      const { error } = await supabase
+        .from('meals')
+        .insert({
+          user_id: user.id,
+          timestamp: new Date().toISOString(),
+          items: [
+            {
+              name: recipe.name,
+              quantity: `${recipe.servings} servings`,
+            }
+          ],
+          nutrition_totals: {
+            calories: recipe.calories,
+            protein: recipe.protein,
+            carbs: recipe.carbs,
+            fat: recipe.fat,
+          },
+          source: 'manual',
+          notes: recipe.description,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Added to Today's Meals",
+        description: `${recipe.name} has been logged to your meals.`,
+      });
+    } catch (error: any) {
+      console.error('Error adding to today:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add meal",
+        variant: "destructive",
+      });
+    } finally {
+      setAddingToToday(null);
+    }
+  };
+
   return (
     <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
       <div className="flex items-center justify-between mb-6">
@@ -368,6 +426,37 @@ export default function RecipesSection() {
               
               {expandedRecipe === index && (
                 <div className="p-4 border-t border-[#12AFCB]/10 bg-white/40" onClick={(e) => e.stopPropagation()}>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => handleAddToMealPlan(recipe, e)}
+                      className="flex-1 border-[#12AFCB]/30 hover:bg-[#12AFCB]/10"
+                    >
+                      <CalendarPlus className="w-4 h-4 mr-2" />
+                      Add to Meal Plan
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => handleAddToToday(recipe, e)}
+                      disabled={addingToToday === recipe.name}
+                      className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6]"
+                    >
+                      {addingToToday === recipe.name ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add to Today
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
                   <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
                   
                   <div className="flex items-center gap-4 mb-3">
@@ -519,6 +608,37 @@ export default function RecipesSection() {
 
               {expandedRecipe === index && (
                 <div className="border-t border-[#12AFCB]/10 p-6 bg-white/40">
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mb-6">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => handleAddToMealPlan(recipe, e)}
+                      className="flex-1 border-[#12AFCB]/30 hover:bg-[#12AFCB]/10"
+                    >
+                      <CalendarPlus className="w-4 h-4 mr-2" />
+                      Add to Meal Plan
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => handleAddToToday(recipe, e)}
+                      disabled={addingToToday === recipe.name}
+                      className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6]"
+                    >
+                      {addingToToday === recipe.name ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add to Today
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
                   <div className="mb-6">
                     <h5 className="font-rounded font-semibold text-[#0E1012] mb-3">Ingredients</h5>
                     <ul className="space-y-2">
@@ -550,6 +670,13 @@ export default function RecipesSection() {
           ))}
         </div>
       )}
+
+      <AddToMealPlanDialog
+        open={addToMealPlanOpen}
+        onOpenChange={setAddToMealPlanOpen}
+        recipe={selectedRecipeForPlan}
+        onSuccess={loadSavedRecipes}
+      />
     </div>
   );
 }
