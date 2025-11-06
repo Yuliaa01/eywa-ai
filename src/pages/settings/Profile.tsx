@@ -438,10 +438,10 @@ export default function ProfileSettings() {
                   <button
                     key={mode.value}
                     onClick={() => setViewMode(mode.value)}
-                    className={`p-3 rounded-xl font-medium text-sm transition-all ${
+                    className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
                       viewMode === mode.value
-                        ? 'bg-[#12AFCB]/10 text-[#12AFCB] border-2 border-[#12AFCB]/30'
-                        : 'bg-accent/5 border-2 border-border hover:bg-accent/10 hover:border-accent/20'
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                     }`}
                   >
                     {mode.label}
@@ -464,10 +464,10 @@ export default function ProfileSettings() {
                   <button
                     key={tone.value}
                     onClick={() => setAiTone(tone.value)}
-                    className={`p-3 rounded-xl font-medium text-sm transition-all ${
+                    className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
                       aiTone === tone.value
-                        ? 'bg-[#12AFCB]/10 text-[#12AFCB] border-2 border-[#12AFCB]/30'
-                        : 'bg-accent/5 border-2 border-border hover:bg-accent/10 hover:border-accent/20'
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                     }`}
                   >
                     {tone.label}
