@@ -1,10 +1,21 @@
-import { ArrowLeft, MapPin, Calendar, Clock, Cloud, Map, List, Utensils, Star, DollarSign } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Clock, Cloud, Map, List, Utensils, Star, DollarSign, Filter, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import RestaurantMap from "@/components/RestaurantMap";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function LocalEvents() {
   const navigate = useNavigate();
@@ -15,6 +26,11 @@ export default function LocalEvents() {
     diet: string[];
     allergies: string[];
   }>({ diet: [], allergies: [] });
+  
+  // Filter states
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
+  const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
+  const [matchUserDiet, setMatchUserDiet] = useState(false);
 
   useEffect(() => {
     loadUserPreferences();
@@ -69,7 +85,7 @@ export default function LocalEvents() {
   };
 
   // Generate nearby places based on user location
-  const nearbyPlaces = userLocation ? [
+  const allPlaces = userLocation ? [
     {
       name: "Green Bowl Café",
       type: "Café",
@@ -144,6 +160,68 @@ export default function LocalEvents() {
     },
   ] : [];
 
+  // Get unique cuisines and price levels for filters
+  const allCuisines = useMemo(() => {
+    const cuisines = new Set<string>();
+    allPlaces.forEach(place => place.cuisine.forEach(c => cuisines.add(c)));
+    return Array.from(cuisines).sort();
+  }, [allPlaces]);
+
+  const allPriceLevels = ["$", "$$", "$$$"];
+
+  // Filter restaurants
+  const nearbyPlaces = useMemo(() => {
+    return allPlaces.filter(place => {
+      // Cuisine filter
+      if (selectedCuisines.length > 0) {
+        const hasMatchingCuisine = place.cuisine.some(c => selectedCuisines.includes(c));
+        if (!hasMatchingCuisine) return false;
+      }
+
+      // Price filter
+      if (selectedPrices.length > 0) {
+        if (!selectedPrices.includes(place.priceLevel)) return false;
+      }
+
+      // User diet preference filter
+      if (matchUserDiet && userPreferences.diet.length > 0) {
+        const matchesDiet = place.cuisine.some(c => 
+          userPreferences.diet.some(pref => 
+            c.toLowerCase().includes(pref.toLowerCase()) || 
+            pref.toLowerCase().includes(c.toLowerCase())
+          )
+        );
+        if (!matchesDiet) return false;
+      }
+
+      return true;
+    });
+  }, [allPlaces, selectedCuisines, selectedPrices, matchUserDiet, userPreferences.diet]);
+
+  const activeFilterCount = selectedCuisines.length + selectedPrices.length + (matchUserDiet ? 1 : 0);
+
+  const clearFilters = () => {
+    setSelectedCuisines([]);
+    setSelectedPrices([]);
+    setMatchUserDiet(false);
+  };
+
+  const toggleCuisine = (cuisine: string) => {
+    setSelectedCuisines(prev => 
+      prev.includes(cuisine) 
+        ? prev.filter(c => c !== cuisine)
+        : [...prev, cuisine]
+    );
+  };
+
+  const togglePrice = (price: string) => {
+    setSelectedPrices(prev => 
+      prev.includes(price) 
+        ? prev.filter(p => p !== price)
+        : [...prev, price]
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent-teal/5 p-6">
       <div className="max-w-6xl mx-auto">
@@ -167,30 +245,132 @@ export default function LocalEvents() {
               </p>
             </div>
             
-            {/* View Toggle */}
-            <div className="flex gap-2 bg-card/60 backdrop-blur-xl border border-border rounded-xl p-1">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-accent-teal text-white shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <List className="w-4 h-4" />
-                List
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  viewMode === 'map'
-                    ? 'bg-accent-teal text-white shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Map className="w-4 h-4" />
-                Map
-              </button>
+            <div className="flex items-center gap-3">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="relative">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <Badge className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-accent-teal text-white">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Filter Restaurants</SheetTitle>
+                    <SheetDescription>
+                      Narrow down your options by cuisine, price, and dietary preferences
+                    </SheetDescription>
+                  </SheetHeader>
+                  
+                  <div className="mt-6 space-y-6">
+                    {/* User Diet Preferences */}
+                    {userPreferences.diet.length > 0 && (
+                      <div className="space-y-3">
+                        <Label className="text-base font-semibold">Your Dietary Preferences</Label>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox 
+                            id="match-diet" 
+                            checked={matchUserDiet}
+                            onCheckedChange={(checked) => setMatchUserDiet(checked === true)}
+                          />
+                          <label
+                            htmlFor="match-diet"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Match my diet ({userPreferences.diet.join(", ")})
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cuisine Types */}
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold">Cuisine Type</Label>
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {allCuisines.map((cuisine) => (
+                          <div key={cuisine} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`cuisine-${cuisine}`}
+                              checked={selectedCuisines.includes(cuisine)}
+                              onCheckedChange={() => toggleCuisine(cuisine)}
+                            />
+                            <label
+                              htmlFor={`cuisine-${cuisine}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {cuisine}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Price Level */}
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold">Price Level</Label>
+                      <div className="space-y-2">
+                        {allPriceLevels.map((price) => (
+                          <div key={price} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`price-${price}`}
+                              checked={selectedPrices.includes(price)}
+                              onCheckedChange={() => togglePrice(price)}
+                            />
+                            <label
+                              htmlFor={`price-${price}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {price}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Clear Filters */}
+                    {activeFilterCount > 0 && (
+                      <Button 
+                        variant="outline" 
+                        onClick={clearFilters}
+                        className="w-full"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Clear All Filters
+                      </Button>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* View Toggle */}
+              <div className="flex gap-2 bg-card/60 backdrop-blur-xl border border-border rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    viewMode === 'list'
+                      ? 'bg-accent-teal text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                  List
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    viewMode === 'map'
+                      ? 'bg-accent-teal text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Map className="w-4 h-4" />
+                  Map
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -240,7 +420,21 @@ export default function LocalEvents() {
 
         {/* List View */}
         <div className="space-y-4">
-          {nearbyPlaces.map((place, index) => (
+          {nearbyPlaces.length === 0 ? (
+            <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-12 text-center">
+              <Utensils className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-rounded text-xl font-semibold text-foreground mb-2">
+                No restaurants match your filters
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your filter settings to see more options
+              </p>
+              <Button variant="outline" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+            </div>
+          ) : (
+            nearbyPlaces.map((place, index) => (
             <div
               key={index}
               className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 hover:border-accent-teal/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
@@ -313,7 +507,8 @@ export default function LocalEvents() {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+        )}
         </div>
       </div>
     </div>
