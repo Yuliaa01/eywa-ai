@@ -234,18 +234,18 @@ export default function Subscription() {
           <h3 className="font-rounded text-xl font-semibold text-foreground mb-6">
             Available Plans
           </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {plans.map((plan) => {
               const Icon = plan.icon;
               return (
                 <div
                   key={plan.id}
-                  className={`relative rounded-3xl p-8 border transition-all ${
+                  className={`relative rounded-3xl p-6 border transition-all ${
                     plan.current
                       ? "bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 border-accent-teal/30"
                       : plan.popular
-                      ? "bg-card border-accent-teal/20 shadow-[0_4px_20px_rgba(18,175,203,0.1)]"
-                      : "bg-card/60 border-border hover:border-accent-teal/20"
+                      ? "bg-card border-accent-teal/20 shadow-[0_8px_32px_rgba(18,175,203,0.15)]"
+                      : "bg-card/60 border-border hover:border-accent-teal/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.1)]"
                   }`}
                 >
                   {plan.popular && (
@@ -259,38 +259,42 @@ export default function Subscription() {
                     </div>
                   )}
                   
-                  <div className="flex items-start gap-4 mb-6">
+                  <div className="flex items-start gap-3 mb-4">
                     {Icon && (
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-6 h-6 text-white" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
+                        plan.current || plan.popular
+                          ? 'bg-gradient-to-br from-accent-teal to-accent-teal-alt'
+                          : 'bg-accent-teal/10'
+                      }`}>
+                        <Icon className={`w-5 h-5 ${plan.current || plan.popular ? 'text-white' : 'text-accent-teal'}`} />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <h4 className="font-rounded text-xl font-bold text-foreground mb-1">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-rounded text-lg font-bold text-foreground mb-1 truncate">
                         {plan.name}
                       </h4>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-rounded font-bold text-accent-teal">
+                        <span className="text-2xl font-rounded font-bold text-accent-teal">
                           {plan.price}
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {plan.period}
                         </span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-2 mb-6">
                     {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-accent-teal flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-muted-foreground">{feature}</span>
+                      <div key={idx} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-accent-teal flex-shrink-0 mt-0.5" />
+                        <span className="text-xs text-muted-foreground leading-tight">{feature}</span>
                       </div>
                     ))}
                   </div>
                   
                   <Button
-                    className={`w-full ${
+                    className={`w-full h-10 text-sm ${
                       plan.current
                         ? "bg-card border border-accent-teal/20 text-accent-teal hover:bg-accent-teal/5"
                         : plan.popular
