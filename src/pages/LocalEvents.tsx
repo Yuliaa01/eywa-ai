@@ -7,15 +7,13 @@ import RestaurantMap from "@/components/RestaurantMap";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function LocalEvents() {
   const navigate = useNavigate();
@@ -246,8 +244,8 @@ export default function LocalEvents() {
             </div>
             
             <div className="flex items-center gap-3">
-              <Sheet>
-                <SheetTrigger asChild>
+              <Popover>
+                <PopoverTrigger asChild>
                   <Button variant="outline" className="relative">
                     <Filter className="w-4 h-4 mr-2" />
                     Filters
@@ -257,94 +255,103 @@ export default function LocalEvents() {
                       </Badge>
                     )}
                   </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Filter Restaurants</SheetTitle>
-                    <SheetDescription>
-                      Narrow down your options by cuisine, price, and dietary preferences
-                    </SheetDescription>
-                  </SheetHeader>
-                  
-                  <div className="mt-6 space-y-6">
-                    {/* User Diet Preferences */}
-                    {userPreferences.diet.length > 0 && (
-                      <div className="space-y-3">
-                        <Label className="text-base font-semibold">Your Dietary Preferences</Label>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id="match-diet" 
-                            checked={matchUserDiet}
-                            onCheckedChange={(checked) => setMatchUserDiet(checked === true)}
-                          />
-                          <label
-                            htmlFor="match-diet"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            Match my diet ({userPreferences.diet.join(", ")})
-                          </label>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-80 bg-card border-border shadow-lg z-50" 
+                  align="end"
+                  sideOffset={8}
+                >
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <h4 className="font-semibold text-base">Filter Restaurants</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Narrow down by cuisine, price, and diet
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* User Diet Preferences */}
+                      {userPreferences.diet.length > 0 && (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-semibold">Your Dietary Preferences</Label>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="match-diet" 
+                              checked={matchUserDiet}
+                              onCheckedChange={(checked) => setMatchUserDiet(checked === true)}
+                            />
+                            <label
+                              htmlFor="match-diet"
+                              className="text-sm leading-none cursor-pointer"
+                            >
+                              Match my diet ({userPreferences.diet.join(", ")})
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cuisine Types */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">Cuisine Type</Label>
+                        <ScrollArea className="h-40 w-full rounded-md border border-border p-2 bg-background">
+                          <div className="space-y-2">
+                            {allCuisines.map((cuisine) => (
+                              <div key={cuisine} className="flex items-center space-x-2">
+                                <Checkbox 
+                                  id={`cuisine-${cuisine}`}
+                                  checked={selectedCuisines.includes(cuisine)}
+                                  onCheckedChange={() => toggleCuisine(cuisine)}
+                                />
+                                <label
+                                  htmlFor={`cuisine-${cuisine}`}
+                                  className="text-sm leading-none cursor-pointer"
+                                >
+                                  {cuisine}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </div>
+
+                      {/* Price Level */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">Price Level</Label>
+                        <div className="space-y-2">
+                          {allPriceLevels.map((price) => (
+                            <div key={price} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`price-${price}`}
+                                checked={selectedPrices.includes(price)}
+                                onCheckedChange={() => togglePrice(price)}
+                              />
+                              <label
+                                htmlFor={`price-${price}`}
+                                className="text-sm leading-none cursor-pointer"
+                              >
+                                {price}
+                              </label>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    )}
 
-                    {/* Cuisine Types */}
-                    <div className="space-y-3">
-                      <Label className="text-base font-semibold">Cuisine Type</Label>
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {allCuisines.map((cuisine) => (
-                          <div key={cuisine} className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={`cuisine-${cuisine}`}
-                              checked={selectedCuisines.includes(cuisine)}
-                              onCheckedChange={() => toggleCuisine(cuisine)}
-                            />
-                            <label
-                              htmlFor={`cuisine-${cuisine}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {cuisine}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
+                      {/* Clear Filters */}
+                      {activeFilterCount > 0 && (
+                        <Button 
+                          variant="outline" 
+                          onClick={clearFilters}
+                          className="w-full"
+                          size="sm"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Clear All Filters
+                        </Button>
+                      )}
                     </div>
-
-                    {/* Price Level */}
-                    <div className="space-y-3">
-                      <Label className="text-base font-semibold">Price Level</Label>
-                      <div className="space-y-2">
-                        {allPriceLevels.map((price) => (
-                          <div key={price} className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={`price-${price}`}
-                              checked={selectedPrices.includes(price)}
-                              onCheckedChange={() => togglePrice(price)}
-                            />
-                            <label
-                              htmlFor={`price-${price}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {price}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Clear Filters */}
-                    {activeFilterCount > 0 && (
-                      <Button 
-                        variant="outline" 
-                        onClick={clearFilters}
-                        className="w-full"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Clear All Filters
-                      </Button>
-                    )}
                   </div>
-                </SheetContent>
-              </Sheet>
+                </PopoverContent>
+              </Popover>
 
               {/* View Toggle */}
               <div className="flex gap-2 bg-card/60 backdrop-blur-xl border border-border rounded-xl p-1">
