@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Recipe {
   name: string;
   description: string;
+  category: 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'dessert';
   prepTime: string;
   servings: number;
   calories: number;
@@ -27,6 +28,7 @@ export default function RecipesSection() {
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [savingRecipe, setSavingRecipe] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
     loadSavedRecipes();
@@ -114,6 +116,7 @@ export default function RecipesSection() {
           recipe_data: {
             name: recipe.name,
             description: recipe.description,
+            category: recipe.category,
             prepTime: recipe.prepTime,
             servings: recipe.servings,
             calories: recipe.calories,
@@ -183,6 +186,19 @@ export default function RecipesSection() {
     }
   };
 
+  const categories = [
+    { value: 'all', label: 'All' },
+    { value: 'breakfast', label: 'Breakfast' },
+    { value: 'lunch', label: 'Lunch' },
+    { value: 'dinner', label: 'Dinner' },
+    { value: 'snack', label: 'Snacks' },
+    { value: 'dessert', label: 'Desserts' },
+  ];
+
+  const filteredRecipes = selectedCategory === 'all' 
+    ? recipes 
+    : recipes.filter(recipe => recipe.category === selectedCategory);
+
   return (
     <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
       <div className="flex items-center justify-between mb-6">
@@ -236,6 +252,25 @@ export default function RecipesSection() {
         </div>
       </div>
 
+      {/* Category Filters */}
+      {recipes.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {categories.map((category) => (
+            <button
+              key={category.value}
+              onClick={() => setSelectedCategory(category.value)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === category.value
+                  ? 'bg-[#12AFCB] text-white shadow-sm'
+                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+              }`}
+            >
+              {category.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {recipes.length === 0 ? (
         <div className="text-center py-12">
           <ChefHat className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
@@ -243,7 +278,7 @@ export default function RecipesSection() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {recipes.map((recipe, index) => (
+          {filteredRecipes.map((recipe, index) => (
             <div
               key={index}
               className="group rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all cursor-pointer"
@@ -383,7 +418,7 @@ export default function RecipesSection() {
         </div>
       ) : (
         <div className="space-y-4">
-          {recipes.map((recipe, index) => (
+          {filteredRecipes.map((recipe, index) => (
             <div
               key={index}
               className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all"

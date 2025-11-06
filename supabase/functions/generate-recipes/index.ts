@@ -50,7 +50,8 @@ serve(async (req) => {
 - Nutritionally balanced and healthy
 - Easy to prepare (30 minutes or less)
 - Include macronutrient information (protein, carbs, fat in grams)
-- Include estimated calorie count`;
+- Include estimated calorie count
+- Assign each recipe a category: breakfast, lunch, dinner, snack, or dessert based on the meal type`;
 
     if (dietPreferences.length > 0) {
       systemPrompt += `\n- Follow these dietary preferences: ${dietPreferences.join(', ')}`;
@@ -97,6 +98,10 @@ serve(async (req) => {
                       properties: {
                         name: { type: 'string' },
                         description: { type: 'string' },
+                        category: { 
+                          type: 'string',
+                          enum: ['breakfast', 'lunch', 'dinner', 'snack', 'dessert']
+                        },
                         prepTime: { type: 'string' },
                         servings: { type: 'number' },
                         calories: { type: 'number' },
@@ -116,7 +121,7 @@ serve(async (req) => {
                           items: { type: 'string' }
                         }
                       },
-                      required: ['name', 'description', 'prepTime', 'servings', 'calories', 'protein', 'carbs', 'fat', 'ingredients', 'instructions', 'tags'],
+                      required: ['name', 'description', 'category', 'prepTime', 'servings', 'calories', 'protein', 'carbs', 'fat', 'ingredients', 'instructions', 'tags'],
                       additionalProperties: false
                     }
                   }
