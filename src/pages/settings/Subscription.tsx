@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, CreditCard, CheckCircle2, Sparkles, Users, Gift, Infinity, Check } from "lucide-react";
 
 export default function Subscription() {
   const navigate = useNavigate();
@@ -55,34 +55,77 @@ export default function Subscription() {
         "Full AI analysis",
         "All integrations",
         "DoctorHub access",
-        "No credit card required",
+        "No credit card",
       ],
     },
     {
       id: "pro",
-      name: "Pro Plan",
-      price: "$29",
-      period: "month",
+      name: "Pro",
+      price: "$9.99",
+      period: "/month",
       popular: true,
+      icon: Sparkles,
       features: [
-        "Everything in Free Trial",
-        "Unlimited AI consultations",
+        "Unlimited AI insights",
         "Priority support",
         "Advanced analytics",
-        "Custom protocols",
+        "Export reports",
       ],
     },
     {
-      id: "team",
-      name: "Family Plan",
-      price: "$49",
-      period: "month",
+      id: "family",
+      name: "Family",
+      price: "$24.99",
+      period: "/month",
+      icon: Users,
       features: [
-        "Everything in Pro",
-        "Up to 5 family members",
-        "Shared health insights",
-        "Family health dashboard",
-        "Care coordination",
+        "Up to 5 members",
+        "Shared insights",
+        "Family dashboard",
+        "All Pro features",
+      ],
+    },
+  ];
+
+  const giftPlans = [
+    {
+      id: "gift6",
+      name: "Gift 6 Months",
+      price: "$49.99",
+      period: "one-time",
+      icon: Gift,
+      features: [
+        "Perfect gift",
+        "6 months access",
+        "All Pro features",
+        "Gift message",
+      ],
+    },
+    {
+      id: "gift12",
+      name: "Gift 12 Months",
+      price: "$99.99",
+      period: "one-time",
+      icon: Gift,
+      badge: "Best Value",
+      features: [
+        "17% savings",
+        "12 months access",
+        "All Pro features",
+        "Gift message",
+      ],
+    },
+    {
+      id: "lifetime",
+      name: "Lifetime",
+      price: "$249.99",
+      period: "one-time",
+      icon: Infinity,
+      features: [
+        "Pay once, use forever",
+        "All future features",
+        "Priority support",
+        "Best value",
       ],
     },
   ];
@@ -152,58 +195,132 @@ export default function Subscription() {
             Available Plans
           </h3>
           <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`rounded-3xl p-8 border transition-all ${
-                  plan.current
-                    ? "bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 border-accent-teal/30"
-                    : plan.popular
-                    ? "bg-card border-accent-teal/20 shadow-[0_4px_20px_rgba(18,175,203,0.1)]"
-                    : "bg-card/60 border-border hover:border-accent-teal/20"
-                }`}
-              >
-                {plan.popular && (
-                  <div className="mb-4">
-                    <span className="px-3 py-1 rounded-lg bg-accent-teal/10 text-accent-teal text-xs font-rounded font-semibold">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-                <h4 className="font-rounded text-xl font-bold text-foreground mb-2">
-                  {plan.name}
-                </h4>
-                <div className="flex items-baseline gap-2 mb-6">
-                  <span className="text-4xl font-rounded font-bold text-foreground">
-                    {plan.price}
-                  </span>
-                  {plan.price !== "Free" && (
-                    <span className="text-muted-foreground">/{plan.period}</span>
-                  )}
-                </div>
-                <div className="space-y-3 mb-8">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-accent-teal flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-                <Button
-                  className={`w-full ${
+            {plans.map((plan) => {
+              const Icon = plan.icon;
+              return (
+                <div
+                  key={plan.id}
+                  className={`relative rounded-3xl p-8 border transition-all ${
                     plan.current
-                      ? "bg-card border border-accent-teal/20 text-accent-teal hover:bg-accent-teal/5"
+                      ? "bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 border-accent-teal/30"
                       : plan.popular
-                      ? "bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)]"
-                      : ""
+                      ? "bg-card border-accent-teal/20 shadow-[0_4px_20px_rgba(18,175,203,0.1)]"
+                      : "bg-card/60 border-border hover:border-accent-teal/20"
                   }`}
-                  variant={plan.current || plan.popular ? "default" : "outline"}
-                  disabled={plan.current}
                 >
-                  {plan.current ? "Current Plan" : "Select Plan"}
-                </Button>
-              </div>
-            ))}
+                  {plan.popular && (
+                    <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white text-xs font-rounded font-semibold shadow-lg">
+                      Popular
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start gap-4 mb-6">
+                    {Icon && (
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-rounded text-xl font-bold text-foreground mb-1">
+                        {plan.name}
+                      </h4>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-rounded font-bold text-accent-teal">
+                          {plan.price}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {plan.period}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-accent-teal flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button
+                    className={`w-full ${
+                      plan.current
+                        ? "bg-card border border-accent-teal/20 text-accent-teal hover:bg-accent-teal/5"
+                        : plan.popular
+                        ? "bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)]"
+                        : ""
+                    }`}
+                    variant={plan.current || plan.popular ? "default" : "outline"}
+                    disabled={plan.current}
+                  >
+                    {plan.current ? "Current Plan" : "Select Plan"}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Gift Options */}
+        <div className="mb-8">
+          <h3 className="font-rounded text-xl font-semibold text-foreground mb-6">
+            Gift Options
+          </h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            {giftPlans.map((plan) => {
+              const Icon = plan.icon;
+              return (
+                <div
+                  key={plan.id}
+                  className="relative rounded-3xl p-8 border bg-card/60 border-border hover:border-accent-teal/20 transition-all"
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white text-xs font-rounded font-semibold shadow-lg">
+                      {plan.badge}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start gap-4 mb-6">
+                    {Icon && (
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-rounded text-xl font-bold text-foreground mb-1">
+                        {plan.name}
+                      </h4>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-rounded font-bold text-accent-teal">
+                          {plan.price}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {plan.period}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-accent-teal flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                  >
+                    Buy as Gift
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
