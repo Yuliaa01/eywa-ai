@@ -15,7 +15,7 @@ export default function NutritionSection() {
   const [photoMealModalOpen, setPhotoMealModalOpen] = useState(false);
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
   const [fastingModalOpen, setFastingModalOpen] = useState(false);
-  const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('breakfast');
+  const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('lunch');
   const [fastingWindow, setFastingWindow] = useState({
     start: "20:00",
     end: "12:00",
@@ -96,8 +96,7 @@ export default function NutritionSection() {
     },
   ];
 
-  const handleAddMeal = (type: 'manual' | 'photo', mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') => {
-    setSelectedMealType(mealType);
+  const handleAddMeal = (type: 'manual' | 'photo') => {
     if (type === 'manual') {
       setMealModalOpen(true);
     } else {
@@ -168,42 +167,11 @@ export default function NutritionSection() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F]">Breakfast</div>
-              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'breakfast')}>
+              <DropdownMenuItem onClick={() => handleAddMeal('manual')}>
                 <FileText className="w-4 h-4 mr-2" />
                 Manual Entry
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'breakfast')}>
-                <Camera className="w-4 h-4 mr-2" />
-                Photo AI Analyze
-              </DropdownMenuItem>
-              
-              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F] mt-2">Lunch</div>
-              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'lunch')}>
-                <FileText className="w-4 h-4 mr-2" />
-                Manual Entry
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'lunch')}>
-                <Camera className="w-4 h-4 mr-2" />
-                Photo AI Analyze
-              </DropdownMenuItem>
-              
-              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F] mt-2">Snack</div>
-              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'snack')}>
-                <FileText className="w-4 h-4 mr-2" />
-                Manual Entry
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'snack')}>
-                <Camera className="w-4 h-4 mr-2" />
-                Photo AI Analyze
-              </DropdownMenuItem>
-              
-              <div className="px-2 py-1.5 text-xs font-semibold text-[#5A6B7F] mt-2">Dinner</div>
-              <DropdownMenuItem onClick={() => handleAddMeal('manual', 'dinner')}>
-                <FileText className="w-4 h-4 mr-2" />
-                Manual Entry
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAddMeal('photo', 'dinner')}>
+              <DropdownMenuItem onClick={() => handleAddMeal('photo')}>
                 <Camera className="w-4 h-4 mr-2" />
                 Photo AI Analyze
               </DropdownMenuItem>
