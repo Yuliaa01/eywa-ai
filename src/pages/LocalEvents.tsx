@@ -17,7 +17,17 @@ export default function LocalEvents() {
 
   useEffect(() => {
     loadUserPreferences();
+    const savedToken = localStorage.getItem('mapbox_token');
+    if (savedToken) {
+      setMapboxToken(savedToken);
+    }
   }, []);
+
+  const handleSaveToken = () => {
+    if (mapboxToken) {
+      localStorage.setItem('mapbox_token', mapboxToken);
+    }
+  };
 
   const loadUserPreferences = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -192,7 +202,7 @@ export default function LocalEvents() {
                         className="flex-1"
                       />
                       <Button 
-                        onClick={() => {}}
+                        onClick={handleSaveToken}
                         disabled={!mapboxToken}
                         className="bg-gradient-to-r from-accent-teal to-accent-teal-alt"
                       >
