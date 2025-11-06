@@ -85,6 +85,33 @@ export default function Subscription() {
         "All Pro features",
       ],
     },
+    {
+      id: "6months",
+      name: "6 Months",
+      price: "$49.99",
+      period: "one-time",
+      icon: Sparkles,
+      features: [
+        "6 months access",
+        "All Pro features",
+        "One-time payment",
+        "Best for commitment",
+      ],
+    },
+    {
+      id: "12months",
+      name: "12 Months",
+      price: "$99.99",
+      period: "one-time",
+      icon: Sparkles,
+      badge: "Best Value",
+      features: [
+        "17% savings",
+        "12 months access",
+        "All Pro features",
+        "One-time payment",
+      ],
+    },
   ];
 
   const giftPlans = [
@@ -194,7 +221,7 @@ export default function Subscription() {
           <h3 className="font-rounded text-xl font-semibold text-foreground mb-6">
             Available Plans
           </h3>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
             {plans.map((plan) => {
               const Icon = plan.icon;
               return (
@@ -211,6 +238,11 @@ export default function Subscription() {
                   {plan.popular && (
                     <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white text-xs font-rounded font-semibold shadow-lg">
                       Popular
+                    </div>
+                  )}
+                  {plan.badge && !plan.popular && (
+                    <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white text-xs font-rounded font-semibold shadow-lg">
+                      {plan.badge}
                     </div>
                   )}
                   
