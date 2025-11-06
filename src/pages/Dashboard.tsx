@@ -32,17 +32,29 @@ import HealthCareSection from "@/components/dashboard/HealthCareSection";
 
 export default function Dashboard() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("priorities");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    const loadUserData = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      setUserProfile(profile);
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         navigate("/auth");
       } else {
         setUser(session.user);
+        loadUserData(session.user.id);
         setLoading(false);
       }
     });
@@ -55,6 +67,7 @@ export default function Dashboard() {
           navigate("/auth");
         } else {
           setUser(session.user);
+          loadUserData(session.user.id);
         }
       } catch (error) {
         console.error("Auth state change error:", error);
@@ -91,7 +104,9 @@ export default function Dashboard() {
     );
   }
 
-  const userName = user?.email?.split("@")[0] || "there";
+  const userName = userProfile?.first_name 
+    ? `${userProfile.first_name}${userProfile.last_name ? ' ' + userProfile.last_name : ''}`
+    : user?.email?.split("@")[0] || "there";
   const greeting = (() => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
