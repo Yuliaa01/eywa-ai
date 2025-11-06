@@ -30,28 +30,37 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
     const checkUserAndRedirect = async (userId: string) => {
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('onboarding_completed')
-        .eq('user_id', userId)
-        .maybeSingle();
+      try {
+        setCheckingAuth(true);
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('onboarding_completed')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-      if (profile?.onboarding_completed) {
-        navigate("/dashboard");
-      } else {
-        navigate("/onboarding");
+        // Explicitly check if onboarding_completed is true
+        if (profile && profile.onboarding_completed === true) {
+          navigate("/dashboard");
+        } else {
+          navigate("/onboarding");
+        }
+      } finally {
+        setCheckingAuth(false);
       }
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         checkUserAndRedirect(session.user.id);
+      } else {
+        setCheckingAuth(false);
       }
     });
 
@@ -151,6 +160,19 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-accentTeal/20 to-accentTealAlt/20 backdrop-blur-xl border border-white/10 flex items-center justify-center animate-pulse">
+            <Activity className="w-8 h-8 text-accentTeal" />
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
