@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 export default function LocalEvents() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [mapboxToken, setMapboxToken] = useState('');
+  const [mapboxToken, setMapboxToken] = useState('pk.eyJ1IjoieXVsaWEtIiwiYSI6ImNtaG56bDQ5eTA2N3Mya3B5MWQwdWJqZGkifQ.6R4LNHZdElnG_PQyz6Jk7w');
   const [userPreferences, setUserPreferences] = useState<{
     diet: string[];
     allergies: string[];
