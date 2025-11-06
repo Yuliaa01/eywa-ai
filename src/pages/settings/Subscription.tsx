@@ -112,6 +112,19 @@ export default function Subscription() {
         "One-time payment",
       ],
     },
+    {
+      id: "lifetime",
+      name: "Lifetime",
+      price: "$249.99",
+      period: "one-time",
+      icon: Infinity,
+      features: [
+        "Pay once, use forever",
+        "All future features",
+        "Priority support",
+        "Best value",
+      ],
+    },
   ];
 
   const giftPlans = [
@@ -221,7 +234,7 @@ export default function Subscription() {
           <h3 className="font-rounded text-xl font-semibold text-foreground mb-6">
             Available Plans
           </h3>
-          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
             {plans.map((plan) => {
               const Icon = plan.icon;
               return (
