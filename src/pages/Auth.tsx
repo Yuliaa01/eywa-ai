@@ -261,7 +261,7 @@ export default function Auth() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-accentTeal to-accentTealAlt text-white font-medium rounded-2xl hover:opacity-90 transition-opacity"
+                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-2xl transition-all"
                   disabled={loading}
                 >
                   {loading ? "Signing in..." : "Sign In"}
@@ -321,7 +321,7 @@ export default function Auth() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-accentTeal to-accentTealAlt text-white font-medium rounded-2xl hover:opacity-90 transition-opacity"
+                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-2xl transition-all"
                   disabled={loading}
                 >
                   {loading ? "Creating account..." : "Create Account"}
