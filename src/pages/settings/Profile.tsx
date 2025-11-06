@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, Link as LinkIcon, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,8 @@ export default function ProfileSettings() {
     height_cm: "",
     weight_kg: "",
   });
+  const [viewMode, setViewMode] = useState('standard');
+  const [aiTone, setAiTone] = useState('friendly');
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -51,6 +53,15 @@ export default function ProfileSettings() {
           height_cm: data.height_cm?.toString() || "",
           weight_kg: data.weight_kg?.toString() || "",
         });
+        // Load view mode and AI tone from locale field (stored as JSON)
+        try {
+          const preferences = data.locale ? JSON.parse(data.locale) : {};
+          setViewMode(preferences.viewMode || 'standard');
+          setAiTone(preferences.aiTone || 'friendly');
+        } catch {
+          setViewMode('standard');
+          setAiTone('friendly');
+        }
       }
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -63,6 +74,9 @@ export default function ProfileSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Store view mode and AI tone in locale field as JSON
+      const preferences = JSON.stringify({ viewMode, aiTone });
+      
       const { error } = await supabase
         .from("user_profiles")
         .upsert({
@@ -74,6 +88,7 @@ export default function ProfileSettings() {
           sex_at_birth: profile.sex_at_birth as any || null,
           height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
           weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
+          locale: preferences,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
 
@@ -382,13 +397,15 @@ export default function ProfileSettings() {
         </div>
 
         {/* Preferences */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
+        <div className="rounded-3xl bg-card border border-border p-6 space-y-6">
           <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
             <Lock className="w-4 h-4" />
             Preferences
           </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
+          
+          <div className="space-y-6">
+            {/* Theme */}
+            <div className="space-y-3">
               <Label>Theme</Label>
               <RadioGroup value={theme} onValueChange={(value: any) => setTheme(value)}>
                 <div className="flex items-center space-x-2">
@@ -405,18 +422,52 @@ export default function ProfileSettings() {
                 </div>
               </RadioGroup>
             </div>
-          </div>
-        </div>
 
-        {/* Connections */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
-            <LinkIcon className="w-4 h-4" />
-            Connections
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="rounded-lg">Fitbit</Badge>
-            <Badge variant="outline" className="rounded-lg">Oura</Badge>
+            {/* App View */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4 text-accent" />
+                <Label>App View</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {['Standard', 'Advanced'].map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode.toLowerCase())}
+                    className={`p-3 rounded-xl font-medium text-sm transition-all ${
+                      viewMode === mode.toLowerCase()
+                        ? 'bg-[#12AFCB]/10 text-[#12AFCB] border-2 border-[#12AFCB]/30'
+                        : 'bg-accent/5 border-2 border-border hover:bg-accent/10 hover:border-accent/20'
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Communication */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-accent" />
+                <Label>AI Communication</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {['Friendly', 'Advanced'].map((tone) => (
+                  <button
+                    key={tone}
+                    onClick={() => setAiTone(tone.toLowerCase())}
+                    className={`p-3 rounded-xl font-medium text-sm transition-all ${
+                      aiTone === tone.toLowerCase()
+                        ? 'bg-[#12AFCB]/10 text-[#12AFCB] border-2 border-[#12AFCB]/30'
+                        : 'bg-accent/5 border-2 border-border hover:bg-accent/10 hover:border-accent/20'
+                    }`}
+                  >
+                    {tone}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
