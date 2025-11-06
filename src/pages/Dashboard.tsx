@@ -104,9 +104,7 @@ export default function Dashboard() {
     );
   }
 
-  const userName = userProfile?.first_name 
-    ? `${userProfile.first_name}${userProfile.last_name ? ' ' + userProfile.last_name : ''}`
-    : user?.email?.split("@")[0] || "there";
+  const userName = userProfile?.first_name || user?.email?.split("@")[0] || "there";
   const greeting = (() => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
