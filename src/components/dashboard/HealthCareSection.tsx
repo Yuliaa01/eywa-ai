@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity, Plus, Calendar, TestTube, FileText, TrendingUp } from "lucide-react";
+import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity, Plus, Calendar, TestTube, FileText, TrendingUp, Pill, Stethoscope } from "lucide-react";
 import { IssueModal } from "@/components/modals/IssueModal";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { useState, useEffect } from "react";
@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import ChatDrawer from "@/components/ChatDrawer";
 import { format, differenceInDays } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
@@ -15,8 +16,12 @@ export default function HealthCareSection() {
   const [biomarkerScores, setBiomarkerScores] = useState<any[]>([]);
   const [testOrders, setTestOrders] = useState<any[]>([]);
   const [aiFeedback, setAiFeedback] = useState<any>(null);
+  const [vitals, setVitals] = useState<any[]>([]);
+  const [supplements, setSupplements] = useState<any[]>([]);
+  const [healthIssues, setHealthIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadHealthData();
@@ -81,10 +86,35 @@ export default function HealthCareSection() {
         .limit(1)
         .maybeSingle();
 
+      // Fetch recent vitals
+      const { data: vitalData } = await supabase
+        .from("vitals_stream")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("recorded_at", { ascending: false })
+        .limit(5);
+
+      // Fetch supplements
+      const { data: supplementData } = await supabase
+        .from("supplements")
+        .select("*")
+        .eq("user_id", user.id)
+        .is("deleted_at", null);
+
+      // Fetch active health issues
+      const { data: issuesData } = await supabase
+        .from("health_issues")
+        .select("*")
+        .eq("user_id", user.id)
+        .is("resolved_at", null);
+
       setLabResults(labs || []);
       setBiomarkerScores(biomarkers || []);
       setTestOrders(orders || []);
       setAiFeedback(feedback);
+      setVitals(vitalData || []);
+      setSupplements(supplementData || []);
+      setHealthIssues(issuesData || []);
     } catch (error) {
       console.error("Error loading health data:", error);
     } finally {
@@ -338,7 +368,52 @@ export default function HealthCareSection() {
             </div>
           )}
 
-          <button className="w-full px-6 py-3 rounded-xl bg-card border border-accent-teal/20 text-accent-teal font-rounded font-medium hover:bg-accent-teal/5 transition-colors">
+          {/* Additional Health Indicators */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            {/* Days Since Last Lab */}
+            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
+              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
+                {differenceInDays(new Date(), new Date(labSummary.date))}
+              </div>
+              <div className="text-xs text-muted-foreground">Days Since<br/>Last Lab</div>
+            </div>
+
+            {/* Active Issues */}
+            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
+              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
+                {healthIssues.length}
+              </div>
+              <div className="text-xs text-muted-foreground">Active<br/>Health Issues</div>
+            </div>
+
+            {/* Supplements */}
+            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Pill className="w-5 h-5 text-accent-teal" />
+              </div>
+              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
+                {supplements.length}
+              </div>
+              <div className="text-xs text-muted-foreground">Active<br/>Supplements</div>
+            </div>
+
+            {/* Recent Vitals */}
+            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Activity className="w-5 h-5 text-accent-teal" />
+              </div>
+              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
+                {vitals.length}
+              </div>
+              <div className="text-xs text-muted-foreground">Recent<br/>Vitals</div>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => navigate("/doctor-hub")}
+            className="w-full px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-rounded font-medium transition-all flex items-center justify-center gap-2"
+          >
+            <Stethoscope className="w-4 h-4" />
             View Full Report
           </button>
         </div>
