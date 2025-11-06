@@ -5,6 +5,7 @@ import { ChefHat, Clock, Users, Flame, Loader2, Heart, Grid3x3, List } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { AddToMealPlanDialog } from "@/components/modals/AddToMealPlanDialog";
 import { RecipeDetailModal } from "@/components/modals/RecipeDetailModal";
+import { RecipePreferencesDialog } from "@/components/modals/RecipePreferencesDialog";
 
 interface Recipe {
   name: string;
@@ -35,6 +36,7 @@ export default function RecipesSection() {
   const [addingToToday, setAddingToToday] = useState<string | null>(null);
   const [recipeDetailOpen, setRecipeDetailOpen] = useState(false);
   const [selectedRecipeForDetail, setSelectedRecipeForDetail] = useState<Recipe | null>(null);
+  const [preferencesDialogOpen, setPreferencesDialogOpen] = useState(false);
 
   useEffect(() => {
     loadSavedRecipes();
@@ -72,10 +74,15 @@ export default function RecipesSection() {
     }
   };
 
-  const generateRecipes = async () => {
+  const generateRecipes = async (preferences?: {
+    description?: string;
+    ingredients?: string;
+    mealType?: string;
+  }) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-recipes', {
+        body: preferences,
         headers: {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         }
@@ -115,6 +122,7 @@ export default function RecipesSection() {
       });
     } finally {
       setLoading(false);
+      setPreferencesDialogOpen(false);
     }
   };
 
@@ -303,7 +311,7 @@ export default function RecipesSection() {
             </div>
           )}
           <Button
-            onClick={generateRecipes}
+            onClick={() => setPreferencesDialogOpen(true)}
             disabled={loading}
             className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
           >
@@ -557,6 +565,13 @@ export default function RecipesSection() {
         }}
         isSaving={savingRecipe === selectedRecipeForDetail?.name}
         isAddingToToday={addingToToday === selectedRecipeForDetail?.name}
+      />
+
+      <RecipePreferencesDialog
+        open={preferencesDialogOpen}
+        onOpenChange={setPreferencesDialogOpen}
+        onGenerate={generateRecipes}
+        loading={loading}
       />
     </div>
   );

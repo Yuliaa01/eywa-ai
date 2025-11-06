@@ -33,6 +33,20 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
+    // Parse request body for user preferences
+    let userPreferences: {
+      description?: string;
+      ingredients?: string;
+      mealType?: string;
+    } = {};
+    
+    try {
+      const body = await req.json();
+      userPreferences = body || {};
+    } catch {
+      // No body provided, use defaults
+    }
+
     // Fetch user profile data
     const { data: profile } = await supabase
       .from('user_profiles')
@@ -52,6 +66,19 @@ serve(async (req) => {
 - Include macronutrient information (protein, carbs, fat in grams)
 - Include estimated calorie count
 - Assign each recipe a category: breakfast, lunch, dinner, snack, or dessert based on the meal type`;
+
+    // Add user preferences from the dialog
+    if (userPreferences.description) {
+      systemPrompt += `\n- User wants: ${userPreferences.description}`;
+    }
+
+    if (userPreferences.ingredients) {
+      systemPrompt += `\n- Try to use these available ingredients: ${userPreferences.ingredients}`;
+    }
+
+    if (userPreferences.mealType) {
+      systemPrompt += `\n- Focus on ${userPreferences.mealType} recipes`;
+    }
 
     if (dietPreferences.length > 0) {
       systemPrompt += `\n- Follow these dietary preferences: ${dietPreferences.join(', ')}`;
