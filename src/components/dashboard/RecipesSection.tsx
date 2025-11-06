@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ChefHat, Clock, Users, Flame, Loader2, Heart } from "lucide-react";
+import { ChefHat, Clock, Users, Flame, Loader2, Heart, Grid3x3, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Recipe {
@@ -26,6 +26,7 @@ export default function RecipesSection() {
   const [loading, setLoading] = useState(false);
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [savingRecipe, setSavingRecipe] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     loadSavedRecipes();
@@ -189,29 +190,196 @@ export default function RecipesSection() {
           <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">AI Recipe Suggestions</h3>
           <p className="text-sm text-[#5A6B7F] mt-1">Personalized meals based on your preferences</p>
         </div>
-        <Button
-          onClick={generateRecipes}
-          disabled={loading}
-          className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <ChefHat className="w-4 h-4 mr-2" />
-              Generate Recipes
-            </>
+        <div className="flex items-center gap-2">
+          {/* View Toggle */}
+          {recipes.length > 0 && (
+            <div className="flex gap-1 bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 rounded-xl p-1 mr-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === 'grid'
+                    ? 'bg-[#12AFCB] text-white shadow-sm'
+                    : 'text-[#5A6B7F] hover:text-[#0E1012]'
+                }`}
+              >
+                <Grid3x3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === 'list'
+                    ? 'bg-[#12AFCB] text-white shadow-sm'
+                    : 'text-[#5A6B7F] hover:text-[#0E1012]'
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           )}
-        </Button>
+          <Button
+            onClick={generateRecipes}
+            disabled={loading}
+            className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <ChefHat className="w-4 h-4 mr-2" />
+                Generate Recipes
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {recipes.length === 0 ? (
         <div className="text-center py-12">
           <ChefHat className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
           <p className="text-[#5A6B7F]">Click the button above to get AI-generated recipe suggestions tailored to your dietary preferences.</p>
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {recipes.map((recipe, index) => (
+            <div
+              key={index}
+              className="group rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all cursor-pointer"
+              onClick={() => setExpandedRecipe(expandedRecipe === index ? null : index)}
+            >
+              {recipe.imageUrl ? (
+                <div className="relative w-full aspect-square overflow-hidden">
+                  <img 
+                    src={recipe.imageUrl} 
+                    alt={recipe.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (recipe.savedId) {
+                        unsaveRecipe(recipe.savedId, index);
+                      } else {
+                        saveRecipe(recipe, index);
+                      }
+                    }}
+                    disabled={savingRecipe === recipe.name}
+                    className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                  >
+                    {savingRecipe === recipe.name ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
+                      />
+                    )}
+                  </Button>
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h4 className="font-rounded text-lg font-semibold text-white mb-2">{recipe.name}</h4>
+                    <div className="flex items-center gap-3 text-white/90 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {recipe.prepTime}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Flame className="w-4 h-4" />
+                        {recipe.calories} cal
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
+                  <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (recipe.savedId) {
+                        unsaveRecipe(recipe.savedId, index);
+                      } else {
+                        saveRecipe(recipe, index);
+                      }
+                    }}
+                    disabled={savingRecipe === recipe.name}
+                    className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                  >
+                    {savingRecipe === recipe.name ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
+                      />
+                    )}
+                  </Button>
+                </div>
+              )}
+              
+              {expandedRecipe === index && (
+                <div className="p-4 border-t border-[#12AFCB]/10 bg-white/40" onClick={(e) => e.stopPropagation()}>
+                  <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
+                  
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="text-sm">
+                      <span className="text-[#5A6B7F]">P: </span>
+                      <span className="font-medium text-[#0E1012]">{recipe.protein}g</span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-[#5A6B7F]">C: </span>
+                      <span className="font-medium text-[#0E1012]">{recipe.carbs}g</span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-[#5A6B7F]">F: </span>
+                      <span className="font-medium text-[#0E1012]">{recipe.fat}g</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {recipe.tags.map((tag, tagIndex) => (
+                      <span
+                        key={tagIndex}
+                        className="px-2 py-1 rounded-full bg-[#12AFCB]/5 border border-[#12AFCB]/10 text-[#12AFCB] text-xs font-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mb-4">
+                    <h5 className="font-rounded font-semibold text-[#0E1012] mb-2 text-sm">Ingredients</h5>
+                    <ul className="space-y-1">
+                      {recipe.ingredients.map((ingredient, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-[#5A6B7F]">
+                          <span className="w-1 h-1 rounded-full bg-[#12AFCB] mt-1.5 flex-shrink-0" />
+                          {ingredient}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h5 className="font-rounded font-semibold text-[#0E1012] mb-2 text-sm">Instructions</h5>
+                    <ol className="space-y-2">
+                      {recipe.instructions.map((instruction, i) => (
+                        <li key={i} className="flex gap-2 text-xs text-[#5A6B7F]">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#12AFCB]/10 text-[#12AFCB] flex items-center justify-center text-xs font-semibold">
+                            {i + 1}
+                          </span>
+                          {instruction}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="space-y-4">
