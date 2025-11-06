@@ -407,20 +407,25 @@ export default function ProfileSettings() {
             {/* Theme */}
             <div className="space-y-3">
               <Label>Theme</Label>
-              <RadioGroup value={theme} onValueChange={(value: any) => setTheme(value)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="light" id="light" />
-                  <Label htmlFor="light">Light</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="dark" id="dark" />
-                  <Label htmlFor="dark">Dark</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="system" id="system" />
-                  <Label htmlFor="system">System</Label>
-                </div>
-              </RadioGroup>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Light', value: 'light' },
+                  { label: 'Dark', value: 'dark' },
+                  { label: 'System', value: 'system' }
+                ].map((themeOption) => (
+                  <button
+                    key={themeOption.value}
+                    onClick={() => setTheme(themeOption.value as any)}
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                      theme === themeOption.value
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
+                    }`}
+                  >
+                    {themeOption.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* View Mode */}
@@ -438,7 +443,7 @@ export default function ProfileSettings() {
                   <button
                     key={mode.value}
                     onClick={() => setViewMode(mode.value)}
-                    className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
                       viewMode === mode.value
                         ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                         : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
@@ -464,7 +469,7 @@ export default function ProfileSettings() {
                   <button
                     key={tone.value}
                     onClick={() => setAiTone(tone.value)}
-                    className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
                       aiTone === tone.value
                         ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                         : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
