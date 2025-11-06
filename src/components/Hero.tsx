@@ -49,14 +49,14 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button 
-              variant="hero" 
-              size="lg" 
-              className="min-w-[200px]"
-              onClick={() => navigate("/auth")}
-            >
-              Get Started
-            </Button>
+          <Button 
+            variant="hero" 
+            size="lg" 
+            className="min-w-[200px] bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => navigate("/auth")}
+          >
+            Get Started
+          </Button>
             <Button 
               variant="outline" 
               size="lg" 
