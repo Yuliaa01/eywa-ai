@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ChefHat, Clock, Users, Flame, Loader2, Heart, Grid3x3, List, CalendarPlus, Plus } from "lucide-react";
+import { ChefHat, Clock, Users, Flame, Loader2, Heart, Grid3x3, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AddToMealPlanDialog } from "@/components/modals/AddToMealPlanDialog";
+import { RecipeDetailModal } from "@/components/modals/RecipeDetailModal";
 
 interface Recipe {
   name: string;
@@ -26,13 +27,14 @@ export default function RecipesSection() {
   const { toast } = useToast();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
-  const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [savingRecipe, setSavingRecipe] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [addToMealPlanOpen, setAddToMealPlanOpen] = useState(false);
   const [selectedRecipeForPlan, setSelectedRecipeForPlan] = useState<Recipe | null>(null);
   const [addingToToday, setAddingToToday] = useState<string | null>(null);
+  const [recipeDetailOpen, setRecipeDetailOpen] = useState(false);
+  const [selectedRecipeForDetail, setSelectedRecipeForDetail] = useState<Recipe | null>(null);
 
   useEffect(() => {
     loadSavedRecipes();
@@ -213,14 +215,14 @@ export default function RecipesSection() {
     ? recipes 
     : recipes.filter(recipe => recipe.category === selectedCategory);
 
-  const handleAddToMealPlan = (recipe: Recipe, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleAddToMealPlan = (recipe: Recipe, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setSelectedRecipeForPlan(recipe);
     setAddToMealPlanOpen(true);
   };
 
-  const handleAddToToday = async (recipe: Recipe, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleAddToToday = async (recipe: Recipe, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setAddingToToday(recipe.name);
     
     try {
@@ -350,7 +352,10 @@ export default function RecipesSection() {
             <div
               key={index}
               className="group rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all cursor-pointer"
-              onClick={() => setExpandedRecipe(expandedRecipe === index ? null : index)}
+              onClick={() => {
+                setSelectedRecipeForDetail(recipe);
+                setRecipeDetailOpen(true);
+              }}
             >
               {recipe.imageUrl ? (
                 <div className="relative w-full aspect-square overflow-hidden">
@@ -423,95 +428,6 @@ export default function RecipesSection() {
                   </Button>
                 </div>
               )}
-              
-              {expandedRecipe === index && (
-                <div className="p-4 border-t border-[#12AFCB]/10 bg-white/40" onClick={(e) => e.stopPropagation()}>
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mb-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => handleAddToMealPlan(recipe, e)}
-                      className="flex-1 border-[#12AFCB]/30 hover:bg-[#12AFCB]/10"
-                    >
-                      <CalendarPlus className="w-4 h-4 mr-2" />
-                      Add to Meal Plan
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={(e) => handleAddToToday(recipe, e)}
-                      disabled={addingToToday === recipe.name}
-                      className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6]"
-                    >
-                      {addingToToday === recipe.name ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Adding...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add to Today
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  
-                  <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
-                  
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="text-sm">
-                      <span className="text-[#5A6B7F]">P: </span>
-                      <span className="font-medium text-[#0E1012]">{recipe.protein}g</span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-[#5A6B7F]">C: </span>
-                      <span className="font-medium text-[#0E1012]">{recipe.carbs}g</span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-[#5A6B7F]">F: </span>
-                      <span className="font-medium text-[#0E1012]">{recipe.fat}g</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {recipe.tags.map((tag, tagIndex) => (
-                      <span
-                        key={tagIndex}
-                        className="px-2 py-1 rounded-full bg-[#12AFCB]/5 border border-[#12AFCB]/10 text-[#12AFCB] text-xs font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="font-rounded font-semibold text-[#0E1012] mb-2 text-sm">Ingredients</h5>
-                    <ul className="space-y-1">
-                      {recipe.ingredients.map((ingredient, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-[#5A6B7F]">
-                          <span className="w-1 h-1 rounded-full bg-[#12AFCB] mt-1.5 flex-shrink-0" />
-                          {ingredient}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h5 className="font-rounded font-semibold text-[#0E1012] mb-2 text-sm">Instructions</h5>
-                    <ol className="space-y-2">
-                      {recipe.instructions.map((instruction, i) => (
-                        <li key={i} className="flex gap-2 text-xs text-[#5A6B7F]">
-                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#12AFCB]/10 text-[#12AFCB] flex items-center justify-center text-xs font-semibold">
-                            {i + 1}
-                          </span>
-                          {instruction}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -520,7 +436,11 @@ export default function RecipesSection() {
           {filteredRecipes.map((recipe, index) => (
             <div
               key={index}
-              className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all"
+              className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all cursor-pointer"
+              onClick={() => {
+                setSelectedRecipeForDetail(recipe);
+                setRecipeDetailOpen(true);
+              }}
             >
               {recipe.imageUrl && (
                 <div className="w-full h-48 overflow-hidden">
@@ -591,10 +511,7 @@ export default function RecipesSection() {
                   </div>
                 </div>
 
-                <div 
-                  className="flex flex-wrap gap-2 cursor-pointer"
-                  onClick={() => setExpandedRecipe(expandedRecipe === index ? null : index)}
-                >
+                <div className="flex flex-wrap gap-2">
                   {recipe.tags.map((tag, tagIndex) => (
                     <span
                       key={tagIndex}
@@ -605,67 +522,6 @@ export default function RecipesSection() {
                   ))}
                 </div>
               </div>
-
-              {expandedRecipe === index && (
-                <div className="border-t border-[#12AFCB]/10 p-6 bg-white/40">
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mb-6">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => handleAddToMealPlan(recipe, e)}
-                      className="flex-1 border-[#12AFCB]/30 hover:bg-[#12AFCB]/10"
-                    >
-                      <CalendarPlus className="w-4 h-4 mr-2" />
-                      Add to Meal Plan
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={(e) => handleAddToToday(recipe, e)}
-                      disabled={addingToToday === recipe.name}
-                      className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6]"
-                    >
-                      {addingToToday === recipe.name ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Adding...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add to Today
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  <div className="mb-6">
-                    <h5 className="font-rounded font-semibold text-[#0E1012] mb-3">Ingredients</h5>
-                    <ul className="space-y-2">
-                      {recipe.ingredients.map((ingredient, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-[#5A6B7F]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#12AFCB] mt-2 flex-shrink-0" />
-                          {ingredient}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h5 className="font-rounded font-semibold text-[#0E1012] mb-3">Instructions</h5>
-                    <ol className="space-y-3">
-                      {recipe.instructions.map((instruction, i) => (
-                        <li key={i} className="flex gap-3 text-sm text-[#5A6B7F]">
-                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#12AFCB]/10 text-[#12AFCB] flex items-center justify-center text-xs font-semibold">
-                            {i + 1}
-                          </span>
-                          {instruction}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -675,7 +531,32 @@ export default function RecipesSection() {
         open={addToMealPlanOpen}
         onOpenChange={setAddToMealPlanOpen}
         recipe={selectedRecipeForPlan}
-        onSuccess={loadSavedRecipes}
+      />
+
+      <RecipeDetailModal
+        recipe={selectedRecipeForDetail}
+        open={recipeDetailOpen}
+        onOpenChange={setRecipeDetailOpen}
+        onSave={() => {
+          if (selectedRecipeForDetail) {
+            const index = recipes.findIndex(r => r.name === selectedRecipeForDetail.name);
+            if (index !== -1) saveRecipe(selectedRecipeForDetail, index);
+          }
+        }}
+        onUnsave={() => {
+          if (selectedRecipeForDetail?.savedId) {
+            const index = recipes.findIndex(r => r.name === selectedRecipeForDetail.name);
+            if (index !== -1) unsaveRecipe(selectedRecipeForDetail.savedId, index);
+          }
+        }}
+        onAddToMealPlan={() => {
+          if (selectedRecipeForDetail) handleAddToMealPlan(selectedRecipeForDetail);
+        }}
+        onAddToToday={() => {
+          if (selectedRecipeForDetail) handleAddToToday(selectedRecipeForDetail);
+        }}
+        isSaving={savingRecipe === selectedRecipeForDetail?.name}
+        isAddingToToday={addingToToday === selectedRecipeForDetail?.name}
       />
     </div>
   );
