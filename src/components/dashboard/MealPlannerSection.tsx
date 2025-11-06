@@ -38,6 +38,13 @@ interface MealPlan {
   recipe_data: RecipeData;
 }
 
+interface FastingWindow {
+  id: string;
+  start_at: string;
+  end_at: string | null;
+  protocol: string | null;
+}
+
 const MealSlot = ({ 
   date, 
   mealType, 
@@ -134,12 +141,13 @@ export default function MealPlannerSection() {
   const { toast } = useToast();
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
+  const [fastingWindows, setFastingWindows] = useState<FastingWindow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
-  const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
+  const mealTypes = ['meal1', 'meal2', 'meal3', 'meal4'];
 
   useEffect(() => {
     loadData();
@@ -184,6 +192,18 @@ export default function MealPlannerSection() {
           ...p,
           recipe_data: p.recipe_data as unknown as RecipeData
         })));
+      }
+
+      // Load fasting windows for current week
+      const { data: fasting } = await supabase
+        .from('fasting_windows')
+        .select('*')
+        .gte('start_at', currentWeekStart.toISOString())
+        .lte('start_at', weekEnd.toISOString())
+        .order('start_at', { ascending: true });
+
+      if (fasting) {
+        setFastingWindows(fasting as FastingWindow[]);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -290,6 +310,41 @@ export default function MealPlannerSection() {
     }
   };
 
+  const getEatingWindowForDay = (day: Date): string => {
+    const dayStart = new Date(day);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(day);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    // Find fasting window that overlaps with this day
+    const fasting = fastingWindows.find(fw => {
+      const fastStart = new Date(fw.start_at);
+      const fastEnd = fw.end_at ? new Date(fw.end_at) : new Date();
+      
+      return (fastStart <= dayEnd && fastEnd >= dayStart);
+    });
+
+    if (!fasting || !fasting.end_at) {
+      return "All day";
+    }
+
+    const fastEnd = new Date(fasting.end_at);
+    
+    // If fasting ends on this day, show eating window from end time
+    if (fastEnd.toDateString() === day.toDateString()) {
+      return `${format(fastEnd, 'h:mm a')} onwards`;
+    }
+
+    // If fasting starts on this day, show eating window until start time
+    const fastStart = new Date(fasting.start_at);
+    if (fastStart.toDateString() === day.toDateString()) {
+      return `Until ${format(fastStart, 'h:mm a')}`;
+    }
+
+    // Day is completely within fasting window
+    return "Fasting";
+  };
+
   if (loading) {
     return (
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8">
@@ -366,11 +421,25 @@ export default function MealPlannerSection() {
                 ))}
               </div>
 
+              {/* Eating Window Row */}
+              <div className="grid grid-cols-8 gap-3 mb-4 pb-3 border-b border-[#12AFCB]/10">
+                <div className="flex items-center text-xs text-[#5A6B7F] font-medium">
+                  🕐 Eating Window
+                </div>
+                {weekDays.map((day) => (
+                  <div key={`window-${day.toISOString()}`} className="text-center">
+                    <div className="text-xs text-[#12AFCB] font-medium bg-[#12AFCB]/5 rounded-lg py-2 px-2">
+                      {getEatingWindowForDay(day)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               {/* Meal Rows */}
-              {mealTypes.map((mealType) => (
+              {mealTypes.map((mealType, index) => (
                 <div key={mealType} className="grid grid-cols-8 gap-3 mb-3">
-                  <div className="flex items-center font-medium text-sm text-[#5A6B7F] capitalize">
-                    {mealType}
+                  <div className="flex items-center font-medium text-sm text-[#5A6B7F]">
+                    Meal {index + 1}
                   </div>
                   {weekDays.map((day) => {
                     const dateStr = format(day, 'yyyy-MM-dd');
