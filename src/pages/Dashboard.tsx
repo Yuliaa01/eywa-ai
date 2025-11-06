@@ -173,21 +173,21 @@ export default function Dashboard() {
                 >
                   <DropdownMenuItem 
                     onClick={() => navigate("/settings/profile")}
-                    className="cursor-pointer focus:bg-accent/10"
+                    className="cursor-pointer"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Profile Settings
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => navigate("/settings/subscription")}
-                    className="cursor-pointer focus:bg-accent/10"
+                    className="cursor-pointer"
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
                     Subscription & Billing
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => navigate("/connections")}
-                    className="cursor-pointer focus:bg-accent/10"
+                    className="cursor-pointer"
                   >
                     <Link2 className="w-4 h-4 mr-2" />
                     Connections
@@ -195,7 +195,7 @@ export default function Dashboard() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={handleSignOut}
-                    className="cursor-pointer focus:bg-accent/10 text-destructive focus:text-destructive"
+                    className="cursor-pointer text-destructive"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
