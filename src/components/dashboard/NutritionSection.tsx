@@ -6,9 +6,11 @@ import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import FastingTimer from "./FastingTimer";
 
 export default function NutritionSection() {
+  const navigate = useNavigate();
   const [mealModalOpen, setMealModalOpen] = useState(false);
   const [photoMealModalOpen, setPhotoMealModalOpen] = useState(false);
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
@@ -256,7 +258,10 @@ export default function NutritionSection() {
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Nearby & Recommended</h3>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] font-rounded font-medium text-sm transition-colors">
+          <button 
+            onClick={() => navigate('/local-events')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] font-rounded font-medium text-sm transition-colors"
+          >
             <MapPin className="w-4 h-4" />
             Find More
           </button>
