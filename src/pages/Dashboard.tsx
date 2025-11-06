@@ -140,9 +140,9 @@ export default function Dashboard() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="w-10 h-10 rounded-xl hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-10 h-10 rounded-xl hover:bg-accent-teal/10 hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent-teal"
                   >
-                    <Bell className="w-5 h-5 text-muted-foreground" />
+                    <Bell className="w-5 h-5 text-muted-foreground hover:text-accent-teal transition-colors" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent 
@@ -159,7 +159,7 @@ export default function Dashboard() {
               {/* Avatar Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="w-10 h-10 rounded-xl hover:ring-2 hover:ring-accent transition-all focus:outline-none focus:ring-2 focus:ring-accent">
+                  <button className="w-10 h-10 rounded-xl hover:ring-2 hover:ring-accent-teal hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent-teal">
                     <Avatar className="w-10 h-10">
                       <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
                         <User className="w-5 h-5" />
