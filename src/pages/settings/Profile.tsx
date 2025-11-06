@@ -423,47 +423,54 @@ export default function ProfileSettings() {
               </RadioGroup>
             </div>
 
-            {/* App View */}
+            {/* View Mode */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4 text-accent" />
-                <Label>App View</Label>
+                <Label>View Mode</Label>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {['Standard', 'Advanced'].map((mode) => (
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Standard', value: 'standard' },
+                  { label: 'Professional', value: 'professional' },
+                  { label: 'Doctor View', value: 'doctor_view' }
+                ].map((mode) => (
                   <button
-                    key={mode}
-                    onClick={() => setViewMode(mode.toLowerCase())}
+                    key={mode.value}
+                    onClick={() => setViewMode(mode.value)}
                     className={`p-3 rounded-xl font-medium text-sm transition-all ${
-                      viewMode === mode.toLowerCase()
+                      viewMode === mode.value
                         ? 'bg-[#12AFCB]/10 text-[#12AFCB] border-2 border-[#12AFCB]/30'
                         : 'bg-accent/5 border-2 border-border hover:bg-accent/10 hover:border-accent/20'
                     }`}
                   >
-                    {mode}
+                    {mode.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* AI Communication */}
+            {/* AI Tone */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-accent" />
-                <Label>AI Communication</Label>
+                <Label>AI Tone</Label>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {['Friendly', 'Advanced'].map((tone) => (
+                {[
+                  { label: 'Friendly', value: 'friendly' },
+                  { label: 'Clinical', value: 'clinical' }
+                ].map((tone) => (
                   <button
-                    key={tone}
-                    onClick={() => setAiTone(tone.toLowerCase())}
+                    key={tone.value}
+                    onClick={() => setAiTone(tone.value)}
                     className={`p-3 rounded-xl font-medium text-sm transition-all ${
-                      aiTone === tone.toLowerCase()
+                      aiTone === tone.value
                         ? 'bg-[#12AFCB]/10 text-[#12AFCB] border-2 border-[#12AFCB]/30'
                         : 'bg-accent/5 border-2 border-border hover:bg-accent/10 hover:border-accent/20'
                     }`}
                   >
-                    {tone}
+                    {tone.label}
                   </button>
                 ))}
               </div>
