@@ -731,6 +731,33 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_recipes: {
+        Row: {
+          created_at: string
+          id: string
+          image_data: string | null
+          recipe_data: Json
+          recipe_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_data?: string | null
+          recipe_data: Json
+          recipe_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_data?: string | null
+          recipe_data?: Json
+          recipe_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       supplements: {
         Row: {
           created_at: string

@@ -160,7 +160,41 @@ serve(async (req) => {
 
     const recipes = JSON.parse(toolCall.function.arguments).recipes;
 
-    return new Response(JSON.stringify({ recipes }), {
+    // Generate images for each recipe
+    const recipesWithImages = await Promise.all(
+      recipes.map(async (recipe: any) => {
+        try {
+          const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash-image-preview',
+              messages: [
+                {
+                  role: 'user',
+                  content: `Generate a beautiful, appetizing photo of ${recipe.name}. Professional food photography style, well-lit, on a clean plate.`
+                }
+              ],
+              modalities: ['image', 'text']
+            }),
+          });
+
+          if (imageResponse.ok) {
+            const imageData = await imageResponse.json();
+            const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+            return { ...recipe, imageUrl };
+          }
+        } catch (error) {
+          console.error(`Error generating image for ${recipe.name}:`, error);
+        }
+        return recipe;
+      })
+    );
+
+    return new Response(JSON.stringify({ recipes: recipesWithImages }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

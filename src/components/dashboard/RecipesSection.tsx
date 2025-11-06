@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ChefHat, Clock, Users, Flame, Loader2 } from "lucide-react";
+import { ChefHat, Clock, Users, Flame, Loader2, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Recipe {
@@ -16,6 +16,8 @@ interface Recipe {
   ingredients: string[];
   instructions: string[];
   tags: string[];
+  imageUrl?: string;
+  savedId?: string;
 }
 
 export default function RecipesSection() {
@@ -23,6 +25,33 @@ export default function RecipesSection() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
+  const [savingRecipe, setSavingRecipe] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadSavedRecipes();
+  }, []);
+
+  const loadSavedRecipes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_recipes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const savedRecipes = data.map((saved: any) => ({
+          ...saved.recipe_data,
+          imageUrl: saved.image_data,
+          savedId: saved.id
+        }));
+        setRecipes(savedRecipes);
+      }
+    } catch (error) {
+      console.error('Error loading saved recipes:', error);
+    }
+  };
 
   const generateRecipes = async () => {
     setLoading(true);
@@ -52,7 +81,8 @@ export default function RecipesSection() {
         return;
       }
 
-      setRecipes(data.recipes);
+      // Add new recipes to existing ones
+      setRecipes(prev => [...data.recipes, ...prev]);
       toast({
         title: "Recipes Generated!",
         description: "Here are your personalized meal suggestions.",
@@ -66,6 +96,89 @@ export default function RecipesSection() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveRecipe = async (recipe: Recipe, index: number) => {
+    setSavingRecipe(recipe.name);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('saved_recipes')
+        .insert({
+          user_id: user.id,
+          recipe_name: recipe.name,
+          recipe_data: {
+            name: recipe.name,
+            description: recipe.description,
+            prepTime: recipe.prepTime,
+            servings: recipe.servings,
+            calories: recipe.calories,
+            protein: recipe.protein,
+            carbs: recipe.carbs,
+            fat: recipe.fat,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+            tags: recipe.tags
+          },
+          image_data: recipe.imageUrl
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update the recipe with savedId
+      setRecipes(prev => prev.map((r, i) => 
+        i === index ? { ...r, savedId: data.id } : r
+      ));
+
+      toast({
+        title: "Recipe Saved!",
+        description: `${recipe.name} has been added to your favorites.`,
+      });
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save recipe. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingRecipe(null);
+    }
+  };
+
+  const unsaveRecipe = async (savedId: string, index: number) => {
+    setSavingRecipe(recipes[index].name);
+    try {
+      const { error } = await supabase
+        .from('saved_recipes')
+        .delete()
+        .eq('id', savedId);
+
+      if (error) throw error;
+
+      // Remove savedId from the recipe
+      setRecipes(prev => prev.map((r, i) => 
+        i === index ? { ...r, savedId: undefined } : r
+      ));
+
+      toast({
+        title: "Recipe Removed",
+        description: "Recipe has been removed from your favorites.",
+      });
+    } catch (error) {
+      console.error('Error unsaving recipe:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove recipe. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingRecipe(null);
     }
   };
 
@@ -107,15 +220,43 @@ export default function RecipesSection() {
               key={index}
               className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all"
             >
-              <div
-                className="p-6 cursor-pointer"
-                onClick={() => setExpandedRecipe(expandedRecipe === index ? null : index)}
-              >
+              {recipe.imageUrl && (
+                <div className="w-full h-48 overflow-hidden">
+                  <img 
+                    src={recipe.imageUrl} 
+                    alt={recipe.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{recipe.name}</h4>
                     <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (recipe.savedId) {
+                        unsaveRecipe(recipe.savedId, index);
+                      } else {
+                        saveRecipe(recipe, index);
+                      }
+                    }}
+                    disabled={savingRecipe === recipe.name}
+                    className="ml-2 hover:bg-[#12AFCB]/10"
+                  >
+                    {savingRecipe === recipe.name ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
+                      />
+                    )}
+                  </Button>
                 </div>
 
                 <div className="flex flex-wrap gap-3 mb-3">
@@ -148,7 +289,10 @@ export default function RecipesSection() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div 
+                  className="flex flex-wrap gap-2 cursor-pointer"
+                  onClick={() => setExpandedRecipe(expandedRecipe === index ? null : index)}
+                >
                   {recipe.tags.map((tag, tagIndex) => (
                     <span
                       key={tagIndex}
