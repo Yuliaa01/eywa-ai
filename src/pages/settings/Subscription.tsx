@@ -2,12 +2,25 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, CheckCircle2, Sparkles, Users, Gift, Infinity, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, CreditCard, CheckCircle2, Sparkles, Users, Gift, Infinity, Check, X } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Subscription() {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const handlePlanSelect = (planId: string) => {
+    setSelectedPlan(planId);
+    setShowUpgradeModal(true);
+  };
+
+  const handleUpgrade = () => {
+    setShowUpgradeModal(true);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -222,7 +235,10 @@ export default function Subscription() {
             You're currently on the Free Trial plan. Upgrade anytime to unlock additional features.
           </p>
           <div className="flex gap-3">
-            <Button className="bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)]">
+            <Button 
+              onClick={handleUpgrade}
+              className="bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all"
+            >
               Upgrade Plan
             </Button>
             <Button variant="outline">Manage Billing</Button>
@@ -294,12 +310,13 @@ export default function Subscription() {
                   </div>
                   
                   <Button
-                    className={`w-full h-10 text-sm ${
+                    onClick={() => !plan.current && handlePlanSelect(plan.id)}
+                    className={`w-full h-10 text-sm transition-all ${
                       plan.current
                         ? "bg-card border border-accent-teal/20 text-accent-teal hover:bg-accent-teal/5"
                         : plan.popular
                         ? "bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)]"
-                        : ""
+                        : "hover:bg-[#12AFCB] hover:text-white hover:border-[#12AFCB]"
                     }`}
                     variant={plan.current || plan.popular ? "default" : "outline"}
                     disabled={plan.current}
@@ -362,7 +379,8 @@ export default function Subscription() {
                   </div>
                   
                   <Button
-                    className="w-full"
+                    onClick={() => handlePlanSelect(plan.id)}
+                    className="w-full transition-all hover:bg-[#12AFCB] hover:text-white hover:border-[#12AFCB]"
                     variant="outline"
                   >
                     Buy as Gift
@@ -384,6 +402,71 @@ export default function Subscription() {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-rounded text-2xl font-bold text-foreground">
+              {selectedPlan ? `Upgrade to ${plans.find(p => p.id === selectedPlan)?.name || giftPlans.find(p => p.id === selectedPlan)?.name}` : 'Upgrade Your Plan'}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Complete your payment to upgrade your subscription
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {selectedPlan && (
+              <div className="rounded-2xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 p-6 border border-accent-teal/20">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-rounded font-semibold text-foreground">
+                    {plans.find(p => p.id === selectedPlan)?.name || giftPlans.find(p => p.id === selectedPlan)?.name}
+                  </h4>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-accent-teal">
+                      {plans.find(p => p.id === selectedPlan)?.price || giftPlans.find(p => p.id === selectedPlan)?.price}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {plans.find(p => p.id === selectedPlan)?.period || giftPlans.find(p => p.id === selectedPlan)?.period}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {(plans.find(p => p.id === selectedPlan)?.features || giftPlans.find(p => p.id === selectedPlan)?.features || []).map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-accent-teal flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm font-medium">Payment Method</span>
+                </div>
+                <p className="text-sm text-muted-foreground pl-8">
+                  Stripe integration coming soon
+                </p>
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  toast.success("Payment processing will be available soon!");
+                  setShowUpgradeModal(false);
+                }}
+                className="w-full bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all"
+              >
+                Proceed to Payment
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
