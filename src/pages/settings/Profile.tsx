@@ -26,6 +26,10 @@ export default function ProfileSettings() {
   const [aiTone, setAiTone] = useState('friendly');
   const [dietPreferences, setDietPreferences] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
+  const [showCustomDiet, setShowCustomDiet] = useState(false);
+  const [showCustomAllergy, setShowCustomAllergy] = useState(false);
+  const [customDietInput, setCustomDietInput] = useState('');
+  const [customAllergyInput, setCustomAllergyInput] = useState('');
   const [macroMode, setMacroMode] = useState<'ai' | 'manual'>('ai');
   const [manualMacros, setManualMacros] = useState({
     calories: '',
@@ -455,7 +459,56 @@ export default function ProfileSettings() {
                     {option}
                   </button>
                 ))}
+                
+                {/* Display custom diet preferences */}
+                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free', 'Halal', 'Kosher'].includes(d)).map((custom) => (
+                  <button
+                    key={custom}
+                    onClick={() => setDietPreferences(dietPreferences.filter(d => d !== custom))}
+                    className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
+                  >
+                    {custom}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => setShowCustomDiet(!showCustomDiet)}
+                  className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
+                >
+                  Other...
+                </button>
               </div>
+              
+              {showCustomDiet && (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter custom diet preference"
+                    value={customDietInput}
+                    onChange={(e) => setCustomDietInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && customDietInput.trim()) {
+                        setDietPreferences([...dietPreferences, customDietInput.trim()]);
+                        setCustomDietInput('');
+                        setShowCustomDiet(false);
+                      }
+                    }}
+                    className="rounded-xl"
+                  />
+                  <Button
+                    onClick={() => {
+                      if (customDietInput.trim()) {
+                        setDietPreferences([...dietPreferences, customDietInput.trim()]);
+                        setCustomDietInput('');
+                        setShowCustomDiet(false);
+                      }
+                    }}
+                    size="sm"
+                    className="rounded-xl"
+                  >
+                    Add
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Allergies & Intolerances */}
@@ -477,14 +530,63 @@ export default function ProfileSettings() {
                     }}
                     className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
                       allergies.includes(option)
-                        ? 'bg-red-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.3)]'
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                         : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                     }`}
                   >
                     {option}
                   </button>
                 ))}
+                
+                {/* Display custom allergies */}
+                {allergies.filter(a => !['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].includes(a)).map((custom) => (
+                  <button
+                    key={custom}
+                    onClick={() => setAllergies(allergies.filter(a => a !== custom))}
+                    className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
+                  >
+                    {custom}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => setShowCustomAllergy(!showCustomAllergy)}
+                  className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
+                >
+                  Other...
+                </button>
               </div>
+              
+              {showCustomAllergy && (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter custom allergy/intolerance"
+                    value={customAllergyInput}
+                    onChange={(e) => setCustomAllergyInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && customAllergyInput.trim()) {
+                        setAllergies([...allergies, customAllergyInput.trim()]);
+                        setCustomAllergyInput('');
+                        setShowCustomAllergy(false);
+                      }
+                    }}
+                    className="rounded-xl"
+                  />
+                  <Button
+                    onClick={() => {
+                      if (customAllergyInput.trim()) {
+                        setAllergies([...allergies, customAllergyInput.trim()]);
+                        setCustomAllergyInput('');
+                        setShowCustomAllergy(false);
+                      }
+                    }}
+                    size="sm"
+                    className="rounded-xl"
+                  >
+                    Add
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Macro Targets */}
