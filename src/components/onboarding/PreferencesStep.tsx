@@ -42,8 +42,8 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
                 onClick={() => setViewMode(mode.toLowerCase().replace(' ', '_'))}
                 className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all ${
                   viewMode === mode.toLowerCase().replace(' ', '_')
-                    ? 'bg-primary text-primary-foreground shadow-glow'
-                    : 'bg-card/60 border border-primary/10 text-muted-foreground hover:bg-card/80 hover:border-primary/20'
+                    ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                    : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                 }`}
               >
                 {mode}
@@ -64,8 +64,8 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
                 onClick={() => setTheme(themeOption.toLowerCase() as "light" | "dark" | "system")}
                 className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all ${
                   theme === themeOption.toLowerCase()
-                    ? 'bg-primary text-primary-foreground shadow-glow'
-                    : 'bg-card/60 border border-primary/10 text-muted-foreground hover:bg-card/80 hover:border-primary/20'
+                    ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                    : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                 }`}
               >
                 {themeOption}
@@ -86,8 +86,8 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
                 onClick={() => setAiTone(tone.toLowerCase())}
                 className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all ${
                   aiTone === tone.toLowerCase()
-                    ? 'bg-primary text-primary-foreground shadow-glow'
-                    : 'bg-card/60 border border-primary/10 text-muted-foreground hover:bg-card/80 hover:border-primary/20'
+                    ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                    : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                 }`}
               >
                 {tone}
