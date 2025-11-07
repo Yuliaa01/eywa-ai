@@ -7,19 +7,12 @@ interface PreferencesStepProps {
 }
 
 export default function PreferencesStep({ onNext }: PreferencesStepProps) {
-  const { theme, setTheme: setGlobalTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [viewMode, setViewMode] = useState('standard');
-  const [localTheme, setLocalTheme] = useState<"light" | "dark" | "system">(theme);
   const [aiTone, setAiTone] = useState('friendly');
 
-  const handleThemeChange = (newTheme: string) => {
-    const typedTheme = newTheme as "light" | "dark" | "system";
-    setLocalTheme(typedTheme);
-    setGlobalTheme(typedTheme);
-  };
-
   const handleContinue = () => {
-    onNext({ viewMode, theme: localTheme, aiTone });
+    onNext({ viewMode, theme, aiTone });
   };
 
   return (
@@ -68,9 +61,9 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
             {['Light', 'Dark', 'System'].map((themeOption) => (
               <button
                 key={themeOption}
-                onClick={() => handleThemeChange(themeOption.toLowerCase())}
+                onClick={() => setTheme(themeOption.toLowerCase() as "light" | "dark" | "system")}
                 className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                  localTheme === themeOption.toLowerCase()
+                  theme === themeOption.toLowerCase()
                     ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                     : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                 }`}
