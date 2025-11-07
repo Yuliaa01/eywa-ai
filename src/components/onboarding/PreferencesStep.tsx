@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { Eye, Moon, MessageSquare } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface PreferencesStepProps {
   onNext: (prefs: any) => void;
 }
 
 export default function PreferencesStep({ onNext }: PreferencesStepProps) {
+  const { theme, setTheme: setGlobalTheme } = useTheme();
   const [viewMode, setViewMode] = useState('standard');
-  const [theme, setTheme] = useState('system');
+  const [localTheme, setLocalTheme] = useState<"light" | "dark" | "system">(theme);
   const [aiTone, setAiTone] = useState('friendly');
 
+  const handleThemeChange = (newTheme: string) => {
+    const typedTheme = newTheme as "light" | "dark" | "system";
+    setLocalTheme(typedTheme);
+    setGlobalTheme(typedTheme);
+  };
+
   const handleContinue = () => {
-    onNext({ viewMode, theme, aiTone });
+    onNext({ viewMode, theme: localTheme, aiTone });
   };
 
   return (
@@ -60,9 +68,9 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
             {['Light', 'Dark', 'System'].map((themeOption) => (
               <button
                 key={themeOption}
-                onClick={() => setTheme(themeOption.toLowerCase())}
+                onClick={() => handleThemeChange(themeOption.toLowerCase())}
                 className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                  theme === themeOption.toLowerCase()
+                  localTheme === themeOption.toLowerCase()
                     ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                     : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                 }`}
