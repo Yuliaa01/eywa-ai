@@ -14,6 +14,7 @@ export default function ProfileGapsStep({ onNext, missingFields = ['dob'] }: Pro
     sex: '',
     height: '',
     weight: '',
+    preferredUnits: 'metric',
   });
 
   const handleSubmit = () => {
@@ -25,9 +26,13 @@ export default function ProfileGapsStep({ onNext, missingFields = ['dob'] }: Pro
     lastName: 'Last Name',
     dob: 'Date of Birth',
     sex: 'Sex at Birth',
-    height: 'Height (cm)',
-    weight: 'Weight (kg)',
+    height: formData.preferredUnits === 'metric' ? 'Height (cm)' : 'Height (inches)',
+    weight: formData.preferredUnits === 'metric' ? 'Weight (kg)' : 'Weight (lbs)',
+    preferredUnits: 'Preferred Units',
   };
+
+  // Always show these fields regardless of missingFields
+  const requiredFields = ['firstName', 'lastName', 'dob', 'sex', 'height', 'weight', 'preferredUnits'];
 
   return (
     <div className="space-y-8 animate-scale-in">
@@ -45,7 +50,7 @@ export default function ProfileGapsStep({ onNext, missingFields = ['dob'] }: Pro
 
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <div className="space-y-6">
-          {missingFields.map((field) => (
+          {requiredFields.map((field) => (
             <div key={field} className="space-y-2">
               <label className="block text-[0.9375rem] font-medium text-[#0E1012]">
                 {fieldLabels[field]}
@@ -64,6 +69,15 @@ export default function ProfileGapsStep({ onNext, missingFields = ['dob'] }: Pro
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
+              ) : field === 'preferredUnits' ? (
+                <select
+                  value={formData[field]}
+                  onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                  className="w-full h-12 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all duration-standard"
+                >
+                  <option value="metric">Metric (kg, cm)</option>
+                  <option value="imperial">Imperial (lbs, inches)</option>
+                </select>
               ) : field === 'dob' ? (
                 <input
                   type="date"
@@ -77,6 +91,7 @@ export default function ProfileGapsStep({ onNext, missingFields = ['dob'] }: Pro
                   value={formData[field as keyof typeof formData]}
                   onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
                   className="w-full h-12 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all duration-standard"
+                  step={field === 'height' || field === 'weight' ? '0.1' : undefined}
                 />
               )}
             </div>
