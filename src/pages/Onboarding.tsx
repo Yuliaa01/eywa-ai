@@ -226,17 +226,17 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FCFF] via-[#EFF8FB] to-[#E8FAFF]/30 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-3xl mx-auto py-12 space-y-12">
         {/* Back Button */}
         {currentStep > 1 && (
           <button
             onClick={prevStep}
-            className="fixed top-6 left-6 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] hover:bg-white transition-all duration-300 flex items-center justify-center group z-50"
+            className="fixed top-6 left-6 w-10 h-10 rounded-full bg-card/80 backdrop-blur-xl border border-primary/10 shadow-card hover:shadow-glow hover:bg-card transition-all duration-300 flex items-center justify-center group z-50"
             aria-label="Go back"
             style={{ marginTop: '0px' }}
           >
-            <ArrowLeft className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] transition-colors" />
+            <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
         )}
 
@@ -244,24 +244,24 @@ export default function Onboarding() {
         {currentStep > 0 && (
           <button
             onClick={handleSkip}
-            className="fixed top-6 right-6 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] hover:bg-white transition-all duration-300 flex items-center justify-center group z-50"
+            className="fixed top-6 right-6 w-10 h-10 rounded-full bg-card/80 backdrop-blur-xl border border-primary/10 shadow-card hover:shadow-glow hover:bg-card transition-all duration-300 flex items-center justify-center group z-50"
             aria-label="Skip onboarding"
             style={{ marginTop: '0px' }}
           >
-            <X className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] transition-colors" />
+            <X className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
         )}
 
         {/* Progress Indicator */}
         {currentStep > 0 && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-[0.875rem] font-medium text-[#5A6B7F]">
+            <div className="flex items-center justify-between text-[0.875rem] font-medium text-muted-foreground">
               <span>Step {currentStep + 1} of {TOTAL_STEPS}</span>
               <span>{Math.round(((currentStep + 1) / TOTAL_STEPS) * 100)}%</span>
             </div>
-            <div className="h-2 rounded-full bg-white/60 overflow-hidden border border-[#12AFCB]/10">
+            <div className="h-2 rounded-full bg-muted overflow-hidden border border-primary/10">
               <div 
-                className="h-full rounded-full bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/70 transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                 style={{ width: `${((currentStep + 1) / TOTAL_STEPS) * 100}%` }}
               />
             </div>
