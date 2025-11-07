@@ -234,6 +234,7 @@ export default function Onboarding() {
             onClick={prevStep}
             className="fixed top-6 left-6 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] hover:bg-white transition-all duration-300 flex items-center justify-center group z-50"
             aria-label="Go back"
+            style={{ marginTop: '0px' }}
           >
             <ArrowLeft className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] transition-colors" />
           </button>
@@ -245,6 +246,7 @@ export default function Onboarding() {
             onClick={handleSkip}
             className="fixed top-6 right-6 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] hover:bg-white transition-all duration-300 flex items-center justify-center group z-50"
             aria-label="Skip onboarding"
+            style={{ marginTop: '0px' }}
           >
             <X className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] transition-colors" />
           </button>
