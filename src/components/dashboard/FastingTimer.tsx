@@ -117,15 +117,39 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   };
 
   const handleSaveFast = async () => {
-    // Mark the fasting window as completed
-    toast({
-      title: "Fasting saved",
-      description: "Your fasting session has been recorded.",
-    });
-    setStopDialogOpen(false);
-    setIsRunning(false);
-    setIsPaused(false);
-    onRefresh?.();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Find the active fasting window and mark it as completed
+      if (activeFastId) {
+        const { error } = await supabase
+          .from("fasting_windows")
+          .update({ end_at: new Date().toISOString() })
+          .eq("id", activeFastId)
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Fasting saved",
+        description: "Your fasting session has been recorded.",
+      });
+      
+      setStopDialogOpen(false);
+      setIsRunning(false);
+      setIsPaused(false);
+      setHasActiveFast(false);
+      setActiveFastId(null);
+      onRefresh?.();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save fasting session",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLogMeal = () => {
