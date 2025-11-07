@@ -158,7 +158,13 @@ export default function Onboarding() {
         return (
           <ProfileAutofillStep
             profileData={onboardingData.profile}
-            onNext={nextStep}
+            onNext={(data) => {
+              if (data) {
+                // User edited the data, save it and continue
+                setOnboardingData({ ...onboardingData, profile: data });
+              }
+              nextStep();
+            }}
             onEdit={() => setCurrentStep(3)}
           />
         );
