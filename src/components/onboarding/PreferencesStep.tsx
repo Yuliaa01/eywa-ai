@@ -19,7 +19,7 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
     <div className="space-y-8 animate-scale-in">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-card/80 backdrop-blur-xl border border-primary/10 shadow-card">
-          <Eye className="w-10 h-10 text-primary" />
+          <Eye className="w-10 h-10 text-[#12AFCB]" />
         </div>
         <h2 className="font-rounded text-[2rem] font-semibold text-foreground">
           Preferences & Modes
@@ -32,7 +32,7 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
       <div className="space-y-6">
         <div>
           <h3 className="text-[1.125rem] font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Eye className="w-5 h-5 text-primary" />
+            <Eye className="w-5 h-5 text-[#12AFCB]" />
             View Mode
           </h3>
           <div className="grid grid-cols-3 gap-3">
@@ -54,7 +54,7 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
 
         <div>
           <h3 className="text-[1.125rem] font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Moon className="w-5 h-5 text-primary" />
+            <Moon className="w-5 h-5 text-[#12AFCB]" />
             Theme
           </h3>
           <div className="grid grid-cols-3 gap-3">
@@ -76,7 +76,7 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
 
         <div>
           <h3 className="text-[1.125rem] font-semibold text-foreground mb-4 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-primary" />
+            <MessageSquare className="w-5 h-5 text-[#12AFCB]" />
             AI Tone
           </h3>
           <div className="grid grid-cols-2 gap-3">
