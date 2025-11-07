@@ -11,6 +11,8 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
   const [macroMode, setMacroMode] = useState<'ai' | 'manual'>('ai');
   const [customDiet, setCustomDiet] = useState('');
   const [customAllergy, setCustomAllergy] = useState('');
+  const [showCustomDiet, setShowCustomDiet] = useState(false);
+  const [showCustomAllergy, setShowCustomAllergy] = useState(false);
 
   const dietOptions = [
     'Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian',
@@ -34,6 +36,7 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
     if (customDiet.trim() && !diet.includes(customDiet.trim())) {
       setDiet([...diet, customDiet.trim()]);
       setCustomDiet('');
+      setShowCustomDiet(false);
     }
   };
 
@@ -41,6 +44,7 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
     if (customAllergy.trim() && !allergies.includes(customAllergy.trim())) {
       setAllergies([...allergies, customAllergy.trim()]);
       setCustomAllergy('');
+      setShowCustomAllergy(false);
     }
   };
 
@@ -83,6 +87,12 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
                 {option}
               </button>
             ))}
+            <button
+              onClick={() => setShowCustomDiet(!showCustomDiet)}
+              className="px-4 py-2 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
+            >
+              Other...
+            </button>
           </div>
           
           {/* Custom diet preferences */}
@@ -106,23 +116,29 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
           )}
 
           {/* Add custom diet input */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customDiet}
-              onChange={(e) => setCustomDiet(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addCustomDiet()}
-              placeholder="Add custom diet preference..."
-              className="flex-1 h-10 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all text-[0.9375rem]"
-            />
-            <button
-              onClick={addCustomDiet}
-              className="h-10 px-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-medium hover:shadow-[0_4px_12px_rgba(18,175,203,0.3)] transition-all duration-standard flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add
-            </button>
-          </div>
+          {showCustomDiet && (
+            <div className="flex gap-2 mt-3">
+              <input
+                type="text"
+                value={customDiet}
+                onChange={(e) => setCustomDiet(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && customDiet.trim()) {
+                    addCustomDiet();
+                  }
+                }}
+                placeholder="Enter custom diet preference..."
+                className="flex-1 h-10 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all text-[0.9375rem]"
+              />
+              <button
+                onClick={addCustomDiet}
+                className="h-10 px-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-medium hover:shadow-[0_4px_12px_rgba(18,175,203,0.3)] transition-all duration-standard flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
+          )}
         </div>
 
         <div>
@@ -144,6 +160,12 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
                 {option}
               </button>
             ))}
+            <button
+              onClick={() => setShowCustomAllergy(!showCustomAllergy)}
+              className="px-4 py-2 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
+            >
+              Other...
+            </button>
           </div>
 
           {/* Custom allergies */}
@@ -167,23 +189,29 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
           )}
 
           {/* Add custom allergy input */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customAllergy}
-              onChange={(e) => setCustomAllergy(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addCustomAllergy()}
-              placeholder="Add custom allergy..."
-              className="flex-1 h-10 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all text-[0.9375rem]"
-            />
-            <button
-              onClick={addCustomAllergy}
-              className="h-10 px-4 rounded-2xl bg-red-500 text-white font-medium hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)] transition-all duration-standard flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add
-            </button>
-          </div>
+          {showCustomAllergy && (
+            <div className="flex gap-2 mt-3">
+              <input
+                type="text"
+                value={customAllergy}
+                onChange={(e) => setCustomAllergy(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && customAllergy.trim()) {
+                    addCustomAllergy();
+                  }
+                }}
+                placeholder="Enter custom allergy..."
+                className="flex-1 h-10 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all text-[0.9375rem]"
+              />
+              <button
+                onClick={addCustomAllergy}
+                className="h-10 px-4 rounded-2xl bg-red-500 text-white font-medium hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)] transition-all duration-standard flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-6">
