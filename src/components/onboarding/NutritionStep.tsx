@@ -33,7 +33,7 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
   };
 
   return (
-    <div className="space-y-8 animate-scale-in max-h-[80vh] overflow-y-auto">
+    <div className="space-y-8 animate-scale-in">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)]">
           <Utensils className="w-10 h-10 text-[#12AFCB]" />
