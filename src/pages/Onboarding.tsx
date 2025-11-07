@@ -261,7 +261,7 @@ export default function Onboarding() {
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden border border-primary/10">
               <div 
-                className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 transition-all duration-500 ease-out"
                 style={{ width: `${((currentStep + 1) / TOTAL_STEPS) * 100}%` }}
               />
             </div>

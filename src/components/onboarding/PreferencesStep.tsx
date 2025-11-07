@@ -105,7 +105,7 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
 
       <button
         onClick={handleContinue}
-        className="w-full h-14 rounded-3xl bg-primary text-primary-foreground font-rounded font-semibold text-[1.0625rem] shadow-glow hover:scale-[1.02] active:scale-[0.98] transition-all"
+        className="w-full h-14 rounded-3xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-rounded font-semibold text-[1.0625rem] shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all"
       >
         Continue
       </button>
