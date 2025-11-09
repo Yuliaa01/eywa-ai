@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const recipePreferencesSchema = z.object({
+  description: z.string().max(500).optional(),
+  ingredients: z.string().max(1000).optional(),
+  mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snack', 'all']).optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -20,9 +28,13 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
+    // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
@@ -30,22 +42,15 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      throw new Error('Unauthorized');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Parse request body for user preferences
-    let userPreferences: {
-      description?: string;
-      ingredients?: string;
-      mealType?: string;
-    } = {};
-    
-    try {
-      const body = await req.json();
-      userPreferences = body || {};
-    } catch {
-      // No body provided, use defaults
-    }
+    // Parse and validate request body
+    const body = await req.json();
+    const userPreferences = recipePreferencesSchema.parse(body);
 
     // Fetch user profile data
     const { data: profile } = await supabase
@@ -76,7 +81,7 @@ serve(async (req) => {
       systemPrompt += `\n- Try to use these available ingredients: ${userPreferences.ingredients}`;
     }
 
-    if (userPreferences.mealType) {
+    if (userPreferences.mealType && userPreferences.mealType !== 'all') {
       systemPrompt += `\n- Focus on ${userPreferences.mealType} recipes`;
     }
 
@@ -232,6 +237,17 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in generate-recipes function:', error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid input',
+        details: error.errors
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error' 
     }), {

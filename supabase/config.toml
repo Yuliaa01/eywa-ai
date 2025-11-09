@@ -1,7 +1,7 @@
 project_id = "xdzoyhzvjnumjgedwsbq"
 
 [functions.unify-feedback]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-coach]
 verify_jwt = true

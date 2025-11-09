@@ -1,11 +1,19 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const fileAnalysisSchema = z.object({
+  fileId: z.string().uuid(),
+  filePath: z.string().min(1).max(500).regex(/^[a-zA-Z0-9_\-\/\.]+$/),
+  fileName: z.string().min(1).max(255)
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,37 +23,65 @@ serve(async (req) => {
   let fileId: string | undefined;
 
   try {
-    const { fileId: fId, filePath, fileName } = await req.json();
-    fileId = fId;
-
-    if (!filePath) {
-      throw new Error('File path is required');
-    }
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization')!;
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      throw new Error('Unauthorized');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validatedInput = fileAnalysisSchema.parse(body);
+    const { fileId: fId, filePath, fileName } = validatedInput;
+    fileId = fId;
 
     console.log('Analyzing file:', fileName, 'for user:', user.id);
 
-    // Update status to parsing
-    if (fileId) {
-      await supabase
-        .from('uploaded_files')
-        .update({ status: 'parsing' })
-        .eq('id', fileId);
+    // Verify file ownership
+    const { data: fileRecord, error: fileError } = await supabase
+      .from('uploaded_files')
+      .select('user_id')
+      .eq('id', fileId)
+      .single();
+
+    if (fileError || !fileRecord) {
+      return new Response(JSON.stringify({ error: 'File not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
+
+    if (fileRecord.user_id !== user.id) {
+      return new Response(JSON.stringify({ error: 'Unauthorized - file does not belong to user' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Update status to parsing
+    await supabase
+      .from('uploaded_files')
+      .update({ status: 'parsing' })
+      .eq('id', fileId);
 
     // Download file from storage
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -151,11 +187,11 @@ Format your response as JSON with this structure:
           reference_high: lab.reference_high,
           source: 'manual',
           reported_at: new Date().toISOString(),
-          provenance: fileId ? {
+          provenance: {
             file_id: fileId,
             file_name: fileName,
             parsed_at: new Date().toISOString()
-          } : null,
+          },
         });
       }
     }
@@ -184,15 +220,13 @@ Format your response as JSON with this structure:
     console.log('Analysis complete and data stored');
 
     // Update file status to parsed
-    if (fileId) {
-      await supabase
-        .from('uploaded_files')
-        .update({ 
-          status: 'parsed',
-          parsed_at: new Date().toISOString()
-        })
-        .eq('id', fileId);
-    }
+    await supabase
+      .from('uploaded_files')
+      .update({ 
+        status: 'parsed',
+        parsed_at: new Date().toISOString()
+      })
+      .eq('id', fileId);
 
     return new Response(
       JSON.stringify({
@@ -206,6 +240,16 @@ Format your response as JSON with this structure:
 
   } catch (error: any) {
     console.error('Error in analyze-health-file:', error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid input',
+        details: error.errors
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     // Update file status to error if fileId exists
     if (fileId) {
