@@ -6,7 +6,7 @@ import { X, ArrowLeft } from "lucide-react";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import ConnectionsStep from "@/components/onboarding/ConnectionsStep";
 import ProfileAutofillStep from "@/components/onboarding/ProfileAutofillStep";
-import ProfileGapsStep from "@/components/onboarding/ProfileGapsStep";
+
 import ConsentsStep from "@/components/onboarding/ConsentsStep";
 import SubscriptionStep from "@/components/onboarding/SubscriptionStep";
 import GoalsStep from "@/components/onboarding/GoalsStep";
@@ -15,7 +15,7 @@ import LabsStep from "@/components/onboarding/LabsStep";
 import PreferencesStep from "@/components/onboarding/PreferencesStep";
 import BriefingStep from "@/components/onboarding/BriefingStep";
 
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 10;
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -165,19 +165,9 @@ export default function Onboarding() {
               }
               nextStep();
             }}
-            onEdit={() => setCurrentStep(3)}
           />
         );
       case 3:
-        return (
-          <ProfileGapsStep
-            onNext={(data) => {
-              setOnboardingData({ ...onboardingData, profile: data });
-              nextStep();
-            }}
-          />
-        );
-      case 4:
         return (
           <ConsentsStep
             onNext={(consents) => {
@@ -186,7 +176,7 @@ export default function Onboarding() {
             }}
           />
         );
-      case 5:
+      case 4:
         return (
           <SubscriptionStep
             onNext={(planId) => {
@@ -195,7 +185,7 @@ export default function Onboarding() {
             }}
           />
         );
-      case 6:
+      case 5:
         return (
           <GoalsStep
             onNext={(goals) => {
@@ -204,7 +194,7 @@ export default function Onboarding() {
             }}
           />
         );
-      case 7:
+      case 6:
         return (
           <NutritionStep
             onNext={(nutrition) => {
@@ -213,9 +203,9 @@ export default function Onboarding() {
             }}
           />
         );
-      case 8:
+      case 7:
         return <LabsStep onNext={nextStep} />;
-      case 9:
+      case 8:
         return (
           <PreferencesStep
             onNext={(prefs) => {
@@ -224,7 +214,7 @@ export default function Onboarding() {
             }}
           />
         );
-      case 10:
+      case 9:
         return <BriefingStep onComplete={handleComplete} />;
       default:
         return null;

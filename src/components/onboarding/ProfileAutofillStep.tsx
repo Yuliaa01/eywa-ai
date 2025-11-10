@@ -8,16 +8,16 @@ interface ProfileData {
   sex?: string;
   height?: number;
   weight?: number;
+  preferredUnits?: string;
   source?: string;
 }
 
 interface ProfileAutofillStepProps {
   profileData?: ProfileData;
   onNext: (data?: any) => void;
-  onEdit: () => void;
 }
 
-export default function ProfileAutofillStep({ profileData, onNext, onEdit }: ProfileAutofillStepProps) {
+export default function ProfileAutofillStep({ profileData, onNext }: ProfileAutofillStepProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: profileData?.firstName || '',
@@ -26,6 +26,7 @@ export default function ProfileAutofillStep({ profileData, onNext, onEdit }: Pro
     sex: profileData?.sex || '',
     height: profileData?.height?.toString() || '',
     weight: profileData?.weight?.toString() || '',
+    preferredUnits: profileData?.preferredUnits || 'metric',
   });
   const handleEditClick = () => {
     setIsEditing(true);
@@ -40,6 +41,7 @@ export default function ProfileAutofillStep({ profileData, onNext, onEdit }: Pro
       sex: profileData?.sex || '',
       height: profileData?.height?.toString() || '',
       weight: profileData?.weight?.toString() || '',
+      preferredUnits: profileData?.preferredUnits || 'metric',
     });
     setIsEditing(false);
   };
@@ -54,16 +56,22 @@ export default function ProfileAutofillStep({ profileData, onNext, onEdit }: Pro
       sex: formData.sex,
       height: formData.height ? parseFloat(formData.height) : undefined,
       weight: formData.weight ? parseFloat(formData.weight) : undefined,
+      preferredUnits: formData.preferredUnits,
     });
   };
+
+  const isMetric = formData.preferredUnits === 'metric';
+  const heightUnit = isMetric ? 'cm' : 'inches';
+  const weightUnit = isMetric ? 'kg' : 'lbs';
 
   const fields = [
     { label: 'First Name', value: formData.firstName, key: 'firstName' },
     { label: 'Last Name', value: formData.lastName, key: 'lastName' },
     { label: 'Date of Birth', value: formData.dob, key: 'dob', type: 'date' },
-    { label: 'Sex at Birth', value: formData.sex, key: 'sex', type: 'select' },
-    { label: 'Height', value: formData.height ? `${formData.height} cm` : '', key: 'height', type: 'number' },
-    { label: 'Weight', value: formData.weight ? `${formData.weight} kg` : '', key: 'weight', type: 'number' },
+    { label: 'Sex at Birth', value: formData.sex, key: 'sex', type: 'select', options: ['male', 'female', 'other'] },
+    { label: 'Preferred Units', value: formData.preferredUnits === 'metric' ? 'Metric (kg, cm)' : 'Imperial (lbs, inches)', key: 'preferredUnits', type: 'select', options: ['metric', 'imperial'] },
+    { label: `Height (${heightUnit})`, value: formData.height ? `${formData.height} ${heightUnit}` : '', key: 'height', type: 'number' },
+    { label: `Weight (${weightUnit})`, value: formData.weight ? `${formData.weight} ${weightUnit}` : '', key: 'weight', type: 'number' },
   ];
 
   return (
@@ -100,9 +108,19 @@ export default function ProfileAutofillStep({ profileData, onNext, onEdit }: Pro
                       className="w-full h-12 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all"
                     >
                       <option value="">Select...</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                      {field.key === 'sex' && (
+                        <>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </>
+                      )}
+                      {field.key === 'preferredUnits' && (
+                        <>
+                          <option value="metric">Metric (kg, cm)</option>
+                          <option value="imperial">Imperial (lbs, inches)</option>
+                        </>
+                      )}
                     </select>
                   ) : field.type === 'date' ? (
                     <input
