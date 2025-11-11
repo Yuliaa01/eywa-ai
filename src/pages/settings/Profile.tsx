@@ -24,6 +24,7 @@ export default function ProfileSettings() {
   });
   const [viewMode, setViewMode] = useState('standard');
   const [aiTone, setAiTone] = useState('friendly');
+  const [preferredUnits, setPreferredUnits] = useState('metric');
   const [dietPreferences, setDietPreferences] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [showCustomDiet, setShowCustomDiet] = useState(false);
@@ -72,6 +73,7 @@ export default function ProfileSettings() {
           setViewMode(preferences.viewMode || 'standard');
           setAiTone(preferences.aiTone || 'friendly');
           setMacroMode(preferences.macroMode || 'ai');
+          setPreferredUnits(preferences.preferredUnits || 'metric');
           setManualMacros({
             calories: preferences.manualMacros?.calories || '',
             protein: preferences.manualMacros?.protein || '',
@@ -82,6 +84,7 @@ export default function ProfileSettings() {
           setViewMode('standard');
           setAiTone('friendly');
           setMacroMode('ai');
+          setPreferredUnits('metric');
         }
         
         // Load nutrition data
@@ -104,6 +107,7 @@ export default function ProfileSettings() {
         viewMode, 
         aiTone, 
         macroMode,
+        preferredUnits,
         manualMacros: macroMode === 'manual' ? manualMacros : undefined
       });
       
@@ -403,9 +407,21 @@ export default function ProfileSettings() {
                 <option value="female">Female</option>
               </select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="units">Preferred Units</Label>
+              <select
+                id="units"
+                value={preferredUnits}
+                onChange={(e) => setPreferredUnits(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-input bg-background"
+              >
+                <option value="metric">Metric (cm, kg)</option>
+                <option value="imperial">Imperial (inches, lbs)</option>
+              </select>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="height">Height (cm)</Label>
+                <Label htmlFor="height">Height ({preferredUnits === 'metric' ? 'cm' : 'inches'})</Label>
                 <Input
                   id="height"
                   type="number"
@@ -415,7 +431,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg)</Label>
+                <Label htmlFor="weight">Weight ({preferredUnits === 'metric' ? 'kg' : 'lbs'})</Label>
                 <Input
                   id="weight"
                   type="number"

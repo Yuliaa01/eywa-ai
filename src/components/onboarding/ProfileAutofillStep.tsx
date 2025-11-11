@@ -48,15 +48,15 @@ export default function ProfileAutofillStep({ profileData, onNext }: ProfileAuto
 
   const handleSaveEdit = () => {
     setIsEditing(false);
-    // Pass edited data to onNext
+    // Map to database field names
     onNext({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
       dob: formData.dob,
-      sex: formData.sex,
-      height: formData.height ? parseFloat(formData.height) : undefined,
-      weight: formData.weight ? parseFloat(formData.weight) : undefined,
-      preferredUnits: formData.preferredUnits,
+      sex_at_birth: formData.sex,
+      height_cm: formData.height ? parseFloat(formData.height) : undefined,
+      weight_kg: formData.weight ? parseFloat(formData.weight) : undefined,
+      preferred_units: formData.preferredUnits,
     });
   };
 

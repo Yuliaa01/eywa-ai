@@ -93,7 +93,8 @@ export default function Onboarding() {
       const localeData = JSON.stringify({
         viewMode: preferences.viewMode || 'standard',
         aiTone: preferences.aiTone || 'friendly',
-        macroMode: nutrition.macroMode || 'ai'
+        macroMode: nutrition.macroMode || 'ai',
+        preferredUnits: onboardingData.profile?.preferred_units || 'metric'
       });
 
       // Save all onboarding data
