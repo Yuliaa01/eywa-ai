@@ -98,9 +98,12 @@ export default function Onboarding() {
       });
 
       // Save all onboarding data
+      const profileData = onboardingData.profile || {};
+      const { preferred_units, ...profileWithoutPreferredUnits } = profileData;
+      
       await supabase.from('user_profiles').upsert({
         user_id: user.id,
-        ...onboardingData.profile,
+        ...profileWithoutPreferredUnits,
         diet_preferences: nutrition.diet || [],
         allergies: nutrition.allergies || [],
         locale: localeData,
@@ -124,7 +127,7 @@ export default function Onboarding() {
         const goalInserts = onboardingData.goals.map((goal: string) => ({
           user_id: user.id,
           title: goal,
-          type: 'health_metric' as const,
+          type: 'longevity' as const,
           status: 'planned' as const,
         }));
         await supabase.from('priorities').insert(goalInserts);

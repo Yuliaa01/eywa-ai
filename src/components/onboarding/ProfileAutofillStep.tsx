@@ -191,7 +191,15 @@ export default function ProfileAutofillStep({ profileData, onNext }: ProfileAuto
       ) : (
         <div className="space-y-4">
           <button
-            onClick={() => onNext()}
+            onClick={() => onNext({
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              dob: formData.dob,
+              sex_at_birth: formData.sex,
+              height_cm: formData.height ? parseFloat(formData.height) : undefined,
+              weight_kg: formData.weight ? parseFloat(formData.weight) : undefined,
+              preferred_units: formData.preferredUnits,
+            })}
             className="w-full h-14 rounded-3xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-rounded font-semibold text-[1.0625rem] shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-glow-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-standard"
           >
             Confirm & Continue
