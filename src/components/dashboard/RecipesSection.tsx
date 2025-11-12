@@ -575,6 +575,9 @@ export default function RecipesSection() {
         open={addToMealPlanOpen}
         onOpenChange={setAddToMealPlanOpen}
         recipe={selectedRecipeForPlan}
+        onSuccess={() => {
+          window.dispatchEvent(new CustomEvent('meal-plan-updated'));
+        }}
       />
 
       <RecipeDetailModal

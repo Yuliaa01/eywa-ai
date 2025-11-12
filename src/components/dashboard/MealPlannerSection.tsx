@@ -147,11 +147,21 @@ export default function MealPlannerSection() {
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
-  const mealTypes = ['meal1', 'meal2', 'meal3', 'meal4'];
+  const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
 
   useEffect(() => {
     loadData();
   }, [currentWeekStart]);
+
+  useEffect(() => {
+    // Listen for meal plan updates from other components
+    const handleMealPlanUpdate = () => {
+      loadData();
+    };
+    
+    window.addEventListener('meal-plan-updated', handleMealPlanUpdate);
+    return () => window.removeEventListener('meal-plan-updated', handleMealPlanUpdate);
+  }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -436,10 +446,10 @@ export default function MealPlannerSection() {
               </div>
 
               {/* Meal Rows */}
-              {mealTypes.map((mealType, index) => (
+              {mealTypes.map((mealType) => (
                 <div key={mealType} className="grid grid-cols-8 gap-3 mb-3">
-                  <div className="flex items-center font-medium text-sm text-[#5A6B7F]">
-                    Meal {index + 1}
+                  <div className="flex items-center font-medium text-sm text-[#5A6B7F] capitalize">
+                    {mealType}
                   </div>
                   {weekDays.map((day) => {
                     const dateStr = format(day, 'yyyy-MM-dd');
