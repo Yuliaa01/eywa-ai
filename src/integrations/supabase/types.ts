@@ -808,6 +808,66 @@ export type Database = {
         }
         Relationships: []
       }
+      recipes: {
+        Row: {
+          calories: number
+          carbs: number
+          category: string
+          created_at: string | null
+          description: string
+          fat: number
+          id: string
+          image_url: string | null
+          ingredients: Json
+          instructions: Json
+          is_default: boolean | null
+          name: string
+          prep_time: string
+          protein: number
+          servings: number
+          tags: string[]
+          updated_at: string | null
+        }
+        Insert: {
+          calories: number
+          carbs: number
+          category: string
+          created_at?: string | null
+          description: string
+          fat: number
+          id?: string
+          image_url?: string | null
+          ingredients: Json
+          instructions: Json
+          is_default?: boolean | null
+          name: string
+          prep_time: string
+          protein: number
+          servings: number
+          tags: string[]
+          updated_at?: string | null
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          category?: string
+          created_at?: string | null
+          description?: string
+          fat?: number
+          id?: string
+          image_url?: string | null
+          ingredients?: Json
+          instructions?: Json
+          is_default?: boolean | null
+          name?: string
+          prep_time?: string
+          protein?: number
+          servings?: number
+          tags?: string[]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       saved_recipes: {
         Row: {
           created_at: string

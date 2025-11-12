@@ -22,11 +22,13 @@ interface Recipe {
   tags: string[];
   imageUrl?: string;
   savedId?: string;
+  isDefault?: boolean;
 }
 
 export default function RecipesSection() {
   const { toast } = useToast();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [defaultRecipes, setDefaultRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [savingRecipe, setSavingRecipe] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -39,18 +41,43 @@ export default function RecipesSection() {
   const [preferencesDialogOpen, setPreferencesDialogOpen] = useState(false);
 
   useEffect(() => {
+    loadDefaultRecipes();
     loadSavedRecipes();
   }, []);
 
-  useEffect(() => {
-    // Auto-generate 3 recipes if user has no recipes
-    if (recipes.length === 0 && !loading) {
-      const timer = setTimeout(() => {
-        generateRecipes();
-      }, 1000);
-      return () => clearTimeout(timer);
+  const loadDefaultRecipes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('*')
+        .eq('is_default', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const defaults = data.map((recipe: any) => ({
+          name: recipe.name,
+          description: recipe.description,
+          category: recipe.category,
+          prepTime: recipe.prep_time,
+          servings: recipe.servings,
+          calories: recipe.calories,
+          protein: recipe.protein,
+          carbs: recipe.carbs,
+          fat: recipe.fat,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          tags: recipe.tags,
+          imageUrl: recipe.image_url,
+          isDefault: true,
+        }));
+        setDefaultRecipes(defaults);
+      }
+    } catch (error) {
+      console.error('Error loading default recipes:', error);
     }
-  }, [recipes.length, loading]);
+  };
 
   const loadSavedRecipes = async () => {
     try {
@@ -219,9 +246,12 @@ export default function RecipesSection() {
     { value: 'dessert', label: 'Desserts' },
   ];
 
+  // Merge saved/generated recipes with default recipes
+  const allRecipes = [...recipes, ...defaultRecipes];
+
   const filteredRecipes = selectedCategory === 'all' 
-    ? recipes 
-    : recipes.filter(recipe => recipe.category === selectedCategory);
+    ? allRecipes 
+    : allRecipes.filter(recipe => recipe.category === selectedCategory);
 
   const handleAddToMealPlan = (recipe: Recipe, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -331,7 +361,7 @@ export default function RecipesSection() {
       </div>
 
       {/* Category Filters */}
-      {recipes.length > 0 && (
+      {allRecipes.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
           {categories.map((category) => (
             <button
@@ -349,7 +379,7 @@ export default function RecipesSection() {
         </div>
       )}
 
-      {recipes.length === 0 ? (
+      {allRecipes.length === 0 ? (
         <div className="text-center py-12">
           <ChefHat className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
           <p className="text-[#5A6B7F]">Click the button above to get AI-generated recipe suggestions tailored to your dietary preferences.</p>
@@ -373,28 +403,30 @@ export default function RecipesSection() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (recipe.savedId) {
-                        unsaveRecipe(recipe.savedId, index);
-                      } else {
-                        saveRecipe(recipe, index);
-                      }
-                    }}
-                    disabled={savingRecipe === recipe.name}
-                    className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
-                  >
-                    {savingRecipe === recipe.name ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                    ) : (
-                      <Heart 
-                        className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
-                      />
-                    )}
-                  </Button>
+                  {!recipe.isDefault && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (recipe.savedId) {
+                          unsaveRecipe(recipe.savedId, index);
+                        } else {
+                          saveRecipe(recipe, index);
+                        }
+                      }}
+                      disabled={savingRecipe === recipe.name}
+                      className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                    >
+                      {savingRecipe === recipe.name ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                      ) : (
+                        <Heart 
+                          className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
+                        />
+                      )}
+                    </Button>
+                  )}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h4 className="font-rounded text-lg font-semibold text-white mb-2">{recipe.name}</h4>
                     <div className="flex items-center gap-3 text-white/90 text-sm">
@@ -412,28 +444,30 @@ export default function RecipesSection() {
               ) : (
                 <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
                   <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (recipe.savedId) {
-                        unsaveRecipe(recipe.savedId, index);
-                      } else {
-                        saveRecipe(recipe, index);
-                      }
-                    }}
-                    disabled={savingRecipe === recipe.name}
-                    className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
-                  >
-                    {savingRecipe === recipe.name ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                    ) : (
-                      <Heart 
-                        className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
-                      />
-                    )}
-                  </Button>
+                  {!recipe.isDefault && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (recipe.savedId) {
+                          unsaveRecipe(recipe.savedId, index);
+                        } else {
+                          saveRecipe(recipe, index);
+                        }
+                      }}
+                      disabled={savingRecipe === recipe.name}
+                      className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                    >
+                      {savingRecipe === recipe.name ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                      ) : (
+                        <Heart 
+                          className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
+                        />
+                      )}
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
@@ -465,28 +499,30 @@ export default function RecipesSection() {
                     <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{recipe.name}</h4>
                     <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (recipe.savedId) {
-                        unsaveRecipe(recipe.savedId, index);
-                      } else {
-                        saveRecipe(recipe, index);
-                      }
-                    }}
-                    disabled={savingRecipe === recipe.name}
-                    className="ml-2 hover:bg-[#12AFCB]/10"
-                  >
-                    {savingRecipe === recipe.name ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                    ) : (
-                      <Heart 
-                        className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
-                      />
-                    )}
-                  </Button>
+                  {!recipe.isDefault && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (recipe.savedId) {
+                          unsaveRecipe(recipe.savedId, index);
+                        } else {
+                          saveRecipe(recipe, index);
+                        }
+                      }}
+                      disabled={savingRecipe === recipe.name}
+                      className="ml-2 hover:bg-[#12AFCB]/10"
+                    >
+                      {savingRecipe === recipe.name ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                      ) : (
+                        <Heart 
+                          className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
+                        />
+                      )}
+                    </Button>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap gap-3 mb-3">
