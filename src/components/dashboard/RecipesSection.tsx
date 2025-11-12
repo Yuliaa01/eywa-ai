@@ -594,7 +594,10 @@ export default function RecipesSection() {
           }
         }}
         onAddToMealPlan={() => {
-          if (selectedRecipeForDetail) handleAddToMealPlan(selectedRecipeForDetail);
+          if (selectedRecipeForDetail) {
+            setRecipeDetailOpen(false); // Close detail modal first
+            handleAddToMealPlan(selectedRecipeForDetail);
+          }
         }}
         onAddToToday={() => {
           if (selectedRecipeForDetail) handleAddToToday(selectedRecipeForDetail);
