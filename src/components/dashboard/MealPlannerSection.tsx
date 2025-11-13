@@ -106,31 +106,36 @@ const MealSlot = ({
 };
 
 const DraggableRecipe = ({ recipe }: { recipe: Recipe }) => {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging, transform } = useDraggable({
     id: recipe.id,
     data: recipe
   });
 
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
   return (
     <div
       ref={setNodeRef}
+      style={style}
       {...listeners}
       {...attributes}
-      className={`rounded-xl border border-[#12AFCB]/10 bg-white/80 p-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-md ${
-        isDragging ? 'opacity-50' : ''
+      className={`rounded-xl border border-[#12AFCB]/10 bg-white/80 p-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-md touch-none ${
+        isDragging ? 'opacity-50 z-50' : ''
       }`}
     >
       {recipe.imageUrl && (
         <img
           src={recipe.imageUrl}
           alt={recipe.name}
-          className="w-full h-20 object-cover rounded-lg mb-2"
+          className="w-full h-20 object-cover rounded-lg mb-2 pointer-events-none"
         />
       )}
-      <h5 className="font-medium text-sm text-[#0E1012] line-clamp-2">
+      <h5 className="font-medium text-sm text-[#0E1012] line-clamp-2 pointer-events-none">
         {recipe.name}
       </h5>
-      <p className="text-xs text-[#5A6B7F] mt-1">
+      <p className="text-xs text-[#5A6B7F] mt-1 pointer-events-none">
         {recipe.calories} cal • {recipe.prepTime}
       </p>
     </div>
