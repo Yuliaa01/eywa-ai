@@ -380,39 +380,39 @@ export default function MealPlannerSection() {
   const activeRecipe = activeId ? savedRecipes.find(r => r.id === activeId) : null;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Weekly Meal Planner</h3>
-            <p className="text-sm text-[#5A6B7F] mt-1">Drag recipes to plan your week</p>
+    <DndContext onDragEnd={handleDragEnd} onDragStart={(e) => setActiveId(e.active.id as string)}>
+      <div className="space-y-6">
+        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Weekly Meal Planner</h3>
+              <p className="text-sm text-[#5A6B7F] mt-1">Drag recipes to plan your week</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentWeekStart(prev => addDays(prev, -7))}
+              >
+                Previous Week
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+              >
+                This Week
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentWeekStart(prev => addDays(prev, 7))}
+              >
+                Next Week
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentWeekStart(prev => addDays(prev, -7))}
-            >
-              Previous Week
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-            >
-              This Week
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentWeekStart(prev => addDays(prev, 7))}
-            >
-              Next Week
-            </Button>
-          </div>
-        </div>
 
-        <DndContext onDragEnd={handleDragEnd} onDragStart={(e) => setActiveId(e.active.id as string)}>
           {/* Calendar Grid */}
           <div className="overflow-x-auto">
             <div className="min-w-[800px]">
@@ -470,36 +470,36 @@ export default function MealPlannerSection() {
               ))}
             </div>
           </div>
+        </div>
 
-          <DragOverlay>
-            {activeRecipe && (
-              <div className="rounded-xl border border-[#12AFCB]/10 bg-white p-3 shadow-lg">
-                {activeRecipe.imageUrl && (
-                  <img
-                    src={activeRecipe.imageUrl}
-                    alt={activeRecipe.name}
-                    className="w-full h-20 object-cover rounded-lg mb-2"
-                  />
-                )}
-                <h5 className="font-medium text-sm text-[#0E1012]">{activeRecipe.name}</h5>
-              </div>
+        {/* Saved Recipes Sidebar */}
+        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <ChefHat className="w-5 h-5 text-[#12AFCB]" />
+            <h4 className="font-rounded font-semibold text-[#0E1012]">Your Saved Recipes</h4>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {savedRecipes.map((recipe) => (
+              <DraggableRecipe key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <DragOverlay>
+        {activeRecipe && (
+          <div className="rounded-xl border border-[#12AFCB]/10 bg-white p-3 shadow-lg">
+            {activeRecipe.imageUrl && (
+              <img
+                src={activeRecipe.imageUrl}
+                alt={activeRecipe.name}
+                className="w-full h-20 object-cover rounded-lg mb-2"
+              />
             )}
-          </DragOverlay>
-        </DndContext>
-      </div>
-
-      {/* Saved Recipes Sidebar */}
-      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <ChefHat className="w-5 h-5 text-[#12AFCB]" />
-          <h4 className="font-rounded font-semibold text-[#0E1012]">Your Saved Recipes</h4>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {savedRecipes.map((recipe) => (
-            <DraggableRecipe key={recipe.id} recipe={recipe} />
-          ))}
-        </div>
-      </div>
-    </div>
+            <h5 className="font-medium text-sm text-[#0E1012]">{activeRecipe.name}</h5>
+          </div>
+        )}
+      </DragOverlay>
+    </DndContext>
   );
 }
