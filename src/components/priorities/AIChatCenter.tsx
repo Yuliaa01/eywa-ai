@@ -1,7 +1,151 @@
-import { Mic, Sparkles } from "lucide-react";
+import { Mic, Sparkles, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useRef, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export function AIChatCenter() {
+  const [chatMode, setChatMode] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input.trim();
+    if (!textToSend || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: textToSend };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`;
+      const response = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          userId: user?.id 
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast({
+            title: "Rate limit exceeded",
+            description: "Please try again in a moment.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        if (response.status === 402) {
+          toast({
+            title: "Payment required",
+            description: "Please add credits to continue.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        throw new Error("Failed to get AI response");
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantMessage = "";
+
+      if (!reader) throw new Error("No response body");
+
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+      let textBuffer = "";
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantMessage += content;
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage.role === "assistant") {
+                  lastMessage.content = assistantMessage;
+                }
+                return newMessages;
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get response from AI coach.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendWithMessage = (message: string) => {
+    setChatMode(true);
+    setTimeout(() => sendMessage(message), 100);
+  };
+
+  const handleBackToPreview = () => {
+    setChatMode(false);
+    setMessages([]);
+    setInput("");
+  };
+
   return (
     <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300">
       {/* AI Icon */}
@@ -9,54 +153,131 @@ export function AIChatCenter() {
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
           <Sparkles className="w-6 h-6 text-white" />
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="font-rounded text-2xl font-bold text-[#0E1012]">Eywa AI</h3>
           <p className="text-sm text-[#5A6B7F]">Your health companion</p>
         </div>
+        {chatMode && (
+          <button 
+            onClick={handleBackToPreview}
+            className="w-10 h-10 rounded-xl bg-white/60 hover:bg-white/80 flex items-center justify-center transition-all duration-200"
+          >
+            <X className="w-5 h-5 text-[#5A6B7F]" />
+          </button>
+        )}
       </div>
 
-      {/* AI Message */}
-      <div className="mb-8 space-y-4">
-        <div className="rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-8 border border-[#12AFCB]/10">
-          <p className="text-[#333333] text-lg leading-relaxed font-medium">
-            Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
-          </p>
-        </div>
-        
-        {/* Action Button */}
-        <Button 
-          className="rounded-2xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white px-8 py-6 text-base font-semibold shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.4)] hover:scale-[1.02] transition-all duration-200"
-        >
-          Yes, show me
-        </Button>
-      </div>
+      {!chatMode ? (
+        <>
+          {/* AI Message */}
+          <div className="mb-8 space-y-4">
+            <div className="rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-8 border border-[#12AFCB]/10">
+              <p className="text-[#333333] text-lg leading-relaxed font-medium">
+                Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
+              </p>
+            </div>
+            
+            {/* Action Button */}
+            <Button 
+              onClick={() => handleSendWithMessage("Show me detailed progress on my stress level and sleep improvements")}
+              className="rounded-2xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white px-8 py-6 text-base font-semibold shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.4)] hover:scale-[1.02] transition-all duration-200"
+            >
+              Yes, show me
+            </Button>
+          </div>
 
-      {/* Quick Actions */}
-      <div className="space-y-3">
-        <p className="text-xs text-[#5A6B7F] font-medium uppercase tracking-wide">Quick Actions</p>
-        <div className="grid grid-cols-2 gap-3">
-          <button className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200">
-            📊 View Progress
-          </button>
-          <button className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200">
-            💤 Sleep Analysis
-          </button>
-          <button className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200">
-            🍎 Nutrition Tips
-          </button>
-          <button className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200">
-            🧘 Stress Relief
-          </button>
-        </div>
-      </div>
+          {/* Quick Actions */}
+          <div className="space-y-3">
+            <p className="text-xs text-[#5A6B7F] font-medium uppercase tracking-wide">Quick Actions</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button 
+                onClick={() => handleSendWithMessage("Show me my overall health progress and trends")}
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+              >
+                📊 View Progress
+              </button>
+              <button 
+                onClick={() => handleSendWithMessage("Give me a detailed sleep analysis and recommendations")}
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+              >
+                💤 Sleep Analysis
+              </button>
+              <button 
+                onClick={() => handleSendWithMessage("What nutrition tips do you have for me based on my health data?")}
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+              >
+                🍎 Nutrition Tips
+              </button>
+              <button 
+                onClick={() => handleSendWithMessage("Give me personalized stress relief techniques and recommendations")}
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+              >
+                🧘 Stress Relief
+              </button>
+            </div>
+          </div>
 
-      {/* Voice Input */}
-      <button className="mt-6 flex items-center gap-2 text-[#12AFCB] hover:text-[#19D0E4] font-medium text-sm transition-colors duration-200">
-        <div className="w-10 h-10 rounded-full bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center hover:scale-110 transition-all duration-200">
-          <Mic className="w-5 h-5" />
-        </div>
-        <span>Ask me anything</span>
-      </button>
+          {/* Voice Input */}
+          <button 
+            onClick={() => setChatMode(true)}
+            className="mt-6 flex items-center gap-2 text-[#12AFCB] hover:text-[#19D0E4] font-medium text-sm transition-colors duration-200"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center hover:scale-110 transition-all duration-200">
+              <Mic className="w-5 h-5" />
+            </div>
+            <span>Ask me anything</span>
+          </button>
+        </>
+      ) : (
+        <>
+          {/* Chat Mode */}
+          <div className="mb-4 h-[400px] overflow-y-auto space-y-4">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
+                <div className={`inline-block rounded-2xl p-4 max-w-[80%] ${
+                  msg.role === 'user' 
+                    ? 'bg-[#12AFCB] text-white' 
+                    : 'bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] text-[#333333]'
+                }`}>
+                  <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="text-center">
+                <div className="inline-block rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] px-6 py-3">
+                  <p className="text-[#5A6B7F] text-sm">Thinking...</p>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input area */}
+          <div className="flex gap-2">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder="Type your message..."
+              className="flex-1 rounded-xl px-4 py-3 bg-white/60 border border-[#12AFCB]/20 text-[#0E1012] placeholder:text-[#5A6B7F] focus:outline-none focus:border-[#12AFCB] transition-colors"
+              disabled={isLoading}
+            />
+            <button 
+              onClick={() => sendMessage()}
+              disabled={isLoading || !input.trim()}
+              className="rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] p-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <Send className="w-5 h-5 text-white" />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
