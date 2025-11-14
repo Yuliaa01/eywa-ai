@@ -95,7 +95,7 @@ export function RecipeDetailModal({
             size="sm"
             onClick={recipe.savedId ? onUnsave : onSave}
             disabled={isSaving}
-            className="absolute top-4 right-4 bg-background/90 hover:bg-background backdrop-blur-sm rounded-full w-10 h-10 p-0"
+            className="absolute top-4 left-4 bg-background/90 hover:bg-background backdrop-blur-sm rounded-full w-10 h-10 p-0"
           >
             {isSaving ? (
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
