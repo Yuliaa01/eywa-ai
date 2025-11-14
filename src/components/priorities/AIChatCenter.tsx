@@ -328,7 +328,7 @@ export function AIChatCenter() {
           <div className="flex-1" />
 
           {/* Chat Input at Very Bottom */}
-          <div className="mt-6 pt-6 border-t border-[#12AFCB]/10">
+          <div className="mt-6 pt-6">
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -355,10 +355,9 @@ export function AIChatCenter() {
                   }
                 }}
                 disabled={!input.trim() || isRecording}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+                className="flex items-center justify-center px-4 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
               >
                 <Send className="w-4 h-4" />
-                <span>Send</span>
               </button>
               <button
                 onClick={handleVoiceRecord}
