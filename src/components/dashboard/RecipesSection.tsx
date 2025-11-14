@@ -416,7 +416,7 @@ export default function RecipesSection() {
                         }
                       }}
                       disabled={savingRecipe === recipe.name}
-                      className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                      className="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
                     >
                       {savingRecipe === recipe.name ? (
                         <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
@@ -457,7 +457,7 @@ export default function RecipesSection() {
                         }
                       }}
                       disabled={savingRecipe === recipe.name}
-                      className="absolute top-3 right-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                      className="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
                     >
                       {savingRecipe === recipe.name ? (
                         <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
