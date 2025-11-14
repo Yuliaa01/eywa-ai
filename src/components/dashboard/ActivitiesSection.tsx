@@ -417,143 +417,160 @@ export default function ActivitiesSection() {
       {/* Workouts Section */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Dumbbell className="w-5 h-5 text-[#12AFCB]" />
+          <div>
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Your Workouts</h3>
+            <p className="text-sm text-[#5A6B7F] mt-1">Personalized training plans based on your goals</p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setGenerateWorkoutOpen(true)}
-              className="gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              Generate
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setWorkoutModalOpen(true)}
-              className="gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add
-            </Button>
-          </div>
+          <Button
+            onClick={() => setGenerateWorkoutOpen(true)}
+            className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Generate Workout
+          </Button>
         </div>
 
         {/* Workout Filters */}
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-          <Button
-            variant={workoutFilter === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setWorkoutFilter("all")}
-            className="rounded-full"
-          >
-            All Workouts
-          </Button>
-          <Button
-            variant={workoutFilter === "strength" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setWorkoutFilter("strength")}
-            className="rounded-full"
-          >
-            Strength
-          </Button>
-          <Button
-            variant={workoutFilter === "hiit" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setWorkoutFilter("hiit")}
-            className="rounded-full"
-          >
-            HIIT
-          </Button>
-          <Button
-            variant={workoutFilter === "cardio" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setWorkoutFilter("cardio")}
-            className="rounded-full"
-          >
-            Cardio
-          </Button>
-          <Button
-            variant={workoutFilter === "recovery" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setWorkoutFilter("recovery")}
-            className="rounded-full"
-          >
-            Recovery
-          </Button>
-        </div>
+        {workouts.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setWorkoutFilter("all")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                workoutFilter === "all"
+                  ? 'bg-[#12AFCB] text-white shadow-sm'
+                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+              }`}
+            >
+              All Workouts
+            </button>
+            <button
+              onClick={() => setWorkoutFilter("strength")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                workoutFilter === "strength"
+                  ? 'bg-[#12AFCB] text-white shadow-sm'
+                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+              }`}
+            >
+              Strength
+            </button>
+            <button
+              onClick={() => setWorkoutFilter("hiit")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                workoutFilter === "hiit"
+                  ? 'bg-[#12AFCB] text-white shadow-sm'
+                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+              }`}
+            >
+              HIIT
+            </button>
+            <button
+              onClick={() => setWorkoutFilter("cardio")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                workoutFilter === "cardio"
+                  ? 'bg-[#12AFCB] text-white shadow-sm'
+                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+              }`}
+            >
+              Cardio
+            </button>
+            <button
+              onClick={() => setWorkoutFilter("recovery")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                workoutFilter === "recovery"
+                  ? 'bg-[#12AFCB] text-white shadow-sm'
+                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+              }`}
+            >
+              Recovery
+            </button>
+          </div>
+        )}
 
-        <div className="grid gap-3">
-          {filteredWorkouts.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-[#5A6B7F] mb-4">No workouts found. Try a different filter or create a new workout!</p>
-              <div className="flex gap-2 justify-center">
-                <Button onClick={() => setGenerateWorkoutOpen(true)} className="gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  Generate Workout
-                </Button>
-                <Button variant="outline" onClick={() => setWorkoutModalOpen(true)} className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Create Manually
-                </Button>
-              </div>
-            </div>
-          ) : (
-            filteredWorkouts.map((workout) => (
-              <Card key={workout.id} className="p-4 bg-white/40 border-[#12AFCB]/10 hover:border-[#12AFCB]/30 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-[#0E1012]">{workout.block_name}</h4>
-                      {workout.isDefault && (
-                        <Badge variant="outline" className="text-xs bg-[#12AFCB]/5 text-[#12AFCB] border-[#12AFCB]/20">
-                          Default
-                        </Badge>
-                      )}
+        {workouts.length === 0 ? (
+          <div className="text-center py-12">
+            <Dumbbell className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
+            <p className="text-[#5A6B7F]">Click the button above to get AI-generated workout plans tailored to your fitness goals.</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredWorkouts.map((workout) => (
+              <div
+                key={workout.id}
+                className="group rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
+              >
+                <div className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{workout.block_name}</h4>
+                      <div className="flex items-center gap-2 mb-3">
+                        {workout.isDefault && (
+                          <Badge variant="outline" className="text-xs bg-[#12AFCB]/5 text-[#12AFCB] border-[#12AFCB]/20">
+                            Default
+                          </Badge>
+                        )}
+                        {workout.sessions?.type && (
+                          <Badge className="text-xs capitalize bg-[#12AFCB]/10 text-[#12AFCB] border-[#12AFCB]/20">
+                            {workout.sessions.type}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {workout.sessions?.duration && (
-                        <div className="flex items-center gap-1 text-sm text-[#5A6B7F]">
-                          <Clock className="w-3 h-3" />
-                          {workout.sessions.duration}
-                        </div>
-                      )}
-                      {workout.sessions?.type && (
-                        <Badge variant="secondary" className="text-xs capitalize bg-[#12AFCB]/10 text-[#12AFCB] border-[#12AFCB]/20">
-                          {workout.sessions.type}
-                        </Badge>
-                      )}
-                      {workout.sessions?.difficulty && (
-                        <Badge variant="outline" className="text-xs capitalize border-[#12AFCB]/20">
-                          {workout.sessions.difficulty}
-                        </Badge>
-                      )}
-                    </div>
-                    {workout.sessions?.exercises && (
-                      <p className="text-sm text-[#5A6B7F]">
-                        {workout.sessions.exercises.join(" • ")}
-                      </p>
+                    {!workout.isDefault && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteWorkout(workout.id)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     )}
                   </div>
-                  {!workout.isDefault && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteWorkout(workout.id)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+
+                  <div className="space-y-2 mb-4">
+                    {workout.sessions?.duration && (
+                      <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
+                        <Clock className="w-4 h-4 text-[#12AFCB]" />
+                        {workout.sessions.duration}
+                      </div>
+                    )}
+                    {workout.sessions?.difficulty && (
+                      <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
+                        <Zap className="w-4 h-4 text-[#12AFCB]" />
+                        <span className="capitalize">{workout.sessions.difficulty}</span>
+                      </div>
+                    )}
+                    {workout.sessions?.equipment && (
+                      <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
+                        <Dumbbell className="w-4 h-4 text-[#12AFCB]" />
+                        <span className="capitalize">{workout.sessions.equipment}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {workout.sessions?.exercises && (
+                    <div className="border-t border-[#12AFCB]/10 pt-3">
+                      <p className="text-xs text-[#5A6B7F] mb-2">Exercises:</p>
+                      <p className="text-sm text-[#0E1012]">
+                        {workout.sessions.exercises.slice(0, 3).join(" • ")}
+                        {workout.sessions.exercises.length > 3 && " ..."}
+                      </p>
+                    </div>
                   )}
+
+                  <Button
+                    onClick={() => setWorkoutModalOpen(true)}
+                    variant="outline"
+                    className="w-full mt-4 border-[#12AFCB]/20 hover:border-[#12AFCB] hover:bg-[#12AFCB]/5"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Workout
+                  </Button>
                 </div>
-              </Card>
-            ))
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Motivation Pulse */}
