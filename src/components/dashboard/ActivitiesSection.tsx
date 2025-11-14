@@ -1,6 +1,7 @@
-import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus } from "lucide-react";
+import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles } from "lucide-react";
 import { WorkoutModal } from "@/components/modals/WorkoutModal";
 import { SaveWorkoutDialog } from "@/components/modals/SaveWorkoutDialog";
+import { GenerateWorkoutDialog } from "@/components/modals/GenerateWorkoutDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -8,13 +9,63 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Pause, Square } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function ActivitiesSection() {
   const navigate = useNavigate();
   const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
+  const [generateWorkoutOpen, setGenerateWorkoutOpen] = useState(false);
   const [saveWorkoutDialogOpen, setSaveWorkoutDialogOpen] = useState(false);
   const [workoutActive, setWorkoutActive] = useState(false);
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
+  const [workouts, setWorkouts] = useState<any[]>([]);
+
+  const fetchWorkouts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("workout_plans")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setWorkouts(data || []);
+    } catch (error: any) {
+      console.error("Error fetching workouts:", error);
+    }
+  };
+
+  const handleDeleteWorkout = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("workout_plans")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Workout deleted",
+        description: "Your workout has been removed.",
+      });
+
+      fetchWorkouts();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
 
   const handleAddMovement = async () => {
     try {
@@ -304,6 +355,95 @@ export default function ActivitiesSection() {
         )}
       </div>
 
+      {/* Workouts Section */}
+      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Dumbbell className="w-5 h-5 text-[#12AFCB]" />
+            <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Your Workouts</h3>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setGenerateWorkoutOpen(true)}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Generate
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setWorkoutModalOpen(true)}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          {workouts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-[#5A6B7F] mb-4">No workouts yet. Generate or create your first workout!</p>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={() => setGenerateWorkoutOpen(true)} className="gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Generate Workout
+                </Button>
+                <Button variant="outline" onClick={() => setWorkoutModalOpen(true)} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Create Manually
+                </Button>
+              </div>
+            </div>
+          ) : (
+            workouts.map((workout) => (
+              <Card key={workout.id} className="p-4 bg-white/40 border-[#12AFCB]/10 hover:border-[#12AFCB]/30 transition-colors">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2 flex-1">
+                    <h4 className="font-semibold text-[#0E1012]">{workout.block_name}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {workout.sessions?.duration && (
+                        <div className="flex items-center gap-1 text-sm text-[#5A6B7F]">
+                          <Clock className="w-3 h-3" />
+                          {workout.sessions.duration}
+                        </div>
+                      )}
+                      {workout.sessions?.type && (
+                        <Badge variant="secondary" className="text-xs capitalize bg-[#12AFCB]/10 text-[#12AFCB] border-[#12AFCB]/20">
+                          {workout.sessions.type}
+                        </Badge>
+                      )}
+                      {workout.sessions?.difficulty && (
+                        <Badge variant="outline" className="text-xs capitalize border-[#12AFCB]/20">
+                          {workout.sessions.difficulty}
+                        </Badge>
+                      )}
+                    </div>
+                    {workout.sessions?.exercises && (
+                      <p className="text-sm text-[#5A6B7F]">
+                        {workout.sessions.exercises.join(" • ")}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteWorkout(workout.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+
       {/* Motivation Pulse */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <h3 className="font-rounded text-xl font-semibold text-[#0E1012] mb-6">
@@ -437,7 +577,12 @@ export default function ActivitiesSection() {
         </div>
       </div>
 
-      <WorkoutModal open={workoutModalOpen} onOpenChange={setWorkoutModalOpen} onSuccess={() => {}} />
+      <WorkoutModal open={workoutModalOpen} onOpenChange={setWorkoutModalOpen} onSuccess={fetchWorkouts} />
+      <GenerateWorkoutDialog
+        open={generateWorkoutOpen}
+        onOpenChange={setGenerateWorkoutOpen}
+        onSuccess={fetchWorkouts}
+      />
       <SaveWorkoutDialog
         open={saveWorkoutDialogOpen}
         onOpenChange={setSaveWorkoutDialogOpen}
