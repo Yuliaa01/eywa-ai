@@ -20,6 +20,49 @@ export default function ActivitiesSection() {
   const [workoutActive, setWorkoutActive] = useState(false);
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
   const [workouts, setWorkouts] = useState<any[]>([]);
+  const [workoutFilter, setWorkoutFilter] = useState<string>("all");
+
+  const defaultWorkouts = [
+    {
+      id: "default-1",
+      block_name: "Full Body Strength Training",
+      sessions: {
+        duration: "45 minutes",
+        type: "strength",
+        difficulty: "intermediate",
+        equipment: "full",
+        exercises: ["Squats", "Deadlifts", "Bench Press", "Rows", "Shoulder Press"],
+        structure: "4 sets x 8-12 reps"
+      },
+      isDefault: true
+    },
+    {
+      id: "default-2",
+      block_name: "HIIT Cardio Blast",
+      sessions: {
+        duration: "30 minutes",
+        type: "hiit",
+        difficulty: "intermediate",
+        equipment: "minimal",
+        exercises: ["Burpees", "Mountain Climbers", "Jump Squats", "High Knees", "Plank Jacks"],
+        structure: "40s work, 20s rest, 4 rounds"
+      },
+      isDefault: true
+    },
+    {
+      id: "default-3",
+      block_name: "Active Recovery & Mobility",
+      sessions: {
+        duration: "30 minutes",
+        type: "recovery",
+        difficulty: "beginner",
+        equipment: "none",
+        exercises: ["Dynamic Stretching", "Yoga Flow", "Foam Rolling", "Light Walking"],
+        structure: "10 min each activity"
+      },
+      isDefault: true
+    }
+  ];
 
   const fetchWorkouts = async () => {
     try {
@@ -33,11 +76,22 @@ export default function ActivitiesSection() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setWorkouts(data || []);
+      
+      // If user has no workouts, show default ones
+      if (!data || data.length === 0) {
+        setWorkouts(defaultWorkouts);
+      } else {
+        setWorkouts(data);
+      }
     } catch (error: any) {
       console.error("Error fetching workouts:", error);
+      setWorkouts(defaultWorkouts);
     }
   };
+
+  const filteredWorkouts = workoutFilter === "all" 
+    ? workouts 
+    : workouts.filter(w => w.sessions?.type === workoutFilter);
 
   const handleDeleteWorkout = async (id: string) => {
     try {
@@ -384,10 +438,54 @@ export default function ActivitiesSection() {
           </div>
         </div>
 
+        {/* Workout Filters */}
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+          <Button
+            variant={workoutFilter === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWorkoutFilter("all")}
+            className="rounded-full"
+          >
+            All Workouts
+          </Button>
+          <Button
+            variant={workoutFilter === "strength" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWorkoutFilter("strength")}
+            className="rounded-full"
+          >
+            Strength
+          </Button>
+          <Button
+            variant={workoutFilter === "hiit" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWorkoutFilter("hiit")}
+            className="rounded-full"
+          >
+            HIIT
+          </Button>
+          <Button
+            variant={workoutFilter === "cardio" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWorkoutFilter("cardio")}
+            className="rounded-full"
+          >
+            Cardio
+          </Button>
+          <Button
+            variant={workoutFilter === "recovery" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWorkoutFilter("recovery")}
+            className="rounded-full"
+          >
+            Recovery
+          </Button>
+        </div>
+
         <div className="grid gap-3">
-          {workouts.length === 0 ? (
+          {filteredWorkouts.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-[#5A6B7F] mb-4">No workouts yet. Generate or create your first workout!</p>
+              <p className="text-[#5A6B7F] mb-4">No workouts found. Try a different filter or create a new workout!</p>
               <div className="flex gap-2 justify-center">
                 <Button onClick={() => setGenerateWorkoutOpen(true)} className="gap-2">
                   <Sparkles className="w-4 h-4" />
@@ -400,11 +498,18 @@ export default function ActivitiesSection() {
               </div>
             </div>
           ) : (
-            workouts.map((workout) => (
+            filteredWorkouts.map((workout) => (
               <Card key={workout.id} className="p-4 bg-white/40 border-[#12AFCB]/10 hover:border-[#12AFCB]/30 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2 flex-1">
-                    <h4 className="font-semibold text-[#0E1012]">{workout.block_name}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-[#0E1012]">{workout.block_name}</h4>
+                      {workout.isDefault && (
+                        <Badge variant="outline" className="text-xs bg-[#12AFCB]/5 text-[#12AFCB] border-[#12AFCB]/20">
+                          Default
+                        </Badge>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {workout.sessions?.duration && (
                         <div className="flex items-center gap-1 text-sm text-[#5A6B7F]">
@@ -429,14 +534,16 @@ export default function ActivitiesSection() {
                       </p>
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteWorkout(workout.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {!workout.isDefault && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteWorkout(workout.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </Card>
             ))
