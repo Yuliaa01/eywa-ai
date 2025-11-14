@@ -403,30 +403,28 @@ export default function RecipesSection() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  {!recipe.isDefault && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (recipe.savedId) {
-                          unsaveRecipe(recipe.savedId, index);
-                        } else {
-                          saveRecipe(recipe, index);
-                        }
-                      }}
-                      disabled={savingRecipe === recipe.name}
-                      className="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
-                    >
-                      {savingRecipe === recipe.name ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                      ) : (
-                        <Heart 
-                          className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
-                        />
-                      )}
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (recipe.savedId) {
+                        unsaveRecipe(recipe.savedId, index);
+                      } else {
+                        saveRecipe(recipe, index);
+                      }
+                    }}
+                    disabled={savingRecipe === recipe.name}
+                    className="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                  >
+                    {savingRecipe === recipe.name ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 ${recipe.savedId ? 'fill-[#12AFCB] text-[#12AFCB]' : 'text-[#12AFCB]'}`}
+                      />
+                    )}
+                  </Button>
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h4 className="font-rounded text-lg font-semibold text-white mb-2">{recipe.name}</h4>
                     <div className="flex items-center gap-3 text-white/90 text-sm">
@@ -444,30 +442,28 @@ export default function RecipesSection() {
               ) : (
                 <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
                   <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
-                  {!recipe.isDefault && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (recipe.savedId) {
-                          unsaveRecipe(recipe.savedId, index);
-                        } else {
-                          saveRecipe(recipe, index);
-                        }
-                      }}
-                      disabled={savingRecipe === recipe.name}
-                      className="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
-                    >
-                      {savingRecipe === recipe.name ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                      ) : (
-                        <Heart 
-                          className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
-                        />
-                      )}
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (recipe.savedId) {
+                        unsaveRecipe(recipe.savedId, index);
+                      } else {
+                        saveRecipe(recipe, index);
+                      }
+                    }}
+                    disabled={savingRecipe === recipe.name}
+                    className="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-9 h-9 p-0"
+                  >
+                    {savingRecipe === recipe.name ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 ${recipe.savedId ? 'fill-[#12AFCB] text-[#12AFCB]' : 'text-[#12AFCB]'}`}
+                      />
+                    )}
+                  </Button>
                 </div>
               )}
             </div>
@@ -499,30 +495,28 @@ export default function RecipesSection() {
                     <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{recipe.name}</h4>
                     <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
                   </div>
-                  {!recipe.isDefault && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (recipe.savedId) {
-                          unsaveRecipe(recipe.savedId, index);
-                        } else {
-                          saveRecipe(recipe, index);
-                        }
-                      }}
-                      disabled={savingRecipe === recipe.name}
-                      className="ml-2 hover:bg-[#12AFCB]/10"
-                    >
-                      {savingRecipe === recipe.name ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                      ) : (
-                        <Heart 
-                          className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-[#12AFCB]'}`}
-                        />
-                      )}
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (recipe.savedId) {
+                        unsaveRecipe(recipe.savedId, index);
+                      } else {
+                        saveRecipe(recipe, index);
+                      }
+                    }}
+                    disabled={savingRecipe === recipe.name}
+                    className="ml-2 hover:bg-[#12AFCB]/10"
+                  >
+                    {savingRecipe === recipe.name ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 ${recipe.savedId ? 'fill-[#12AFCB] text-[#12AFCB]' : 'text-[#12AFCB]'}`}
+                      />
+                    )}
+                  </Button>
                 </div>
 
                 <div className="flex flex-wrap gap-3 mb-3">
