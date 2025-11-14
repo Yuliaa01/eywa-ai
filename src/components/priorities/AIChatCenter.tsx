@@ -381,7 +381,7 @@ export function AIChatCenter() {
       ) : (
         <>
           {/* Chat Mode */}
-          <div className="mb-4 h-[300px] sm:h-[400px] overflow-y-auto space-y-4">
+          <div className="flex-1 mb-4 h-[300px] sm:h-[400px] overflow-y-auto space-y-4">
             {messages.map((msg, idx) => (
               <div key={idx} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
                 <div className={`inline-block rounded-2xl p-4 max-w-[80%] ${
@@ -403,42 +403,44 @@ export function AIChatCenter() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input area at bottom */}
-          <div className="flex items-center gap-3">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (input.trim() && !isLoading) {
-                    sendMessage();
+          {/* Input area at very bottom */}
+          <div className="pt-4 border-t border-[#12AFCB]/10">
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim() && !isLoading) {
+                      sendMessage();
+                    }
                   }
-                }
-              }}
-              placeholder={isRecording ? "Listening..." : "Type your message..."}
-              disabled={isRecording || isLoading}
-              className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50"
-            />
-            <button 
-              onClick={() => sendMessage()}
-              disabled={isLoading || !input.trim() || isRecording}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
-            >
-              <Send className="w-4 h-4" />
-              <span>Send</span>
-            </button>
-            <button
-              onClick={handleVoiceRecord}
-              className={`flex items-center justify-center px-6 py-3 rounded-xl ${
-                isRecording 
-                  ? 'bg-red-500 hover:bg-red-600' 
-                  : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
-              } text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}
-            >
-              <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
-            </button>
+                }}
+                placeholder={isRecording ? "Listening..." : "Type your message..."}
+                disabled={isRecording || isLoading}
+                className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50"
+              />
+              <button 
+                onClick={() => sendMessage()}
+                disabled={isLoading || !input.trim() || isRecording}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+              >
+                <Send className="w-4 h-4" />
+                <span>Send</span>
+              </button>
+              <button
+                onClick={handleVoiceRecord}
+                className={`flex items-center justify-center px-6 py-3 rounded-xl ${
+                  isRecording 
+                    ? 'bg-red-500 hover:bg-red-600' 
+                    : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
+                } text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}
+              >
+                <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+              </button>
+            </div>
           </div>
         </>
       )}
