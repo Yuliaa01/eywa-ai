@@ -313,9 +313,16 @@ export function AIChatCenter() {
             </div>
           </div>
 
-          {/* Quick Chat Input and Buttons */}
+          {/* Activity Indicator */}
+          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Based on your last 14 days</span>
+            <span className="text-[#12AFCB]/40">•</span>
+            <span>Analyzed 3 minutes ago</span>
+          </div>
+
+          {/* Chat Input at Bottom */}
           <div className="mt-6">
-            {/* Text Input with Send and Mic Buttons */}
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -359,14 +366,6 @@ export function AIChatCenter() {
               </button>
             </div>
           </div>
-
-            {/* Activity Indicator - at card bottom */}
-            <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Based on your last 14 days</span>
-              <span className="text-[#12AFCB]/40">•</span>
-              <span>Analyzed 3 minutes ago</span>
-            </div>
         </>
       ) : (
         <>
@@ -393,27 +392,41 @@ export function AIChatCenter() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input area */}
-          <div className="flex gap-2">
+          {/* Input area at bottom */}
+          <div className="flex items-center gap-3">
             <input
+              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
-                  sendMessage();
+                  if (input.trim() && !isLoading) {
+                    sendMessage();
+                  }
                 }
               }}
-              placeholder="Type your message..."
-              className="flex-1 rounded-xl px-4 py-3 bg-white/60 border border-[#12AFCB]/20 text-[#0E1012] placeholder:text-[#5A6B7F] focus:outline-none focus:border-[#12AFCB] transition-colors"
-              disabled={isLoading}
+              placeholder={isRecording ? "Listening..." : "Type your message..."}
+              disabled={isRecording || isLoading}
+              className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50"
             />
             <button 
               onClick={() => sendMessage()}
-              disabled={isLoading || !input.trim()}
-              className="rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] p-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              disabled={isLoading || !input.trim() || isRecording}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
             >
-              <Send className="w-5 h-5 text-white" />
+              <Send className="w-4 h-4" />
+              <span>Send</span>
+            </button>
+            <button
+              onClick={handleVoiceRecord}
+              className={`flex items-center justify-center px-6 py-3 rounded-xl ${
+                isRecording 
+                  ? 'bg-red-500 hover:bg-red-600' 
+                  : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
+              } text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}
+            >
+              <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
             </button>
           </div>
         </>
