@@ -178,8 +178,6 @@ export function AIChatCenter() {
 
         if (data?.text) {
           setInput(data.text);
-          // Automatically send the transcribed text
-          setTimeout(() => sendMessage(data.text), 100);
         }
 
       } catch (error) {
@@ -308,8 +306,8 @@ export function AIChatCenter() {
           </div>
 
           {/* Quick Chat Input and Buttons */}
-          <div className="mt-6 space-y-3">
-            {/* Text Input with Send Button */}
+          <div className="mt-6">
+            {/* Text Input with Send and Mic Buttons */}
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -324,8 +322,9 @@ export function AIChatCenter() {
                     }
                   }
                 }}
-                placeholder="Ask me anything..."
-                className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200"
+                placeholder={isRecording ? "Listening..." : "Ask me anything..."}
+                disabled={isRecording}
+                className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50"
               />
               <button 
                 onClick={() => {
@@ -334,27 +333,22 @@ export function AIChatCenter() {
                     setTimeout(() => sendMessage(), 100);
                   }
                 }}
-                disabled={!input.trim()}
+                disabled={!input.trim() || isRecording}
                 className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
               >
                 <Send className="w-4 h-4" />
                 <span>Send</span>
               </button>
-            </div>
-
-            {/* Voice Record Button */}
-            <div className="flex justify-end">
-              <Button
+              <button
                 onClick={handleVoiceRecord}
-                className={`rounded-2xl ${
+                className={`flex items-center justify-center px-6 py-3 rounded-xl ${
                   isRecording 
                     ? 'bg-red-500 hover:bg-red-600' 
                     : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
-                } text-white px-8 py-6 text-base font-semibold shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.4)] hover:scale-[1.02] transition-all duration-200`}
+                } text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}
               >
-                <Mic className={`w-5 h-5 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
-                {isRecording ? 'Stop Recording' : 'Voice Message'}
-              </Button>
+                <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+              </button>
             </div>
           </div>
 
