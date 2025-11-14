@@ -22,6 +22,7 @@ import ProfileSettings from "./pages/settings/Profile";
 import Subscription from "./pages/settings/Subscription";
 import Connections from "./pages/Connections";
 import LocalEvents from "./pages/LocalEvents";
+import NearbyRestaurants from "./pages/NearbyRestaurants";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,10 @@ const AppContent = ({ session }: { session: Session | null }) => {
         <Route 
           path="/local-events" 
           element={session ? <LocalEvents /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/nearby-restaurants" 
+          element={session ? <NearbyRestaurants /> : <Navigate to="/auth" />} 
         />
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

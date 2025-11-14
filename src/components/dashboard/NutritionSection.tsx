@@ -329,7 +329,7 @@ export default function NutritionSection() {
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Nearby & Recommended</h3>
           <button 
-            onClick={() => navigate('/local-events')}
+            onClick={() => navigate('/nearby-restaurants')}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] font-rounded font-medium text-sm transition-colors"
           >
             <MapPin className="w-4 h-4" />
