@@ -88,7 +88,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
               const height = Math.random() * 60 + 20;
               return (
-                <div key={day} className="flex flex-col items-center gap-2 flex-1">
+                <div key={`day-${i}`} className="flex flex-col items-center gap-2 flex-1">
                   <div className="w-full bg-gradient-to-t from-[#12AFCB] to-[#19D0E4] rounded-t-lg transition-all duration-300 hover:opacity-80" style={{ height: `${height}%` }} />
                   <span className="text-xs text-[#5A6B7F] font-medium">{day}</span>
                 </div>
