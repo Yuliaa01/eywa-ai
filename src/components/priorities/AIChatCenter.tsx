@@ -232,7 +232,7 @@ export function AIChatCenter() {
   };
 
   return (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300 animate-fade-in">
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300 animate-fade-in flex flex-col min-h-[600px]">
       {/* AI Icon */}
       <div className="mb-8 flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
@@ -384,7 +384,7 @@ export function AIChatCenter() {
       ) : (
         <>
           {/* Chat Mode */}
-          <div className="flex-1 mb-4 h-[300px] sm:h-[400px] overflow-y-auto space-y-4">
+          <div className="flex-1 mb-4 overflow-y-auto space-y-4">
             {messages.map((msg, idx) => (
               <div key={idx} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
                 <div className={`inline-block rounded-2xl p-4 max-w-[80%] ${
