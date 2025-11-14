@@ -239,16 +239,38 @@ export function AIChatCenter() {
             </div>
           </div>
 
-          {/* Voice Input */}
-          <button 
-            onClick={() => setChatMode(true)}
-            className="mt-6 flex items-center justify-end gap-2 text-[#12AFCB] hover:text-[#19D0E4] font-medium text-sm transition-colors duration-200"
-          >
-            <div className="w-10 h-10 rounded-full bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center hover:scale-110 transition-all duration-200">
-              <Mic className="w-5 h-5" />
-            </div>
-            <span>Ask me anything</span>
-          </button>
+          {/* Quick Chat Input */}
+          <div className="mt-6 flex items-center gap-3">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim()) {
+                    setChatMode(true);
+                    setTimeout(() => sendMessage(), 100);
+                  }
+                }
+              }}
+              placeholder="Ask me anything..."
+              className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200"
+            />
+            <button 
+              onClick={() => {
+                if (input.trim()) {
+                  setChatMode(true);
+                  setTimeout(() => sendMessage(), 100);
+                }
+              }}
+              disabled={!input.trim()}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+            >
+              <Mic className="w-4 h-4" />
+              <span>Ask me anything</span>
+            </button>
+          </div>
 
             {/* Activity Indicator - at card bottom */}
             <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
