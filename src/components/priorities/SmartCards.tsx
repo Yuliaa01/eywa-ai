@@ -17,7 +17,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
   return (
     <div className="space-y-6">
       {/* Card 1 - Global Goals */}
-      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[160px] flex flex-col">
+      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[200px] flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Global Goals</h3>
           <button
@@ -53,7 +53,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
       </div>
 
       {/* Card 2 - Today */}
-      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[120px] flex flex-col">
+      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[140px] flex flex-col">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-[#12AFCB]" />
           <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Today</h3>
@@ -76,7 +76,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
       </div>
 
       {/* Card 3 - This Week */}
-      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[200px] flex flex-col">
+      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[240px] flex flex-col">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
           <h3 className="font-rounded text-xl font-bold text-[#0E1012]">This Week</h3>
@@ -116,7 +116,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
       </div>
 
       {/* Card 4 - Plans */}
-      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[150px] flex flex-col">
+      <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300 h-[180px] flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-[#12AFCB]" />
