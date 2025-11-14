@@ -19,8 +19,8 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
       {/* Card 1 - Global Goals */}
       <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-rounded text-lg font-semibold text-[#0E1012]">Global Goals</h3>
-          <button 
+          <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Global Goals</h3>
+          <button
             onClick={onAddGlobal}
             className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200"
           >
@@ -56,7 +56,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
       <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-[#12AFCB]" />
-          <h3 className="font-rounded text-lg font-semibold text-[#0E1012]">Today</h3>
+          <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Today</h3>
         </div>
         <div className="space-y-3">
           {todayGoals.length === 0 ? (
@@ -79,7 +79,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
       <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.2)] hover:scale-[1.02] transition-all duration-300">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
-          <h3 className="font-rounded text-lg font-semibold text-[#0E1012]">This Week</h3>
+          <h3 className="font-rounded text-xl font-bold text-[#0E1012]">This Week</h3>
         </div>
         
         {/* Mini line chart visualization */}
@@ -118,7 +118,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-[#12AFCB]" />
-            <h3 className="font-rounded text-lg font-semibold text-[#0E1012]">Plans</h3>
+            <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Plans</h3>
           </div>
           <button 
             onClick={onAddPlan}

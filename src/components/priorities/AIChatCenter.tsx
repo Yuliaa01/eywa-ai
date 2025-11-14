@@ -5,20 +5,20 @@ export function AIChatCenter() {
   return (
     <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300">
       {/* AI Icon */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-8 flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
           <Sparkles className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="font-rounded text-lg font-semibold text-[#0E1012]">Eywa AI</h3>
-          <p className="text-xs text-[#5A6B7F]">Your health companion</p>
+          <h3 className="font-rounded text-2xl font-bold text-[#0E1012]">Eywa AI</h3>
+          <p className="text-sm text-[#5A6B7F]">Your health companion</p>
         </div>
       </div>
 
       {/* AI Message */}
       <div className="mb-8 space-y-4">
-        <div className="rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-6 border border-[#12AFCB]/10">
-          <p className="text-[#333333] text-base leading-relaxed font-medium">
+        <div className="rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-8 border border-[#12AFCB]/10">
+          <p className="text-[#333333] text-lg leading-relaxed font-medium">
             Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
           </p>
         </div>
