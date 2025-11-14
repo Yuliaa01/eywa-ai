@@ -197,13 +197,15 @@ export function AIChatCenter() {
               </div>
             </div>
             
-            {/* Action Button */}
-            <Button 
-              onClick={() => handleSendWithMessage("Show me detailed progress on my stress level and sleep improvements")}
-              className="rounded-2xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white px-8 py-6 text-base font-semibold shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.4)] hover:scale-[1.02] transition-all duration-200"
-            >
-              Yes, show me
-            </Button>
+            {/* Action Button - aligned right */}
+            <div className="flex justify-end">
+              <Button 
+                onClick={() => handleSendWithMessage("Show me detailed progress on my stress level and sleep improvements")}
+                className="rounded-2xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white px-8 py-6 text-base font-semibold shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.4)] hover:scale-[1.02] transition-all duration-200"
+              >
+                Yes, show me
+              </Button>
+            </div>
           </div>
 
           {/* Quick Actions */}
@@ -240,7 +242,7 @@ export function AIChatCenter() {
           {/* Voice Input */}
           <button 
             onClick={() => setChatMode(true)}
-            className="mt-6 flex items-center gap-2 text-[#12AFCB] hover:text-[#19D0E4] font-medium text-sm transition-colors duration-200"
+            className="mt-6 flex items-center justify-end gap-2 text-[#12AFCB] hover:text-[#19D0E4] font-medium text-sm transition-colors duration-200"
           >
             <div className="w-10 h-10 rounded-full bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center hover:scale-110 transition-all duration-200">
               <Mic className="w-5 h-5" />
@@ -248,13 +250,13 @@ export function AIChatCenter() {
             <span>Ask me anything</span>
           </button>
 
-          {/* Activity Indicator */}
-          <div className="mt-6 pt-4 border-t border-[#12AFCB]/10 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Based on your last 14 days</span>
-            <span className="text-[#12AFCB]/40">•</span>
-            <span>Analyzed 3 minutes ago</span>
-          </div>
+            {/* Activity Indicator - at card bottom */}
+            <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Based on your last 14 days</span>
+              <span className="text-[#12AFCB]/40">•</span>
+              <span>Analyzed 3 minutes ago</span>
+            </div>
         </>
       ) : (
         <>
