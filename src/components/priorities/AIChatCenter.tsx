@@ -324,16 +324,11 @@ export function AIChatCenter() {
             </div>
           </div>
 
-          {/* Activity Indicator */}
-          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Based on your last 14 days</span>
-            <span className="text-[#12AFCB]/40">•</span>
-            <span>Analyzed 3 minutes ago</span>
-          </div>
+          {/* Spacer to push input to bottom */}
+          <div className="flex-1" />
 
-          {/* Chat Input at Bottom */}
-          <div className="mt-6">
+          {/* Chat Input at Very Bottom */}
+          <div className="mt-6 pt-6 border-t border-[#12AFCB]/10">
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -375,6 +370,14 @@ export function AIChatCenter() {
               >
                 <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
               </button>
+            </div>
+
+            {/* Activity Indicator below input */}
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#5A6B7F]">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Based on your last 14 days</span>
+              <span className="text-[#12AFCB]/40">•</span>
+              <span>Analyzed 3 minutes ago</span>
             </div>
           </div>
         </>
