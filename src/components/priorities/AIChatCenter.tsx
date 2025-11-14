@@ -147,11 +147,11 @@ export function AIChatCenter() {
   };
 
   return (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300">
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300 animate-fade-in">
       {/* AI Icon */}
       <div className="mb-8 flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
-          <Sparkles className="w-6 h-6 text-white" />
+          <Sparkles className="w-6 h-6 text-white animate-pulse" />
         </div>
         <div className="flex-1">
           <h3 className="font-rounded text-2xl font-bold text-[#0E1012]">Eywa AI</h3>
@@ -171,10 +171,30 @@ export function AIChatCenter() {
         <>
           {/* AI Message */}
           <div className="mb-8 space-y-4">
-            <div className="rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-8 border border-[#12AFCB]/10">
-              <p className="text-[#333333] text-lg leading-relaxed font-medium">
-                Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
-              </p>
+            <div className="relative rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-4 sm:p-8 border border-[#12AFCB]/10 shadow-md hover:shadow-lg transition-shadow duration-300 animate-fade-in">
+              {/* New insight badge */}
+              <div className="absolute top-3 right-3">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#12AFCB]/10 text-xs font-medium text-[#12AFCB]">
+                  <Sparkles className="w-3 h-3" />
+                  New insight
+                </span>
+              </div>
+              
+              {/* Eywa avatar and message */}
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#12AFCB] to-[#0E8BA0] flex items-center justify-center animate-pulse">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-semibold text-[#333333]">Eywa AI</span>
+                    <span className="text-xs text-[#5A6B7F]">Just now</span>
+                  </div>
+                  <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium">
+                    Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
+                  </p>
+                </div>
+              </div>
             </div>
             
             {/* Action Button */}
@@ -189,28 +209,28 @@ export function AIChatCenter() {
           {/* Quick Actions */}
           <div className="space-y-3">
             <p className="text-xs text-[#5A6B7F] font-medium uppercase tracking-wide">Quick Actions</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in" style={{ animationDelay: '150ms' }}>
               <button 
                 onClick={() => handleSendWithMessage("Show me my overall health progress and trends")}
-                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200"
               >
                 📊 View Progress
               </button>
               <button 
                 onClick={() => handleSendWithMessage("Give me a detailed sleep analysis and recommendations")}
-                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200"
               >
                 💤 Sleep Analysis
               </button>
               <button 
                 onClick={() => handleSendWithMessage("What nutrition tips do you have for me based on my health data?")}
-                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200"
               >
                 🍎 Nutrition Tips
               </button>
               <button 
                 onClick={() => handleSendWithMessage("Give me personalized stress relief techniques and recommendations")}
-                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-[1.02] transition-all duration-200"
+                className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200"
               >
                 🧘 Stress Relief
               </button>
@@ -227,11 +247,19 @@ export function AIChatCenter() {
             </div>
             <span>Ask me anything</span>
           </button>
+
+          {/* Activity Indicator */}
+          <div className="mt-6 pt-4 border-t border-[#12AFCB]/10 flex items-center justify-center gap-2 text-xs text-[#5A6B7F] animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Based on your last 14 days</span>
+            <span className="text-[#12AFCB]/40">•</span>
+            <span>Analyzed 3 minutes ago</span>
+          </div>
         </>
       ) : (
         <>
           {/* Chat Mode */}
-          <div className="mb-4 h-[400px] overflow-y-auto space-y-4">
+          <div className="mb-4 h-[300px] sm:h-[400px] overflow-y-auto space-y-4">
             {messages.map((msg, idx) => (
               <div key={idx} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
                 <div className={`inline-block rounded-2xl p-4 max-w-[80%] ${
