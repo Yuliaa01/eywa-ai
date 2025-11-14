@@ -113,7 +113,7 @@ export default function Dashboard() {
   })();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <header className="sticky top-0 z-20 backdrop-blur-xl bg-card/95 border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4">
