@@ -89,14 +89,19 @@ export function AIChatCenter() {
 
       if (!reader) throw new Error("No response body");
 
+      console.log("Starting stream read...");
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       let textBuffer = "";
       let streamDone = false;
+      let chunkCount = 0;
 
       while (!streamDone) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log("Stream complete. Total chunks:", chunkCount);
+          break;
+        }
 
         textBuffer += decoder.decode(value, { stream: true });
 
@@ -111,6 +116,7 @@ export function AIChatCenter() {
 
           const jsonStr = line.slice(6).trim();
           if (jsonStr === "[DONE]") {
+            console.log("Received [DONE] signal");
             streamDone = true;
             break;
           }
@@ -119,22 +125,27 @@ export function AIChatCenter() {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
+              chunkCount++;
               assistantMessage += content;
+              console.log("Chunk", chunkCount, ":", content);
               setMessages((prev) => {
                 const newMessages = [...prev];
                 const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage.role === "assistant") {
+                if (lastMessage?.role === "assistant") {
                   lastMessage.content = assistantMessage;
                 }
                 return newMessages;
               });
             }
-          } catch {
+          } catch (parseError) {
+            console.error("Parse error:", parseError, "Line:", line);
             textBuffer = line + "\n" + textBuffer;
             break;
           }
         }
       }
+      
+      console.log("Final assistant message:", assistantMessage);
     } catch (error) {
       console.error("Chat error:", error);
       toast({
