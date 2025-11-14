@@ -232,7 +232,7 @@ export function AIChatCenter() {
   };
 
   return (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300 animate-fade-in flex flex-col min-h-[600px]">
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300 animate-fade-in flex flex-col h-[600px]">
       {/* AI Icon */}
       <div className="mb-8 flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
@@ -254,8 +254,10 @@ export function AIChatCenter() {
 
       {!chatMode ? (
         <>
-          {/* AI Message */}
-          <div className="mb-8 space-y-4">
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto mb-4">
+            {/* AI Message */}
+            <div className="mb-8 space-y-4">
             <div className="relative rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-4 sm:p-8 border border-[#12AFCB]/10 shadow-md hover:shadow-lg transition-shadow duration-300 animate-fade-in">
               {/* New insight badge */}
               <div className="absolute top-3 right-3">
@@ -323,9 +325,7 @@ export function AIChatCenter() {
               </button>
             </div>
           </div>
-
-          {/* Spacer to push input to bottom */}
-          <div className="flex-1" />
+          </div>
 
           {/* Chat Input at Very Bottom */}
           <div className="mt-6 pt-6">
@@ -355,13 +355,13 @@ export function AIChatCenter() {
                   }
                 }}
                 disabled={!input.trim() || isRecording}
-                className="flex items-center justify-center px-4 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+                className="flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
               >
                 <Send className="w-4 h-4" />
               </button>
               <button
                 onClick={handleVoiceRecord}
-                className={`flex items-center justify-center px-6 py-3 rounded-xl ${
+                className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${
                   isRecording 
                     ? 'bg-red-500 hover:bg-red-600' 
                     : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
