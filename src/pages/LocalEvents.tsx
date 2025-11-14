@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, Calendar, Clock, Cloud, Map, List, Utensils, Star, DollarSign, Filter, X } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Clock, Cloud, Map, List, Activity, Star, DollarSign, Filter, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useMemo } from "react";
@@ -82,92 +82,92 @@ export default function LocalEvents() {
     }
   };
 
-  // Generate nearby places based on user location
+  // Generate nearby events based on user location
   const allPlaces = userLocation ? [
     {
-      name: "Green Bowl Café",
-      type: "Café",
+      name: "Morning Yoga in the Park",
+      type: "Wellness",
       distance: "0.3 mi",
       rating: 4.8,
-      priceLevel: "$$",
-      cuisine: ["Vegan", "Vegetarian", "Healthy"],
-      address: "123 Main St",
+      priceLevel: "Free",
+      cuisine: ["Yoga", "Meditation", "Outdoor"],
+      address: "Central Park East",
       match: "95% match",
-      hours: "7:00 AM - 8:00 PM",
+      hours: "7:00 AM - 8:30 AM",
       coords: { lat: userLocation.lat + 0.002, lng: userLocation.lng - 0.003 }
     },
     {
-      name: "Protein Kitchen",
-      type: "Restaurant",
+      name: "Community Running Club",
+      type: "Fitness",
       distance: "0.5 mi",
       rating: 4.6,
-      priceLevel: "$$$",
-      cuisine: ["High-protein", "Low-carb", "Keto"],
+      priceLevel: "Free",
+      cuisine: ["Running", "Cardio", "Social"],
       address: "456 Park Ave",
       match: "90% match",
-      hours: "11:00 AM - 10:00 PM",
+      hours: "6:00 PM - 7:30 PM",
       coords: { lat: userLocation.lat + 0.005, lng: userLocation.lng + 0.008 }
     },
     {
-      name: "Fresh & Fit",
-      type: "Café",
+      name: "Outdoor HIIT Bootcamp",
+      type: "Fitness",
       distance: "0.7 mi",
       rating: 4.9,
-      priceLevel: "$$",
-      cuisine: ["Gluten-free", "Organic", "Smoothies"],
+      priceLevel: "$",
+      cuisine: ["HIIT", "Strength", "Group Class"],
       address: "789 Broadway",
       match: "88% match",
-      hours: "6:30 AM - 7:00 PM",
+      hours: "5:30 PM - 7:00 PM",
       coords: { lat: userLocation.lat - 0.012, lng: userLocation.lng + 0.018 }
     },
     {
-      name: "Mediterranean Delight",
-      type: "Restaurant",
+      name: "Mindfulness Meditation",
+      type: "Wellness",
       distance: "0.9 mi",
       rating: 4.7,
-      priceLevel: "$$",
-      cuisine: ["Mediterranean", "Vegetarian", "Healthy"],
+      priceLevel: "Free",
+      cuisine: ["Meditation", "Mindfulness", "Stress Relief"],
       address: "321 5th Ave",
       match: "85% match",
-      hours: "11:30 AM - 9:30 PM",
+      hours: "7:00 PM - 8:00 PM",
       coords: { lat: userLocation.lat + 0.033, lng: userLocation.lng - 0.015 }
     },
     {
-      name: "Juice Bar Plus",
-      type: "Café",
+      name: "Pilates Studio Open Class",
+      type: "Fitness",
       distance: "1.1 mi",
       rating: 4.5,
       priceLevel: "$",
-      cuisine: ["Juices", "Smoothies", "Vegan"],
+      cuisine: ["Pilates", "Core", "Flexibility"],
       address: "654 Lexington Ave",
       match: "82% match",
-      hours: "7:00 AM - 6:00 PM",
+      hours: "8:00 AM - 9:00 AM",
       coords: { lat: userLocation.lat + 0.001, lng: userLocation.lng + 0.011 }
     },
     {
-      name: "Paleo Paradise",
-      type: "Restaurant",
+      name: "CrossFit Community WOD",
+      type: "Fitness",
       distance: "1.3 mi",
       rating: 4.8,
-      priceLevel: "$$$",
-      cuisine: ["Paleo", "Gluten-free", "Organic"],
+      priceLevel: "$$",
+      cuisine: ["CrossFit", "Strength", "Functional"],
       address: "987 Madison Ave",
       match: "80% match",
-      hours: "10:00 AM - 9:00 PM",
+      hours: "6:00 AM - 7:00 AM",
       coords: { lat: userLocation.lat + 0.020, lng: userLocation.lng + 0.013 }
     },
   ] : [];
 
-  // Get unique cuisines and price levels for filters
+  // Get unique categories and price levels for filters
   const allCuisines = useMemo(() => {
-    const cuisines = new Set<string>();
-    allPlaces.forEach(place => place.cuisine.forEach(c => cuisines.add(c)));
-    return Array.from(cuisines).sort();
+    const categories = new Set<string>();
+    allPlaces.forEach(place => place.cuisine.forEach(c => categories.add(c)));
+    return Array.from(categories).sort();
   }, [allPlaces]);
 
-  const allPriceLevels = ["$", "$$", "$$$"];
+  const allPriceLevels = ["Free", "$", "$$", "$$$"];
 
-  // Filter restaurants
+  // Filter events
   const nearbyPlaces = useMemo(() => {
     return allPlaces.filter(place => {
       // Cuisine filter
@@ -236,10 +236,10 @@ export default function LocalEvents() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="font-rounded text-4xl font-bold text-foreground mb-2">
-                Nearby Restaurants & Cafés
+                Local Health & Fitness Events
               </h1>
               <p className="text-muted-foreground">
-                Discover healthy dining options near you that match your preferences
+                Discover wellness events and activities near you that match your interests
               </p>
             </div>
             
@@ -263,17 +263,17 @@ export default function LocalEvents() {
                 >
                   <div className="space-y-4">
                     <div className="space-y-1">
-                      <h4 className="font-semibold text-base">Filter Restaurants</h4>
+                      <h4 className="font-semibold text-base">Filter Events</h4>
                       <p className="text-sm text-muted-foreground">
-                        Narrow down by cuisine, price, and diet
+                        Narrow down by category, price, and preferences
                       </p>
                     </div>
                     
                     <div className="space-y-4">
-                      {/* User Diet Preferences */}
+                      {/* User Preferences */}
                       {userPreferences.diet.length > 0 && (
                         <div className="space-y-2">
-                          <Label className="text-sm font-semibold">Your Dietary Preferences</Label>
+                          <Label className="text-sm font-semibold">Your Preferences</Label>
                           <div className="flex items-center space-x-2">
                             <Checkbox 
                               id="match-diet" 
@@ -284,15 +284,15 @@ export default function LocalEvents() {
                               htmlFor="match-diet"
                               className="text-sm leading-none cursor-pointer"
                             >
-                              Match my diet ({userPreferences.diet.join(", ")})
+                              Match my preferences ({userPreferences.diet.join(", ")})
                             </label>
                           </div>
                         </div>
                       )}
 
-                      {/* Cuisine Types */}
+                      {/* Event Categories */}
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold">Cuisine Type</Label>
+                        <Label className="text-sm font-semibold">Event Category</Label>
                         <ScrollArea className="h-40 w-full rounded-md border border-border p-2 bg-background">
                           <div className="space-y-2">
                             {allCuisines.map((cuisine) => (
@@ -429,9 +429,9 @@ export default function LocalEvents() {
         <div className="space-y-4">
           {nearbyPlaces.length === 0 ? (
             <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-12 text-center">
-              <Utensils className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-rounded text-xl font-semibold text-foreground mb-2">
-                No restaurants match your filters
+                No events match your filters
               </h3>
               <p className="text-muted-foreground mb-4">
                 Try adjusting your filter settings to see more options
@@ -450,7 +450,7 @@ export default function LocalEvents() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-xl bg-accent-teal/10 flex items-center justify-center">
-                      <Utensils className="w-6 h-6 text-accent-teal" />
+                      <Activity className="w-6 h-6 text-accent-teal" />
                     </div>
                     <div>
                       <h3 className="font-rounded text-xl font-semibold text-foreground">
