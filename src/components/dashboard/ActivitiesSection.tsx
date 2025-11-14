@@ -67,7 +67,12 @@ export default function ActivitiesSection() {
   const fetchWorkouts = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      // If no user, show default workouts
+      if (!user) {
+        setWorkouts(defaultWorkouts);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("workout_plans")
