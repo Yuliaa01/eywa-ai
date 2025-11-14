@@ -2,6 +2,8 @@ import { Mic, Sparkles, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { AudioRecorder, blobToBase64 } from "@/utils/audioRecorder";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,7 +15,9 @@ export function AIChatCenter() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRecorderRef = useRef<AudioRecorder | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -146,6 +150,70 @@ export function AIChatCenter() {
     setInput("");
   };
 
+  const handleVoiceRecord = async () => {
+    if (isRecording) {
+      // Stop recording
+      try {
+        setIsRecording(false);
+        const audioBlob = await audioRecorderRef.current?.stop();
+        
+        if (!audioBlob) {
+          throw new Error('No audio recorded');
+        }
+
+        toast({
+          title: "Processing audio...",
+          description: "Converting speech to text",
+        });
+
+        // Convert to base64
+        const base64Audio = await blobToBase64(audioBlob);
+
+        // Send to edge function
+        const { data, error } = await supabase.functions.invoke('voice-to-text', {
+          body: { audio: base64Audio }
+        });
+
+        if (error) throw error;
+
+        if (data?.text) {
+          setInput(data.text);
+          // Automatically send the transcribed text
+          setTimeout(() => sendMessage(data.text), 100);
+        }
+
+      } catch (error) {
+        console.error('Error processing audio:', error);
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to process audio",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Start recording
+      try {
+        setChatMode(true);
+        setIsRecording(true);
+        audioRecorderRef.current = new AudioRecorder();
+        await audioRecorderRef.current.start();
+        
+        toast({
+          title: "Recording started",
+          description: "Speak now...",
+        });
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        setIsRecording(false);
+        toast({
+          title: "Error",
+          description: "Failed to access microphone",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   return (
     <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 shadow-[0_4px_12px_rgba(18,175,203,0.15)] hover:shadow-[0_8px_24px_rgba(18,175,203,0.2)] transition-all duration-300 animate-fade-in">
       {/* AI Icon */}
@@ -239,37 +307,55 @@ export function AIChatCenter() {
             </div>
           </div>
 
-          {/* Quick Chat Input */}
-          <div className="mt-6 flex items-center gap-3">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
+          {/* Quick Chat Input and Buttons */}
+          <div className="mt-6 space-y-3">
+            {/* Text Input with Send Button */}
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim()) {
+                      setChatMode(true);
+                      setTimeout(() => sendMessage(), 100);
+                    }
+                  }
+                }}
+                placeholder="Ask me anything..."
+                className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200"
+              />
+              <button 
+                onClick={() => {
                   if (input.trim()) {
                     setChatMode(true);
                     setTimeout(() => sendMessage(), 100);
                   }
-                }
-              }}
-              placeholder="Ask me anything..."
-              className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200"
-            />
-            <button 
-              onClick={() => {
-                if (input.trim()) {
-                  setChatMode(true);
-                  setTimeout(() => sendMessage(), 100);
-                }
-              }}
-              disabled={!input.trim()}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
-            >
-              <Mic className="w-4 h-4" />
-              <span>Ask me anything</span>
-            </button>
+                }}
+                disabled={!input.trim()}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+              >
+                <Send className="w-4 h-4" />
+                <span>Send</span>
+              </button>
+            </div>
+
+            {/* Voice Record Button */}
+            <div className="flex justify-end">
+              <Button
+                onClick={handleVoiceRecord}
+                className={`rounded-2xl ${
+                  isRecording 
+                    ? 'bg-red-500 hover:bg-red-600' 
+                    : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
+                } text-white px-8 py-6 text-base font-semibold shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_20px_rgba(18,175,203,0.4)] hover:scale-[1.02] transition-all duration-200`}
+              >
+                <Mic className={`w-5 h-5 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
+                {isRecording ? 'Stop Recording' : 'Voice Message'}
+              </Button>
+            </div>
           </div>
 
             {/* Activity Indicator - at card bottom */}
