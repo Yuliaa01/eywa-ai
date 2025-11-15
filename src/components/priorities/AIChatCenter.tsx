@@ -269,9 +269,6 @@ export function AIChatCenter() {
               
               {/* Eywa avatar and message */}
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#12AFCB] to-[#0E8BA0] flex items-center justify-center animate-pulse">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-sm font-semibold text-[#333333]">Eywa AI</span>
