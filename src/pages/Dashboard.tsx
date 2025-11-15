@@ -247,15 +247,15 @@ export default function Dashboard() {
             <PrioritiesSection />
           </TabsContent>
 
-          <TabsContent value="nutrition" className="animate-scale-in">
+          <TabsContent value="nutrition" className="animate-scale-in overflow-y-auto">
             <NutritionSection />
           </TabsContent>
 
-          <TabsContent value="activities" className="animate-scale-in">
+          <TabsContent value="activities" className="animate-scale-in overflow-y-auto">
             <ActivitiesSection />
           </TabsContent>
 
-          <TabsContent value="healthcare" className="animate-scale-in">
+          <TabsContent value="healthcare" className="animate-scale-in overflow-y-auto">
             <HealthCareSection />
           </TabsContent>
         </Tabs>
