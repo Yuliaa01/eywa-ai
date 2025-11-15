@@ -427,10 +427,9 @@ export function AIChatCenter() {
               <button 
                 onClick={() => sendMessage()}
                 disabled={isLoading || !input.trim() || isRecording}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
+                className="flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
               >
                 <Send className="w-4 h-4" />
-                <span>Send</span>
               </button>
               <button
                 onClick={handleVoiceRecord}
