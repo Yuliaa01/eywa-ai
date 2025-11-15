@@ -254,8 +254,8 @@ export function AIChatCenter() {
 
       {!chatMode ? (
         <>
-          {/* Scrollable content area */}
-          <div className="flex-1 overflow-y-auto mb-4 min-h-0">
+          {/* Scrollable content area - fills remaining space */}
+          <div className="flex-1 overflow-y-auto min-h-0">
             {/* AI Message */}
             <div className="mb-8 space-y-4">
             <div className="relative rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-4 sm:p-8 border border-[#12AFCB]/10 shadow-md hover:shadow-lg transition-shadow duration-300 animate-fade-in">
@@ -325,7 +325,7 @@ export function AIChatCenter() {
           </div>
 
           {/* Chat Input at Very Bottom */}
-          <div className="mt-6 pt-6 flex-shrink-0">
+          <div className="mt-auto pt-6 flex-shrink-0">
             <div className="flex items-center gap-3">
               <input
                 type="text"
