@@ -139,20 +139,24 @@ export default function PrioritiesSection() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="h-full flex flex-col">
       {/* Main Layout: AI Chat (Left) + Smart Cards (Right) */}
-      <div className="grid lg:grid-cols-[1.5fr,1fr] gap-6">
+      <div className="grid lg:grid-cols-[1.5fr,1fr] gap-6 flex-1 overflow-hidden">
         {/* Left Column - AI Chat Center */}
-        <AIChatCenter />
+        <div className="h-full overflow-hidden">
+          <AIChatCenter />
+        </div>
 
         {/* Right Column - Smart Cards */}
-        <SmartCards 
+        <div className="h-full overflow-hidden">
+          <SmartCards
           globalGoals={globalGoals}
           temporaryGoals={temporaryGoals}
           plans={plans}
           onAddGlobal={() => openModal('global')}
           onAddPlan={() => openModal('plan')}
         />
+        </div>
       </div>
 
       <GoalModal
