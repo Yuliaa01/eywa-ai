@@ -559,7 +559,7 @@ export default function ActivitiesSection() {
                   )}
 
                   <Button
-                    onClick={() => setWorkoutModalOpen(true)}
+                    onClick={handleStartWorkout}
                     variant="outline"
                     className="w-full mt-4 border-[#12AFCB]/20 hover:border-[#12AFCB] hover:bg-[#12AFCB]/5"
                   >
