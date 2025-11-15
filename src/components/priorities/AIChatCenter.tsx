@@ -430,7 +430,7 @@ export function AIChatCenter() {
               </button>
               <button
                 onClick={handleVoiceRecord}
-                className={`flex items-center justify-center px-6 py-3 rounded-xl ${
+                className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${
                   isRecording 
                     ? 'bg-red-500 hover:bg-red-600' 
                     : 'bg-[#12AFCB] hover:bg-[#19D0E4]'
