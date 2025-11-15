@@ -113,7 +113,7 @@ export default function Dashboard() {
   })();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}
       <header className="sticky top-0 z-20 backdrop-blur-xl bg-card/95 border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -208,8 +208,8 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+      <div className="flex-1 max-w-7xl mx-auto px-6 py-8 overflow-hidden flex flex-col w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col overflow-hidden">
           {/* Tab Navigation */}
           <TabsList className="w-full grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
             <TabsTrigger
@@ -243,7 +243,7 @@ export default function Dashboard() {
           </TabsList>
 
           {/* Tab Content */}
-          <TabsContent value="priorities" className="animate-scale-in">
+          <TabsContent value="priorities" className="animate-scale-in flex-1 overflow-hidden h-full">
             <PrioritiesSection />
           </TabsContent>
 
