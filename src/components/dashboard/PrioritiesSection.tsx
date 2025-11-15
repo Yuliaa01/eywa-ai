@@ -143,12 +143,12 @@ export default function PrioritiesSection() {
       {/* Main Layout: AI Chat (Left) + Smart Cards (Right) */}
       <div className="grid lg:grid-cols-[1.5fr,1fr] gap-6 flex-1 overflow-hidden">
         {/* Left Column - AI Chat Center */}
-        <div className="h-full overflow-hidden">
+        <div className="h-full overflow-hidden flex items-stretch">
           <AIChatCenter />
         </div>
 
         {/* Right Column - Smart Cards */}
-        <div className="h-full overflow-hidden">
+        <div className="h-full overflow-hidden flex items-stretch">
           <SmartCards
           globalGoals={globalGoals}
           temporaryGoals={temporaryGoals}
