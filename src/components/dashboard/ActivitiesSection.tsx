@@ -218,48 +218,26 @@ export default function ActivitiesSection() {
 
     fetchConnections();
 
-    // Handle OAuth callback
-    const handleOAuthCallback = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const state = urlParams.get('state');
-      
-      if (code && state && urlParams.get('oauth_callback') === 'true') {
-        const appName = sessionStorage.getItem('pending_oauth_app');
-        if (!appName) return;
+    // Handle OAuth success/error
+    const params = new URLSearchParams(window.location.search);
+    const oauthSuccess = params.get('oauth_success');
+    const oauthError = params.get('oauth_error');
 
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (!session) throw new Error('Not authenticated');
-
-          const { data, error } = await supabase.functions.invoke('fitness-oauth-callback', {
-            body: { code, state, appName },
-          });
-
-          if (error) throw error;
-
-          toast({
-            title: "App Connected",
-            description: `${appName} has been connected successfully!`,
-          });
-
-          setConnectedApps(prev => ({ ...prev, [appName.toLowerCase()]: true }));
-          sessionStorage.removeItem('pending_oauth_app');
-          
-          // Clean up URL
-          window.history.replaceState({}, document.title, '/dashboard');
-        } catch (error: any) {
-          console.error('OAuth callback error:', error);
-          toast({
-            title: "Connection Failed",
-            description: error.message || "Failed to connect app",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    handleOAuthCallback();
+    if (oauthSuccess) {
+      toast({
+        title: "App Connected",
+        description: `Successfully connected to ${oauthSuccess}!`,
+      });
+      fetchConnections(); // Refresh connection status
+      window.history.replaceState({}, '', '/dashboard');
+    } else if (oauthError) {
+      toast({
+        title: "Connection Failed",
+        description: `Failed to connect: ${oauthError}`,
+        variant: "destructive",
+      });
+      window.history.replaceState({}, '', '/dashboard');
+    }
   }, []);
 
   const handleAddMovement = async () => {
@@ -333,15 +311,14 @@ export default function ActivitiesSection() {
         return;
       }
 
-      sessionStorage.setItem('pending_oauth_app', appName);
-
       const { data, error } = await supabase.functions.invoke('fitness-oauth-init', {
         body: { appName: appName.toLowerCase() },
       });
 
       if (error) throw error;
 
-      if (data.authUrl) {
+      if (data?.authUrl) {
+        // Redirect to OAuth provider - they will redirect back to our callback edge function
         window.location.href = data.authUrl;
       }
     } catch (error: any) {

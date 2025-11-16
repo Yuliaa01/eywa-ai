@@ -148,27 +148,31 @@ Deno.serve(async (req) => {
 
     console.log(`OAuth callback successful for ${appName}, user: ${user.id}`);
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        appName,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
+    // Redirect back to frontend with success indicator
+    const frontendOrigin = connection.metadata?.frontend_origin || '';
+    const redirectUrl = `${frontendOrigin}/dashboard?oauth_success=${appName}`;
+    
+    return new Response(null, {
+      status: 302,
+      headers: {
+        ...corsHeaders,
+        'Location': redirectUrl,
+      },
+    });
   } catch (error) {
     console.error('OAuth callback error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({
-        error: errorMessage,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
-    );
+    
+    // Try to get the frontend origin from the request or use a fallback
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || '';
+    const redirectUrl = `${origin}/dashboard?oauth_error=${encodeURIComponent(errorMessage)}`;
+    
+    return new Response(null, {
+      status: 302,
+      headers: {
+        ...corsHeaders,
+        'Location': redirectUrl,
+      },
+    });
   }
 });
