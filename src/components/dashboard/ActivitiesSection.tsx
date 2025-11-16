@@ -1,4 +1,4 @@
-import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles } from "lucide-react";
+import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star } from "lucide-react";
 import { WorkoutModal } from "@/components/modals/WorkoutModal";
 import { SaveWorkoutDialog } from "@/components/modals/SaveWorkoutDialog";
 import { GenerateWorkoutDialog } from "@/components/modals/GenerateWorkoutDialog";
@@ -21,6 +21,8 @@ export default function ActivitiesSection() {
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
   const [workouts, setWorkouts] = useState<any[]>([]);
   const [workoutFilter, setWorkoutFilter] = useState<string>("all");
+  const [appSearchQuery, setAppSearchQuery] = useState("");
+  const [activeAppTab, setActiveAppTab] = useState<'all' | 'favorites' | 'recommended'>('all');
 
   const defaultWorkouts = [
     {
@@ -97,6 +99,72 @@ export default function ActivitiesSection() {
   const filteredWorkouts = workoutFilter === "all" 
     ? workouts 
     : workouts.filter(w => w.sessions?.type === workoutFilter);
+
+  const fitnessApps = [
+    {
+      id: 1,
+      name: "Strava",
+      icon: "🏃",
+      trainingTypes: "Running, Cycling, Swimming",
+      features: ["GPS tracking", "Heart rate", "Routes"],
+      isFavorite: true,
+      isRecommended: true
+    },
+    {
+      id: 2,
+      name: "Apple Fitness",
+      icon: "🍎",
+      trainingTypes: "HIIT, Yoga, Strength",
+      features: ["Apple Watch sync", "Guided workouts", "Rings"],
+      isFavorite: false,
+      isRecommended: true
+    },
+    {
+      id: 3,
+      name: "Peloton",
+      icon: "🚴",
+      trainingTypes: "Cycling, Running, Strength",
+      features: ["Live classes", "On-demand", "Leaderboard"],
+      isFavorite: true,
+      isRecommended: false
+    },
+    {
+      id: 4,
+      name: "Nike Training Club",
+      icon: "✔️",
+      trainingTypes: "Strength, HIIT, Yoga",
+      features: ["Free workouts", "Expert trainers", "Nutrition tips"],
+      isFavorite: false,
+      isRecommended: true
+    },
+    {
+      id: 5,
+      name: "MyFitnessPal",
+      icon: "🥗",
+      trainingTypes: "Nutrition, Cardio, Strength",
+      features: ["Calorie tracking", "Barcode scanner", "Recipe database"],
+      isFavorite: true,
+      isRecommended: false
+    },
+    {
+      id: 6,
+      name: "Fitbit",
+      icon: "⌚",
+      trainingTypes: "Walking, Running, Sleep",
+      features: ["Activity tracking", "Sleep analysis", "Heart rate"],
+      isFavorite: false,
+      isRecommended: true
+    }
+  ];
+
+  const filteredApps = fitnessApps.filter(app => {
+    const matchesSearch = app.name.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+                         app.trainingTypes.toLowerCase().includes(appSearchQuery.toLowerCase());
+    const matchesTab = activeAppTab === 'all' || 
+                      (activeAppTab === 'favorites' && app.isFavorite) ||
+                      (activeAppTab === 'recommended' && app.isRecommended);
+    return matchesSearch && matchesTab;
+  });
 
   const handleDeleteWorkout = async (id: string) => {
     try {
@@ -414,157 +482,122 @@ export default function ActivitiesSection() {
         )}
       </div>
 
-      {/* Workouts Section */}
+      {/* Fitness Apps Section */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Your Workouts</h3>
-            <p className="text-sm text-[#5A6B7F] mt-1">Personalized training plans based on your goals</p>
-          </div>
-          <Button
-            onClick={() => setGenerateWorkoutOpen(true)}
-            className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Generate Workout
-          </Button>
+        <div className="mb-6">
+          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Fitness Apps</h3>
+          <p className="text-sm text-[#5A6B7F] mt-1">Connect and sync your favorite fitness apps</p>
         </div>
 
-        {/* Workout Filters */}
-        {workouts.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
-              onClick={() => setWorkoutFilter("all")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                workoutFilter === "all"
-                  ? 'bg-[#12AFCB] text-white shadow-sm'
-                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
-              }`}
-            >
-              All Workouts
-            </button>
-            <button
-              onClick={() => setWorkoutFilter("strength")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                workoutFilter === "strength"
-                  ? 'bg-[#12AFCB] text-white shadow-sm'
-                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
-              }`}
-            >
-              Strength
-            </button>
-            <button
-              onClick={() => setWorkoutFilter("hiit")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                workoutFilter === "hiit"
-                  ? 'bg-[#12AFCB] text-white shadow-sm'
-                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
-              }`}
-            >
-              HIIT
-            </button>
-            <button
-              onClick={() => setWorkoutFilter("cardio")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                workoutFilter === "cardio"
-                  ? 'bg-[#12AFCB] text-white shadow-sm'
-                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
-              }`}
-            >
-              Cardio
-            </button>
-            <button
-              onClick={() => setWorkoutFilter("recovery")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                workoutFilter === "recovery"
-                  ? 'bg-[#12AFCB] text-white shadow-sm'
-                  : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
-              }`}
-            >
-              Recovery
-            </button>
-          </div>
-        )}
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5A6B7F]" />
+          <input
+            type="text"
+            placeholder="Search apps..."
+            value={appSearchQuery}
+            onChange={(e) => setAppSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/80 border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:bg-white transition-all"
+          />
+        </div>
 
-        {workouts.length === 0 ? (
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            onClick={() => setActiveAppTab('all')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              activeAppTab === 'all'
+                ? 'bg-[#12AFCB] text-white shadow-sm'
+                : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+            }`}
+          >
+            All Apps
+          </button>
+          <button
+            onClick={() => setActiveAppTab('favorites')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              activeAppTab === 'favorites'
+                ? 'bg-[#12AFCB] text-white shadow-sm'
+                : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+            }`}
+          >
+            Favorites
+          </button>
+          <button
+            onClick={() => setActiveAppTab('recommended')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              activeAppTab === 'recommended'
+                ? 'bg-[#12AFCB] text-white shadow-sm'
+                : 'bg-white/80 text-[#5A6B7F] hover:bg-[#12AFCB]/10 hover:text-[#12AFCB]'
+            }`}
+          >
+            Recommended
+          </button>
+        </div>
+
+        {/* Apps Grid */}
+        {filteredApps.length === 0 ? (
           <div className="text-center py-12">
-            <Dumbbell className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
-            <p className="text-[#5A6B7F]">Click the button above to get AI-generated workout plans tailored to your fitness goals.</p>
+            <Search className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
+            <p className="text-[#5A6B7F]">No apps found matching your search.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredWorkouts.map((workout) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredApps.map((app) => (
               <div
-                key={workout.id}
-                className="group rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
+                key={app.id}
+                className="group rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all p-5"
               >
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{workout.block_name}</h4>
-                      <div className="flex items-center gap-2 mb-3">
-                        {workout.isDefault && (
-                          <Badge variant="outline" className="text-xs bg-[#12AFCB]/5 text-[#12AFCB] border-[#12AFCB]/20">
-                            Default
-                          </Badge>
-                        )}
-                        {workout.sessions?.type && (
-                          <Badge className="text-xs capitalize bg-[#12AFCB]/10 text-[#12AFCB] border-[#12AFCB]/20">
-                            {workout.sessions.type}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    {!workout.isDefault && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteWorkout(workout.id)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
+                {/* App Icon and Favorite */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 flex items-center justify-center text-3xl">
+                    {app.icon}
                   </div>
-
-                  <div className="space-y-2 mb-4">
-                    {workout.sessions?.duration && (
-                      <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
-                        <Clock className="w-4 h-4 text-[#12AFCB]" />
-                        {workout.sessions.duration}
-                      </div>
-                    )}
-                    {workout.sessions?.difficulty && (
-                      <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
-                        <Zap className="w-4 h-4 text-[#12AFCB]" />
-                        <span className="capitalize">{workout.sessions.difficulty}</span>
-                      </div>
-                    )}
-                    {workout.sessions?.equipment && (
-                      <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
-                        <Dumbbell className="w-4 h-4 text-[#12AFCB]" />
-                        <span className="capitalize">{workout.sessions.equipment}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {workout.sessions?.exercises && (
-                    <div className="border-t border-[#12AFCB]/10 pt-3">
-                      <p className="text-xs text-[#5A6B7F] mb-2">Exercises:</p>
-                      <p className="text-sm text-[#0E1012]">
-                        {workout.sessions.exercises.slice(0, 3).join(" • ")}
-                        {workout.sessions.exercises.length > 3 && " ..."}
-                      </p>
-                    </div>
+                  {app.isFavorite && (
+                    <Star className="w-5 h-5 fill-[#12AFCB] text-[#12AFCB]" />
                   )}
+                </div>
 
+                {/* App Name */}
+                <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">
+                  {app.name}
+                </h4>
+
+                {/* Training Types */}
+                <p className="text-sm text-[#5A6B7F] mb-3">
+                  {app.trainingTypes}
+                </p>
+
+                {/* Features */}
+                <div className="mb-4 pb-4 border-b border-[#12AFCB]/10">
+                  <div className="flex flex-wrap gap-1.5">
+                    {app.features.map((feature, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 rounded-lg bg-[#12AFCB]/5 text-xs text-[#12AFCB] font-medium"
+                      >
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
                   <Button
-                    onClick={handleStartWorkout}
-                    variant="outline"
-                    className="w-full mt-4 border-[#12AFCB]/20 hover:border-[#12AFCB] hover:bg-[#12AFCB]/5"
+                    className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] hover:opacity-90 text-white"
+                    size="sm"
                   >
-                    <Play className="w-4 h-4 mr-2" />
-                    Start Workout
+                    <ExternalLink className="w-4 h-4 mr-1.5" />
+                    Open App
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 border-[#12AFCB]/20 hover:border-[#12AFCB] hover:bg-[#12AFCB]/5"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1.5" />
+                    Sync Data
                   </Button>
                 </div>
               </div>
