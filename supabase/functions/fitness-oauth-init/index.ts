@@ -70,9 +70,8 @@ Deno.serve(async (req) => {
       throw new Error('App name is required');
     }
 
-    // Get the redirect URI from the request origin
-    const origin = req.headers.get('origin') || '';
-    const redirectUri = `${origin}/dashboard?oauth_callback=true`;
+    // Set redirect URI to the callback edge function
+    const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fitness-oauth-callback`;
 
     const config = getOAuthConfig(appName, redirectUri);
 
@@ -88,13 +87,14 @@ Deno.serve(async (req) => {
     const state = crypto.randomUUID();
 
     // Store state in database for validation during callback
+    const origin = req.headers.get('origin') || '';
     const { error: insertError } = await supabaseClient
       .from('fitness_app_connections')
       .insert({
         user_id: user.id,
         app_name: appName,
         sync_status: 'pending',
-        metadata: { state, redirect_uri: redirectUri },
+        metadata: { state, redirect_uri: redirectUri, frontend_origin: origin },
       });
 
     if (insertError) {
