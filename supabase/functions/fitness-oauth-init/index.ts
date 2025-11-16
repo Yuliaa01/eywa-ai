@@ -29,7 +29,12 @@ const getOAuthConfig = (appName: string, redirectUri: string): OAuthConfig | nul
       authUrl: 'https://connect.garmin.com/oauthConfirm',
       clientId: Deno.env.get('GARMIN_CLIENT_ID') || '',
       scope: 'activities',
-    },
+    }
+    nike: {
+      authUrl: 'https://unite.nike.com/authorize',
+      clientId: Deno.env.get('NIKE_CLIENT_ID') || '',
+      scope: 'activity.read profile.read',
+    },,
   };
 
   const config = configs[appName.toLowerCase()];
