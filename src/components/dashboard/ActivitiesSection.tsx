@@ -26,6 +26,10 @@ export default function ActivitiesSection() {
   const [activeAppTab, setActiveAppTab] = useState<'all' | 'favorites' | 'recommended'>('all');
   const [connectedApps, setConnectedApps] = useState<Record<string, boolean>>({});
   const [syncingApps, setSyncingApps] = useState<Record<string, boolean>>({});
+  const [favoriteApps, setFavoriteApps] = useState<Record<number, boolean>>(() => {
+    const saved = localStorage.getItem('favoriteApps');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   const defaultWorkouts = [
     {
@@ -160,11 +164,19 @@ export default function ActivitiesSection() {
     }
   ];
 
+  const toggleFavorite = (appId: number) => {
+    setFavoriteApps(prev => {
+      const newFavorites = { ...prev, [appId]: !prev[appId] };
+      localStorage.setItem('favoriteApps', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
+
   const filteredApps = fitnessApps.filter(app => {
     const matchesSearch = app.name.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
                          app.trainingTypes.toLowerCase().includes(appSearchQuery.toLowerCase());
     const matchesTab = activeAppTab === 'all' || 
-                      (activeAppTab === 'favorites' && app.isFavorite) ||
+                      (activeAppTab === 'favorites' && favoriteApps[app.id]) ||
                       (activeAppTab === 'recommended' && app.isRecommended);
     return matchesSearch && matchesTab;
   });
@@ -667,9 +679,13 @@ export default function ActivitiesSection() {
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 flex items-center justify-center text-3xl">
                     {app.icon}
                   </div>
-                  {app.isFavorite && (
-                    <Star className="w-5 h-5 fill-[#12AFCB] text-[#12AFCB]" />
-                  )}
+                  <button
+                    onClick={() => toggleFavorite(app.id)}
+                    className="hover:scale-110 transition-transform"
+                    aria-label={favoriteApps[app.id] ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Star className={`w-5 h-5 ${favoriteApps[app.id] ? 'fill-[#12AFCB] text-[#12AFCB]' : 'text-[#12AFCB]'}`} />
+                  </button>
                 </div>
 
                 {/* App Name */}
