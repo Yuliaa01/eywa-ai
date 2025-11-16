@@ -21,7 +21,7 @@ const getOAuthConfig = (appName: string, redirectUri: string): OAuthConfig | nul
       scope: 'read,activity:read_all',
     },
     fitbit: {
-      authUrl: 'https://www.fitbit.com/oauth2/authorize',
+      authUrl: 'https://api.fitbit.com/oauth2/authorize',
       clientId: Deno.env.get('FITBIT_CLIENT_ID') || '',
       scope: 'activity heartrate location nutrition profile settings sleep social weight',
     },
