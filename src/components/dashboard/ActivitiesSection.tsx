@@ -11,6 +11,7 @@ import { Pause, Square } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 export default function ActivitiesSection() {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ export default function ActivitiesSection() {
   const [workoutFilter, setWorkoutFilter] = useState<string>("all");
   const [appSearchQuery, setAppSearchQuery] = useState("");
   const [activeAppTab, setActiveAppTab] = useState<'all' | 'favorites' | 'recommended'>('all');
+  const [connectedApps, setConnectedApps] = useState<Record<string, boolean>>({});
+  const [syncingApps, setSyncingApps] = useState<Record<string, boolean>>({});
 
   const defaultWorkouts = [
     {
@@ -192,6 +195,71 @@ export default function ActivitiesSection() {
 
   useEffect(() => {
     fetchWorkouts();
+
+    // Fetch connected apps
+    const fetchConnections = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('fitness_app_connections')
+        .select('app_name, sync_status')
+        .eq('user_id', user.id)
+        .in('sync_status', ['connected', 'syncing']);
+
+      if (!error && data) {
+        const connections: Record<string, boolean> = {};
+        data.forEach(conn => {
+          connections[conn.app_name.toLowerCase()] = conn.sync_status === 'connected';
+        });
+        setConnectedApps(connections);
+      }
+    };
+
+    fetchConnections();
+
+    // Handle OAuth callback
+    const handleOAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code && state && urlParams.get('oauth_callback') === 'true') {
+        const appName = sessionStorage.getItem('pending_oauth_app');
+        if (!appName) return;
+
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) throw new Error('Not authenticated');
+
+          const { data, error } = await supabase.functions.invoke('fitness-oauth-callback', {
+            body: { code, state, appName },
+          });
+
+          if (error) throw error;
+
+          toast({
+            title: "App Connected",
+            description: `${appName} has been connected successfully!`,
+          });
+
+          setConnectedApps(prev => ({ ...prev, [appName.toLowerCase()]: true }));
+          sessionStorage.removeItem('pending_oauth_app');
+          
+          // Clean up URL
+          window.history.replaceState({}, document.title, '/dashboard');
+        } catch (error: any) {
+          console.error('OAuth callback error:', error);
+          toast({
+            title: "Connection Failed",
+            description: error.message || "Failed to connect app",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    handleOAuthCallback();
   }, []);
 
   const handleAddMovement = async () => {
@@ -250,6 +318,75 @@ export default function ActivitiesSection() {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleConnectApp = async (appName: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to connect fitness apps",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      sessionStorage.setItem('pending_oauth_app', appName);
+
+      const { data, error } = await supabase.functions.invoke('fitness-oauth-init', {
+        body: { appName: appName.toLowerCase() },
+      });
+
+      if (error) throw error;
+
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      }
+    } catch (error: any) {
+      console.error('Connect app error:', error);
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to initiate connection. Make sure API credentials are configured.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSyncData = async (appName: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to sync data",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSyncingApps(prev => ({ ...prev, [appName.toLowerCase()]: true }));
+
+      const { data, error } = await supabase.functions.invoke('fitness-sync-data', {
+        body: { appName: appName.toLowerCase() },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Sync Complete",
+        description: `Synced ${data.activityCount} activities from ${appName}`,
+      });
+    } catch (error: any) {
+      console.error('Sync data error:', error);
+      toast({
+        title: "Sync Failed",
+        description: error.message || "Failed to sync data",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingApps(prev => ({ ...prev, [appName.toLowerCase()]: false }));
     }
   };
 
@@ -584,21 +721,32 @@ export default function ActivitiesSection() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <Button
-                    className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] hover:opacity-90 text-white"
-                    size="sm"
-                  >
-                    <ExternalLink className="w-4 h-4 mr-1.5" />
-                    Open App
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-[#12AFCB]/20 hover:border-[#12AFCB] hover:bg-[#12AFCB]/5"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-1.5" />
-                    Sync Data
-                  </Button>
+                  {connectedApps[app.name.toLowerCase()] ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-[#12AFCB]/20 hover:border-[#12AFCB] hover:bg-[#12AFCB]/5"
+                        onClick={() => handleSyncData(app.name)}
+                        disabled={syncingApps[app.name.toLowerCase()]}
+                      >
+                        <RefreshCw className={`w-4 h-4 mr-1.5 ${syncingApps[app.name.toLowerCase()] ? 'animate-spin' : ''}`} />
+                        {syncingApps[app.name.toLowerCase()] ? 'Syncing...' : 'Sync Data'}
+                      </Button>
+                      <Badge variant="default" className="bg-green-500 text-white px-3 flex items-center">
+                        Connected
+                      </Badge>
+                    </>
+                  ) : (
+                    <Button
+                      className="flex-1 bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] hover:opacity-90 text-white"
+                      size="sm"
+                      onClick={() => handleConnectApp(app.name)}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-1.5" />
+                      Connect
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
