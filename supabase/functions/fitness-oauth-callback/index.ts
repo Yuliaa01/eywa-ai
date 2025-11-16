@@ -71,49 +71,76 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Parse query parameters from the URL (OAuth redirect from provider)
+    const url = new URL(req.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    const error = url.searchParams.get('error');
+    const errorDescription = url.searchParams.get('error_description');
+
+    console.log('OAuth callback received:', { code: !!code, state, error, errorDescription });
+
+    // Handle OAuth errors from the provider
+    if (error) {
+      const errorMsg = errorDescription || error;
+      console.error('OAuth provider error:', errorMsg);
+      
+      // Try to find the frontend origin from any pending connection
+      const adminClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      
+      const { data: connections } = await adminClient
+        .from('fitness_app_connections')
+        .select('metadata')
+        .eq('sync_status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      const origin = connections?.[0]?.metadata?.frontend_origin || '';
+      const redirectUrl = `${origin}/dashboard?oauth_error=${encodeURIComponent(errorMsg)}`;
+      
+      return new Response(null, {
+        status: 302,
+        headers: {
+          ...corsHeaders,
+          'Location': redirectUrl,
+        },
+      });
+    }
+
+    if (!code || !state) {
+      throw new Error('Missing required parameters: code or state');
+    }
+
+    // Use service role key to access the database without user auth
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
-
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
-
-    const { code, state, appName } = await req.json();
-
-    if (!code || !state || !appName) {
-      throw new Error('Missing required parameters');
-    }
-
-    // Verify state and get connection record
+    // Find the connection record by state to get user_id and app_name
     const { data: connection, error: fetchError } = await supabaseClient
       .from('fitness_app_connections')
       .select('*')
-      .eq('user_id', user.id)
-      .eq('app_name', appName)
       .eq('sync_status', 'pending')
       .single();
 
     if (fetchError || !connection) {
       console.error('Connection not found or error:', fetchError);
-      throw new Error('Invalid OAuth state');
+      throw new Error('Invalid OAuth state - connection not found');
     }
 
     const storedState = connection.metadata?.state;
     if (storedState !== state) {
+      console.error('State mismatch:', { expected: storedState, received: state });
       throw new Error('State mismatch - potential CSRF attack');
     }
+
+    const appName = connection.app_name;
+    const userId = connection.user_id;
+    console.log(`Processing OAuth callback for ${appName}, user: ${userId}`);
 
     const redirectUri = connection.metadata?.redirect_uri;
     if (!redirectUri) {
@@ -146,7 +173,7 @@ Deno.serve(async (req) => {
       throw new Error('Failed to save connection');
     }
 
-    console.log(`OAuth callback successful for ${appName}, user: ${user.id}`);
+    console.log(`OAuth callback successful for ${appName}, user: ${userId}`);
 
     // Redirect back to frontend with success indicator
     const frontendOrigin = connection.metadata?.frontend_origin || '';
@@ -163,8 +190,20 @@ Deno.serve(async (req) => {
     console.error('OAuth callback error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
-    // Try to get the frontend origin from the request or use a fallback
-    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || '';
+    // Try to find the frontend origin from any pending connection
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    
+    const { data: connections } = await adminClient
+      .from('fitness_app_connections')
+      .select('metadata')
+      .eq('sync_status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    const origin = connections?.[0]?.metadata?.frontend_origin || 'https://034ca980-c764-4c06-baa4-3030e6e0a201.lovableproject.com';
     const redirectUrl = `${origin}/dashboard?oauth_error=${encodeURIComponent(errorMessage)}`;
     
     return new Response(null, {
