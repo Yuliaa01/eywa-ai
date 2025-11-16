@@ -429,6 +429,54 @@ export type Database = {
         }
         Relationships: []
       }
+      fitness_app_connections: {
+        Row: {
+          access_token: string | null
+          app_name: string
+          connected_at: string
+          created_at: string
+          id: string
+          last_synced_at: string | null
+          metadata: Json | null
+          refresh_token: string | null
+          scope: string | null
+          sync_status: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          app_name: string
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_synced_at?: string | null
+          metadata?: Json | null
+          refresh_token?: string | null
+          scope?: string | null
+          sync_status?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          app_name?: string
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_synced_at?: string | null
+          metadata?: Json | null
+          refresh_token?: string | null
+          scope?: string | null
+          sync_status?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       grocery_list_items: {
         Row: {
           category: string | null
@@ -939,6 +987,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      synced_fitness_activities: {
+        Row: {
+          activity_name: string | null
+          activity_type: string
+          app_name: string
+          avg_heart_rate: number | null
+          calories_burned: number | null
+          connection_id: string
+          created_at: string
+          distance_meters: number | null
+          duration_seconds: number | null
+          elevation_gain_meters: number | null
+          external_id: string
+          id: string
+          max_heart_rate: number | null
+          raw_data: Json | null
+          start_time: string
+          synced_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_name?: string | null
+          activity_type: string
+          app_name: string
+          avg_heart_rate?: number | null
+          calories_burned?: number | null
+          connection_id: string
+          created_at?: string
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          elevation_gain_meters?: number | null
+          external_id: string
+          id?: string
+          max_heart_rate?: number | null
+          raw_data?: Json | null
+          start_time: string
+          synced_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_name?: string | null
+          activity_type?: string
+          app_name?: string
+          avg_heart_rate?: number | null
+          calories_burned?: number | null
+          connection_id?: string
+          created_at?: string
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          elevation_gain_meters?: number | null
+          external_id?: string
+          id?: string
+          max_heart_rate?: number | null
+          raw_data?: Json | null
+          start_time?: string
+          synced_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "synced_fitness_activities_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "fitness_app_connections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tests_catalog: {
         Row: {
