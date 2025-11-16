@@ -86,6 +86,14 @@ Deno.serve(async (req) => {
     // Generate state parameter for security
     const state = crypto.randomUUID();
 
+    // Clean up any old pending connections for this user and app
+    await supabaseClient
+      .from('fitness_app_connections')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('app_name', appName)
+      .eq('sync_status', 'pending');
+
     // Store state in database for validation during callback
     const origin = req.headers.get('origin') || '';
     const { error: insertError } = await supabaseClient

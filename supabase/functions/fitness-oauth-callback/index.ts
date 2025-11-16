@@ -121,22 +121,28 @@ Deno.serve(async (req) => {
     );
 
     // Find the connection record by state to get user_id and app_name
-    const { data: connection, error: fetchError } = await supabaseClient
+    // First, try to find by exact state match
+    const { data: connectionByState, error: stateError } = await supabaseClient
       .from('fitness_app_connections')
       .select('*')
       .eq('sync_status', 'pending')
-      .single();
+      .order('created_at', { ascending: false });
 
-    if (fetchError || !connection) {
-      console.error('Connection not found or error:', fetchError);
+    console.log('Found pending connections:', connectionByState?.length || 0);
+
+    // Find the connection that matches our state
+    const connection = connectionByState?.find(
+      (conn) => conn.metadata?.state === state
+    );
+
+    const fetchError = !connection ? new Error('No matching connection found') : null;
+
+    if (!connection) {
+      console.error('Connection not found with matching state');
       throw new Error('Invalid OAuth state - connection not found');
     }
 
-    const storedState = connection.metadata?.state;
-    if (storedState !== state) {
-      console.error('State mismatch:', { expected: storedState, received: state });
-      throw new Error('State mismatch - potential CSRF attack');
-    }
+    console.log('Found matching connection for state:', state.substring(0, 8) + '...');
 
     const appName = connection.app_name;
     const userId = connection.user_id;
