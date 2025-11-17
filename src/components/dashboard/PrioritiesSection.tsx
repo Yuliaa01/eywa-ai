@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { fetchActivePriorities, deletePriority, restorePriority, Priority } from "@/api/priorities";
 import { useToast } from "@/hooks/use-toast";
 import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { SortableItem } from '@/components/ui/sortable-item';
 import { Target, Calendar, MapPin, Plus } from "lucide-react";
@@ -298,7 +298,7 @@ export default function PrioritiesSection() {
         >
           <SortableContext
             items={dragAndDrop.itemIds}
-            strategy={verticalListSortingStrategy}
+            strategy={rectSortingStrategy}
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-min">
               {dragAndDrop.orderedItems.map((card) => (
