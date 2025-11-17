@@ -299,7 +299,7 @@ export default function PrioritiesSection() {
           items={dragAndDrop.itemIds}
           strategy={rectSortingStrategy}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 items-start w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] lg:grid-rows-[200px_140px_240px_180px] gap-6 items-start w-full">
             {dragAndDrop.orderedItems.map((card) => (
               <SortableItem 
                 key={card.id} 
