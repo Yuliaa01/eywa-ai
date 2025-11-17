@@ -11,6 +11,13 @@ import FastingTimer from "./FastingTimer";
 import RecipesSection from "./RecipesSection";
 import MealPlannerSection from "./MealPlannerSection";
 import GroceryListSection from "./GroceryListSection";
+import { GlassCard } from "@/components/glass/GlassCard";
+import { MetricPill } from "@/components/glass/MetricPill";
+import { useDragAndDrop } from "@/hooks/useDragAndDrop";
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext } from '@dnd-kit/sortable';
+import { SortableItem } from "@/components/ui/sortable-item";
+import { Tables } from "@/integrations/supabase/types";
 
 export default function NutritionSection() {
   const navigate = useNavigate();
@@ -26,28 +33,67 @@ export default function NutritionSection() {
     type: "16:8",
   });
   const [todaysMeals, setTodaysMeals] = useState<any[]>([]);
+  const [activeSupplements, setActiveSupplements] = useState<Tables<'supplements'>[]>([]);
   const [macros, setMacros] = useState([
     { name: "Carbs", current: 0, target: 250, color: "#19D0E4", unit: "g" },
     { name: "Protein", current: 0, target: 180, color: "#12AFCB", unit: "g" },
     { name: "Fat", current: 0, target: 80, color: "#0E8FA6", unit: "g" },
   ]);
 
-  const supplements = [
-    { name: "Vitamin D", dosage: "4000 IU", time: "Morning" },
-    { name: "Omega-3", dosage: "2g EPA+DHA", time: "With meals" },
-    { name: "Magnesium", dosage: "400mg", time: "Evening" },
-  ];
-
   // Fetch active fasting window and today's meals
   useEffect(() => {
     fetchFastingWindow();
     fetchTodaysMeals();
+    fetchSupplements();
     const interval = setInterval(() => {
       fetchFastingWindow();
       fetchTodaysMeals();
     }, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
+
+  const fetchSupplements = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('supplements')
+        .select('*')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setActiveSupplements(data || []);
+    } catch (error) {
+      console.error('Error fetching supplements:', error);
+    }
+  };
+
+  const {
+    orderedItems: orderedMeals,
+    sensors: mealSensors,
+    handleDragEnd: handleMealDragEnd,
+    sortingStrategy: mealSortingStrategy,
+    itemIds: mealIds,
+  } = useDragAndDrop({
+    items: todaysMeals,
+    storageKey: 'nutrition-meals-order',
+    idExtractor: (item) => item.id,
+  });
+
+  const {
+    orderedItems: orderedSupplements,
+    sensors: supplementSensors,
+    handleDragEnd: handleSupplementDragEnd,
+    sortingStrategy: supplementSortingStrategy,
+    itemIds: supplementIds,
+  } = useDragAndDrop({
+    items: activeSupplements,
+    storageKey: 'nutrition-supplements-order',
+    idExtractor: (item) => item.id,
+  });
 
   const fetchTodaysMeals = async () => {
     try {
@@ -238,40 +284,47 @@ export default function NutritionSection() {
           {todaysMeals.length === 0 ? (
             <p className="text-sm text-[#5A6B7F]">No meals logged yet today. Click + to add a meal.</p>
           ) : (
-            todaysMeals.map((meal) => (
-              <div
-                key={meal.id}
-                className="flex items-center justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10"
-              >
-                <div className="flex-1">
-                  <h4 className="font-rounded font-medium text-[#0E1012] mb-1">
-                    {meal.items?.map((item: any) => item.name).join(', ')}
-                  </h4>
-                  <p className="text-xs text-[#5A6B7F]">
-                    {new Date(meal.timestamp).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-                {meal.nutrition_totals && (
-                  <div className="flex gap-3 text-sm">
-                    <span className="text-[#5A6B7F]">
-                      <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.calories}</span> cal
-                    </span>
-                    <span className="text-[#5A6B7F]">
-                      P: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.protein}g</span>
-                    </span>
-                    <span className="text-[#5A6B7F]">
-                      C: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.carbs}g</span>
-                    </span>
-                    <span className="text-[#5A6B7F]">
-                      F: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.fat}g</span>
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))
+            <DndContext
+              sensors={mealSensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleMealDragEnd}
+            >
+              <SortableContext items={mealIds} strategy={mealSortingStrategy}>
+                {orderedMeals.map((meal) => (
+                  <SortableItem key={meal.id} id={meal.id}>
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10">
+                      <div className="flex-1">
+                        <h4 className="font-rounded font-medium text-[#0E1012] mb-1">
+                          {meal.items?.map((item: any) => item.name).join(', ')}
+                        </h4>
+                        <p className="text-xs text-[#5A6B7F]">
+                          {new Date(meal.timestamp).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      {meal.nutrition_totals && (
+                        <div className="flex gap-3 text-sm">
+                          <span className="text-[#5A6B7F]">
+                            <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.calories}</span> cal
+                          </span>
+                          <span className="text-[#5A6B7F]">
+                            P: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.protein}g</span>
+                          </span>
+                          <span className="text-[#5A6B7F]">
+                            C: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.carbs}g</span>
+                          </span>
+                          <span className="text-[#5A6B7F]">
+                            F: <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.fat}g</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </SortableItem>
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>
@@ -296,21 +349,32 @@ export default function NutritionSection() {
             </button>
           </div>
           <div className="space-y-4">
-            {supplements.map((supplement) => (
-              <div
-                key={supplement.name}
-                className="flex items-start justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10"
+            {activeSupplements.length === 0 ? (
+              <p className="text-sm text-[#5A6B7F]">No supplements added yet. Click + to add.</p>
+            ) : (
+              <DndContext
+                sensors={supplementSensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleSupplementDragEnd}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[#12AFCB] mt-2" />
-                  <div>
-                    <h4 className="font-rounded font-medium text-[#0E1012]">{supplement.name}</h4>
-                    <p className="text-sm text-[#5A6B7F]">{supplement.dosage}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-[#5A6B7F]">{supplement.time}</span>
-              </div>
-            ))}
+                <SortableContext items={supplementIds} strategy={supplementSortingStrategy}>
+                  {orderedSupplements.map((supplement) => (
+                    <SortableItem key={supplement.id} id={supplement.id}>
+                      <div className="flex items-start justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10">
+                        <div className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-[#12AFCB] mt-2" />
+                          <div>
+                            <h4 className="font-rounded font-medium text-[#0E1012]">{supplement.name}</h4>
+                            <p className="text-sm text-[#5A6B7F]">{supplement.dosage} {supplement.units || ''}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-[#5A6B7F]">{supplement.form || ''}</span>
+                      </div>
+                    </SortableItem>
+                  ))}
+                </SortableContext>
+              </DndContext>
+            )}
           </div>
         </div>
       </div>
