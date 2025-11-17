@@ -1,10 +1,15 @@
 import { GoalModal } from "@/components/modals/GoalModal";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
-import { SmartCards } from "@/components/priorities/SmartCards";
 import { useState, useEffect } from "react";
 import { fetchActivePriorities, deletePriority, restorePriority, Priority } from "@/api/priorities";
 import { useToast } from "@/hooks/use-toast";
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
+import { SortableItem } from '@/components/ui/sortable-item';
+import { Target, Calendar, MapPin, Plus } from "lucide-react";
+import { GlassCard } from "@/components/glass/GlassCard";
 
 export default function PrioritiesSection() {
   const [goalModalOpen, setGoalModalOpen] = useState(false);
@@ -138,25 +143,172 @@ export default function PrioritiesSection() {
     }
   };
 
-  return (
-    <div className="h-full flex flex-col">
-      {/* Main Layout: AI Chat (Left) + Smart Cards (Right) */}
-      <div className="grid lg:grid-cols-[1.5fr,1fr] gap-6 flex-1 overflow-hidden">
-        {/* Left Column - AI Chat Center */}
-        <div className="h-full overflow-hidden">
-          <AIChatCenter />
-        </div>
+  // Separate today and this week goals
+  const todayGoals = temporaryGoals.filter(g => g.time_scope === 'day');
+  const weekGoals = temporaryGoals.filter(g => g.time_scope === 'week');
 
-        {/* Right Column - Smart Cards */}
-        <div className="h-full overflow-hidden">
-          <SmartCards
-          globalGoals={globalGoals}
-          temporaryGoals={temporaryGoals}
-          plans={plans}
-          onAddGlobal={() => openModal('global')}
-          onAddPlan={() => openModal('plan')}
-        />
-        </div>
+  // Define all main cards for drag and drop
+  const allCards = [
+    { id: 'ai-chat', type: 'ai-chat' },
+    { id: 'global-goals', type: 'global-goals' },
+    { id: 'today', type: 'today' },
+    { id: 'this-week', type: 'this-week' },
+    { id: 'plans', type: 'plans' },
+  ];
+
+  const dragAndDrop = useDragAndDrop({
+    items: allCards,
+    storageKey: 'priorities-main-cards-order',
+    idExtractor: (item) => item.id,
+  });
+
+  const renderCard = (card: { id: string; type: string }) => {
+    switch (card.type) {
+      case 'ai-chat':
+        return <AIChatCenter key={card.id} />;
+      
+      case 'global-goals':
+        return (
+          <GlassCard key={card.id} className="p-6 h-[280px] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-rounded text-xl font-bold text-foreground">Global Goals</h3>
+              <button
+                onClick={() => openModal('global')}
+                className="w-8 h-8 rounded-xl bg-accent-teal/10 hover:bg-accent-teal/20 flex items-center justify-center transition-all duration-200"
+              >
+                <Plus className="w-4 h-4 text-accent-teal" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {globalGoals.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No global goals yet</p>
+              ) : (
+                globalGoals.slice(0, 3).map((goal) => (
+                  <div key={goal.id} className="flex items-start gap-3 cursor-pointer hover:bg-accent/5 p-2 rounded-lg transition-colors" onClick={() => handleEdit(goal)}>
+                    <div className="w-8 h-8 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-4 h-4 text-accent-teal" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground line-clamp-2">{goal.title}</p>
+                      <div className="mt-2 h-1.5 bg-accent-teal/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-accent-teal to-accent-teal-alt rounded-full" style={{ width: '40%' }} />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        );
+      
+      case 'today':
+        return (
+          <GlassCard key={card.id} className="p-6 h-[220px] flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <Calendar className="w-5 h-5 text-accent-teal" />
+              <h3 className="font-rounded text-xl font-bold text-foreground">Today</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {todayGoals.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No goals for today</p>
+              ) : (
+                todayGoals.map((goal) => (
+                  <div key={goal.id} className="flex items-start gap-3 cursor-pointer hover:bg-accent/5 p-2 rounded-lg transition-colors" onClick={() => handleEdit(goal)}>
+                    <div className="w-6 h-6 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-3 h-3 text-accent-teal" />
+                    </div>
+                    <p className="text-sm text-foreground line-clamp-2 flex-1">{goal.title}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        );
+      
+      case 'this-week':
+        return (
+          <GlassCard key={card.id} className="p-6 h-[220px] flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <Calendar className="w-5 h-5 text-accent-teal" />
+              <h3 className="font-rounded text-xl font-bold text-foreground">This Week</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {weekGoals.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No goals for this week</p>
+              ) : (
+                weekGoals.map((goal) => (
+                  <div key={goal.id} className="flex items-start gap-3 cursor-pointer hover:bg-accent/5 p-2 rounded-lg transition-colors" onClick={() => handleEdit(goal)}>
+                    <div className="w-6 h-6 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-3 h-3 text-accent-teal" />
+                    </div>
+                    <p className="text-sm text-foreground line-clamp-2 flex-1">{goal.title}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        );
+      
+      case 'plans':
+        return (
+          <GlassCard key={card.id} className="p-6 h-[240px] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-rounded text-xl font-bold text-foreground">Plans</h3>
+              <button
+                onClick={() => openModal('plan')}
+                className="w-8 h-8 rounded-xl bg-accent-teal/10 hover:bg-accent-teal/20 flex items-center justify-center transition-all duration-200"
+              >
+                <Plus className="w-4 h-4 text-accent-teal" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {plans.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No plans yet</p>
+              ) : (
+                plans.map((plan) => (
+                  <div key={plan.id} className="flex items-start gap-3 cursor-pointer hover:bg-accent/5 p-2 rounded-lg transition-colors" onClick={() => handleEdit(plan)}>
+                    <div className="w-8 h-8 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-accent-teal" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground line-clamp-1">{plan.title}</p>
+                      {plan.location_name && (
+                        <p className="text-xs text-muted-foreground truncate">{plan.location_name}</p>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="h-full overflow-y-auto">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <DndContext
+          sensors={dragAndDrop.sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={dragAndDrop.handleDragEnd}
+        >
+          <SortableContext
+            items={dragAndDrop.itemIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-min">
+              {dragAndDrop.orderedItems.map((card) => (
+                <SortableItem key={card.id} id={card.id}>
+                  {renderCard(card)}
+                </SortableItem>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       </div>
 
       <GoalModal
