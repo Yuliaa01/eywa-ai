@@ -300,12 +300,12 @@ export default function PrioritiesSection() {
             items={dragAndDrop.itemIds}
             strategy={rectSortingStrategy}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-min">
               {dragAndDrop.orderedItems.map((card) => (
                 <SortableItem 
                   key={card.id} 
                   id={card.id}
-                  className={card.type === 'ai-chat' ? 'lg:row-span-4' : ''}
+                  className={card.type === 'ai-chat' ? 'lg:row-span-4 h-fit' : 'h-fit'}
                 >
                   {renderCard(card)}
                 </SortableItem>
