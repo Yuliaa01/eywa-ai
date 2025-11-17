@@ -169,7 +169,7 @@ export default function PrioritiesSection() {
       
       case 'global-goals':
         return (
-          <GlassCard key={card.id} className="p-6 h-[280px] flex flex-col">
+          <GlassCard key={card.id} className="p-6 max-h-[250px] flex flex-col overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-rounded text-xl font-bold text-foreground">Global Goals</h3>
               <button
@@ -179,7 +179,7 @@ export default function PrioritiesSection() {
                 <Plus className="w-4 h-4 text-accent-teal" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-3">
+            <div className="space-y-3">
               {globalGoals.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No global goals yet</p>
               ) : (
@@ -203,12 +203,12 @@ export default function PrioritiesSection() {
       
       case 'today':
         return (
-          <GlassCard key={card.id} className="p-6 h-[220px] flex flex-col">
+          <GlassCard key={card.id} className="p-6 max-h-[200px] flex flex-col overflow-y-auto">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="w-5 h-5 text-accent-teal" />
               <h3 className="font-rounded text-xl font-bold text-foreground">Today</h3>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-3">
+            <div className="space-y-3">
               {todayGoals.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No goals for today</p>
               ) : (
@@ -227,12 +227,12 @@ export default function PrioritiesSection() {
       
       case 'this-week':
         return (
-          <GlassCard key={card.id} className="p-6 h-[220px] flex flex-col">
+          <GlassCard key={card.id} className="p-6 max-h-[250px] flex flex-col overflow-y-auto">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="w-5 h-5 text-accent-teal" />
               <h3 className="font-rounded text-xl font-bold text-foreground">This Week</h3>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-3">
+            <div className="space-y-3">
               {weekGoals.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No goals for this week</p>
               ) : (
@@ -251,7 +251,7 @@ export default function PrioritiesSection() {
       
       case 'plans':
         return (
-          <GlassCard key={card.id} className="p-6 h-[240px] flex flex-col">
+          <GlassCard key={card.id} className="p-6 max-h-[200px] flex flex-col overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-rounded text-xl font-bold text-foreground">Plans</h3>
               <button
@@ -261,7 +261,7 @@ export default function PrioritiesSection() {
                 <Plus className="w-4 h-4 text-accent-teal" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-3">
+            <div className="space-y-3">
               {plans.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No plans yet</p>
               ) : (
@@ -300,12 +300,12 @@ export default function PrioritiesSection() {
             items={dragAndDrop.itemIds}
             strategy={rectSortingStrategy}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-min">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               {dragAndDrop.orderedItems.map((card) => (
                 <SortableItem 
                   key={card.id} 
                   id={card.id}
-                  className={card.type === 'ai-chat' ? 'lg:row-span-4 h-fit' : 'h-fit'}
+                  className={card.type === 'ai-chat' ? 'lg:row-span-4' : ''}
                 >
                   {renderCard(card)}
                 </SortableItem>
