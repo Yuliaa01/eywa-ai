@@ -12,6 +12,10 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useDragAndDrop } from "@/hooks/useDragAndDrop";
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext } from '@dnd-kit/sortable';
+import { SortableItem } from "@/components/ui/sortable-item";
 
 export default function ActivitiesSection() {
   const navigate = useNavigate();
@@ -179,6 +183,31 @@ export default function ActivitiesSection() {
                       (activeAppTab === 'favorites' && favoriteApps[app.id]) ||
                       (activeAppTab === 'recommended' && app.isRecommended);
     return matchesSearch && matchesTab;
+  });
+
+  const {
+    orderedItems: orderedWorkouts,
+    sensors: workoutSensors,
+    handleDragEnd: handleWorkoutDragEnd,
+    sortingStrategy: workoutSortingStrategy,
+    itemIds: workoutIds,
+  } = useDragAndDrop({
+    items: defaultWorkouts,
+    storageKey: 'dashboard-workouts-order',
+    idExtractor: (item) => item.id,
+  });
+
+  const {
+    orderedItems: orderedApps,
+    sensors: appSensors,
+    handleDragEnd: handleAppDragEnd,
+    sortingStrategy: appSortingStrategy,
+    itemIds: appIds,
+  } = useDragAndDrop({
+    items: filteredApps,
+    storageKey: `fitness-apps-order-${activeAppTab}`,
+    idExtractor: (item) => item.id,
+    direction: 'horizontal',
   });
 
   const handleDeleteWorkout = async (id: string) => {
