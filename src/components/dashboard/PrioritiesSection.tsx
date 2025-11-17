@@ -289,7 +289,7 @@ export default function PrioritiesSection() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-[832px] overflow-y-auto">
       <DndContext
         sensors={dragAndDrop.sensors}
         collisionDetection={closestCenter}
