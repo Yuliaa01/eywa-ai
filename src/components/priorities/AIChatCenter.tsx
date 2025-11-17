@@ -232,7 +232,7 @@ export function AIChatCenter() {
   };
 
   return (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 animate-fade-in flex flex-col h-full">
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-4 sm:p-8 animate-fade-in flex flex-col h-[832px] overflow-y-auto">
       {/* AI Icon */}
       <div className="mb-8 flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#19D0E4] flex items-center justify-center shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
