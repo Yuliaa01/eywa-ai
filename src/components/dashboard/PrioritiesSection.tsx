@@ -290,30 +290,28 @@ export default function PrioritiesSection() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <DndContext
-          sensors={dragAndDrop.sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={dragAndDrop.handleDragEnd}
+      <DndContext
+        sensors={dragAndDrop.sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={dragAndDrop.handleDragEnd}
+      >
+        <SortableContext
+          items={dragAndDrop.itemIds}
+          strategy={rectSortingStrategy}
         >
-          <SortableContext
-            items={dragAndDrop.itemIds}
-            strategy={rectSortingStrategy}
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-              {dragAndDrop.orderedItems.map((card) => (
-                <SortableItem 
-                  key={card.id} 
-                  id={card.id}
-                  className={card.type === 'ai-chat' ? 'lg:row-span-4' : ''}
-                >
-                  {renderCard(card)}
-                </SortableItem>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 items-start w-full">
+            {dragAndDrop.orderedItems.map((card) => (
+              <SortableItem 
+                key={card.id} 
+                id={card.id}
+                className={card.type === 'ai-chat' ? 'lg:row-span-4' : ''}
+              >
+                {renderCard(card)}
+              </SortableItem>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       <GoalModal
         open={goalModalOpen}
