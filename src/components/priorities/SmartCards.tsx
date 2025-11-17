@@ -67,7 +67,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
   });
 
   return (
-    <div className="h-[832px] flex flex-col gap-6 overflow-y-auto pr-2">
+    <div className="flex flex-col gap-6">
       {/* Card 1 - Global Goals */}
       <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[200px] flex flex-col">
         <div className="flex items-center justify-between mb-4">
