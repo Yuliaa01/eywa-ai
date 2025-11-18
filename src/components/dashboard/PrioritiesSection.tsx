@@ -262,7 +262,7 @@ export default function PrioritiesSection() {
   );
 
   const renderTodayCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[115px] flex flex-col">
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[173px] flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Today</h3>
