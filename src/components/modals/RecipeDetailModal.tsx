@@ -98,10 +98,10 @@ export function RecipeDetailModal({
             className="absolute top-4 left-4 bg-background/90 hover:bg-background backdrop-blur-sm rounded-full w-10 h-10 p-0"
           >
             {isSaving ? (
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
             ) : (
               <Heart 
-                className={`w-5 h-5 ${recipe.savedId ? 'fill-red-500 text-red-500' : 'text-primary'}`}
+                className={`w-5 h-5 ${recipe.savedId ? 'fill-[#12AFCB] text-[#12AFCB]' : 'text-[#12AFCB]'}`}
               />
             )}
           </Button>
