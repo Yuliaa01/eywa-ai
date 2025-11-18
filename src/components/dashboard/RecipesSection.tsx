@@ -490,7 +490,7 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
               }}
             >
               {recipe.imageUrl ? (
-                <div className="w-64 flex-shrink-0 overflow-hidden">
+                <div className="w-64 h-48 flex-shrink-0 overflow-hidden">
                   <img 
                     src={recipe.imageUrl} 
                     alt={recipe.name}
@@ -498,7 +498,7 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
                   />
                 </div>
               ) : (
-                <div className="w-64 flex-shrink-0 bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
+                <div className="w-64 h-48 flex-shrink-0 bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
                   <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
                 </div>
               )}
