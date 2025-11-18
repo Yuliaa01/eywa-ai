@@ -483,14 +483,14 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
           {filteredRecipes.map((recipe, index) => (
             <div
               key={index}
-              className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all cursor-pointer flex min-h-[12rem]"
+              className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all cursor-pointer flex h-48"
               onClick={() => {
                 setSelectedRecipeForDetail(recipe);
                 setRecipeDetailOpen(true);
               }}
             >
               {recipe.imageUrl ? (
-                <div className="w-64 flex-shrink-0 overflow-hidden self-stretch">
+                <div className="w-64 h-full flex-shrink-0 overflow-hidden">
                   <img 
                     src={recipe.imageUrl} 
                     alt={recipe.name}
@@ -498,7 +498,7 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
                   />
                 </div>
               ) : (
-                <div className="w-64 flex-shrink-0 bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center self-stretch">
+                <div className="w-64 h-full flex-shrink-0 bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
                   <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
                 </div>
               )}
