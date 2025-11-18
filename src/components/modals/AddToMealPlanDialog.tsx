@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,7 +39,12 @@ export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, ta
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(recipe || null);
-  const [selectedDate, setSelectedDate] = useState<Date>(targetDate ? new Date(targetDate) : new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    if (targetDate) {
+      return targetDate.includes('T') ? parseISO(targetDate) : new Date(targetDate + 'T12:00:00');
+    }
+    return new Date();
+  });
   const [selectedMealType, setSelectedMealType] = useState<string>(targetMealType || "lunch");
 
   const mealTypes = [
@@ -52,7 +57,9 @@ export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, ta
   // Update date when targetDate prop changes
   useEffect(() => {
     if (targetDate) {
-      setSelectedDate(new Date(targetDate));
+      // Parse the date string to avoid timezone issues
+      const date = targetDate.includes('T') ? parseISO(targetDate) : new Date(targetDate + 'T12:00:00');
+      setSelectedDate(date);
     }
   }, [targetDate]);
 
