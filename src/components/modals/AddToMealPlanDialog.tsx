@@ -49,6 +49,20 @@ export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, ta
     { value: "snack", label: "Snack" },
   ];
 
+  // Update date when targetDate prop changes
+  useEffect(() => {
+    if (targetDate) {
+      setSelectedDate(new Date(targetDate));
+    }
+  }, [targetDate]);
+
+  // Update meal type when targetMealType prop changes
+  useEffect(() => {
+    if (targetMealType) {
+      setSelectedMealType(targetMealType);
+    }
+  }, [targetMealType]);
+
   // Use provided allRecipes instead of loading from database
   const availableRecipes = recipe ? [recipe] : allRecipes;
 
