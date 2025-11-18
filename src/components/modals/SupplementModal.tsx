@@ -81,6 +81,18 @@ export function SupplementModal({ open, onOpenChange, onSuccess }: SupplementMod
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Name *</Label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {['Vitamin D', 'Omega-3', 'Magnesium', 'Vitamin C', 'B-Complex', 'Zinc', 'Probiotics', 'Creatine'].map((supplement) => (
+                <button
+                  key={supplement}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, name: supplement })}
+                  className="px-3 py-1 rounded-full bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] text-xs font-medium transition-colors"
+                >
+                  {supplement}
+                </button>
+              ))}
+            </div>
             <Input
               required
               value={formData.name}
