@@ -1,8 +1,9 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
+import { MealPlanSelectorModal } from "@/components/modals/MealPlanSelectorModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ export default function NutritionSection() {
   const navigate = useNavigate();
   const [mealModalOpen, setMealModalOpen] = useState(false);
   const [photoMealModalOpen, setPhotoMealModalOpen] = useState(false);
+  const [mealPlanModalOpen, setMealPlanModalOpen] = useState(false);
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
   const [fastingModalOpen, setFastingModalOpen] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('lunch');
@@ -195,11 +197,13 @@ export default function NutritionSection() {
     },
   ];
 
-  const handleAddMeal = (type: 'manual' | 'photo') => {
+  const handleAddMeal = (type: 'manual' | 'photo' | 'mealplan') => {
     if (type === 'manual') {
       setMealModalOpen(true);
-    } else {
+    } else if (type === 'photo') {
       setPhotoMealModalOpen(true);
+    } else {
+      setMealPlanModalOpen(true);
     }
   };
 
@@ -277,6 +281,10 @@ export default function NutritionSection() {
               <DropdownMenuItem onClick={() => handleAddMeal('photo')}>
                 <Camera className="w-4 h-4 mr-2" />
                 Photo AI Analyze
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddMeal('mealplan')}>
+                <Calendar className="w-4 h-4 mr-2" />
+                From Meal Plan
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -449,6 +457,11 @@ export default function NutritionSection() {
         onSuccess={handleMealSuccess}
         uploadType="meal-photo"
         mealType={selectedMealType}
+      />
+      <MealPlanSelectorModal
+        open={mealPlanModalOpen}
+        onOpenChange={setMealPlanModalOpen}
+        onSuccess={handleMealSuccess}
       />
       <SupplementModal open={supplementModalOpen} onOpenChange={setSupplementModalOpen} onSuccess={() => {}} />
       <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={handleFastingSuccess} />
