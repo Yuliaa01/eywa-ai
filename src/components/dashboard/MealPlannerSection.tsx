@@ -112,7 +112,12 @@ const MealSlot = ({
   );
 };
 
-const DraggableRecipe = ({ recipe }: { recipe: Recipe }) => {
+interface MealPlannerSectionProps {
+  allRecipes?: any[];
+}
+
+export default function MealPlannerSection({ allRecipes = [] }: MealPlannerSectionProps) {
+  const DraggableRecipe = ({ recipe }: { recipe: Recipe }) => {
   const { attributes, listeners, setNodeRef, isDragging, transform } = useDraggable({
     id: recipe.id,
     data: recipe
@@ -149,7 +154,6 @@ const DraggableRecipe = ({ recipe }: { recipe: Recipe }) => {
   );
 };
 
-export default function MealPlannerSection() {
   const { toast } = useToast();
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
@@ -525,6 +529,7 @@ export default function MealPlannerSection() {
           onOpenChange={setAddToMealPlanOpen}
           targetDate={selectedSlot.date}
           targetMealType={selectedSlot.mealType}
+          allRecipes={allRecipes}
           onSuccess={loadData}
         />
       )}

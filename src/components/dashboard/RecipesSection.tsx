@@ -25,7 +25,11 @@ interface Recipe {
   isDefault?: boolean;
 }
 
-export default function RecipesSection() {
+interface RecipesSectionProps {
+  onRecipesChange?: (recipes: Recipe[]) => void;
+}
+
+export default function RecipesSection({ onRecipesChange }: RecipesSectionProps) {
   const { toast } = useToast();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [defaultRecipes, setDefaultRecipes] = useState<Recipe[]>([]);
@@ -249,7 +253,14 @@ export default function RecipesSection() {
   // Merge saved/generated recipes with default recipes
   const allRecipes = [...recipes, ...defaultRecipes];
 
-  const filteredRecipes = selectedCategory === 'all' 
+  // Notify parent component when recipes change
+  useEffect(() => {
+    if (onRecipesChange) {
+      onRecipesChange(allRecipes);
+    }
+  }, [recipes, defaultRecipes]);
+
+  const filteredRecipes = selectedCategory === 'all'
     ? allRecipes 
     : allRecipes.filter(recipe => recipe.category === selectedCategory);
 
