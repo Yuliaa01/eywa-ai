@@ -6,6 +6,7 @@ import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -124,27 +125,31 @@ export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, ta
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {!recipe && availableRecipes.length > 0 && (
-            <div>
+            <div className="space-y-2">
               <Label>Select Recipe</Label>
-              <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto mt-2">
-                {availableRecipes.map((availableRecipe, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setSelectedRecipe(availableRecipe)}
-                    className={`p-3 text-left rounded-lg border-2 transition-all ${
-                      selectedRecipe?.name === availableRecipe.name
-                        ? 'border-[#12AFCB] bg-[#12AFCB]/5'
-                        : 'border-gray-200 hover:border-[#12AFCB]/50'
-                    }`}
-                  >
-                    <div className="font-medium text-sm">{availableRecipe.name}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {availableRecipe.calories} cal • {availableRecipe.prepTime}
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <Select
+                value={selectedRecipe?.name || ""}
+                onValueChange={(value) => {
+                  const recipe = availableRecipes.find(r => r.name === value);
+                  setSelectedRecipe(recipe || null);
+                }}
+              >
+                <SelectTrigger className="w-full bg-white">
+                  <SelectValue placeholder="Choose a recipe" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50">
+                  {availableRecipes.map((availableRecipe, index) => (
+                    <SelectItem key={index} value={availableRecipe.name}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{availableRecipe.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {availableRecipe.calories} cal • {availableRecipe.prepTime}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
           
