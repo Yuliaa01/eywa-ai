@@ -5,6 +5,7 @@ import { Calendar, ChefHat, Loader2, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable } from "@dnd-kit/core";
 import { format, startOfWeek, addDays } from "date-fns";
+import { AddToMealPlanDialog } from "@/components/modals/AddToMealPlanDialog";
 
 interface Recipe {
   id: string;
@@ -49,12 +50,14 @@ const MealSlot = ({
   date, 
   mealType, 
   meal, 
-  onRemove 
+  onRemove,
+  onClick
 }: { 
   date: string; 
   mealType: string; 
   meal?: MealPlan; 
   onRemove: (id: string) => void;
+  onClick: () => void;
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: `${date}-${mealType}`,
@@ -64,12 +67,13 @@ const MealSlot = ({
   return (
     <div
       ref={setNodeRef}
-      className={`relative min-h-[100px] rounded-xl border-2 border-dashed p-3 transition-all ${
+      onClick={onClick}
+      className={`relative min-h-[100px] rounded-xl border-2 border-dashed p-3 transition-all cursor-pointer ${
         isOver
           ? 'border-[#12AFCB] bg-[#12AFCB]/10'
           : meal
-          ? 'border-[#12AFCB]/30 bg-white/80'
-          : 'border-[#12AFCB]/10 bg-white/40'
+          ? 'border-[#12AFCB]/30 bg-white/80 hover:bg-white/90'
+          : 'border-[#12AFCB]/10 bg-white/40 hover:bg-white/50'
       }`}
     >
       {meal ? (
@@ -90,7 +94,10 @@ const MealSlot = ({
             </p>
           </div>
           <button
-            onClick={() => onRemove(meal.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(meal.id);
+            }}
             className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
           >
             <X className="w-4 h-4" />
@@ -150,6 +157,8 @@ export default function MealPlannerSection() {
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [addToMealPlanOpen, setAddToMealPlanOpen] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<{ date: string; mealType: string } | null>(null);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
   const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -468,6 +477,10 @@ export default function MealPlannerSection() {
                         mealType={mealType}
                         meal={meal}
                         onRemove={removeMeal}
+                        onClick={() => {
+                          setSelectedSlot({ date: dateStr, mealType });
+                          setAddToMealPlanOpen(true);
+                        }}
                       />
                     );
                   })}
@@ -505,6 +518,16 @@ export default function MealPlannerSection() {
           </div>
         )}
       </DragOverlay>
+
+      {selectedSlot && (
+        <AddToMealPlanDialog
+          open={addToMealPlanOpen}
+          onOpenChange={setAddToMealPlanOpen}
+          targetDate={selectedSlot.date}
+          targetMealType={selectedSlot.mealType}
+          onSuccess={loadData}
+        />
+      )}
     </DndContext>
   );
 }
