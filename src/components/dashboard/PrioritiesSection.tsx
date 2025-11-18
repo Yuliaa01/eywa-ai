@@ -433,6 +433,8 @@ export default function PrioritiesSection() {
         open={goalModalOpen}
         onOpenChange={setGoalModalOpen}
         mode={goalMode}
+        editMode={editMode}
+        initialValues={editingGoal || undefined}
         onSuccess={loadGoals}
       />
 
