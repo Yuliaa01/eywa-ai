@@ -39,6 +39,7 @@ export default function NutritionSection() {
     { name: "Protein", current: 0, target: 180, color: "#12AFCB", unit: "g" },
     { name: "Fat", current: 0, target: 80, color: "#0E8FA6", unit: "g" },
   ]);
+  const [allRecipes, setAllRecipes] = useState<any[]>([]);
 
   // Fetch active fasting window and today's meals
   useEffect(() => {
@@ -380,10 +381,10 @@ export default function NutritionSection() {
       </div>
 
       {/* AI Recipe Suggestions */}
-      <RecipesSection />
+      <RecipesSection onRecipesChange={setAllRecipes} />
 
       {/* Weekly Meal Planner */}
-      <MealPlannerSection />
+      <MealPlannerSection allRecipes={allRecipes} />
 
       {/* Grocery List */}
       <GroceryListSection />

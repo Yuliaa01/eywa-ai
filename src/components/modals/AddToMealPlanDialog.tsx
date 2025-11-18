@@ -30,13 +30,13 @@ interface AddToMealPlanDialogProps {
   recipe?: Recipe | null;
   targetDate?: string;
   targetMealType?: string;
+  allRecipes?: Recipe[];
   onSuccess?: () => void;
 }
 
-export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, targetMealType, onSuccess }: AddToMealPlanDialogProps) {
+export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, targetMealType, allRecipes = [], onSuccess }: AddToMealPlanDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(recipe || null);
   const [selectedDate, setSelectedDate] = useState<Date>(targetDate ? new Date(targetDate) : new Date());
   const [selectedMealType, setSelectedMealType] = useState<string>(targetMealType || "lunch");
@@ -48,30 +48,8 @@ export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, ta
     { value: "snack", label: "Snack" },
   ];
 
-  // Load saved recipes when dialog opens and no recipe is provided
-  useEffect(() => {
-    if (open && !recipe) {
-      loadSavedRecipes();
-    }
-  }, [open, recipe]);
-
-  const loadSavedRecipes = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('saved_recipes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data) {
-        setSavedRecipes(data.map(r => r.recipe_data as unknown as Recipe));
-      }
-    } catch (error) {
-      console.error('Error loading saved recipes:', error);
-    }
-  };
+  // Use provided allRecipes instead of loading from database
+  const availableRecipes = recipe ? [recipe] : allRecipes;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,24 +123,24 @@ export function AddToMealPlanDialog({ open, onOpenChange, recipe, targetDate, ta
           <DialogTitle className="text-xl font-rounded">Add to Meal Plan</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!recipe && savedRecipes.length > 0 && (
+          {!recipe && availableRecipes.length > 0 && (
             <div>
               <Label>Select Recipe</Label>
               <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto mt-2">
-                {savedRecipes.map((savedRecipe, index) => (
+                {availableRecipes.map((availableRecipe, index) => (
                   <button
                     key={index}
                     type="button"
-                    onClick={() => setSelectedRecipe(savedRecipe)}
+                    onClick={() => setSelectedRecipe(availableRecipe)}
                     className={`p-3 text-left rounded-lg border-2 transition-all ${
-                      selectedRecipe?.name === savedRecipe.name
+                      selectedRecipe?.name === availableRecipe.name
                         ? 'border-[#12AFCB] bg-[#12AFCB]/5'
                         : 'border-gray-200 hover:border-[#12AFCB]/50'
                     }`}
                   >
-                    <div className="font-medium text-sm">{savedRecipe.name}</div>
+                    <div className="font-medium text-sm">{availableRecipe.name}</div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      {savedRecipe.calories} cal • {savedRecipe.prepTime}
+                      {availableRecipe.calories} cal • {availableRecipe.prepTime}
                     </div>
                   </button>
                 ))}
