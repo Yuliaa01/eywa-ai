@@ -392,10 +392,10 @@ export default function PrioritiesSection() {
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Single flattened grid with auto-sized rows */}
+      {/* Grid layout with fixed AI Chat height */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full">
-        {/* AI Chat Center - Column 1 */}
-        <div className="lg:row-span-4">
+        {/* AI Chat Center - Column 1, Fixed height */}
+        <div className="lg:h-[760px]">
           <AIChatCenter />
         </div>
 
