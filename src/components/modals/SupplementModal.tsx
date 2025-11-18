@@ -113,12 +113,25 @@ export function SupplementModal({ open, onOpenChange, onSuccess }: SupplementMod
             </div>
             <div className="space-y-2">
               <Label>Units *</Label>
-              <Input
+              <Select
                 required
                 value={formData.units}
-                onChange={(e) => setFormData({ ...formData, units: e.target.value })}
-                placeholder="IU, mg, g"
-              />
+                onValueChange={(value) => setFormData({ ...formData, units: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select unit" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50">
+                  <SelectItem value="mg">mg</SelectItem>
+                  <SelectItem value="mcg">mcg</SelectItem>
+                  <SelectItem value="g">g</SelectItem>
+                  <SelectItem value="IU">IU</SelectItem>
+                  <SelectItem value="mL">mL</SelectItem>
+                  <SelectItem value="capsules">capsules</SelectItem>
+                  <SelectItem value="tablets">tablets</SelectItem>
+                  <SelectItem value="drops">drops</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
