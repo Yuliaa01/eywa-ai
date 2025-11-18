@@ -91,21 +91,6 @@ export default function PrioritiesSection() {
     idExtractor: (item) => item,
   });
 
-  // Mapping for dynamic grid positioning
-  const rowStartClasses: Record<number, string> = {
-    0: 'lg:row-start-1',
-    1: 'lg:row-start-2',
-    2: 'lg:row-start-3',
-    3: 'lg:row-start-4',
-  };
-
-  const cardHeights: Record<CardType, string> = {
-    'global-goals': 'h-[200px]',
-    'today': 'h-[140px]',
-    'this-week': 'h-[240px]',
-    'plans': 'h-[180px]',
-  };
-
   useEffect(() => {
     loadGoals();
   }, []);
@@ -407,30 +392,29 @@ export default function PrioritiesSection() {
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Single flattened grid with explicit positioning */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] lg:grid-rows-[200px_140px_240px_180px] gap-6 w-full">
-        {/* AI Chat Center - Column 1, Rows 1-4 */}
-        <div className="lg:col-start-1 lg:row-start-1 lg:row-span-4">
+      {/* Single flattened grid with auto-sized rows */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full">
+        {/* AI Chat Center - Column 1 */}
+        <div className="lg:row-span-4">
           <AIChatCenter />
         </div>
 
-
         {/* Column 2 Cards - Draggable and reorderable */}
-        <DndContext
-          sensors={cardSensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleCardDragEnd}
-        >
-          <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-            {orderedCards.map((cardType, index) => (
-              <SortableItem key={cardType} id={cardType}>
-                <div className={`lg:col-start-2 ${rowStartClasses[index]}`}>
+        <div className="space-y-6">
+          <DndContext
+            sensors={cardSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleCardDragEnd}
+          >
+            <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+              {orderedCards.map((cardType) => (
+                <SortableItem key={cardType} id={cardType}>
                   {getCardRenderer(cardType)}
-                </div>
-              </SortableItem>
-            ))}
-          </SortableContext>
-        </DndContext>
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
       </div>
 
       <GoalModal
