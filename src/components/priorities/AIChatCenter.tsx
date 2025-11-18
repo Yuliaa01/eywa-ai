@@ -268,7 +268,7 @@ export function AIChatCenter() {
               </div>
               
               {/* Eywa avatar and message */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-3">
                 <div className="flex-1 relative">
                   <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
                     Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
