@@ -502,7 +502,7 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
                   <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
                 </div>
               )}
-              <div className="p-6 flex-1">
+              <div className="p-6 flex-1 flex flex-col justify-center">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{recipe.name}</h4>
