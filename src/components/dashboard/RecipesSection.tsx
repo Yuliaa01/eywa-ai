@@ -483,91 +483,27 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
           {filteredRecipes.map((recipe, index) => (
             <div
               key={index}
-              className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all cursor-pointer"
+              className="rounded-2xl bg-white/80 border border-[#12AFCB]/10 overflow-hidden hover:border-[#12AFCB]/30 transition-all cursor-pointer flex"
               onClick={() => {
                 setSelectedRecipeForDetail(recipe);
                 setRecipeDetailOpen(true);
               }}
             >
-              {recipe.imageUrl && (
-                <div className="w-full h-48 overflow-hidden">
+              {recipe.imageUrl ? (
+                <div className="w-64 h-48 flex-shrink-0 overflow-hidden">
                   <img 
                     src={recipe.imageUrl} 
                     alt={recipe.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
+              ) : (
+                <div className="w-64 h-48 flex-shrink-0 bg-gradient-to-br from-[#12AFCB]/10 to-[#0E8FA6]/10 flex items-center justify-center">
+                  <ChefHat className="w-16 h-16 text-[#12AFCB]/30" />
+                </div>
               )}
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-rounded text-lg font-semibold text-[#0E1012] mb-2">{recipe.name}</h4>
-                    <p className="text-sm text-[#5A6B7F] mb-3">{recipe.description}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (recipe.savedId) {
-                        unsaveRecipe(recipe.savedId, index);
-                      } else {
-                        saveRecipe(recipe, index);
-                      }
-                    }}
-                    disabled={savingRecipe === recipe.name}
-                    className="ml-2 hover:bg-[#12AFCB]/10"
-                  >
-                    {savingRecipe === recipe.name ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-[#12AFCB]" />
-                    ) : (
-                      <Heart 
-                        className={`w-5 h-5 ${recipe.savedId ? 'fill-[#12AFCB] text-[#12AFCB]' : 'text-[#12AFCB]'}`}
-                      />
-                    )}
-                  </Button>
-                </div>
-
-                <div className="flex flex-wrap gap-3 mb-3">
-                  <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
-                    <Clock className="w-4 h-4 text-[#12AFCB]" />
-                    {recipe.prepTime}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
-                    <Users className="w-4 h-4 text-[#12AFCB]" />
-                    {recipe.servings} servings
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#5A6B7F]">
-                    <Flame className="w-4 h-4 text-[#12AFCB]" />
-                    {recipe.calories} cal
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="text-sm">
-                    <span className="text-[#5A6B7F]">P: </span>
-                    <span className="font-medium text-[#0E1012]">{recipe.protein}g</span>
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-[#5A6B7F]">C: </span>
-                    <span className="font-medium text-[#0E1012]">{recipe.carbs}g</span>
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-[#5A6B7F]">F: </span>
-                    <span className="font-medium text-[#0E1012]">{recipe.fat}g</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {recipe.tags.map((tag, tagIndex) => (
-                    <span
-                      key={tagIndex}
-                      className="px-3 py-1 rounded-full bg-[#12AFCB]/5 border border-[#12AFCB]/10 text-[#12AFCB] text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+              <div className="p-6 flex-1">
+...
               </div>
             </div>
           ))}
