@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Calendar, ChefHat, Loader2, Plus, X } from "lucide-react";
+import { Calendar, ChefHat, Loader2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable } from "@dnd-kit/core";
 import { format, startOfWeek, addDays } from "date-fns";
@@ -412,7 +412,7 @@ export default function MealPlannerSection({ allRecipes = [] }: MealPlannerSecti
                 size="sm"
                 onClick={() => setCurrentWeekStart(prev => addDays(prev, -7))}
               >
-                Previous Week
+                <ChevronLeft className="w-4 h-4" />
               </Button>
               <Button
                 variant="outline"
@@ -426,7 +426,7 @@ export default function MealPlannerSection({ allRecipes = [] }: MealPlannerSecti
                 size="sm"
                 onClick={() => setCurrentWeekStart(prev => addDays(prev, 7))}
               >
-                Next Week
+                <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
