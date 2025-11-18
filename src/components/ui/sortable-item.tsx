@@ -40,13 +40,13 @@ export function SortableItem({ id, children, className }: SortableItemProps) {
       <button
         className={cn(
           "absolute top-2 right-2 z-10 p-1 rounded-md transition-all duration-200",
-          "text-[#9CA3AF] hover:text-[#6B7280] hover:bg-black/5",
+          "text-[#D1D5DB] hover:text-[#9CA3AF] hover:bg-black/5",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
         {...listeners}
         aria-label="Drag to reorder"
       >
-        <GripVertical className="w-5 h-5" />
+        <GripVertical className="w-5 h-5 rotate-90" />
       </button>
       
       {children}
