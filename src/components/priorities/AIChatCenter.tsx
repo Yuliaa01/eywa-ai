@@ -273,7 +273,7 @@ export function AIChatCenter() {
                   <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
                     Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
                   </p>
-                  <span className="absolute bottom-0 right-0 text-xs text-[#5A6B7F]">Just now</span>
+                  <span className="absolute -bottom-1 right-0 text-xs text-[#5A6B7F]/50">Just now</span>
                 </div>
               </div>
             </div>
