@@ -269,14 +269,11 @@ export function AIChatCenter() {
               
               {/* Eywa avatar and message */}
               <div className="flex gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-semibold text-[#333333]">Eywa AI</span>
-                    <span className="text-xs text-[#5A6B7F]">Just now</span>
-                  </div>
-                  <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium">
+                <div className="flex-1 relative">
+                  <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
                     Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
                   </p>
+                  <span className="absolute bottom-0 right-0 text-xs text-[#5A6B7F]">Just now</span>
                 </div>
               </div>
             </div>
