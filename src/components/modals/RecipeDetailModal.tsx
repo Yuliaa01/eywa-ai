@@ -50,15 +50,15 @@ export function RecipeDetailModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0">
         {/* Hero Image Section */}
-        <div className="relative h-64 sm:h-80 w-full overflow-hidden">
+        <div className="relative h-64 sm:h-80 w-full overflow-hidden rounded-t-xl">
           {recipe.imageUrl ? (
             <>
               <img 
                 src={recipe.imageUrl} 
                 alt={recipe.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-t-xl"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent rounded-t-xl" />
             </>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
