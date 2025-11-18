@@ -189,10 +189,8 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
 
       if (error) throw error;
 
-      // Update the recipe with savedId
-      setRecipes(prev => prev.map((r, i) => 
-        i === index ? { ...r, savedId: data.id } : r
-      ));
+      // Reload saved recipes to get the updated list
+      await loadSavedRecipes();
 
       toast({
         title: "Recipe Saved!",
@@ -220,10 +218,8 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
 
       if (error) throw error;
 
-      // Remove savedId from the recipe
-      setRecipes(prev => prev.map((r, i) => 
-        i === index ? { ...r, savedId: undefined } : r
-      ));
+      // Reload saved recipes to get the updated list
+      await loadSavedRecipes();
 
       toast({
         title: "Recipe Removed",
@@ -250,8 +246,10 @@ export default function RecipesSection({ onRecipesChange }: RecipesSectionProps)
     { value: 'dessert', label: 'Desserts' },
   ];
 
-  // Merge saved/generated recipes with default recipes
-  const allRecipes = [...recipes, ...defaultRecipes];
+  // Merge saved/generated recipes with default recipes, excluding defaults that are already saved
+  const savedRecipeNames = new Set(recipes.map(r => r.name));
+  const uniqueDefaultRecipes = defaultRecipes.filter(recipe => !savedRecipeNames.has(recipe.name));
+  const allRecipes = [...recipes, ...uniqueDefaultRecipes];
 
   // Notify parent component when recipes change
   useEffect(() => {
