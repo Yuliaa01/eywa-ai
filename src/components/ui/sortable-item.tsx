@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { GripVertical } from 'lucide-react';
+import { GripHorizontal } from 'lucide-react';
 
 interface SortableItemProps {
   id: string;
@@ -36,17 +36,17 @@ export function SortableItem({ id, children, className }: SortableItemProps) {
       )}
       {...attributes}
     >
-      {/* Drag Handle - positioned in top-right corner */}
+      {/* Drag Handle - positioned at bottom center */}
       <button
         className={cn(
-          "absolute top-2 right-2 z-10 p-1 rounded-md transition-all duration-200",
+          "absolute bottom-2 left-1/2 -translate-x-1/2 z-10 p-1 rounded-md transition-all duration-200",
           "text-[#D1D5DB] hover:text-[#9CA3AF] hover:bg-black/5",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
         {...listeners}
         aria-label="Drag to reorder"
       >
-        <GripVertical className="w-5 h-5 rotate-90" />
+        <GripHorizontal className="w-5 h-5" />
       </button>
       
       {children}
