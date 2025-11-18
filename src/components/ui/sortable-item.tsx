@@ -8,9 +8,10 @@ interface SortableItemProps {
   id: string;
   children: ReactNode;
   className?: string;
+  showHandle?: boolean;
 }
 
-export function SortableItem({ id, children, className }: SortableItemProps) {
+export function SortableItem({ id, children, className, showHandle = true }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -37,17 +38,19 @@ export function SortableItem({ id, children, className }: SortableItemProps) {
       {...attributes}
     >
       {/* Drag Handle - positioned at bottom center */}
-      <button
-        className={cn(
-          "absolute bottom-2 left-1/2 -translate-x-1/2 z-10 p-1 rounded-md transition-all duration-200",
-          "text-[#D1D5DB] hover:text-[#9CA3AF] hover:bg-black/5",
-          isDragging ? "cursor-grabbing" : "cursor-grab"
-        )}
-        {...listeners}
-        aria-label="Drag to reorder"
-      >
-        <GripHorizontal className="w-5 h-5" />
-      </button>
+      {showHandle && (
+        <button
+          className={cn(
+            "absolute bottom-2 left-1/2 -translate-x-1/2 z-10 p-1 rounded-md transition-all duration-200",
+            "text-[#D1D5DB] hover:text-[#9CA3AF] hover:bg-black/5",
+            isDragging ? "cursor-grabbing" : "cursor-grab"
+          )}
+          {...listeners}
+          aria-label="Drag to reorder"
+        >
+          <GripHorizontal className="w-5 h-5" />
+        </button>
+      )}
       
       {children}
     </div>

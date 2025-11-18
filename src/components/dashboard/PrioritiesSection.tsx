@@ -237,7 +237,7 @@ export default function PrioritiesSection() {
           >
             <SortableContext items={globalIds} strategy={globalSortingStrategy}>
               {orderedGlobalGoals.slice(0, 3).map((goal) => (
-                <SortableItem key={goal.id} id={goal.id}>
+                <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <Target className="w-4 h-4 text-[#12AFCB]" />
@@ -281,7 +281,7 @@ export default function PrioritiesSection() {
           >
             <SortableContext items={todayIds} strategy={todaySortingStrategy}>
               {orderedTodayGoals.map((goal) => (
-                <SortableItem key={goal.id} id={goal.id}>
+                <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <Calendar className="w-4 h-4 text-[#12AFCB]" />
@@ -318,7 +318,7 @@ export default function PrioritiesSection() {
           >
             <SortableContext items={weekIds} strategy={weekSortingStrategy}>
               {orderedWeekGoals.map((goal) => (
-                <SortableItem key={goal.id} id={goal.id}>
+                <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <Calendar className="w-4 h-4 text-[#12AFCB]" />
@@ -356,7 +356,7 @@ export default function PrioritiesSection() {
           >
             <SortableContext items={plansIds} strategy={plansSortingStrategy}>
               {orderedPlans.slice(0, 2).map((plan) => (
-                <SortableItem key={plan.id} id={plan.id}>
+                <SortableItem key={plan.id} id={plan.id} showHandle={false}>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-4 h-4 text-[#12AFCB]" />

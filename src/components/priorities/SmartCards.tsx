@@ -90,7 +90,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
             >
               <SortableContext items={globalIds} strategy={globalSortingStrategy}>
                 {orderedGlobalGoals.slice(0, 3).map((goal) => (
-                  <SortableItem key={goal.id} id={goal.id}>
+                  <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                         <Target className="w-4 h-4 text-[#12AFCB]" />
@@ -134,7 +134,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
             >
               <SortableContext items={todayIds} strategy={todaySortingStrategy}>
                 {orderedTodayGoals.map((goal) => (
-                  <SortableItem key={goal.id} id={goal.id}>
+                  <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-[#12AFCB]" />
                       <p className="text-sm text-[#0E1012] font-medium">{goal.title}</p>
@@ -183,7 +183,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
               >
                 <SortableContext items={weekIds} strategy={weekSortingStrategy}>
                   {orderedWeekGoals.map((goal) => (
-                    <SortableItem key={goal.id} id={goal.id}>
+                    <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#12AFCB]" />
                         <p className="text-sm text-[#0E1012] font-medium">{goal.title}</p>
@@ -233,7 +233,7 @@ export function SmartCards({ globalGoals, temporaryGoals, plans, onAddGlobal, on
             >
               <SortableContext items={plansIds} strategy={plansSortingStrategy}>
                 {orderedPlans.slice(0, 2).map((plan) => (
-                  <SortableItem key={plan.id} id={plan.id}>
+                  <SortableItem key={plan.id} id={plan.id} showHandle={false}>
                     <div className="rounded-xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-4 border border-[#12AFCB]/10">
                       <p className="text-sm font-semibold text-[#0E1012] mb-1">{plan.title}</p>
                       {plan.location_name && (
