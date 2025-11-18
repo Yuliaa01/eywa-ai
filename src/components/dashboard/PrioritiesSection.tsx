@@ -399,8 +399,8 @@ export default function PrioritiesSection() {
           <AIChatCenter />
         </div>
 
-        {/* Column 2 Cards - Draggable and reorderable */}
-        <div className="space-y-6">
+        {/* Column 2 Cards - Draggable and reorderable, same height as AI Chat */}
+        <div className="space-y-6 lg:h-[760px] overflow-y-auto">
           <DndContext
             sensors={cardSensors}
             collisionDetection={closestCenter}
