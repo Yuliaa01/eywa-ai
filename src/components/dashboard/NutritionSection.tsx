@@ -50,6 +50,8 @@ export default function NutritionSection() {
     { name: "Protein", current: 0, target: 180, color: "#12AFCB", unit: "g" },
     { name: "Fat", current: 0, target: 80, color: "#0E8FA6", unit: "g" },
   ]);
+  const [calories, setCalories] = useState({ current: 0, target: 2000 });
+  const [nutritionView, setNutritionView] = useState<'macros' | 'calories'>('macros');
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
 
   // Fetch active fasting window and today's meals
@@ -129,16 +131,18 @@ export default function NutritionSection() {
 
       setTodaysMeals(data || []);
 
-      // Calculate total macros
+      // Calculate total macros and calories
       let totalCarbs = 0;
       let totalProtein = 0;
       let totalFat = 0;
+      let totalCalories = 0;
 
       data?.forEach((meal: any) => {
         if (meal.nutrition_totals) {
           totalCarbs += meal.nutrition_totals.carbs || 0;
           totalProtein += meal.nutrition_totals.protein || 0;
           totalFat += meal.nutrition_totals.fat || 0;
+          totalCalories += meal.nutrition_totals.calories || 0;
         }
       });
 
@@ -147,6 +151,7 @@ export default function NutritionSection() {
         { name: "Protein", current: Math.round(totalProtein), target: 180, color: "#12AFCB", unit: "g" },
         { name: "Fat", current: Math.round(totalFat), target: 80, color: "#0E8FA6", unit: "g" },
       ]);
+      setCalories({ current: Math.round(totalCalories), target: 2000 });
     } catch (error) {
       console.error('Error fetching today\'s meals:', error);
     }
@@ -305,53 +310,133 @@ export default function NutritionSection() {
 
   return (
     <div className="space-y-6">
-      {/* Macros Dashboard */}
+      {/* Nutrition Dashboard */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <h3 className="font-rounded text-xl font-semibold text-[#0E1012] mb-6">Today's Macros</h3>
-        <div className="grid grid-cols-3 gap-6">
-          {macros.map((macro) => {
-            const percentage = (macro.current / macro.target) * 100;
-            return (
-              <div key={macro.name} className="relative">
-                <div className="relative w-32 h-32 mx-auto">
-                  {/* Background ring */}
-                  <svg className="w-full h-full -rotate-90">
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="56"
-                      fill="none"
-                      stroke="#12AFCB"
-                      strokeOpacity="0.1"
-                      strokeWidth="10"
-                    />
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="56"
-                      fill="none"
-                      stroke={macro.color}
-                      strokeWidth="10"
-                      strokeLinecap="round"
-                      strokeDasharray={`${(percentage / 100) * 351.86} 351.86`}
-                      className="transition-all duration-700"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-[#0E1012]">{macro.current}</span>
-                    <span className="text-xs text-[#5A6B7F]">{macro.unit}</span>
+        <h3 className="font-rounded text-xl font-semibold text-[#0E1012] mb-6">
+          {nutritionView === 'macros' ? "Today's Macros" : "Today's Calories"}
+        </h3>
+        
+        {nutritionView === 'macros' ? (
+          <div className="grid grid-cols-3 gap-6 mb-6">
+            {macros.map((macro) => {
+              const percentage = (macro.current / macro.target) * 100;
+              return (
+                <div key={macro.name} className="relative">
+                  <div className="relative w-32 h-32 mx-auto">
+                    <svg className="w-full h-full -rotate-90">
+                      <circle
+                        cx="64"
+                        cy="64"
+                        r="56"
+                        fill="none"
+                        stroke="#12AFCB"
+                        strokeOpacity="0.1"
+                        strokeWidth="10"
+                      />
+                      <circle
+                        cx="64"
+                        cy="64"
+                        r="56"
+                        fill="none"
+                        stroke={macro.color}
+                        strokeWidth="10"
+                        strokeLinecap="round"
+                        strokeDasharray={`${(percentage / 100) * 351.86} 351.86`}
+                        className="transition-all duration-700"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-bold text-[#0E1012]">{macro.current}</span>
+                      <span className="text-xs text-[#5A6B7F]">{macro.unit}</span>
+                    </div>
+                  </div>
+                  <div className="text-center mt-3">
+                    <p className="font-rounded font-semibold text-[#0E1012]">{macro.name}</p>
+                    <p className="text-sm text-[#5A6B7F]">
+                      Goal: {macro.target}
+                      {macro.unit}
+                    </p>
                   </div>
                 </div>
-                <div className="text-center mt-3">
-                  <p className="font-rounded font-semibold text-[#0E1012]">{macro.name}</p>
-                  <p className="text-sm text-[#5A6B7F]">
-                    Goal: {macro.target}
-                    {macro.unit}
-                  </p>
-                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mb-6">
+            <div className="relative w-48 h-48 mx-auto">
+              <svg className="w-full h-full -rotate-90">
+                <circle
+                  cx="96"
+                  cy="96"
+                  r="80"
+                  fill="none"
+                  stroke="#12AFCB"
+                  strokeOpacity="0.1"
+                  strokeWidth="16"
+                />
+                <circle
+                  cx="96"
+                  cy="96"
+                  r="80"
+                  fill="none"
+                  stroke="#12AFCB"
+                  strokeWidth="16"
+                  strokeLinecap="round"
+                  strokeDasharray={`${((calories.current / calories.target) * 100 / 100) * 502.65} 502.65`}
+                  className="transition-all duration-700"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-4xl font-bold text-[#0E1012]">{calories.current}</span>
+                <span className="text-sm text-[#5A6B7F]">calories</span>
+                <span className="text-xs text-[#5A6B7F] mt-1">of {calories.target}</span>
               </div>
-            );
-          })}
+            </div>
+            <div className="mt-6 px-8">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-[#5A6B7F]">Daily Goal</span>
+                <span className="text-sm font-medium text-[#0E1012]">
+                  {Math.round((calories.current / calories.target) * 100)}%
+                </span>
+              </div>
+              <div className="w-full h-3 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-700"
+                  style={{ width: `${Math.min((calories.current / calories.target) * 100, 100)}%` }}
+                />
+              </div>
+              <div className="flex justify-between mt-4 text-xs text-[#5A6B7F]">
+                <span>Remaining: {Math.max(calories.target - calories.current, 0)} cal</span>
+                {calories.current > calories.target && (
+                  <span className="text-orange-500">Over by {calories.current - calories.target} cal</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* View Toggle */}
+        <div className="flex items-center justify-center gap-2 pt-4 border-t border-[#12AFCB]/10">
+          <button
+            onClick={() => setNutritionView('macros')}
+            className={`px-6 py-2 rounded-xl font-rounded font-medium text-sm transition-all ${
+              nutritionView === 'macros'
+                ? 'bg-[#12AFCB] text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+            }`}
+          >
+            Macros
+          </button>
+          <button
+            onClick={() => setNutritionView('calories')}
+            className={`px-6 py-2 rounded-xl font-rounded font-medium text-sm transition-all ${
+              nutritionView === 'calories'
+                ? 'bg-[#12AFCB] text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+            }`}
+          >
+            Calories
+          </button>
         </div>
       </div>
 
