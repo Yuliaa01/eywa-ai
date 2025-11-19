@@ -1,4 +1,10 @@
 import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star } from "lucide-react";
+import stravaLogo from "@/assets/logos/strava.png";
+import appleLogo from "@/assets/logos/apple.png";
+import pelotonLogo from "@/assets/logos/peloton.png";
+import nikeLogo from "@/assets/logos/nike.png";
+import myfitnesspalLogo from "@/assets/logos/myfitnesspal.png";
+import fitbitLogo from "@/assets/logos/fitbit.png";
 import { WorkoutModal } from "@/components/modals/WorkoutModal";
 import { SaveWorkoutDialog } from "@/components/modals/SaveWorkoutDialog";
 import { GenerateWorkoutDialog } from "@/components/modals/GenerateWorkoutDialog";
@@ -115,7 +121,7 @@ export default function ActivitiesSection() {
     {
       id: 1,
       name: "Strava",
-      icon: "🏃",
+      logo: stravaLogo,
       trainingTypes: "Running, Cycling, Swimming",
       features: ["GPS tracking", "Heart rate", "Routes"],
       isFavorite: true,
@@ -124,7 +130,7 @@ export default function ActivitiesSection() {
     {
       id: 2,
       name: "Apple Fitness",
-      icon: "🍎",
+      logo: appleLogo,
       trainingTypes: "HIIT, Yoga, Strength",
       features: ["Apple Watch sync", "Guided workouts", "Rings"],
       isFavorite: false,
@@ -133,7 +139,7 @@ export default function ActivitiesSection() {
     {
       id: 3,
       name: "Peloton",
-      icon: "🚴",
+      logo: pelotonLogo,
       trainingTypes: "Cycling, Running, Strength",
       features: ["Live classes", "On-demand", "Leaderboard"],
       isFavorite: true,
@@ -142,7 +148,7 @@ export default function ActivitiesSection() {
     {
       id: 4,
       name: "Nike Training Club",
-      icon: "✔️",
+      logo: nikeLogo,
       trainingTypes: "Strength, HIIT, Yoga",
       features: ["Free workouts", "Expert trainers", "Nutrition tips"],
       isFavorite: false,
@@ -151,7 +157,7 @@ export default function ActivitiesSection() {
     {
       id: 5,
       name: "MyFitnessPal",
-      icon: "🥗",
+      logo: myfitnesspalLogo,
       trainingTypes: "Nutrition, Cardio, Strength",
       features: ["Calorie tracking", "Barcode scanner", "Recipe database"],
       isFavorite: true,
@@ -160,7 +166,7 @@ export default function ActivitiesSection() {
     {
       id: 6,
       name: "Fitbit",
-      icon: "⌚",
+      logo: fitbitLogo,
       trainingTypes: "Walking, Running, Sleep",
       features: ["Activity tracking", "Sleep analysis", "Heart rate"],
       isFavorite: false,
@@ -705,8 +711,8 @@ export default function ActivitiesSection() {
               >
                 {/* App Icon and Favorite */}
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 flex items-center justify-center text-3xl">
-                    {app.icon}
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 flex items-center justify-center p-2">
+                    <img src={app.logo} alt={`${app.name} logo`} className="w-full h-full object-contain" />
                   </div>
                   <button
                     onClick={() => toggleFavorite(app.id)}
