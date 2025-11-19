@@ -420,7 +420,7 @@ export default function PrioritiesSection() {
           >
             <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
               {orderedCards.map((cardType) => (
-                <SortableItem key={cardType} id={cardType}>
+                <SortableItem key={cardType} id={cardType} showHandle={false}>
                   {getCardRenderer(cardType)}
                 </SortableItem>
               ))}
