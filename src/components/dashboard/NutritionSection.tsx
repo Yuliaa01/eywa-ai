@@ -1,4 +1,4 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2 } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
@@ -8,6 +8,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import FastingTimer from "./FastingTimer";
 import RecipesSection from "./RecipesSection";
 import MealPlannerSection from "./MealPlannerSection";
@@ -22,12 +24,16 @@ import { Tables } from "@/integrations/supabase/types";
 
 export default function NutritionSection() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [mealModalOpen, setMealModalOpen] = useState(false);
   const [photoMealModalOpen, setPhotoMealModalOpen] = useState(false);
   const [mealPlanModalOpen, setMealPlanModalOpen] = useState(false);
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
   const [fastingModalOpen, setFastingModalOpen] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('lunch');
+  const [editingMeal, setEditingMeal] = useState<any>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [mealToDelete, setMealToDelete] = useState<any>(null);
   const [fastingWindow, setFastingWindow] = useState({
     start: "20:00",
     end: "12:00",
@@ -209,6 +215,47 @@ export default function NutritionSection() {
 
   const handleMealSuccess = () => {
     fetchTodaysMeals();
+    setEditingMeal(null);
+  };
+
+  const handleEditMeal = (meal: any) => {
+    setEditingMeal(meal);
+    setMealModalOpen(true);
+  };
+
+  const handleDeleteMeal = (meal: any) => {
+    setMealToDelete(meal);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteMeal = async () => {
+    if (!mealToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('meals')
+        .delete()
+        .eq('id', mealToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Meal deleted",
+        description: "The meal has been removed from your log.",
+      });
+
+      fetchTodaysMeals();
+    } catch (error) {
+      console.error('Error deleting meal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete meal. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteConfirmOpen(false);
+      setMealToDelete(null);
+    }
   };
 
   return (
@@ -314,7 +361,7 @@ export default function NutritionSection() {
                         </p>
                       </div>
                       {meal.nutrition_totals && (
-                        <div className="flex gap-3 text-sm">
+                        <div className="flex gap-3 text-sm mr-3">
                           <span className="text-[#5A6B7F]">
                             <span className="font-medium text-[#0E1012]">{meal.nutrition_totals.calories}</span> cal
                           </span>
@@ -329,6 +376,22 @@ export default function NutritionSection() {
                           </span>
                         </div>
                       )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditMeal(meal)}
+                          className="p-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors"
+                          title="Edit meal"
+                        >
+                          <Edit2 className="w-4 h-4 text-[#12AFCB]" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMeal(meal)}
+                          className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                          title="Delete meal"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
                     </div>
                   </SortableItem>
                 ))}
@@ -447,9 +510,19 @@ export default function NutritionSection() {
 
       <MealModal 
         open={mealModalOpen} 
-        onOpenChange={setMealModalOpen} 
+        onOpenChange={(open) => {
+          setMealModalOpen(open);
+          if (!open) setEditingMeal(null);
+        }}
         onSuccess={handleMealSuccess} 
         mealType={selectedMealType}
+        existingMeal={editingMeal}
+      />
+      <DeleteConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={confirmDeleteMeal}
+        title={mealToDelete?.items?.map((item: any) => item.name).join(', ') || 'this meal'}
       />
       <FileUploadModal 
         open={photoMealModalOpen} 
