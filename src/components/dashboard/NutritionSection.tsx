@@ -1,10 +1,11 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { MealPlanSelectorModal } from "@/components/modals/MealPlanSelectorModal";
 import { RecipeSelectorModal } from "@/components/modals/RecipeSelectorModal";
+import { NutritionGoalsModal } from "@/components/modals/NutritionGoalsModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +38,7 @@ export default function NutritionSection() {
   const [mealToDelete, setMealToDelete] = useState<any>(null);
   const [recipeSelectorOpen, setRecipeSelectorOpen] = useState(false);
   const [mealToReplace, setMealToReplace] = useState<any>(null);
+  const [goalsModalOpen, setGoalsModalOpen] = useState(false);
   const [fastingWindow, setFastingWindow] = useState({
     start: "20:00",
     end: "12:00",
@@ -59,6 +61,7 @@ export default function NutritionSection() {
     fetchFastingWindow();
     fetchTodaysMeals();
     fetchSupplements();
+    fetchNutritionGoals();
     const interval = setInterval(() => {
       fetchFastingWindow();
       fetchTodaysMeals();
@@ -82,6 +85,33 @@ export default function NutritionSection() {
       setActiveSupplements(data || []);
     } catch (error) {
       console.error('Error fetching supplements:', error);
+    }
+  };
+
+  const fetchNutritionGoals = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('nutrition_plans')
+        .select('daily_calories_target, macros_target')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        const macrosTarget = data.macros_target as any;
+        setMacros([
+          { name: "Carbs", current: macros[0].current, target: macrosTarget?.carbs || 250, color: "#19D0E4", unit: "g" },
+          { name: "Protein", current: macros[1].current, target: macrosTarget?.protein || 180, color: "#12AFCB", unit: "g" },
+          { name: "Fat", current: macros[2].current, target: macrosTarget?.fat || 80, color: "#0E8FA6", unit: "g" },
+        ]);
+        setCalories({ current: calories.current, target: data.daily_calories_target || 2000 });
+      }
+    } catch (error) {
+      console.error('Error fetching nutrition goals:', error);
     }
   };
 
@@ -146,12 +176,12 @@ export default function NutritionSection() {
         }
       });
 
-      setMacros([
-        { name: "Carbs", current: Math.round(totalCarbs), target: 250, color: "#19D0E4", unit: "g" },
-        { name: "Protein", current: Math.round(totalProtein), target: 180, color: "#12AFCB", unit: "g" },
-        { name: "Fat", current: Math.round(totalFat), target: 80, color: "#0E8FA6", unit: "g" },
+      setMacros(prevMacros => [
+        { ...prevMacros[0], current: Math.round(totalCarbs) },
+        { ...prevMacros[1], current: Math.round(totalProtein) },
+        { ...prevMacros[2], current: Math.round(totalFat) },
       ]);
-      setCalories({ current: Math.round(totalCalories), target: 2000 });
+      setCalories(prev => ({ ...prev, current: Math.round(totalCalories) }));
     } catch (error) {
       console.error('Error fetching today\'s meals:', error);
     }
@@ -312,9 +342,18 @@ export default function NutritionSection() {
     <div className="space-y-6">
       {/* Nutrition Dashboard */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <h3 className="font-rounded text-xl font-semibold text-[#0E1012] mb-6">
-          {nutritionView === 'macros' ? "Today's Macros" : "Today's Calories"}
-        </h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
+            {nutritionView === 'macros' ? "Today's Macros" : "Today's Calories"}
+          </h3>
+          <button
+            onClick={() => setGoalsModalOpen(true)}
+            className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+            title="Edit goals"
+          >
+            <Settings className="w-4 h-4 text-[#12AFCB]" />
+          </button>
+        </div>
         
         {nutritionView === 'macros' ? (
           <div className="grid grid-cols-3 gap-6 mb-6">
@@ -665,6 +704,24 @@ export default function NutritionSection() {
         onOpenChange={setRecipeSelectorOpen}
         recipes={allRecipes}
         onSelectRecipe={handleRecipeSelected}
+      />
+      <NutritionGoalsModal
+        open={goalsModalOpen}
+        onOpenChange={setGoalsModalOpen}
+        currentGoals={{
+          calories: calories.target,
+          carbs: macros[0].target,
+          protein: macros[1].target,
+          fat: macros[2].target,
+        }}
+        onSuccess={(goals) => {
+          setMacros([
+            { ...macros[0], target: goals.carbs },
+            { ...macros[1], target: goals.protein },
+            { ...macros[2], target: goals.fat },
+          ]);
+          setCalories(prev => ({ ...prev, target: goals.calories }));
+        }}
       />
     </div>
   );
