@@ -226,7 +226,7 @@ export default function PrioritiesSection() {
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto space-y-3">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {globalGoals.length === 0 ? (
           <p className="text-sm text-[#5A6B7F]">No global goals yet</p>
         ) : (
@@ -270,7 +270,7 @@ export default function PrioritiesSection() {
         <Calendar className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Today</h3>
       </div>
-      <div className="flex-1 overflow-y-auto space-y-3">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {todayGoals.length === 0 ? (
           <div className="text-sm text-[#5A6B7F] space-y-2">
             <p>• Focus — recovery</p>
@@ -309,7 +309,7 @@ export default function PrioritiesSection() {
         <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">This Week</h3>
       </div>
-      <div className="flex-1 overflow-y-auto space-y-3">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {weekGoals.length === 0 ? (
           <div className="text-sm text-[#5A6B7F] space-y-2">
             <p>• Build — conditioning</p>
@@ -354,7 +354,7 @@ export default function PrioritiesSection() {
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto space-y-3">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {plans.length === 0 ? (
           <p className="text-sm text-[#5A6B7F]">No plans yet</p>
         ) : (
