@@ -14,6 +14,7 @@ interface MealModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   mealType?: 'breakfast' | 'lunch' | 'snack' | 'dinner';
+  existingMeal?: any;
 }
 
 interface MealItem {
@@ -35,12 +36,16 @@ const mealSchema = z.object({
   notes: z.string().max(1000, "Notes are too long").optional(),
 });
 
-export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast' }: MealModalProps) {
+export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast', existingMeal }: MealModalProps) {
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<MealItem[]>([{ name: "", quantity: "" }]);
-  const [notes, setNotes] = useState("");
-  const [timestamp, setTimestamp] = useState(
-    new Date().toISOString().slice(0, 16)
+  const [items, setItems] = useState<MealItem[]>(() => 
+    existingMeal?.items || [{ name: "", quantity: "" }]
+  );
+  const [notes, setNotes] = useState(() => existingMeal?.notes || "");
+  const [timestamp, setTimestamp] = useState(() =>
+    existingMeal?.timestamp 
+      ? new Date(existingMeal.timestamp).toISOString().slice(0, 16)
+      : new Date().toISOString().slice(0, 16)
   );
 
   const addItem = () => {
@@ -83,19 +88,38 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
         throw new Error("Add at least one meal item");
       }
 
-      const { error } = await supabase.from("meals").insert([{
-        user_id: user.id,
-        timestamp: new Date(timestamp).toISOString(),
-        items: validItems as any,
-        notes: notes || null,
-        source: "manual" as any,
-      }]);
+      let error;
+      
+      if (existingMeal) {
+        // Update existing meal
+        const result = await supabase
+          .from("meals")
+          .update({
+            timestamp: new Date(timestamp).toISOString(),
+            items: validItems as any,
+            notes: notes || null,
+          })
+          .eq('id', existingMeal.id);
+        error = result.error;
+      } else {
+        // Insert new meal
+        const result = await supabase.from("meals").insert([{
+          user_id: user.id,
+          timestamp: new Date(timestamp).toISOString(),
+          items: validItems as any,
+          notes: notes || null,
+          source: "manual" as any,
+        }]);
+        error = result.error;
+      }
 
       if (error) throw error;
 
       toast({
-        title: "Meal logged",
-        description: "Your meal has been recorded successfully.",
+        title: existingMeal ? "Meal updated" : "Meal logged",
+        description: existingMeal 
+          ? "Your meal has been updated successfully."
+          : "Your meal has been recorded successfully.",
       });
 
       onSuccess?.();
@@ -118,7 +142,7 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
       <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-rounded">
-            Log {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+            {existingMeal ? 'Edit' : 'Log'} {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -193,7 +217,7 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
               Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? "Saving..." : "Log Meal"}
+              {loading ? "Saving..." : (existingMeal ? "Update Meal" : "Log Meal")}
             </Button>
           </div>
         </form>
