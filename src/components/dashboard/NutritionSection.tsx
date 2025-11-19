@@ -419,24 +419,22 @@ export default function NutritionSection() {
         <div className="flex items-center justify-center gap-2 pt-4 border-t border-[#12AFCB]/10">
           <button
             onClick={() => setNutritionView('macros')}
-            className={`px-6 py-2 rounded-xl font-rounded font-medium text-sm transition-all ${
+            className={`w-2 h-2 rounded-full transition-all ${
               nutritionView === 'macros'
-                ? 'bg-[#12AFCB] text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+                ? 'bg-[#12AFCB] w-6'
+                : 'bg-[#12AFCB]/30 hover:bg-[#12AFCB]/50'
             }`}
-          >
-            Macros
-          </button>
+            title="Macros"
+          />
           <button
             onClick={() => setNutritionView('calories')}
-            className={`px-6 py-2 rounded-xl font-rounded font-medium text-sm transition-all ${
+            className={`w-2 h-2 rounded-full transition-all ${
               nutritionView === 'calories'
-                ? 'bg-[#12AFCB] text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+                ? 'bg-[#12AFCB] w-6'
+                : 'bg-[#12AFCB]/30 hover:bg-[#12AFCB]/50'
             }`}
-          >
-            Calories
-          </button>
+            title="Calories"
+          />
         </div>
       </div>
 
