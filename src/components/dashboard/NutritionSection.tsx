@@ -347,7 +347,7 @@ export default function NutritionSection() {
             >
               <SortableContext items={mealIds} strategy={mealSortingStrategy}>
                 {orderedMeals.map((meal) => (
-                  <SortableItem key={meal.id} id={meal.id}>
+                  <SortableItem key={meal.id} id={meal.id} showHandle={false}>
                     <div className="flex items-center justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10">
                       <div className="flex-1">
                         <h4 className="font-rounded font-medium text-[#0E1012] mb-1">
@@ -431,7 +431,7 @@ export default function NutritionSection() {
               >
                 <SortableContext items={supplementIds} strategy={supplementSortingStrategy}>
                   {orderedSupplements.map((supplement) => (
-                    <SortableItem key={supplement.id} id={supplement.id}>
+                    <SortableItem key={supplement.id} id={supplement.id} showHandle={false}>
                       <div className="flex items-start justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10">
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-[#12AFCB] mt-2" />
