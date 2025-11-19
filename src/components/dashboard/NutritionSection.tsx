@@ -1,9 +1,10 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2 } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { MealPlanSelectorModal } from "@/components/modals/MealPlanSelectorModal";
+import { RecipeSelectorModal } from "@/components/modals/RecipeSelectorModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,8 @@ export default function NutritionSection() {
   const [editingMeal, setEditingMeal] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<any>(null);
+  const [recipeSelectorOpen, setRecipeSelectorOpen] = useState(false);
+  const [mealToReplace, setMealToReplace] = useState<any>(null);
   const [fastingWindow, setFastingWindow] = useState({
     start: "20:00",
     end: "12:00",
@@ -258,6 +261,48 @@ export default function NutritionSection() {
     }
   };
 
+  const handleReplaceWithRecipe = (meal: any) => {
+    setMealToReplace(meal);
+    setRecipeSelectorOpen(true);
+  };
+
+  const handleRecipeSelected = async (recipe: any) => {
+    if (!mealToReplace) return;
+
+    try {
+      const { error } = await supabase
+        .from('meals')
+        .update({
+          items: [{ name: recipe.name, quantity: '1 serving' }],
+          nutrition_totals: {
+            calories: recipe.calories,
+            protein: recipe.protein,
+            carbs: recipe.carbs,
+            fat: recipe.fat,
+          },
+          notes: recipe.description,
+        })
+        .eq('id', mealToReplace.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Meal updated",
+        description: "Your meal has been replaced with the selected recipe.",
+      });
+
+      fetchTodaysMeals();
+      setMealToReplace(null);
+    } catch (error) {
+      console.error('Error replacing meal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to replace meal. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Macros Dashboard */}
@@ -377,6 +422,13 @@ export default function NutritionSection() {
                         </div>
                       )}
                       <div className="flex gap-2">
+                        <button
+                          onClick={() => handleReplaceWithRecipe(meal)}
+                          className="p-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors"
+                          title="Replace with recipe"
+                        >
+                          <RefreshCw className="w-4 h-4 text-[#12AFCB]" />
+                        </button>
                         <button
                           onClick={() => handleEditMeal(meal)}
                           className="p-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors"
@@ -538,6 +590,12 @@ export default function NutritionSection() {
       />
       <SupplementModal open={supplementModalOpen} onOpenChange={setSupplementModalOpen} onSuccess={() => {}} />
       <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={handleFastingSuccess} />
+      <RecipeSelectorModal
+        open={recipeSelectorOpen}
+        onOpenChange={setRecipeSelectorOpen}
+        recipes={allRecipes}
+        onSelectRecipe={handleRecipeSelected}
+      />
     </div>
   );
 }
