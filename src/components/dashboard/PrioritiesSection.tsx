@@ -216,7 +216,7 @@ export default function PrioritiesSection() {
 
   // Card rendering functions
   const renderGlobalGoalsCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] flex flex-col">
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Global Goals</h3>
         <button
