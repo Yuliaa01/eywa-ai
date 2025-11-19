@@ -363,54 +363,41 @@ export default function NutritionSection() {
           </div>
         ) : (
           <div className="mb-6">
-            <div className="relative w-48 h-48 mx-auto">
+            <div className="relative w-32 h-32 mx-auto">
               <svg className="w-full h-full -rotate-90">
                 <circle
-                  cx="96"
-                  cy="96"
-                  r="80"
+                  cx="64"
+                  cy="64"
+                  r="56"
                   fill="none"
                   stroke="#12AFCB"
                   strokeOpacity="0.1"
-                  strokeWidth="16"
+                  strokeWidth="10"
                 />
                 <circle
-                  cx="96"
-                  cy="96"
-                  r="80"
+                  cx="64"
+                  cy="64"
+                  r="56"
                   fill="none"
                   stroke="#12AFCB"
-                  strokeWidth="16"
+                  strokeWidth="10"
                   strokeLinecap="round"
-                  strokeDasharray={`${((calories.current / calories.target) * 100 / 100) * 502.65} 502.65`}
+                  strokeDasharray={`${((calories.current / calories.target) * 100 / 100) * 351.86} 351.86`}
                   className="transition-all duration-700"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold text-[#0E1012]">{calories.current}</span>
-                <span className="text-sm text-[#5A6B7F]">calories</span>
-                <span className="text-xs text-[#5A6B7F] mt-1">of {calories.target}</span>
+                <span className="text-2xl font-bold text-[#0E1012]">{calories.current}</span>
+                <span className="text-xs text-[#5A6B7F]">calories</span>
               </div>
             </div>
-            <div className="mt-6 px-8">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-[#5A6B7F]">Daily Goal</span>
-                <span className="text-sm font-medium text-[#0E1012]">
-                  {Math.round((calories.current / calories.target) * 100)}%
-                </span>
-              </div>
-              <div className="w-full h-3 bg-[#12AFCB]/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-700"
-                  style={{ width: `${Math.min((calories.current / calories.target) * 100, 100)}%` }}
-                />
-              </div>
-              <div className="flex justify-between mt-4 text-xs text-[#5A6B7F]">
-                <span>Remaining: {Math.max(calories.target - calories.current, 0)} cal</span>
-                {calories.current > calories.target && (
-                  <span className="text-orange-500">Over by {calories.current - calories.target} cal</span>
-                )}
-              </div>
+            <div className="text-center mt-3">
+              <p className="text-sm text-[#5A6B7F]">
+                Goal: {calories.target} cal
+              </p>
+              <p className="text-xs text-[#5A6B7F] mt-1">
+                {Math.max(calories.target - calories.current, 0)} remaining
+              </p>
             </div>
           </div>
         )}
