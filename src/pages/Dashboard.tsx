@@ -215,9 +215,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
           {/* Tab Navigation */}
-          <div className="fixed top-[120px] z-10 w-full">
-            <div className="max-w-7xl mx-auto px-6 flex justify-center">
-              <TabsList className="grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
+          <TabsList className="fixed top-[120px] z-10 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-[calc(80rem-3rem)] grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
             <TabsTrigger
               value="priorities"
               className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
@@ -246,9 +244,7 @@ export default function Dashboard() {
               <Heart className="w-4 h-4 mr-2" />
               Health Care
             </TabsTrigger>
-              </TabsList>
-            </div>
-          </div>
+          </TabsList>
 
           {/* Spacer for fixed tab bar */}
           <div className="h-[88px]" />
