@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
     <div className="min-h-screen bg-gradient-to-br from-[#F8FEFF] via-white to-[#F8FEFF]">
       <div className="max-w-4xl mx-auto px-6 py-12">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/onboarding', { state: { step: 3 } })}
           className="flex items-center gap-2 text-[#5A6B7F] hover:text-[#12AFCB] transition-colors mb-8"
         >
           <ArrowLeft className="w-5 h-5" />
