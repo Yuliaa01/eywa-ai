@@ -1,6 +1,23 @@
 import { useState } from "react";
 import { Mail, Lock, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { z } from "zod";
+
+// Security: Match Auth.tsx password requirements for consistency
+const signupSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email("Please enter a valid email address")
+    .max(255, "Email must be less than 255 characters"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must be less than 128 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+});
 
 interface SignupStepProps {
   onNext: (credentials: { email: string; password: string }) => void;
@@ -13,24 +30,21 @@ export default function SignupStep({ onNext, initialData }: SignupStepProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleContinue = () => {
     const newErrors: typeof errors = {};
 
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    // Validate using zod schema
+    try {
+      signupSchema.parse({ email: email.trim(), password });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          const field = err.path[0] as 'email' | 'password';
+          if (!newErrors[field]) {
+            newErrors[field] = err.message;
+          }
+        });
+      }
     }
 
     if (!confirmPassword) {
@@ -104,7 +118,7 @@ export default function SignupStep({ onNext, initialData }: SignupStepProps) {
                   setPassword(e.target.value);
                   setErrors({ ...errors, password: undefined });
                 }}
-                placeholder="Enter password (min. 6 characters)"
+                placeholder="Enter password (min. 8 characters)"
                 className="w-full h-12 pl-12 pr-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all"
               />
             </div>
