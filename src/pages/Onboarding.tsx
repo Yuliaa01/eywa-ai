@@ -162,9 +162,19 @@ export default function Onboarding() {
         return (
           <ProfileAutofillStep
             profileData={onboardingData.profile}
-            onNext={(data) => {
+            onNext={async (data) => {
               if (data) {
-                // User edited the data, save it and continue
+                // Save profile data immediately to database
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                  const { preferred_units, ...dbData } = data;
+                  await supabase.from('user_profiles').upsert({
+                    user_id: user.id,
+                    ...dbData,
+                    updated_at: new Date().toISOString(),
+                  });
+                }
+                // Also update local state
                 setOnboardingData({ ...onboardingData, profile: data });
               }
               nextStep();

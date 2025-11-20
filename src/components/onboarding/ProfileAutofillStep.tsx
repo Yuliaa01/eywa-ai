@@ -46,10 +46,8 @@ export default function ProfileAutofillStep({ profileData, onNext }: ProfileAuto
     setIsEditing(false);
   };
 
-  const handleSaveEdit = () => {
-    setIsEditing(false);
-    // Map to database field names
-    onNext({
+  const handleSaveEdit = async () => {
+    const mappedData = {
       first_name: formData.firstName,
       last_name: formData.lastName,
       dob: formData.dob,
@@ -57,7 +55,10 @@ export default function ProfileAutofillStep({ profileData, onNext }: ProfileAuto
       height_cm: formData.height ? parseFloat(formData.height) : undefined,
       weight_kg: formData.weight ? parseFloat(formData.weight) : undefined,
       preferred_units: formData.preferredUnits,
-    });
+    };
+    
+    setIsEditing(false);
+    onNext(mappedData);
   };
 
   const isMetric = formData.preferredUnits === 'metric';
