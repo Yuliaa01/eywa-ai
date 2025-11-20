@@ -22,8 +22,16 @@ export default function Onboarding() {
   const { toast } = useToast();
   const location = useLocation();
   const [currentStep, setCurrentStep] = useState(location.state?.step || 0);
-  const [onboardingData, setOnboardingData] = useState<any>({});
+  const [onboardingData, setOnboardingData] = useState<any>(() => {
+    const saved = sessionStorage.getItem('onboardingData');
+    return saved ? JSON.parse(saved) : {};
+  });
   const [isCompleting, setIsCompleting] = useState(false);
+
+  // Save onboarding data to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('onboardingData', JSON.stringify(onboardingData));
+  }, [onboardingData]);
 
   useEffect(() => {
     // Check if user has already completed onboarding
@@ -134,6 +142,8 @@ export default function Onboarding() {
         await supabase.from('priorities').insert(goalInserts);
       }
 
+      // Clear sessionStorage after successful completion
+      sessionStorage.removeItem('onboardingData');
       navigate("/dashboard");
     } catch (error) {
       console.error("Onboarding completion error:", error);
