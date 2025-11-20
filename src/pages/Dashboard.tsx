@@ -208,7 +208,10 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 w-full">
+      <div 
+        className={`flex-1 w-full ${activeTab !== 'priorities' ? 'overflow-y-auto custom-scrollbar' : ''}`}
+        style={activeTab !== 'priorities' ? { height: 'calc(100vh - 180px)' } : undefined}
+      >
         <div className="max-w-7xl mx-auto px-6 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
           {/* Tab Navigation */}
@@ -248,15 +251,15 @@ export default function Dashboard() {
             <PrioritiesSection />
           </TabsContent>
 
-          <TabsContent value="nutrition" className="animate-scale-in overflow-y-auto custom-scrollbar" style={{ height: 'calc(100vh - 280px)' }}>
+          <TabsContent value="nutrition" className="animate-scale-in">
             <NutritionSection />
           </TabsContent>
 
-          <TabsContent value="activities" className="animate-scale-in overflow-y-auto custom-scrollbar" style={{ height: 'calc(100vh - 280px)' }}>
+          <TabsContent value="activities" className="animate-scale-in">
             <ActivitiesSection />
           </TabsContent>
 
-          <TabsContent value="healthcare" className="animate-scale-in overflow-y-auto custom-scrollbar" style={{ height: 'calc(100vh - 280px)' }}>
+          <TabsContent value="healthcare" className="animate-scale-in">
             <HealthCareSection />
           </TabsContent>
           </Tabs>
