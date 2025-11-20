@@ -28,8 +28,8 @@ export default function ConnectionsStep({ onNext, onDataIngested }: ConnectionsS
     { id: 'whoop', name: 'WHOOP', icon: Activity, status: 'idle' },
     { id: 'dexcom', name: 'Dexcom CGM', icon: Activity, status: 'idle' },
     { id: 'withings', name: 'Withings', icon: Activity, status: 'idle' },
-    { id: 'manual', name: 'Google Fit', icon: Activity, status: 'idle' },
-    { id: 'manual', name: 'Samsung Health', icon: Activity, status: 'idle' },
+    { id: 'google_fit', name: 'Google Fit', icon: Activity, status: 'idle' },
+    { id: 'samsung_health', name: 'Samsung Health', icon: Activity, status: 'idle' },
   ]);
 
   const handleConnect = async (connectionId: DataSource) => {

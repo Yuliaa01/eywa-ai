@@ -1445,6 +1445,8 @@ export type Database = {
         | "clinic"
         | "home_kit"
         | "fhir"
+        | "google_fit"
+        | "samsung_health"
       doctor_role_group:
         | "primary_care"
         | "specialist"
@@ -1722,6 +1724,8 @@ export const Constants = {
         "clinic",
         "home_kit",
         "fhir",
+        "google_fit",
+        "samsung_health",
       ],
       doctor_role_group: [
         "primary_care",
