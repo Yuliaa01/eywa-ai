@@ -33,6 +33,14 @@ export default function Onboarding() {
     sessionStorage.setItem('onboardingData', JSON.stringify(onboardingData));
   }, [onboardingData]);
 
+  // Clear sessionStorage when starting onboarding fresh
+  useEffect(() => {
+    if (currentStep === 0) {
+      sessionStorage.removeItem('onboardingData');
+      setOnboardingData({});
+    }
+  }, [currentStep]);
+
   useEffect(() => {
     // Check if user has already completed onboarding
     const checkOnboardingStatus = async () => {
