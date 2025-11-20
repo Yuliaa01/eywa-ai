@@ -216,8 +216,8 @@ export default function Dashboard() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
           {/* Tab Navigation */}
           <div className="fixed top-[120px] z-10 w-full">
-            <div className="max-w-7xl mx-auto px-6">
-              <TabsList className="w-full grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
+            <div className="max-w-7xl mx-auto px-6 flex justify-center">
+              <TabsList className="grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
             <TabsTrigger
               value="priorities"
               className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
