@@ -60,7 +60,13 @@ export default function Auth() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        checkUserAndRedirect(session.user.id);
+        // Only redirect if email is confirmed
+        if (session.user.email_confirmed_at) {
+          checkUserAndRedirect(session.user.id);
+        } else {
+          setCheckingAuth(false);
+          setShowVerificationMessage(true);
+        }
       } else {
         setCheckingAuth(false);
       }
@@ -69,7 +75,17 @@ export default function Auth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       try {
         if (event === 'SIGNED_IN' && session?.user) {
-          checkUserAndRedirect(session.user.id);
+          // Only redirect if email is confirmed
+          if (session.user.email_confirmed_at) {
+            checkUserAndRedirect(session.user.id);
+          } else {
+            setShowVerificationMessage(true);
+            toast({
+              title: "Email verification required",
+              description: "Please verify your email before continuing.",
+              duration: 5000,
+            });
+          }
         }
       } catch (error) {
         console.error("Auth state change error:", error);
@@ -146,14 +162,28 @@ export default function Auth() {
         throw new Error("Please enter a valid email address");
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
       if (error) throw error;
 
-      // Success - navigate without notification
+      // Check if email is verified
+      if (data.user && !data.user.email_confirmed_at) {
+        setShowVerificationMessage(true);
+        toast({
+          title: "Email verification required",
+          description: "Please verify your email before signing in.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        // Sign out the user since they can't proceed
+        await supabase.auth.signOut();
+        return;
+      }
+
+      // Success - redirect will be handled by onAuthStateChange
     } catch (error: any) {
       toast({
         variant: "destructive",
