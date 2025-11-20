@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Shield, Bell, MapPin, FileText, Dna } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Consent {
   id: string;
@@ -15,6 +16,7 @@ interface ConsentsStepProps {
 }
 
 export default function ConsentsStep({ onNext }: ConsentsStepProps) {
+  const navigate = useNavigate();
   const [consents, setConsents] = useState<Consent[]>([
     {
       id: 'health_data',
@@ -145,7 +147,7 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
 
         <div className="text-center">
           <button 
-            onClick={() => window.open('/privacy-policy', '_blank')}
+            onClick={() => navigate('/privacy-policy')}
             className="text-[0.875rem] text-[#5A6B7F] hover:text-[#12AFCB] transition-colors"
           >
             View Privacy Policy & Terms
