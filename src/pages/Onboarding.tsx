@@ -45,31 +45,19 @@ export default function Onboarding() {
     }
   }, [currentStep]);
 
-  // Check email verification before allowing onboarding
+  // Check authentication before allowing onboarding
   useEffect(() => {
-    const checkEmailVerification = async () => {
+    const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         navigate("/auth");
         return;
       }
-
-      // Check if email is verified
-      if (!user.email_confirmed_at) {
-        toast({
-          title: "Email verification required",
-          description: "Please verify your email before continuing with onboarding.",
-          variant: "destructive",
-          duration: 5000,
-        });
-        navigate("/auth");
-        return;
-      }
     };
 
-    checkEmailVerification();
-  }, [navigate, toast]);
+    checkAuth();
+  }, [navigate]);
 
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
