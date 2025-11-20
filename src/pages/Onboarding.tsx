@@ -167,10 +167,31 @@ export default function Onboarding() {
                 // Save profile data immediately to database
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
+                  // Get existing profile to preserve other locale data
+                  const { data: existingProfile } = await supabase
+                    .from('user_profiles')
+                    .select('locale')
+                    .eq('user_id', user.id)
+                    .maybeSingle();
+                  
+                  // Parse existing locale or create new
+                  let localeData = { preferredUnits: 'metric' };
+                  if (existingProfile?.locale) {
+                    try {
+                      localeData = JSON.parse(existingProfile.locale);
+                    } catch (e) {
+                      console.error('Failed to parse locale:', e);
+                    }
+                  }
+                  
+                  // Update with new preferred_units
+                  localeData.preferredUnits = data.preferred_units || 'metric';
+                  
                   const { preferred_units, ...dbData } = data;
                   await supabase.from('user_profiles').upsert({
                     user_id: user.id,
                     ...dbData,
+                    locale: JSON.stringify(localeData),
                     updated_at: new Date().toISOString(),
                   });
                 }
