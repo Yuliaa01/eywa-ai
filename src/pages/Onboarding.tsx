@@ -17,6 +17,10 @@ import BriefingStep from "@/components/onboarding/BriefingStep";
 
 const TOTAL_STEPS = 11;
 
+// Step order (credentials moved to step 10 for security):
+// 0: Welcome, 1: Connections, 2: Profile, 3: Consents, 4: Subscription,
+// 5: Goals, 6: Nutrition, 7: Labs, 8: Preferences, 9: Signup, 10: Briefing
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -280,6 +284,7 @@ export default function Onboarding() {
           <SignupStep
             initialData={onboardingData.credentials}
             onNext={(credentials) => {
+              // Store credentials only briefly before account creation
               setOnboardingData({ ...onboardingData, credentials });
               nextStep();
             }}
