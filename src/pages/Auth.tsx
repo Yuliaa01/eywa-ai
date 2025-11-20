@@ -31,6 +31,8 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -100,7 +102,13 @@ export default function Auth() {
 
       if (error) throw error;
 
-      // Success - navigate without notification
+      // Show verification message
+      setShowVerificationMessage(true);
+      toast({
+        title: "Check your email",
+        description: "We've sent you a verification link. Please check your email to verify your account.",
+        duration: 5000,
+      });
     } catch (error: any) {
       // Handle validation errors separately for better user experience
       if (error instanceof z.ZodError) {
@@ -155,6 +163,47 @@ export default function Auth() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Email required",
+        description: "Please enter your email address to resend verification.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    setResendLoading(true);
+    try {
+      const redirectUrl = `${window.location.origin}/onboarding`;
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email.trim(),
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Verification email sent",
+        description: "Please check your email for the verification link.",
+        duration: 5000,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to resend email",
+        description: error.message,
+        duration: 3000,
+      });
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -270,23 +319,58 @@ export default function Auth() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="signup-email" className="text-foreground/80 text-sm">
-                    <Mail className="w-4 h-4 inline mr-2 text-accentTeal" />
-                    Email
-                  </Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
-                  />
+              {showVerificationMessage ? (
+                <div className="space-y-6">
+                  <div className="rounded-2xl bg-accentTeal/10 border border-accentTeal/20 p-6 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accentTeal/20 mb-4">
+                      <Mail className="w-8 h-8 text-accentTeal" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      Verify your email
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      We've sent a verification link to <span className="font-medium text-foreground">{email}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mb-6">
+                      Click the link in the email to verify your account and continue with onboarding.
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resendLoading}
+                      variant="outline"
+                      className="w-full h-10 bg-white/5 backdrop-blur-xl border-white/10 hover:bg-white/10 hover:border-accentTeal/30"
+                    >
+                      {resendLoading ? "Sending..." : "Resend verification email"}
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => setShowVerificationMessage(false)}
+                    variant="ghost"
+                    className="w-full text-muted-foreground/70 hover:text-foreground"
+                  >
+                    Back to sign up
+                  </Button>
                 </div>
+              ) : (
+                <form onSubmit={handleSignUp} className="space-y-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="signup-email" className="text-foreground/80 text-sm">
+                      <Mail className="w-4 h-4 inline mr-2 text-accentTeal" />
+                      Email
+                    </Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                      className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
+                    />
+                  </div>
 
                 <div className="space-y-3">
                   <Label htmlFor="signup-password" className="text-foreground/80 text-sm">
@@ -327,10 +411,11 @@ export default function Auth() {
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
 
-                <p className="text-xs text-center text-muted-foreground/50">
-                  By signing up, you agree to our privacy-first approach. Your health data stays yours.
-                </p>
-              </form>
+                  <p className="text-xs text-center text-muted-foreground/50">
+                    By signing up, you agree to our privacy-first approach. Your health data stays yours.
+                  </p>
+                </form>
+              )}
             </TabsContent>
           </Tabs>
         </div>
