@@ -711,7 +711,11 @@ export default function ActivitiesSection() {
               >
                 {/* App Icon and Favorite */}
                 <div className="flex items-center justify-between mb-4">
-                  <img src={app.logo} alt={`${app.name} logo`} className="w-14 h-14 rounded-2xl object-contain" />
+                  <img 
+                    src={app.logo} 
+                    alt={`${app.name} logo`} 
+                    className={`rounded-2xl object-contain ${app.name === 'Apple Fitness' ? 'w-16 h-16' : 'w-14 h-14'}`} 
+                  />
                   <button
                     onClick={() => toggleFavorite(app.id)}
                     className="hover:scale-110 transition-transform"
