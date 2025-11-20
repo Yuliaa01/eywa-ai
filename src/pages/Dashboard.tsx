@@ -208,9 +208,9 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 w-full overflow-y-auto custom-scrollbar">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col h-full">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 w-full">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
           {/* Tab Navigation */}
           <TabsList className="w-full grid grid-cols-4 bg-card/60 backdrop-blur-xl border border-border p-1.5 rounded-3xl h-auto">
             <TabsTrigger
@@ -244,19 +244,19 @@ export default function Dashboard() {
           </TabsList>
 
           {/* Tab Content */}
-          <TabsContent value="priorities" className="animate-scale-in flex-1 h-full">
+          <TabsContent value="priorities" className="animate-scale-in">
             <PrioritiesSection />
           </TabsContent>
 
-          <TabsContent value="nutrition" className="animate-scale-in flex-1 h-full">
+          <TabsContent value="nutrition" className="animate-scale-in overflow-y-auto custom-scrollbar" style={{ height: 'calc(100vh - 280px)' }}>
             <NutritionSection />
           </TabsContent>
 
-          <TabsContent value="activities" className="animate-scale-in flex-1 h-full">
+          <TabsContent value="activities" className="animate-scale-in overflow-y-auto custom-scrollbar" style={{ height: 'calc(100vh - 280px)' }}>
             <ActivitiesSection />
           </TabsContent>
 
-          <TabsContent value="healthcare" className="animate-scale-in flex-1 h-full">
+          <TabsContent value="healthcare" className="animate-scale-in overflow-y-auto custom-scrollbar" style={{ height: 'calc(100vh - 280px)' }}>
             <HealthCareSection />
           </TabsContent>
           </Tabs>
