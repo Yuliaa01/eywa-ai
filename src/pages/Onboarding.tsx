@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { X, ArrowLeft } from "lucide-react";
@@ -20,7 +20,8 @@ const TOTAL_STEPS = 10;
 export default function Onboarding() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(0);
+  const location = useLocation();
+  const [currentStep, setCurrentStep] = useState(location.state?.step || 0);
   const [onboardingData, setOnboardingData] = useState<any>({});
   const [isCompleting, setIsCompleting] = useState(false);
 
