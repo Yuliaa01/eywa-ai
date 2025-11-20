@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,16 +10,16 @@
     --accent-teal-alt: 186 77% 50%;
     --ink: 216 15% 6%;
     --ink-muted: 215 15% 58%;
-    
+
     /* Glass Material */
     --glass-bg: 0 0% 100% / 0.08;
     --glass-stroke: 0 0% 100% / 0.2;
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    
+
     /* Ultra Thin Material */
     --ultra-thin-bg: 0 0% 100% / 0.05;
     --ultra-thin-stroke: 0 0% 100% / 0.1;
-    
+
     /* Semantic Colors */
     --background: 0 0% 100%;
     --foreground: 216 15% 6%;
@@ -119,16 +120,16 @@ All colors MUST be HSL.
     --ring: 220 85% 55%;
 
     --radius: 1rem;
-    
+
     --gradient-primary: linear-gradient(135deg, hsl(220 85% 55%), hsl(270 75% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(160 70% 50%), hsl(200 80% 55%));
     --gradient-hero: linear-gradient(135deg, hsl(220 85% 55%) 0%, hsl(270 75% 60%) 50%, hsl(160 70% 50%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 25% 98%) 100%);
-    
+
     --shadow-glow: 0 10px 40px -10px hsl(220 85% 55% / 0.3);
     --shadow-card: 0 4px 20px -2px hsl(220 20% 50% / 0.08);
     --shadow-elevated: 0 20px 60px -10px hsl(220 30% 40% / 0.15);
-    
+
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
@@ -180,12 +181,12 @@ All colors MUST be HSL.
     --border: 220 25% 20%;
     --input: 220 25% 18%;
     --ring: 220 85% 60%;
-    
+
     --gradient-primary: linear-gradient(135deg, hsl(220 85% 60%), hsl(270 75% 65%));
     --gradient-secondary: linear-gradient(135deg, hsl(160 70% 55%), hsl(200 80% 60%));
     --gradient-hero: linear-gradient(135deg, hsl(220 85% 60%) 0%, hsl(270 75% 65%) 50%, hsl(160 70% 55%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(220 35% 12%) 0%, hsl(220 35% 15%) 100%);
-    
+
     --shadow-glow: 0 10px 40px -10px hsl(220 85% 60% / 0.4);
     --shadow-card: 0 4px 20px -2px hsl(220 40% 0% / 0.3);
     --shadow-elevated: 0 20px 60px -10px hsl(220 50% 0% / 0.5);
@@ -216,7 +217,7 @@ All colors MUST be HSL.
     background-size: 200% 100%;
     animation: shimmer 2.5s linear infinite;
   }
-  
+
   @keyframes shimmer {
     0% {
       background-position: -200% 0;
@@ -225,27 +226,27 @@ All colors MUST be HSL.
       background-position: 200% 0;
     }
   }
-  
+
   /* Custom Scrollbar Styling */
   .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: hsl(var(--muted));
     border-radius: 4px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: hsl(var(--accent-teal));
     border-radius: 4px;
     transition: background 0.3s ease;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--accent-teal-alt));
   }
-  
+
   /* Firefox scrollbar */
   .custom-scrollbar {
     scrollbar-width: thin;
