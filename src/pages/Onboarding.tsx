@@ -6,16 +6,16 @@ import { X, ArrowLeft } from "lucide-react";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import ConnectionsStep from "@/components/onboarding/ConnectionsStep";
 import ProfileAutofillStep from "@/components/onboarding/ProfileAutofillStep";
-
 import ConsentsStep from "@/components/onboarding/ConsentsStep";
 import SubscriptionStep from "@/components/onboarding/SubscriptionStep";
 import GoalsStep from "@/components/onboarding/GoalsStep";
 import NutritionStep from "@/components/onboarding/NutritionStep";
 import LabsStep from "@/components/onboarding/LabsStep";
 import PreferencesStep from "@/components/onboarding/PreferencesStep";
+import SignupStep from "@/components/onboarding/SignupStep";
 import BriefingStep from "@/components/onboarding/BriefingStep";
 
-const TOTAL_STEPS = 10;
+const TOTAL_STEPS = 11;
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -41,26 +41,6 @@ export default function Onboarding() {
     }
   }, [currentStep]);
 
-  useEffect(() => {
-    // Check if user has already completed onboarding
-    const checkOnboardingStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('onboarding_completed')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (profile?.onboarding_completed) {
-        navigate("/dashboard");
-      }
-    };
-
-    checkOnboardingStatus();
-  }, [navigate]);
-
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
       setCurrentStep(currentStep + 1);
@@ -73,27 +53,9 @@ export default function Onboarding() {
     }
   };
 
-  const handleSkip = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Mark onboarding as completed
-      await supabase.from('user_profiles').upsert({
-        user_id: user.id,
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      });
-
-      navigate("/dashboard");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to skip onboarding. Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
+  const handleSkip = () => {
+    sessionStorage.removeItem('onboardingData');
+    navigate("/auth");
   };
 
   const handleComplete = async () => {
@@ -101,8 +63,47 @@ export default function Onboarding() {
     
     setIsCompleting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Create user account
+      const { email, password } = onboardingData.credentials || {};
+      if (!email || !password) {
+        toast({
+          title: "Error",
+          description: "Account credentials are missing. Please try again.",
+          variant: "destructive",
+        });
+        setIsCompleting(false);
+        return;
+      }
+
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
+      });
+
+      if (signUpError) {
+        toast({
+          title: "Signup Error",
+          description: signUpError.message,
+          variant: "destructive",
+        });
+        setIsCompleting(false);
+        return;
+      }
+
+      const user = authData.user;
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Failed to create account. Please try again.",
+          variant: "destructive",
+        });
+        setIsCompleting(false);
+        return;
+      }
 
       // Prepare preferences for locale field
       const preferences = onboardingData.preferences || {};
@@ -181,40 +182,9 @@ export default function Onboarding() {
         return (
           <ProfileAutofillStep
             profileData={onboardingData.profile}
-            onNext={async (data) => {
+            onNext={(data) => {
               if (data) {
-                // Save profile data immediately to database
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                  // Get existing profile to preserve other locale data
-                  const { data: existingProfile } = await supabase
-                    .from('user_profiles')
-                    .select('locale')
-                    .eq('user_id', user.id)
-                    .maybeSingle();
-                  
-                  // Parse existing locale or create new
-                  let localeData = { preferredUnits: 'metric' };
-                  if (existingProfile?.locale) {
-                    try {
-                      localeData = JSON.parse(existingProfile.locale);
-                    } catch (e) {
-                      console.error('Failed to parse locale:', e);
-                    }
-                  }
-                  
-                  // Update with new preferred_units
-                  localeData.preferredUnits = data.preferred_units || 'metric';
-                  
-                  const { preferred_units, ...dbData } = data;
-                  await supabase.from('user_profiles').upsert({
-                    user_id: user.id,
-                    ...dbData,
-                    locale: JSON.stringify(localeData),
-                    updated_at: new Date().toISOString(),
-                  });
-                }
-                // Store in local state in the format ProfileAutofillStep expects
+                // Store in local state
                 setOnboardingData({ 
                   ...onboardingData, 
                   profile: {
@@ -280,6 +250,16 @@ export default function Onboarding() {
           />
         );
       case 9:
+        return (
+          <SignupStep
+            initialData={onboardingData.credentials}
+            onNext={(credentials) => {
+              setOnboardingData({ ...onboardingData, credentials });
+              nextStep();
+            }}
+          />
+        );
+      case 10:
         return <BriefingStep onComplete={handleComplete} />;
       default:
         return null;
