@@ -711,9 +711,7 @@ export default function ActivitiesSection() {
               >
                 {/* App Icon and Favorite */}
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 flex items-center justify-center p-2">
-                    <img src={app.logo} alt={`${app.name} logo`} className="w-full h-full object-contain" />
-                  </div>
+                  <img src={app.logo} alt={`${app.name} logo`} className="w-14 h-14 rounded-2xl object-contain" />
                   <button
                     onClick={() => toggleFavorite(app.id)}
                     className="hover:scale-110 transition-transform"
