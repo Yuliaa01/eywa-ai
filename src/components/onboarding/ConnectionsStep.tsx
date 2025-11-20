@@ -29,6 +29,7 @@ export default function ConnectionsStep({ onNext, onDataIngested }: ConnectionsS
     { id: 'dexcom', name: 'Dexcom CGM', icon: Activity, status: 'idle' },
     { id: 'withings', name: 'Withings', icon: Activity, status: 'idle' },
     { id: 'manual', name: 'Google Fit', icon: Activity, status: 'idle' },
+    { id: 'manual', name: 'Samsung Health', icon: Activity, status: 'idle' },
   ]);
 
   const handleConnect = async (connectionId: DataSource) => {
