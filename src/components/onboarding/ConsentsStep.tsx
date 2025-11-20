@@ -144,7 +144,10 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
         </button>
 
         <div className="text-center">
-          <button className="text-[0.875rem] text-[#5A6B7F] hover:text-[#12AFCB] transition-colors">
+          <button 
+            onClick={() => window.open('https://docs.lovable.dev/legal/privacy-policy', '_blank')}
+            className="text-[0.875rem] text-[#5A6B7F] hover:text-[#12AFCB] transition-colors"
+          >
             View Privacy Policy & Terms
           </button>
         </div>
