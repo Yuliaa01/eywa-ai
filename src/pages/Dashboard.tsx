@@ -247,7 +247,7 @@ export default function Dashboard() {
           </TabsList>
 
           {/* Spacer for fixed tab bar */}
-          <div className="h-[88px]" />
+          <div className="h-6" />
 
           {/* Tab Content */}
           <TabsContent value="priorities" className="animate-scale-in">
