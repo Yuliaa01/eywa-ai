@@ -8,10 +8,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Input validation schema
+// Input validation schema - enforces {user_id}/{filename} structure
 const fileAnalysisSchema = z.object({
   fileId: z.string().uuid(),
-  filePath: z.string().min(1).max(500).regex(/^[a-zA-Z0-9_\-\/\.]+$/),
+  filePath: z.string().min(1).max(500).regex(/^[a-f0-9\-]{36}\/[a-zA-Z0-9_\-\.]{1,100}$/),
   fileName: z.string().min(1).max(255)
 });
 
@@ -53,6 +53,15 @@ serve(async (req) => {
     const validatedInput = fileAnalysisSchema.parse(body);
     const { fileId: fId, filePath, fileName } = validatedInput;
     fileId = fId;
+
+    // Additional security check: ensure file path starts with user's ID
+    if (!filePath.startsWith(user.id)) {
+      console.error('Path traversal attempt detected:', filePath, 'User ID:', user.id);
+      return new Response(
+        JSON.stringify({ error: 'Invalid file path' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     console.log('Analyzing file:', fileName, 'for user:', user.id);
 
