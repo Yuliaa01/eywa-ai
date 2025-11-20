@@ -262,6 +262,74 @@ export class WithingsProvider {
   }
 }
 
+export class GoogleFitProvider {
+  static async sync(): Promise<HealthDataPoint[]> {
+    console.log('Google Fit: Syncing data...');
+    return this.getMockData('google_fit');
+  }
+
+  private static getMockData(source: DataSource): HealthDataPoint[] {
+    const now = new Date();
+    return [
+      {
+        metric: 'steps',
+        value: 9200,
+        units: 'steps',
+        recorded_at: now.toISOString(),
+        source,
+      },
+      {
+        metric: 'hr',
+        value: 68,
+        units: 'bpm',
+        recorded_at: now.toISOString(),
+        source,
+      },
+      {
+        metric: 'calories_burned',
+        value: 2100,
+        units: 'kcal',
+        recorded_at: now.toISOString(),
+        source,
+      },
+    ];
+  }
+}
+
+export class SamsungHealthProvider {
+  static async sync(): Promise<HealthDataPoint[]> {
+    console.log('Samsung Health: Syncing data...');
+    return this.getMockData('samsung_health');
+  }
+
+  private static getMockData(source: DataSource): HealthDataPoint[] {
+    const now = new Date();
+    return [
+      {
+        metric: 'steps',
+        value: 8900,
+        units: 'steps',
+        recorded_at: now.toISOString(),
+        source,
+      },
+      {
+        metric: 'hr',
+        value: 71,
+        units: 'bpm',
+        recorded_at: now.toISOString(),
+        source,
+      },
+      {
+        metric: 'sleep_duration',
+        value: 420,
+        units: 'minutes',
+        recorded_at: now.toISOString(),
+        source,
+      },
+    ];
+  }
+}
+
 // Unified sync function
 export async function syncDeviceData(source: DataSource): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -287,6 +355,12 @@ export async function syncDeviceData(source: DataSource): Promise<void> {
       break;
     case 'withings':
       dataPoints = await WithingsProvider.sync();
+      break;
+    case 'google_fit':
+      dataPoints = await GoogleFitProvider.sync();
+      break;
+    case 'samsung_health':
+      dataPoints = await SamsungHealthProvider.sync();
       break;
     default:
       throw new Error(`Unsupported data source: ${source}`);
