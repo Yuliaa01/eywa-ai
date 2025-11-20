@@ -28,6 +28,7 @@ export default function ConnectionsStep({ onNext, onDataIngested }: ConnectionsS
     { id: 'whoop', name: 'WHOOP', icon: Activity, status: 'idle' },
     { id: 'dexcom', name: 'Dexcom CGM', icon: Activity, status: 'idle' },
     { id: 'withings', name: 'Withings', icon: Activity, status: 'idle' },
+    { id: 'manual', name: 'Google Fit', icon: Activity, status: 'idle' },
   ]);
 
   const handleConnect = async (connectionId: DataSource) => {
@@ -132,19 +133,6 @@ export default function ConnectionsStep({ onNext, onDataIngested }: ConnectionsS
           );
         })}
 
-        <button className="group rounded-3xl bg-white/40 backdrop-blur-xl border border-dashed border-[#12AFCB]/20 p-6 hover:bg-white/60 hover:border-[#12AFCB]/30 transition-all duration-standard">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-white/60 flex items-center justify-center">
-              <Activity className="w-7 h-7 text-[#5A6B7F] group-hover:text-[#12AFCB] transition-colors" />
-            </div>
-            <span className="text-[0.9375rem] font-rounded font-medium text-[#5A6B7F] group-hover:text-[#0E1012] transition-colors">
-              Upload File
-            </span>
-            <span className="text-[0.75rem] text-[#5A6B7F]">
-              FHIR/CCDA
-            </span>
-          </div>
-        </button>
       </div>
 
       <div className="space-y-4">
