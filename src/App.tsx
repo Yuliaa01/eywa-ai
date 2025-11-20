@@ -23,6 +23,7 @@ import Subscription from "./pages/settings/Subscription";
 import Connections from "./pages/Connections";
 import LocalEvents from "./pages/LocalEvents";
 import NearbyRestaurants from "./pages/NearbyRestaurants";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,10 @@ const AppContent = ({ session }: { session: Session | null }) => {
         <Route 
           path="/nearby-restaurants" 
           element={session ? <NearbyRestaurants /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/privacy-policy" 
+          element={<PrivacyPolicy />} 
         />
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
