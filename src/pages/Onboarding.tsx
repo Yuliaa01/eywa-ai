@@ -195,8 +195,19 @@ export default function Onboarding() {
                     updated_at: new Date().toISOString(),
                   });
                 }
-                // Also update local state
-                setOnboardingData({ ...onboardingData, profile: data });
+                // Store in local state in the format ProfileAutofillStep expects
+                setOnboardingData({ 
+                  ...onboardingData, 
+                  profile: {
+                    firstName: data.first_name,
+                    lastName: data.last_name,
+                    dob: data.dob,
+                    sex: data.sex_at_birth,
+                    height: data.height_cm,
+                    weight: data.weight_kg,
+                    preferredUnits: data.preferred_units,
+                  }
+                });
               }
               nextStep();
             }}

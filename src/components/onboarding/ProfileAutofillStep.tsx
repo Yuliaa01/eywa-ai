@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, Edit, X } from "lucide-react";
 
 interface ProfileData {
@@ -28,6 +28,22 @@ export default function ProfileAutofillStep({ profileData, onNext }: ProfileAuto
     weight: profileData?.weight?.toString() || '',
     preferredUnits: profileData?.preferredUnits || 'metric',
   });
+
+  // Update form data when profileData changes (e.g., when navigating back)
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        dob: profileData.dob || '',
+        sex: profileData.sex || '',
+        height: profileData.height?.toString() || '',
+        weight: profileData.weight?.toString() || '',
+        preferredUnits: profileData.preferredUnits || 'metric',
+      });
+    }
+  }, [profileData]);
+
   const handleEditClick = () => {
     setIsEditing(true);
   };
