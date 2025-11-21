@@ -34,7 +34,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       period: '/month',
       icon: Sparkles,
       popular: true,
-      features: ['Unlimited AI insights', 'Priority support', 'Advanced analytics', 'Export reports'],
+      features: ['1-month free trial', 'Unlimited AI insights', 'Priority support', 'Advanced analytics', 'Export reports'],
     },
     {
       id: 'family',
@@ -50,7 +50,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       price: '$54.99',
       period: '6 months',
       icon: Sparkles,
-      features: ['All Pro features', '6 months access', 'Priority support', 'Save 8%'],
+      features: ['1-month free trial', 'All Pro features', '6 months access', 'Priority support', 'Save 8%'],
     },
     {
       id: 'pro12',
@@ -59,7 +59,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       period: '12 months',
       icon: Sparkles,
       badge: 'Best Value',
-      features: ['All Pro features', '12 months access', 'Priority support', 'Save 17%'],
+      features: ['1-month free trial', 'All Pro features', '12 months access', 'Priority support', 'Save 17%'],
     },
     {
       id: 'lifetime',
