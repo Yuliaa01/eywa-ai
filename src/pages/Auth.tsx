@@ -89,21 +89,20 @@ export default function Auth() {
         password,
       });
 
-      const redirectUrl = `${window.location.origin}/onboarding`;
-      const { error } = await supabase.auth.signUp({
+      // Store credentials temporarily and navigate to onboarding
+      // Account will be created at the end of onboarding flow
+      sessionStorage.setItem('signupCredentials', JSON.stringify({
         email: validatedData.email,
         password: validatedData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      });
+      }));
 
-      if (error) throw error;
-
-      toast({
-        title: "Account created successfully",
-        description: "You can now sign in with your credentials.",
-        duration: 3000,
+      navigate('/onboarding', { 
+        state: { 
+          credentials: {
+            email: validatedData.email,
+            password: validatedData.password,
+          }
+        } 
       });
     } catch (error: any) {
       // Handle validation errors separately for better user experience
