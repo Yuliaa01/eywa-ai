@@ -61,9 +61,19 @@ export default function Onboarding() {
     }
   }, [currentStep]);
 
-  // Check authentication before allowing onboarding
+  // Check authentication before allowing onboarding (unless credentials are pending)
   useEffect(() => {
     const checkAuth = async () => {
+      // Allow access if signup credentials are pending
+      const signupCredentials = sessionStorage.getItem('signupCredentials');
+      const hasCredentials = signupCredentials || location.state?.credentials;
+      
+      if (hasCredentials) {
+        // User is in signup flow, allow access
+        return;
+      }
+      
+      // Otherwise check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -73,7 +83,7 @@ export default function Onboarding() {
     };
 
     checkAuth();
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
