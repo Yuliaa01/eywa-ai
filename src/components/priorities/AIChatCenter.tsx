@@ -16,6 +16,7 @@ export function AIChatCenter() {
   const [isRecording, setIsRecording] = useState(false);
   const [dailyInsight, setDailyInsight] = useState<string>("");
   const [insightLoading, setInsightLoading] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const scrollToBottom = () => {
@@ -54,6 +55,69 @@ export function AIChatCenter() {
 
     loadDailyInsight();
   }, []);
+
+  // Request browser notification permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        setNotificationsEnabled(permission === 'granted');
+      });
+    } else if ('Notification' in window && Notification.permission === 'granted') {
+      setNotificationsEnabled(true);
+    }
+  }, []);
+
+  // Subscribe to new insights via Realtime
+  useEffect(() => {
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const channel = supabase
+        .channel('ai-insights-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'ai_insights',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('New insight received:', payload);
+            const newInsight = payload.new;
+            
+            // Update the daily insight
+            if (newInsight.kind === 'education' && newInsight.summary) {
+              setDailyInsight(newInsight.summary);
+              
+              // Show toast notification
+              toast({
+                title: "✨ New Daily Insight Ready!",
+                description: newInsight.summary.substring(0, 100) + "...",
+                duration: 5000,
+              });
+
+              // Show browser notification if enabled
+              if (notificationsEnabled) {
+                new Notification("EYWA AI - New Insight", {
+                  body: newInsight.summary.substring(0, 100) + "...",
+                  icon: "/favicon.ico",
+                  badge: "/favicon.ico",
+                });
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    setupRealtimeSubscription();
+  }, [notificationsEnabled]);
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || input.trim();
     if (!textToSend || isLoading) return;
