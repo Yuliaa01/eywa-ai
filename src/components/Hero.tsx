@@ -57,16 +57,16 @@ const Hero = () => {
           >
             Get Started
           </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="min-w-[200px]"
-              onClick={() => {
-                document.getElementById('health-metrics')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Learn More
-            </Button>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="min-w-[200px] hover:bg-primary/20 hover:border-primary/40 hover:text-primary"
+            onClick={() => {
+              document.getElementById('health-metrics')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Learn More
+          </Button>
           </div>
 
           {/* Features grid */}
