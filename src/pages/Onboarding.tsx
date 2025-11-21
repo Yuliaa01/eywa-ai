@@ -17,9 +17,10 @@ import BriefingStep from "@/components/onboarding/BriefingStep";
 
 const TOTAL_STEPS = 11;
 
-// Step order (credentials moved to step 10 for security):
+// Step order:
 // 0: Welcome, 1: Connections, 2: Profile, 3: Consents, 4: Subscription,
 // 5: Goals, 6: Nutrition, 7: Labs, 8: Preferences, 9: Signup, 10: Briefing
+// Note: If user signs up from Auth.tsx, credentials are pre-populated and step 9 is auto-skipped
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -28,7 +29,22 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(location.state?.step || 0);
   const [onboardingData, setOnboardingData] = useState<any>(() => {
     const saved = sessionStorage.getItem('onboardingData');
-    return saved ? JSON.parse(saved) : {};
+    const savedData = saved ? JSON.parse(saved) : {};
+    
+    // Check for credentials from Auth.tsx signup
+    const signupCredentials = sessionStorage.getItem('signupCredentials');
+    if (signupCredentials && !savedData.credentials) {
+      const credentials = JSON.parse(signupCredentials);
+      savedData.credentials = credentials;
+      sessionStorage.removeItem('signupCredentials');
+    }
+    
+    // Also check location state for credentials
+    if (location.state?.credentials && !savedData.credentials) {
+      savedData.credentials = location.state.credentials;
+    }
+    
+    return savedData;
   });
   const [isCompleting, setIsCompleting] = useState(false);
 
@@ -186,6 +202,11 @@ export default function Onboarding() {
   };
 
   const renderStep = () => {
+    // If on signup step (9) and credentials already exist, skip to briefing
+    if (currentStep === 9 && onboardingData.credentials) {
+      return <BriefingStep onComplete={handleComplete} />;
+    }
+    
     switch (currentStep) {
       case 0:
         return <WelcomeStep onNext={nextStep} />;
