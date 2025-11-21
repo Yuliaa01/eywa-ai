@@ -85,6 +85,7 @@ serve(async (req) => {
     const systemPrompt = `You are a health AI assistant. Generate a personalized morning insight message for the user based on their health data. 
     
 Keep the message:
+- NO greetings (no "Good morning", "Hi", etc.) - start directly with the insight
 - Conversational and encouraging (like a friend, not a doctor)
 - Specific to their actual data (mention real metrics, goals, or trends)
 - Under 100 words

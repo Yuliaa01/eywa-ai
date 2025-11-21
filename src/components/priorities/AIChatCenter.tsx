@@ -46,7 +46,7 @@ export function AIChatCenter() {
         }
       } catch (error) {
         console.error('Error loading daily insight:', error);
-        setDailyInsight("Good morning! Ready to make today count? Let's check your progress and see what we can accomplish together.");
+        setDailyInsight("I see your recent activity shows progress. Would you like to dive deeper into your health metrics?");
       } finally {
         setInsightLoading(false);
       }
