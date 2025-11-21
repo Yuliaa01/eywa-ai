@@ -80,14 +80,19 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔵 Sign up button clicked');
     setLoading(true);
 
     try {
+      console.log('🔵 Validating credentials...', { email: email.trim(), passwordLength: password.length });
+      
       // Security: Validate inputs before submitting to prevent malformed data
       const validatedData = authSchema.parse({
         email: email.trim(),
         password,
       });
+
+      console.log('✅ Validation passed');
 
       // Store credentials temporarily and navigate to onboarding
       // Account will be created at the end of onboarding flow
@@ -95,6 +100,9 @@ export default function Auth() {
         email: validatedData.email,
         password: validatedData.password,
       }));
+
+      console.log('✅ Credentials stored in sessionStorage');
+      console.log('🔵 Navigating to onboarding...');
 
       navigate('/onboarding', { 
         state: { 
@@ -104,10 +112,15 @@ export default function Auth() {
           }
         } 
       });
+
+      console.log('✅ Navigate called');
     } catch (error: any) {
+      console.error('❌ Sign up error:', error);
+      
       // Handle validation errors separately for better user experience
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
+        console.error('❌ Validation error:', firstError);
         toast({
           variant: "destructive",
           title: "Validation Error",
@@ -124,6 +137,7 @@ export default function Auth() {
       }
     } finally {
       setLoading(false);
+      console.log('🔵 Sign up handler complete');
     }
   };
 
