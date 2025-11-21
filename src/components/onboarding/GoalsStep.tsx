@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Target, Heart, Activity, Brain, Shield, Plus } from "lucide-react";
+import { Target, Heart, Activity, Brain, Shield, Plus, TrendingDown, Zap } from "lucide-react";
 
 interface Goal {
   id: string;
@@ -19,6 +19,8 @@ export default function GoalsStep({ onNext }: GoalsStepProps) {
     { id: 'cardiovascular', title: 'Improve cardiovascular fitness', icon: Heart, selected: false },
     { id: 'anxiety', title: 'Manage anxiety & sleep', icon: Brain, selected: false },
     { id: 'preventive', title: 'Preventive care', icon: Shield, selected: false },
+    { id: 'biological_age', title: 'Reduce Biological Age', icon: TrendingDown, selected: false },
+    { id: 'hrv', title: 'Improve HRV', icon: Zap, selected: false },
   ]);
 
   const [customGoal, setCustomGoal] = useState('');
