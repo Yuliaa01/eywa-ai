@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.generate-recipes]
 verify_jwt = true
+
+[functions.suggest-test-sets]
+verify_jwt = true

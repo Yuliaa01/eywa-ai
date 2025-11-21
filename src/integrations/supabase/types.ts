@@ -1059,6 +1059,83 @@ export type Database = {
           },
         ]
       }
+      test_set_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_required: boolean
+          test_code: string
+          test_set_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          test_code: string
+          test_set_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          test_code?: string
+          test_set_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_set_items_test_set_id_fkey"
+            columns: ["test_set_id"]
+            isOneToOne: false
+            referencedRelation: "test_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_sets: {
+        Row: {
+          base_price: number
+          biomarker_domain_focus: string[]
+          category: Database["public"]["Enums"]["test_set_category"]
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          is_active: boolean
+          name: string
+          priority_match_keywords: string[]
+          recommended_for: string[]
+          updated_at: string
+        }
+        Insert: {
+          base_price: number
+          biomarker_domain_focus?: string[]
+          category: Database["public"]["Enums"]["test_set_category"]
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          priority_match_keywords?: string[]
+          recommended_for?: string[]
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          biomarker_domain_focus?: string[]
+          category?: Database["public"]["Enums"]["test_set_category"]
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority_match_keywords?: string[]
+          recommended_for?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tests_catalog: {
         Row: {
           ai_feature_mapping: string[] | null
@@ -1259,6 +1336,7 @@ export type Database = {
       }
       user_test_orders: {
         Row: {
+          bundle_price: number | null
           collection_kit: boolean | null
           created_at: string
           id: string
@@ -1267,10 +1345,12 @@ export type Database = {
           shipping_tracking: Json | null
           status: Database["public"]["Enums"]["test_order_status"]
           test_code: string
+          test_set_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          bundle_price?: number | null
           collection_kit?: boolean | null
           created_at?: string
           id?: string
@@ -1279,10 +1359,12 @@ export type Database = {
           shipping_tracking?: Json | null
           status?: Database["public"]["Enums"]["test_order_status"]
           test_code: string
+          test_set_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          bundle_price?: number | null
           collection_kit?: boolean | null
           created_at?: string
           id?: string
@@ -1291,6 +1373,7 @@ export type Database = {
           shipping_tracking?: Json | null
           status?: Database["public"]["Enums"]["test_order_status"]
           test_code?: string
+          test_set_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1301,6 +1384,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tests_catalog"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "user_test_orders_test_set_id_fkey"
+            columns: ["test_set_id"]
+            isOneToOne: false
+            referencedRelation: "test_sets"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1511,6 +1601,12 @@ export type Database = {
       supplement_form: "tablet" | "capsule" | "liquid" | "powder" | "gummy"
       supplement_source: "doctor" | "ai" | "user"
       test_order_status: "ordered" | "collected" | "reported" | "canceled"
+      test_set_category:
+        | "metabolic"
+        | "hormonal"
+        | "cardiovascular"
+        | "performance"
+        | "preventive"
       user_status: "active" | "paused" | "deleted"
       venue_type: "cafe" | "restaurant" | "grocery" | "delivery"
       vital_metric:
@@ -1796,6 +1892,13 @@ export const Constants = {
       supplement_form: ["tablet", "capsule", "liquid", "powder", "gummy"],
       supplement_source: ["doctor", "ai", "user"],
       test_order_status: ["ordered", "collected", "reported", "canceled"],
+      test_set_category: [
+        "metabolic",
+        "hormonal",
+        "cardiovascular",
+        "performance",
+        "preventive",
+      ],
       user_status: ["active", "paused", "deleted"],
       venue_type: ["cafe", "restaurant", "grocery", "delivery"],
       vital_metric: [
