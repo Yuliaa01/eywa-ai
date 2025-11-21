@@ -51,7 +51,7 @@ const AppContent = ({ session }: { session: Session | null }) => {
         />
         <Route 
           path="/onboarding" 
-          element={session ? <Onboarding /> : <Navigate to="/auth" />} 
+          element={<Onboarding />} 
         />
         <Route 
           path="/dashboard" 
