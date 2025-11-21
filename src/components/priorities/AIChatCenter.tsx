@@ -14,6 +14,8 @@ export function AIChatCenter() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [dailyInsight, setDailyInsight] = useState<string>("");
+  const [insightLoading, setInsightLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const scrollToBottom = () => {
@@ -24,6 +26,34 @@ export function AIChatCenter() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const loadDailyInsight = async () => {
+      try {
+        setInsightLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data, error } = await supabase.functions.invoke('generate-daily-insight', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        });
+
+        if (error) throw error;
+        if (data?.insight?.summary) {
+          setDailyInsight(data.insight.summary);
+        }
+      } catch (error) {
+        console.error('Error loading daily insight:', error);
+        setDailyInsight("Good morning! Ready to make today count? Let's check your progress and see what we can accomplish together.");
+      } finally {
+        setInsightLoading(false);
+      }
+    };
+
+    loadDailyInsight();
+  }, []);
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || input.trim();
     if (!textToSend || isLoading) return;
@@ -254,9 +284,16 @@ export function AIChatCenter() {
               {/* Eywa avatar and message */}
               <div className="flex gap-3 mt-3">
                 <div className="flex-1 relative">
-                  <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
-                    Today I see your stress level decreased and your sleep improved by 9%. Would you like me to show detailed progress?
-                  </p>
+                  {insightLoading ? (
+                    <div className="space-y-2">
+                      <div className="h-4 bg-[#12AFCB]/10 rounded animate-pulse w-full"></div>
+                      <div className="h-4 bg-[#12AFCB]/10 rounded animate-pulse w-3/4"></div>
+                    </div>
+                  ) : (
+                    <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
+                      {dailyInsight}
+                    </p>
+                  )}
                   <span className="absolute -bottom-1 right-0 text-xs text-[#5A6B7F]/50">Just now</span>
                 </div>
               </div>
