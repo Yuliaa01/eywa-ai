@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { GlassCard } from "@/components/glass/GlassCard";
-import { Button } from "@/components/ui/button";
+import { GlassCard } from "@/components/glass";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestTube, Calendar, ShoppingCart } from "lucide-react";
+import { PersonalizedRecommendations } from "./PersonalizedRecommendations";
+import { TestSetCard } from "./TestSetCard";
 
 interface Test {
   id: string;
@@ -16,115 +20,193 @@ interface Test {
   units: string | null;
 }
 
-export default function TestsOrdersTab() {
+const TestsOrdersTab = () => {
   const [tests, setTests] = useState<Test[]>([]);
+  const [testSets, setTestSets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDomain, setSelectedDomain] = useState<string>("all");
-
-  useEffect(() => {
-    loadTests();
-  }, []);
+  const [activeTab, setActiveTab] = useState("bundles");
 
   const loadTests = async () => {
     try {
       const { data, error } = await supabase
-        .from("tests_catalog")
-        .select("*")
-        .order("name");
+        .from('tests_catalog')
+        .select('*')
+        .order('domain', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading tests:', error);
+        return;
+      }
+
       setTests(data || []);
     } catch (error) {
-      console.error("Error loading tests:", error);
+      console.error('Error in loadTests:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const domains = ["all", ...new Set(tests.map((t) => t.domain))];
+  const loadTestSets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('test_sets')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (error) {
+        console.error('Error loading test sets:', error);
+        return;
+      }
+
+      // Get test counts for each set
+      const setsWithCounts = await Promise.all(
+        (data || []).map(async (set) => {
+          const { count } = await supabase
+            .from('test_set_items')
+            .select('*', { count: 'exact', head: true })
+            .eq('test_set_id', set.id);
+          
+          return { ...set, test_count: count || 0 };
+        })
+      );
+
+      setTestSets(setsWithCounts);
+    } catch (error) {
+      console.error('Error in loadTestSets:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadTests();
+    loadTestSets();
+  }, []);
+
+  const uniqueDomains = Array.from(new Set(tests.map(t => t.domain)));
   const filteredTests = selectedDomain === "all" 
     ? tests 
-    : tests.filter((t) => t.domain === selectedDomain);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 animate-pulse" />
-        ))}
-      </div>
-    );
-  }
+    : tests.filter(t => t.domain === selectedDomain);
 
   return (
-    <div className="space-y-6">
-      {/* Domain Filters */}
-      <div className="flex flex-wrap gap-2">
-        {domains.map((domain) => (
-          <Badge
-            key={domain}
-            variant={selectedDomain === domain ? "default" : "outline"}
-            className={`cursor-pointer rounded-full px-4 py-2 transition-all ${
-              selectedDomain === domain
-                ? "bg-[#12AFCB] text-white shadow-[0_4px_20px_rgba(18,175,203,0.3)]"
-                : "bg-white/60 text-[#5A6B7F] hover:bg-white/80"
-            }`}
-            onClick={() => setSelectedDomain(domain)}
-          >
-            {domain.replace(/_/g, " ")}
-          </Badge>
-        ))}
-      </div>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsTrigger value="bundles">Test Bundles</TabsTrigger>
+        <TabsTrigger value="individual">Individual Tests</TabsTrigger>
+      </TabsList>
 
-      {/* Tests List */}
-      <div className="space-y-3">
-        {filteredTests.map((test) => (
-          <GlassCard key={test.id} className="p-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
-                <TestTube className="w-6 h-6 text-[#12AFCB]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <h4 className="font-rounded font-semibold text-[#0E1012] mb-1">
-                      {test.name}
-                    </h4>
-                    <p className="text-xs text-[#5A6B7F]">Code: {test.code}</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="rounded-xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white"
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Order
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="text-xs bg-[#12AFCB]/5 text-[#12AFCB]">
-                    {test.domain.replace(/_/g, " ")}
-                  </Badge>
-                  {test.suggested_cadence && (
-                    <Badge variant="outline" className="text-xs bg-white/60">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      {test.suggested_cadence}
-                    </Badge>
-                  )}
-                </div>
-                {test.primary_purpose && (
-                  <p className="text-xs text-[#5A6B7F] mt-2">{test.primary_purpose}</p>
-                )}
-              </div>
+      {/* Test Bundles Tab */}
+      <TabsContent value="bundles" className="space-y-6">
+        <PersonalizedRecommendations onOrderSuccess={() => loadTestSets()} />
+
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-4">All Test Bundles</h2>
+          <p className="text-muted-foreground mb-6">
+            Comprehensive test panels designed for specific health goals. Save time and money with curated bundles.
+          </p>
+          
+          {loading ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <GlassCard key={i}>
+                  <Skeleton className="h-[400px]" />
+                </GlassCard>
+              ))}
             </div>
-          </GlassCard>
-        ))}
-      </div>
-
-      {filteredTests.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-[#5A6B7F]">No tests found in this category.</p>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {testSets.map((set) => (
+                <TestSetCard
+                  key={set.id}
+                  testSet={set}
+                  onOrderSuccess={() => loadTestSets()}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </TabsContent>
+
+      {/* Individual Tests Tab */}
+      <TabsContent value="individual" className="space-y-6">
+        {/* Domain Filter */}
+        <div className="flex flex-wrap gap-2">
+          <Badge
+            variant={selectedDomain === "all" ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => setSelectedDomain("all")}
+          >
+            All Tests
+          </Badge>
+          {uniqueDomains.map((domain) => (
+            <Badge
+              key={domain}
+              variant={selectedDomain === domain ? "default" : "outline"}
+              className="cursor-pointer"
+              onClick={() => setSelectedDomain(domain)}
+            >
+              {domain}
+            </Badge>
+          ))}
+        </div>
+
+        {/* Tests Grid */}
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <GlassCard key={i}>
+                <Skeleton className="h-24" />
+              </GlassCard>
+            ))}
+          </div>
+        ) : filteredTests.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No tests found for the selected domain.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredTests.map((test) => (
+              <GlassCard key={test.id} className="p-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <TestTube className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-1">
+                          {test.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">Code: {test.code}</p>
+                      </div>
+                      <Button size="sm">
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Order
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {test.domain}
+                      </Badge>
+                      {test.suggested_cadence && (
+                        <Badge variant="outline" className="text-xs">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {test.suggested_cadence}
+                        </Badge>
+                      )}
+                    </div>
+                    {test.primary_purpose && (
+                      <p className="text-xs text-muted-foreground mt-2">{test.primary_purpose}</p>
+                    )}
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        )}
+      </TabsContent>
+    </Tabs>
   );
-}
+};
+
+export default TestsOrdersTab;
