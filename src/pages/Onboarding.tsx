@@ -64,9 +64,9 @@ export default function Onboarding() {
   // Check authentication before allowing onboarding (unless credentials are pending)
   useEffect(() => {
     const checkAuth = async () => {
-      // Allow access if signup credentials are pending
+      // Allow access if signup credentials are pending in sessionStorage, location state, or onboardingData
       const signupCredentials = sessionStorage.getItem('signupCredentials');
-      const hasCredentials = signupCredentials || location.state?.credentials;
+      const hasCredentials = signupCredentials || location.state?.credentials || onboardingData?.credentials;
       
       if (hasCredentials) {
         // User is in signup flow, allow access
@@ -83,7 +83,7 @@ export default function Onboarding() {
     };
 
     checkAuth();
-  }, [navigate, location.state]);
+  }, [navigate, location.state, onboardingData]);
 
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
