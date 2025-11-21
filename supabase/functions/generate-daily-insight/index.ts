@@ -17,9 +17,14 @@ serve(async (req) => {
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
 
     const authHeader = req.headers.get('Authorization')!;
+    
+    // Client for user authentication and data access (uses user's auth)
     const supabase = createClient(supabaseUrl, supabaseKey, {
       global: { headers: { Authorization: authHeader } }
     });
+
+    // Service role client for system operations (bypasses RLS)
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -115,8 +120,8 @@ User context: ${JSON.stringify(context)}`;
     const aiData = await aiResponse.json();
     const message = aiData.choices[0].message.content;
 
-    // Store the insight
-    const { data: newInsight, error: insertError } = await supabase
+    // Store the insight using admin client to bypass RLS
+    const { data: newInsight, error: insertError } = await supabaseAdmin
       .from('ai_insights')
       .insert({
         user_id: user.id,
