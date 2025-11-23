@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TestTube, Calendar, ShoppingCart } from "lucide-react";
+import { TestTube, Calendar, ShoppingCart, Check } from "lucide-react";
 import { PersonalizedRecommendations } from "./PersonalizedRecommendations";
 import { TestSetCard } from "./TestSetCard";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
+import { CartDrawer } from "./CartDrawer";
 
 interface Test {
   id: string;
@@ -26,6 +29,8 @@ const TestsOrdersTab = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDomain, setSelectedDomain] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("bundles");
+  const [cartOpen, setCartOpen] = useState(false);
+  const { addItem, isInCart, getItemCount } = useCart();
 
   const loadTests = async () => {
     try {
@@ -88,12 +93,45 @@ const TestsOrdersTab = () => {
     ? tests 
     : tests.filter(t => t.domain === selectedDomain);
 
+  const handleAddIndividualTest = (test: Test) => {
+    addItem({
+      type: 'individual',
+      code: test.code,
+      name: test.name,
+      domain: test.domain,
+      estimated_price: 45 // Average test price
+    });
+    
+    toast.success("Added to cart!", {
+      description: `${test.name} has been added to your cart`
+    });
+  };
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full max-w-md grid-cols-2">
-        <TabsTrigger value="bundles">Test Bundles</TabsTrigger>
-        <TabsTrigger value="individual">Individual Tests</TabsTrigger>
-      </TabsList>
+    <>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-foreground">Tests & Orders</h1>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => setCartOpen(true)}
+          className="relative"
+        >
+          <ShoppingCart className="w-5 h-5 mr-2" />
+          Cart
+          {getItemCount() > 0 && (
+            <Badge className="absolute -top-2 -right-2 h-6 w-6 p-0 flex items-center justify-center">
+              {getItemCount()}
+            </Badge>
+          )}
+        </Button>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="bundles">Test Bundles</TabsTrigger>
+          <TabsTrigger value="individual">Individual Tests</TabsTrigger>
+        </TabsList>
 
       {/* Test Bundles Tab */}
       <TabsContent value="bundles" className="space-y-6">
@@ -179,9 +217,22 @@ const TestsOrdersTab = () => {
                         </h4>
                         <p className="text-xs text-muted-foreground">Code: {test.code}</p>
                       </div>
-                      <Button size="sm">
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        Order
+                      <Button 
+                        size="sm"
+                        onClick={() => handleAddIndividualTest(test)}
+                        disabled={isInCart(test.code)}
+                      >
+                        {isInCart(test.code) ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            In Cart
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-4 h-4 mr-2" />
+                            Add to Cart
+                          </>
+                        )}
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -206,6 +257,9 @@ const TestsOrdersTab = () => {
         )}
       </TabsContent>
     </Tabs>
+
+    <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
+    </>
   );
 };
 

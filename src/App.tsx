@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { CartProvider } from "@/contexts/CartContext";
 import CoachOrb from "@/components/CoachOrb";
 import ChatDrawer from "@/components/ChatDrawer";
 
@@ -138,13 +139,15 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppContent session={session} />
-          </BrowserRouter>
-        </TooltipProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent session={session} />
+            </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

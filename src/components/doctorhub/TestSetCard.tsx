@@ -2,9 +2,10 @@ import { useState } from "react";
 import { GlassCard } from "@/components/glass";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, ShoppingCart, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 interface TestSetCardProps {
   testSet: {
@@ -37,9 +38,11 @@ const priorityColors: Record<string, string> = {
 
 export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: TestSetCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isOrdering, setIsOrdering] = useState(false);
   const [tests, setTests] = useState<any[]>([]);
   const [testsLoaded, setTestsLoaded] = useState(false);
+  const { addItem, isInCart } = useCart();
+  
+  const inCart = isInCart(testSet.id);
 
   const loadTests = async () => {
     if (testsLoaded) return;
@@ -77,58 +80,34 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
     setIsExpanded(!isExpanded);
   };
 
-  const handleOrder = async () => {
-    setIsOrdering(true);
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Please sign in to order tests");
-        return;
-      }
-
-      // Load tests if not already loaded
-      if (!testsLoaded) {
-        await loadTests();
-      }
-
-      // Get test codes
-      const { data: testItems, error: itemsError } = await supabase
-        .from('test_set_items')
-        .select('test_code')
-        .eq('test_set_id', testSet.id);
-
-      if (itemsError) throw itemsError;
-
-      const testCodes = testItems?.map(item => item.test_code) || [];
-
-      // Create orders for each test in the set
-      const orders = testCodes.map(code => ({
-        user_id: user.id,
-        test_code: code,
-        test_set_id: testSet.id,
-        bundle_price: testSet.base_price,
-        status: 'ordered' as const,
-        ordering_context: `Ordered as part of ${testSet.name}`,
-      }));
-
-      const { error: orderError } = await supabase
-        .from('user_test_orders')
-        .insert(orders);
-
-      if (orderError) throw orderError;
-
-      toast.success(`Successfully ordered ${testSet.name}!`, {
-        description: `${testCodes.length} tests ordered for $${testSet.base_price}`,
-      });
-
-      onOrderSuccess?.();
-    } catch (error) {
-      console.error('Error ordering test set:', error);
-      toast.error("Failed to order test set. Please try again.");
-    } finally {
-      setIsOrdering(false);
+  const handleAddToCart = async () => {
+    // Load tests if not already loaded to get test codes
+    if (!testsLoaded) {
+      await loadTests();
     }
+
+    // Get test codes
+    const { data: testItems } = await supabase
+      .from('test_set_items')
+      .select('test_code')
+      .eq('test_set_id', testSet.id);
+
+    const testCodes = testItems?.map(item => item.test_code) || [];
+
+    addItem({
+      type: 'bundle',
+      id: testSet.id,
+      name: testSet.name,
+      description: testSet.description,
+      base_price: testSet.base_price,
+      test_count: testSet.test_count || tests.length || 0,
+      category: testSet.category,
+      test_codes: testCodes
+    });
+
+    toast.success("Added to cart!", {
+      description: `${testSet.name} has been added to your cart`
+    });
   };
 
   return (
@@ -223,14 +202,24 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
           )}
         </div>
 
-        {/* Order Button */}
+        {/* Add to Cart Button */}
         <Button
-          onClick={handleOrder}
-          disabled={isOrdering}
+          onClick={handleAddToCart}
+          disabled={inCart}
           className="w-full"
           size="lg"
         >
-          {isOrdering ? "Ordering..." : `Order Now - $${testSet.base_price}`}
+          {inCart ? (
+            <>
+              <Check className="w-4 h-4 mr-2" />
+              In Cart
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Add to Cart - ${testSet.base_price}
+            </>
+          )}
         </Button>
       </div>
     </GlassCard>
