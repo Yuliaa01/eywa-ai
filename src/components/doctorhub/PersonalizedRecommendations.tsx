@@ -34,12 +34,28 @@ export const PersonalizedRecommendations = ({ onOrderSuccess }: { onOrderSuccess
     setError(null);
     
     try {
+      // Ensure user is authenticated before calling the edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error('No active session');
+        setError('Please log in to view personalized recommendations');
+        setLoading(false);
+        return;
+      }
+
       // Call the edge function to get personalized recommendations
       const { data: recData, error: recError } = await supabase.functions.invoke('suggest-test-sets');
 
       if (recError) {
         console.error('Error getting recommendations:', recError);
-        setError('Unable to load personalized recommendations');
+        
+        // Handle 401 specifically
+        if (recError.message?.includes('401') || recError.message?.includes('Unauthorized')) {
+          setError('Session expired. Please refresh the page.');
+        } else {
+          setError('Unable to load personalized recommendations');
+        }
         return;
       }
 
