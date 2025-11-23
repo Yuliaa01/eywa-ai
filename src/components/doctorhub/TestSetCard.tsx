@@ -23,17 +23,17 @@ interface TestSetCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  metabolic: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  hormonal: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  cardiovascular: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  performance: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  preventive: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  metabolic: "bg-accent-teal/10 text-accent-teal border-accent-teal/20",
+  hormonal: "bg-secondary/10 text-secondary border-secondary/20",
+  cardiovascular: "bg-accent/10 text-accent border-accent/20",
+  performance: "bg-primary/10 text-primary border-primary/20",
+  preventive: "bg-accent-teal-alt/10 text-accent-teal-alt border-accent-teal-alt/20",
 };
 
 const priorityColors: Record<string, string> = {
-  high: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  medium: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  low: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  high: "bg-accent/10 text-accent border-accent/30 shadow-glow-teal",
+  medium: "bg-secondary/10 text-secondary border-secondary/30",
+  low: "bg-accent-teal/10 text-accent-teal border-accent-teal/20",
 };
 
 export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: TestSetCardProps) => {
@@ -111,50 +111,52 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
   };
 
   return (
-    <GlassCard className="hover:bg-background/60 transition-all duration-300">
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-foreground">{testSet.name}</h3>
+    <GlassCard className="hover:shadow-glow-teal hover:scale-[1.02] transition-all duration-300 p-6">
+      <div className="space-y-6">
+        {/* Header with enhanced spacing */}
+        <div className="flex items-start justify-between gap-6">
+          <div className="flex-1 space-y-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h3 className="font-rounded text-2xl font-bold text-foreground">{testSet.name}</h3>
               {priority && (
-                <Badge variant="outline" className={priorityColors[priority]}>
+                <Badge variant="outline" className={`${priorityColors[priority]} font-rounded text-xs px-3 py-1`}>
                   {priority} priority
                 </Badge>
               )}
             </div>
-            <Badge variant="outline" className={categoryColors[testSet.category]}>
+            <Badge variant="outline" className={`${categoryColors[testSet.category]} font-rounded text-xs px-3 py-1 w-fit`}>
               {testSet.category}
             </Badge>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-primary">${testSet.base_price}</div>
-            <div className="text-sm text-muted-foreground">
+          <div className="text-right space-y-1">
+            <div className="font-rounded text-3xl font-bold bg-gradient-to-r from-accent-teal to-accent-teal-alt bg-clip-text text-transparent">
+              ${testSet.base_price}
+            </div>
+            <div className="text-sm text-muted-foreground font-medium">
               {testSet.test_count || tests.length || "Multiple"} tests
             </div>
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        {/* Description with better spacing */}
+        <p className="text-base text-muted-foreground leading-relaxed">
           {testSet.description}
         </p>
 
-        {/* Personalized Reasoning */}
+        {/* Personalized Reasoning with glassmorphism */}
         {reasoning && (
-          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <div className="flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+          <div className="p-4 rounded-2xl bg-accent-teal/5 border border-accent-teal/20 backdrop-blur-sm">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-accent-teal mt-0.5 flex-shrink-0" />
               <p className="text-sm text-foreground leading-relaxed">{reasoning}</p>
             </div>
           </div>
         )}
 
-        {/* Recommended For Tags */}
+        {/* Recommended For Tags with improved styling */}
         <div className="flex flex-wrap gap-2">
           {testSet.recommended_for.slice(0, 3).map((rec, idx) => (
-            <Badge key={idx} variant="secondary" className="text-xs">
+            <Badge key={idx} variant="secondary" className="font-rounded text-xs px-3 py-1.5 bg-muted/50 hover:bg-muted transition-colors">
               {rec}
             </Badge>
           ))}
@@ -164,59 +166,64 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
         <div>
           <button
             onClick={handleExpand}
-            className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors w-full"
+            className="flex items-center gap-2 text-sm font-medium text-accent-teal hover:text-accent-teal-alt transition-colors w-full group"
           >
             {isExpanded ? (
               <>
-                <ChevronUp className="w-4 h-4" />
+                <ChevronUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
                 Hide included tests
               </>
             ) : (
               <>
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
                 View included tests
               </>
             )}
           </button>
           
           {isExpanded && (
-            <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
+            <div className="mt-4 space-y-2 max-h-64 overflow-y-auto custom-scrollbar animate-fade-in">
               {tests.length > 0 ? (
                 tests.map((test, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 rounded bg-background/40">
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 hover:border-accent-teal/30 transition-colors">
                     <div>
-                      <div className="text-sm font-medium text-foreground">{test.name}</div>
-                      <div className="text-xs text-muted-foreground">{test.code}</div>
+                      <div className="text-sm font-semibold text-foreground">{test.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{test.code}</div>
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs font-rounded bg-muted/30">
                       {test.domain}
                     </Badge>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Loading tests...
-                </p>
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-glow-pulse">
+                    <p className="text-sm text-muted-foreground font-medium">Loading tests...</p>
+                  </div>
+                </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Add to Cart Button */}
+        {/* Enhanced Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
           disabled={inCart}
-          className="w-full"
-          size="lg"
+          className={`w-full font-rounded text-base py-6 rounded-2xl transition-all duration-300 ${
+            inCart 
+              ? 'bg-accent-teal/20 text-accent-teal hover:bg-accent-teal/20 cursor-default' 
+              : 'bg-gradient-to-r from-accent-teal to-accent-teal-alt hover:shadow-glow-teal hover:scale-[1.02]'
+          }`}
         >
           {inCart ? (
             <>
-              <Check className="w-4 h-4 mr-2" />
+              <Check className="w-5 h-5 mr-2" />
               In Cart
             </>
           ) : (
             <>
-              <ShoppingCart className="w-4 h-4 mr-2" />
+              <ShoppingCart className="w-5 h-5 mr-2" />
               Add to Cart - ${testSet.base_price}
             </>
           )}
