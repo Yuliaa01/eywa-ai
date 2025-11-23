@@ -182,7 +182,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
                 </div>
               )}
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {totalSavings > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Individual price:</span>
@@ -191,9 +191,10 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-bold">
-                  <span className="text-foreground">Total:</span>
-                  <span className="text-primary">${totalPrice.toFixed(2)}</span>
+                <Separator />
+                <div className="flex justify-between items-baseline py-2">
+                  <span className="text-2xl font-bold text-foreground">Total:</span>
+                  <span className="text-3xl font-bold text-primary">${totalPrice.toFixed(2)}</span>
                 </div>
               </div>
 
