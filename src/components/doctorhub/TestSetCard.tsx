@@ -111,13 +111,13 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
   };
 
   return (
-    <GlassCard className="hover:shadow-glow-teal hover:scale-[1.02] transition-all duration-300 p-6">
+    <GlassCard className="hover:shadow-glow-teal hover:scale-[1.02] transition-all duration-300 p-6 bg-white/90">
       <div className="space-y-6">
         {/* Header with enhanced spacing */}
         <div className="flex items-start justify-between gap-6">
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-3 flex-wrap">
-              <h3 className="font-rounded text-2xl font-bold text-foreground">{testSet.name}</h3>
+              <h3 className="font-rounded text-2xl font-bold text-[#0E1012]">{testSet.name}</h3>
               {priority && (
                 <Badge variant="outline" className={`${priorityColors[priority]} font-rounded text-xs px-3 py-1`}>
                   {priority} priority
@@ -132,23 +132,23 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
             <div className="font-rounded text-3xl font-bold text-[#12AFCB]">
               ${testSet.base_price}
             </div>
-            <div className="text-sm text-muted-foreground font-medium">
+            <div className="text-sm text-[#5A6B7F] font-medium">
               {testSet.test_count || tests.length || "Multiple"} tests
             </div>
           </div>
         </div>
 
         {/* Description with better spacing */}
-        <p className="text-base text-muted-foreground leading-relaxed">
+        <p className="text-base text-[#5A6B7F] leading-relaxed">
           {testSet.description}
         </p>
 
         {/* Personalized Reasoning with glassmorphism */}
         {reasoning && (
-          <div className="p-4 rounded-2xl bg-[#12AFCB]/5 border border-[#12AFCB]/20 backdrop-blur-sm">
+          <div className="p-4 rounded-2xl bg-[#12AFCB]/10 border border-[#12AFCB]/30 backdrop-blur-sm">
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-[#12AFCB] mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-foreground leading-relaxed">{reasoning}</p>
+              <p className="text-sm text-[#0E1012] leading-relaxed font-medium">{reasoning}</p>
             </div>
           </div>
         )}
@@ -156,7 +156,7 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
         {/* Recommended For Tags with improved styling */}
         <div className="flex flex-wrap gap-2">
           {testSet.recommended_for.slice(0, 3).map((rec, idx) => (
-            <Badge key={idx} variant="secondary" className="font-rounded text-xs px-3 py-1.5 bg-muted/50 hover:bg-muted transition-colors">
+            <Badge key={idx} variant="secondary" className="font-rounded text-xs px-3 py-1.5 bg-[#F8FCFF] text-[#0E1012] border border-[#12AFCB]/20 hover:bg-[#EFF8FB] transition-colors">
               {rec}
             </Badge>
           ))}
@@ -185,12 +185,12 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
             <div className="mt-4 space-y-2 max-h-64 overflow-y-auto custom-scrollbar animate-fade-in">
               {tests.length > 0 ? (
                 tests.map((test, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 hover:border-[#12AFCB]/30 transition-colors">
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-[#12AFCB]/20 hover:border-[#12AFCB]/40 transition-colors">
                     <div>
-                      <div className="text-sm font-semibold text-foreground">{test.name}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{test.code}</div>
+                      <div className="text-sm font-semibold text-[#0E1012]">{test.name}</div>
+                      <div className="text-xs text-[#5A6B7F] mt-0.5">{test.code}</div>
                     </div>
-                    <Badge variant="outline" className="text-xs font-rounded bg-muted/30 text-foreground">
+                    <Badge variant="outline" className="text-xs font-rounded bg-[#F8FCFF] text-[#0E1012] border-[#12AFCB]/30">
                       {test.domain}
                     </Badge>
                   </div>
@@ -198,7 +198,7 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
               ) : (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-glow-pulse">
-                    <p className="text-sm text-muted-foreground font-medium">Loading tests...</p>
+                    <p className="text-sm text-[#5A6B7F] font-medium">Loading tests...</p>
                   </div>
                 </div>
               )}
