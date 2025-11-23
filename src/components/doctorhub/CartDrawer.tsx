@@ -103,9 +103,9 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
             <p className="text-sm text-muted-foreground">Add test bundles or individual tests to get started</p>
           </div>
         ) : (
-          <>
-            <ScrollArea className="h-[calc(100vh-300px)] pr-4 mt-6">
-              <div className="space-y-4">
+          <div className="flex flex-col h-[calc(100vh-120px)]">
+            <ScrollArea className="flex-1 pr-4 mt-6">
+              <div className="space-y-4 pb-4">
                 {items.map((item) => (
                   <div
                     key={item.type === 'bundle' ? item.id : item.code}
@@ -164,9 +164,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
               </div>
             </ScrollArea>
 
-            <div className="space-y-4 mt-6">
-              <Separator />
-              
+            <div className="flex-shrink-0 space-y-4 pt-4 pb-6 border-t border-border/50 bg-background">
               {totalSavings > 0 && (
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                   <div className="flex items-center gap-2 text-emerald-300">
@@ -198,7 +196,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
                   onClick={clearCart}
@@ -218,7 +216,7 @@ export const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
                 </Button>
               </div>
             </div>
-          </>
+          </div>
         )}
       </SheetContent>
     </Sheet>
