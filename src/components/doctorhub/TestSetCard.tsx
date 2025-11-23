@@ -23,17 +23,17 @@ interface TestSetCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  metabolic: "bg-accent-teal/10 text-accent-teal border-accent-teal/20",
-  hormonal: "bg-secondary/10 text-secondary border-secondary/20",
-  cardiovascular: "bg-accent/10 text-accent border-accent/20",
-  performance: "bg-primary/10 text-primary border-primary/20",
-  preventive: "bg-accent-teal-alt/10 text-accent-teal-alt border-accent-teal-alt/20",
+  metabolic: "bg-[#12AFCB]/10 text-[#12AFCB] border-[#12AFCB]/20",
+  hormonal: "bg-[#50C878]/10 text-[#50C878] border-[#50C878]/20",
+  cardiovascular: "bg-[#9B59B6]/10 text-[#9B59B6] border-[#9B59B6]/20",
+  performance: "bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20",
+  preventive: "bg-[#14B8CC]/10 text-[#14B8CC] border-[#14B8CC]/20",
 };
 
 const priorityColors: Record<string, string> = {
-  high: "bg-accent/10 text-accent border-accent/30 shadow-glow-teal",
-  medium: "bg-secondary/10 text-secondary border-secondary/30",
-  low: "bg-accent-teal/10 text-accent-teal border-accent-teal/20",
+  high: "bg-[#9B59B6]/10 text-[#9B59B6] border-[#9B59B6]/30",
+  medium: "bg-[#50C878]/10 text-[#50C878] border-[#50C878]/30",
+  low: "bg-[#12AFCB]/10 text-[#12AFCB] border-[#12AFCB]/20",
 };
 
 export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: TestSetCardProps) => {
@@ -129,7 +129,7 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
             </Badge>
           </div>
           <div className="text-right space-y-1">
-            <div className="font-rounded text-3xl font-bold bg-gradient-to-r from-accent-teal to-accent-teal-alt bg-clip-text text-transparent">
+            <div className="font-rounded text-3xl font-bold text-[#12AFCB]">
               ${testSet.base_price}
             </div>
             <div className="text-sm text-muted-foreground font-medium">
@@ -145,9 +145,9 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
 
         {/* Personalized Reasoning with glassmorphism */}
         {reasoning && (
-          <div className="p-4 rounded-2xl bg-accent-teal/5 border border-accent-teal/20 backdrop-blur-sm">
+          <div className="p-4 rounded-2xl bg-[#12AFCB]/5 border border-[#12AFCB]/20 backdrop-blur-sm">
             <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-accent-teal mt-0.5 flex-shrink-0" />
+              <Sparkles className="w-5 h-5 text-[#12AFCB] mt-0.5 flex-shrink-0" />
               <p className="text-sm text-foreground leading-relaxed">{reasoning}</p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
         <div>
           <button
             onClick={handleExpand}
-            className="flex items-center gap-2 text-sm font-medium text-accent-teal hover:text-accent-teal-alt transition-colors w-full group"
+            className="flex items-center gap-2 text-sm font-medium text-[#12AFCB] hover:text-[#14B8CC] transition-colors w-full group"
           >
             {isExpanded ? (
               <>
@@ -185,12 +185,12 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
             <div className="mt-4 space-y-2 max-h-64 overflow-y-auto custom-scrollbar animate-fade-in">
               {tests.length > 0 ? (
                 tests.map((test, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 hover:border-accent-teal/30 transition-colors">
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background/50 backdrop-blur-sm border border-border/50 hover:border-[#12AFCB]/30 transition-colors">
                     <div>
                       <div className="text-sm font-semibold text-foreground">{test.name}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">{test.code}</div>
                     </div>
-                    <Badge variant="outline" className="text-xs font-rounded bg-muted/30">
+                    <Badge variant="outline" className="text-xs font-rounded bg-muted/30 text-foreground">
                       {test.domain}
                     </Badge>
                   </div>
@@ -212,8 +212,8 @@ export const TestSetCard = ({ testSet, reasoning, priority, onOrderSuccess }: Te
           disabled={inCart}
           className={`w-full font-rounded text-base py-6 rounded-2xl transition-all duration-300 ${
             inCart 
-              ? 'bg-accent-teal/20 text-accent-teal hover:bg-accent-teal/20 cursor-default' 
-              : 'bg-gradient-to-r from-accent-teal to-accent-teal-alt hover:shadow-glow-teal hover:scale-[1.02]'
+              ? 'bg-[#12AFCB]/20 text-[#12AFCB] hover:bg-[#12AFCB]/20 cursor-default border border-[#12AFCB]/30' 
+              : 'bg-[#12AFCB] text-white hover:bg-[#14B8CC] hover:shadow-[0_0_40px_rgba(18,175,203,0.3)] hover:scale-[1.02]'
           }`}
         >
           {inCart ? (
