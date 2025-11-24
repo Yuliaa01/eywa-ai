@@ -227,13 +227,13 @@ export default function HealthCareSection() {
     };
   };
 
-  const calculateBiologicalAgeDifference = () => {
-    if (!userProfile?.dob || !userProfile?.biological_age_estimate) return null;
+  const calculateBiologicalAgeDifference = (profile: any) => {
+    if (!profile?.dob || !profile?.biological_age_estimate) return null;
     
-    const birthDate = new Date(userProfile.dob);
+    const birthDate = new Date(profile.dob);
     const today = new Date();
     const chronologicalAge = differenceInDays(today, birthDate) / 365.25;
-    const biologicalAge = userProfile.biological_age_estimate;
+    const biologicalAge = profile.biological_age_estimate;
     const difference = chronologicalAge - biologicalAge;
     
     return {
@@ -487,7 +487,7 @@ export default function HealthCareSection() {
                 <div className="text-xs text-muted-foreground mb-0.5">Patient Age</div>
                 <div className="text-sm font-rounded font-bold text-foreground">
                   {(() => {
-                    const ageData = calculateBiologicalAgeDifference();
+                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                     if (ageData) return `${ageData.chronologicalAge} years old`;
                     const birthDate = new Date(displayUserProfile.dob);
                     const age = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
@@ -599,21 +599,21 @@ export default function HealthCareSection() {
               <div className="text-center mb-4">
                 <div className="text-5xl font-rounded font-bold text-foreground mb-2">
                   {(() => {
-                    const ageData = calculateBiologicalAgeDifference();
+                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                     if (ageData) return ageData.biologicalAge;
                     return Math.floor(displayUserProfile.biological_age_estimate);
                   })()}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Your biological age is {(() => {
-                    const ageData = calculateBiologicalAgeDifference();
+                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                     if (ageData) return Math.abs(ageData.difference);
                     const birthDate = new Date(displayUserProfile.dob);
                     const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
                     return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
                   })()} years{' '}
                   {(() => {
-                    const ageData = calculateBiologicalAgeDifference();
+                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                     if (ageData) return ageData.isYounger ? 'younger' : 'older';
                     const birthDate = new Date(displayUserProfile.dob);
                     const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
