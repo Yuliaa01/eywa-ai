@@ -24,6 +24,9 @@ export default function HealthCareSection() {
   const [testOrdersCount, setTestOrdersCount] = useState(0);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [testReminders, setTestReminders] = useState<any[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [domainScores, setDomainScores] = useState<any>({});
+  const [latestReviewer, setLatestReviewer] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -112,6 +115,43 @@ export default function HealthCareSection() {
         .eq("user_id", user.id)
         .is("resolved_at", null);
 
+      // Fetch user profile for age calculation
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      // Fetch doctor reviews for reviewer info
+      const { data: reviews } = await supabase
+        .from("doctor_reviews")
+        .select("*, doctors(name)")
+        .eq("user_id", user.id)
+        .order("generated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Fetch specialties count
+      const { count: specialties } = await supabase
+        .from("doctors")
+        .select("*", { count: 'exact', head: true })
+        .eq("active", true);
+
+      // Fetch pending test orders count
+      const { count: pendingTests } = await supabase
+        .from("user_test_orders")
+        .select("*", { count: 'exact', head: true })
+        .eq("user_id", user.id)
+        .eq("status", "ordered");
+
+      // Process biomarker scores by domain
+      const scoresByDomain: any = {};
+      if (biomarkers) {
+        biomarkers.forEach((score: any) => {
+          scoresByDomain[score.domain] = score.score;
+        });
+      }
+
       setLabResults(labs || []);
       setBiomarkerScores(biomarkers || []);
       setTestOrders(orders || []);
@@ -119,6 +159,12 @@ export default function HealthCareSection() {
       setVitals(vitalData || []);
       setSupplements(supplementData || []);
       setHealthIssues(issuesData || []);
+      setUserProfile(profile);
+      setDomainScores(scoresByDomain);
+      setLatestReviewer(reviews?.doctors?.name || null);
+      setSpecialtiesCount(specialties || 0);
+      setTestOrdersCount(pendingTests || 0);
+      setUnreadMessagesCount(1); // Mock data
     } catch (error) {
       console.error("Error loading health data:", error);
     } finally {
@@ -179,6 +225,55 @@ export default function HealthCareSection() {
       count: recentLabs.length,
       labs: recentLabs
     };
+  };
+
+  const calculateBiologicalAgeDifference = () => {
+    if (!userProfile?.dob || !userProfile?.biological_age_estimate) return null;
+    
+    const birthDate = new Date(userProfile.dob);
+    const today = new Date();
+    const chronologicalAge = differenceInDays(today, birthDate) / 365.25;
+    const biologicalAge = userProfile.biological_age_estimate;
+    const difference = chronologicalAge - biologicalAge;
+    
+    return {
+      chronologicalAge: Math.floor(chronologicalAge),
+      biologicalAge: Math.floor(biologicalAge),
+      difference: parseFloat(difference.toFixed(1)),
+      isYounger: difference > 0
+    };
+  };
+
+  const getOverallHealthStatus = () => {
+    const scores = Object.values(domainScores) as number[];
+    if (scores.length === 0) return { status: "No Data", color: "text-muted-foreground" };
+    
+    const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    
+    if (avgScore >= 80) return { status: "Excellent", color: "text-green-600" };
+    if (avgScore >= 70) return { status: "Within Range", color: "text-accent-teal" };
+    if (avgScore >= 60) return { status: "Needs Attention", color: "text-yellow-600" };
+    return { status: "Needs Improvement", color: "text-red-600" };
+  };
+
+  const getDomainIcon = (domain: string) => {
+    const iconMap: any = {
+      cardio_resp: "❤️",
+      metabolic_lipids: "🔥",
+      inflammation_immunity: "🛡️",
+      hormones: "⚡"
+    };
+    return iconMap[domain] || "📊";
+  };
+
+  const getDomainName = (domain: string) => {
+    const nameMap: any = {
+      cardio_resp: "Heart Health",
+      metabolic_lipids: "Metabolic",
+      inflammation_immunity: "Inflammation",
+      hormones: "Hormonal"
+    };
+    return nameMap[domain] || domain;
   };
 
   const quickChecks = [
@@ -299,6 +394,165 @@ export default function HealthCareSection() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* My Results Card */}
+      {(labResults.length > 0 || biomarkerScores.length > 0) && (
+        <div className="rounded-3xl bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent backdrop-blur-xl border border-purple-500/20 p-8 shadow-[0_8px_40px_rgba(147,51,234,0.15)]">
+          <div className="flex items-start justify-between mb-6">
+            <h3 className="font-rounded text-2xl font-bold text-foreground">
+              My Results
+            </h3>
+            <button 
+              onClick={() => navigate("/doctor-hub")}
+              className="text-sm text-accent-teal hover:text-accent-teal-alt transition-colors flex items-center gap-1"
+            >
+              View Details <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Timeline of Recent Tests */}
+          {labResults.length > 0 && (
+            <div className="mb-6 overflow-x-auto pb-2">
+              <div className="flex gap-3 min-w-max">
+                {labResults.slice(0, 6).map((lab: any, idx: number) => (
+                  <button
+                    key={idx}
+                    className={`px-4 py-2 rounded-xl border transition-all ${
+                      idx === 0 
+                        ? 'bg-accent-teal/10 border-accent-teal/30 text-accent-teal' 
+                        : 'bg-card/60 border-border text-muted-foreground hover:border-accent-teal/20'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <TestTube className="w-4 h-4" />
+                      <span className="text-xs font-rounded font-medium">
+                        {format(new Date(lab.reported_at), "MMM d")}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Test Report Metadata */}
+          {labResults.length > 0 && (
+            <div className="grid md:grid-cols-2 gap-4 mb-6 p-4 rounded-2xl bg-card/60 border border-border">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Age</span>
+                  <span className="text-sm font-rounded font-semibold text-foreground">
+                    {calculateBiologicalAgeDifference()?.chronologicalAge || 'N/A'} years old
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Report Type</span>
+                  <span className="text-sm font-rounded font-semibold text-foreground">
+                    Core Health Test
+                  </span>
+                </div>
+                {latestReviewer && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Reviewed by</span>
+                    <span className="text-sm font-rounded font-semibold text-foreground">
+                      {latestReviewer}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Collection</span>
+                  <span className="text-sm font-rounded font-semibold text-foreground">
+                    {format(new Date(labResults[0].collected_at || labResults[0].reported_at), "MMM d, h:mm a")}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Result</span>
+                  <span className="text-sm font-rounded font-semibold text-foreground">
+                    {format(new Date(labResults[0].reported_at), "MMM d, h:mm a")}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content Grid: Biomarker Summary and Biological Age */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Biomarker Summary */}
+            {biomarkerScores.length > 0 && (
+              <div className="p-6 rounded-2xl bg-card/80 border border-border">
+                <h4 className="font-rounded font-semibold text-foreground mb-4">
+                  Biomarker Summary
+                </h4>
+                
+                {/* Overall Status */}
+                <div className="mb-4 pb-4 border-b border-border">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-lg font-rounded font-bold ${getOverallHealthStatus().color}`}>
+                      {getOverallHealthStatus().status}
+                    </span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Based on latest biomarkers
+                  </span>
+                </div>
+
+                {/* Health Domains */}
+                <div className="space-y-3">
+                  {['cardio_resp', 'metabolic_lipids', 'inflammation_immunity', 'hormones'].map((domain) => (
+                    domainScores[domain] && (
+                      <div key={domain} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{getDomainIcon(domain)}</span>
+                          <span className="text-sm font-rounded font-medium text-foreground">
+                            {getDomainName(domain)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-rounded font-bold text-accent-teal">
+                            {domainScores[domain]}%
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Biological Age Card */}
+            {calculateBiologicalAgeDifference() && (
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border border-yellow-500/20">
+                <div className="flex items-center gap-2 mb-6">
+                  <span className="text-3xl">🏅</span>
+                  <h4 className="font-rounded font-semibold text-foreground">
+                    Biological Age
+                  </h4>
+                </div>
+                
+                <div className="text-center mb-6">
+                  <div className="text-6xl font-rounded font-bold text-foreground mb-2">
+                    {calculateBiologicalAgeDifference()?.biologicalAge}
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Your biological age is{' '}
+                    <span className="font-semibold text-accent-teal">
+                      {Math.abs(calculateBiologicalAgeDifference()!.difference)} years{' '}
+                      {calculateBiologicalAgeDifference()!.isYounger ? 'younger' : 'older'}
+                    </span>
+                    {' '}than your chronological age
+                  </p>
+                </div>
+
+                <button className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-foreground font-rounded font-medium hover:shadow-[0_4px_20px_rgba(234,179,8,0.3)] transition-all">
+                  SHARE
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
