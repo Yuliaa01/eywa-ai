@@ -1,6 +1,7 @@
 import { GoalModal } from "@/components/modals/GoalModal";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
+import { GoalActions } from "@/components/priorities/GoalActions";
 import { useState, useEffect } from "react";
 import { fetchActivePriorities, deletePriority, restorePriority, Priority } from "@/api/priorities";
 import { useToast } from "@/hooks/use-toast";
@@ -239,13 +240,12 @@ export default function PrioritiesSection() {
               {orderedGlobalGoals.slice(0, 3).map((goal) => (
                 <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                   <div 
-                    className="flex items-start gap-3 cursor-pointer hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors"
-                    onClick={() => handleEdit(goal)}
+                    className="flex items-start gap-3 hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors"
                   >
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <Target className="w-4 h-4 text-[#12AFCB]" />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleEdit(goal)}>
                       <p className="text-sm font-medium text-[#0E1012] line-clamp-2">{goal.title}</p>
                       <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
                         <div 
@@ -254,6 +254,10 @@ export default function PrioritiesSection() {
                         />
                       </div>
                     </div>
+                    <GoalActions 
+                      onEdit={() => handleEdit(goal)}
+                      onDelete={() => handleDeleteClick(goal)}
+                    />
                   </div>
                 </SortableItem>
               ))}
