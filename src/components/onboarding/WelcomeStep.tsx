@@ -3,24 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-
 interface WelcomeStepProps {
   onNext: () => void;
 }
-
-export default function WelcomeStep({ onNext }: WelcomeStepProps) {
+export default function WelcomeStep({
+  onNext
+}: WelcomeStepProps) {
   const navigate = useNavigate();
   const [showDataUsage, setShowDataUsage] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
-
   const handleSignIn = async () => {
     // Sign out first if there's an existing session
     await supabase.auth.signOut();
     navigate("/auth");
   };
-
-  return (
-    <>
+  return <>
       <Dialog open={showDataUsage} onOpenChange={setShowDataUsage}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -124,7 +121,7 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
         
         <div className="space-y-4">
           <h1 className="font-rounded text-[2.5rem] font-bold bg-gradient-to-r from-[#0E1012] to-[#12AFCB] bg-clip-text text-transparent leading-tight">
-            Welcome to <span className="text-[#12AFCB]">Eywa AI</span>
+            Welcome to <span className="text-[#12AFCB]">EYWA AI</span>
           </h1>
           <p className="font-rounded text-[1.125rem] font-medium text-[#0E1012] max-w-2xl mx-auto">
             Your AI-powered medical guidance companion
@@ -145,37 +142,24 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
       </div>
 
       <div className="space-y-4">
-        <button
-          onClick={onNext}
-          className="w-full h-14 rounded-3xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-rounded font-semibold text-[1.0625rem] shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-glow-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-standard"
-        >
+        <button onClick={onNext} className="w-full h-14 rounded-3xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-rounded font-semibold text-[1.0625rem] shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-glow-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-standard">
           Get Started
         </button>
         
         <div className="flex items-center justify-center gap-6 text-[0.875rem]">
-          <button 
-            onClick={handleSignIn}
-            className="text-[#12AFCB] hover:underline transition-colors font-medium"
-          >
+          <button onClick={handleSignIn} className="text-[#12AFCB] hover:underline transition-colors font-medium">
             Sign In
           </button>
           <span className="text-[#5A6B7F]">·</span>
-          <button 
-            onClick={() => setShowDataUsage(true)}
-            className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors"
-          >
+          <button onClick={() => setShowDataUsage(true)} className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors">
             How your data is used
           </button>
           <span className="text-[#5A6B7F]">·</span>
-          <button 
-            onClick={() => setShowTerms(true)}
-            className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors"
-          >
+          <button onClick={() => setShowTerms(true)} className="text-[#5A6B7F] hover:text-[#12AFCB] transition-colors">
             Terms
           </button>
         </div>
       </div>
     </div>
-    </>
-  );
+    </>;
 }
