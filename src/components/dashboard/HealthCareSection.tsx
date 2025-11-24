@@ -276,6 +276,42 @@ export default function HealthCareSection() {
     return nameMap[domain] || domain;
   };
 
+  // Mock data generators for when no real data exists
+  const getMockLabResults = () => {
+    const now = new Date();
+    return [
+      { test_code: "CBC", reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() },
+      { test_code: "CMP", reported_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString() },
+      { test_code: "Lipid Panel", reported_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString() },
+      { test_code: "HbA1c", reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() },
+      { test_code: "TSH", reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() },
+      { test_code: "Vitamin D", reported_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString() }
+    ];
+  };
+
+  const getMockBiomarkerScores = () => ({
+    cardio_resp: 78,
+    metabolic_lipids: 72,
+    inflammation_immunity: 85,
+    hormones: 68
+  });
+
+  const getMockUserProfile = () => ({
+    dob: "1990-05-15",
+    biological_age_estimate: 32.5,
+    first_name: "Demo",
+    last_name: "User"
+  });
+
+  // Determine if we're using mock data
+  const usingMockData = labResults.length === 0 && biomarkerScores.length === 0;
+  
+  // Use real data or fallback to mock
+  const displayLabResults = labResults.length > 0 ? labResults : getMockLabResults();
+  const displayDomainScores = Object.keys(domainScores).length > 0 ? domainScores : getMockBiomarkerScores();
+  const displayUserProfile = userProfile || getMockUserProfile();
+  const displayReviewer = latestReviewer || "Dr. Sarah Johnson, MD";
+
   const quickChecks = [
     {
       title: "Feeling Anxious?",
@@ -398,12 +434,18 @@ export default function HealthCareSection() {
       )}
 
       {/* My Results Card */}
-      {(labResults.length > 0 || biomarkerScores.length > 0) && (
-        <div className="rounded-3xl bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent backdrop-blur-xl border border-purple-500/20 p-8 shadow-[0_8px_40px_rgba(147,51,234,0.15)]">
-          <div className="flex items-start justify-between mb-6">
+      <div className="rounded-3xl bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent backdrop-blur-xl border border-purple-500/20 p-8 shadow-[0_8px_40px_rgba(147,51,234,0.15)]">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-3">
             <h3 className="font-rounded text-2xl font-bold text-foreground">
               My Results
             </h3>
+            {usingMockData && (
+              <span className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 text-xs font-rounded font-semibold">
+                Sample Data
+              </span>
+            )}
+          </div>
             <button 
               onClick={() => navigate("/doctor-hub")}
               className="text-sm text-accent-teal hover:text-accent-teal-alt transition-colors flex items-center gap-1"
@@ -413,10 +455,9 @@ export default function HealthCareSection() {
           </div>
 
           {/* Timeline of Recent Tests */}
-          {labResults.length > 0 && (
-            <div className="mb-6 overflow-x-auto pb-2">
-              <div className="flex gap-3 min-w-max">
-                {labResults.slice(0, 6).map((lab: any, idx: number) => (
+          <div className="mb-6 overflow-x-auto pb-2">
+            <div className="flex gap-3 min-w-max">
+              {displayLabResults.slice(0, 6).map((lab: any, idx: number) => (
                   <button
                     key={idx}
                     className={`px-4 py-2 rounded-xl border transition-all ${
@@ -432,129 +473,154 @@ export default function HealthCareSection() {
                       </span>
                     </div>
                   </button>
-                ))}
-              </div>
+              ))}
             </div>
-          )}
+          </div>
 
           {/* Test Report Metadata */}
-          {labResults.length > 0 && (
-            <div className="grid md:grid-cols-2 gap-4 mb-6 p-4 rounded-2xl bg-card/60 border border-border">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Age</span>
-                  <span className="text-sm font-rounded font-semibold text-foreground">
-                    {calculateBiologicalAgeDifference()?.chronologicalAge || 'N/A'} years old
+          <div className="grid md:grid-cols-2 gap-4 mb-6 p-4 rounded-2xl bg-card/60 border border-border">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Age</span>
+                <span className="text-sm font-rounded font-semibold text-foreground">
+                  {(() => {
+                    const ageData = calculateBiologicalAgeDifference();
+                    if (ageData) return `${ageData.chronologicalAge} years old`;
+                    const birthDate = new Date(displayUserProfile.dob);
+                    const age = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+                    return `${age} years old`;
+                  })()}
                   </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Report Type</span>
-                  <span className="text-sm font-rounded font-semibold text-foreground">
-                    Core Health Test
-                  </span>
-                </div>
-                {latestReviewer && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Reviewed by</span>
-                    <span className="text-sm font-rounded font-semibold text-foreground">
-                      {latestReviewer}
-                    </span>
-                  </div>
-                )}
               </div>
-              <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Report Type</span>
+                <span className="text-sm font-rounded font-semibold text-foreground">
+                  Core Health Test
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Reviewed by</span>
+                <span className="text-sm font-rounded font-semibold text-foreground">
+                  {displayReviewer}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {displayLabResults[0]?.collected_at && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Collection</span>
                   <span className="text-sm font-rounded font-semibold text-foreground">
-                    {format(new Date(labResults[0].collected_at || labResults[0].reported_at), "MMM d, h:mm a")}
+                    {format(new Date(displayLabResults[0].collected_at), "MMM d, h:mm a")}
                   </span>
                 </div>
+              )}
+              {displayLabResults[0]?.reported_at && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Result</span>
                   <span className="text-sm font-rounded font-semibold text-foreground">
-                    {format(new Date(labResults[0].reported_at), "MMM d, h:mm a")}
+                    {format(new Date(displayLabResults[0].reported_at), "MMM d, h:mm a")}
                   </span>
                 </div>
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
-          {/* Main Content Grid: Biomarker Summary and Biological Age */}
+          {/* Biomarker Summary and Biological Age */}
           <div className="grid md:grid-cols-2 gap-6">
             {/* Biomarker Summary */}
-            {biomarkerScores.length > 0 && (
-              <div className="p-6 rounded-2xl bg-card/80 border border-border">
-                <h4 className="font-rounded font-semibold text-foreground mb-4">
-                  Biomarker Summary
-                </h4>
-                
-                {/* Overall Status */}
-                <div className="mb-4 pb-4 border-b border-border">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`text-lg font-rounded font-bold ${getOverallHealthStatus().color}`}>
-                      {getOverallHealthStatus().status}
-                    </span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Based on latest biomarkers
+            <div className="p-6 rounded-2xl bg-card/60 border border-border">
+              <h4 className="font-rounded font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-purple-500" />
+                Biomarker Summary
+              </h4>
+              
+              <div className="mb-4 pb-4 border-b border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-lg font-rounded font-bold ${(() => {
+                    const scores = Object.values(displayDomainScores) as number[];
+                    if (scores.length === 0) return "text-muted-foreground";
+                    const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                    if (avgScore >= 80) return "text-green-600";
+                    if (avgScore >= 70) return "text-accent-teal";
+                    if (avgScore >= 60) return "text-yellow-600";
+                    return "text-red-600";
+                  })()}`}>
+                    {(() => {
+                      const scores = Object.values(displayDomainScores) as number[];
+                      if (scores.length === 0) return "No Data";
+                      const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                      if (avgScore >= 80) return "Excellent";
+                      if (avgScore >= 70) return "Within Range";
+                      if (avgScore >= 60) return "Needs Attention";
+                      return "Needs Improvement";
+                    })()}
                   </span>
                 </div>
-
-                {/* Health Domains */}
-                <div className="space-y-3">
-                  {['cardio_resp', 'metabolic_lipids', 'inflammation_immunity', 'hormones'].map((domain) => (
-                    domainScores[domain] && (
-                      <div key={domain} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{getDomainIcon(domain)}</span>
-                          <span className="text-sm font-rounded font-medium text-foreground">
-                            {getDomainName(domain)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-rounded font-bold text-accent-teal">
-                            {domainScores[domain]}%
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  ))}
-                </div>
+                <span className="text-sm text-muted-foreground">
+                  Based on latest biomarkers
+                </span>
               </div>
-            )}
+
+              <div className="space-y-3">
+                {Object.entries(displayDomainScores).map(([domain, score]: [string, any]) => (
+                  <div key={domain} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-500/5 to-transparent">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{getDomainIcon(domain)}</span>
+                      <span className="text-sm font-rounded font-medium text-foreground">
+                        {getDomainName(domain)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-rounded font-bold text-purple-500">
+                        {score}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Biological Age Card */}
-            {calculateBiologicalAgeDifference() && (
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border border-yellow-500/20">
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="text-3xl">🏅</span>
-                  <h4 className="font-rounded font-semibold text-foreground">
-                    Biological Age
-                  </h4>
-                </div>
-                
-                <div className="text-center mb-6">
-                  <div className="text-6xl font-rounded font-bold text-foreground mb-2">
-                    {calculateBiologicalAgeDifference()?.biologicalAge}
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Your biological age is{' '}
-                    <span className="font-semibold text-accent-teal">
-                      {Math.abs(calculateBiologicalAgeDifference()!.difference)} years{' '}
-                      {calculateBiologicalAgeDifference()!.isYounger ? 'younger' : 'older'}
-                    </span>
-                    {' '}than your chronological age
-                  </p>
-                </div>
-
-                <button className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-foreground font-rounded font-medium hover:shadow-[0_4px_20px_rgba(234,179,8,0.3)] transition-all">
-                  SHARE
-                </button>
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-3xl">🏅</div>
+                <h4 className="font-rounded font-semibold text-foreground">
+                  Biological Age
+                </h4>
               </div>
-            )}
+              
+              <div className="text-center mb-4">
+                <div className="text-5xl font-rounded font-bold text-foreground mb-2">
+                  {(() => {
+                    const ageData = calculateBiologicalAgeDifference();
+                    if (ageData) return ageData.biologicalAge;
+                    return Math.floor(displayUserProfile.biological_age_estimate);
+                  })()}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Your biological age is {(() => {
+                    const ageData = calculateBiologicalAgeDifference();
+                    if (ageData) return Math.abs(ageData.difference);
+                    const birthDate = new Date(displayUserProfile.dob);
+                    const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                    return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
+                  })()} years{' '}
+                  {(() => {
+                    const ageData = calculateBiologicalAgeDifference();
+                    if (ageData) return ageData.isYounger ? 'younger' : 'older';
+                    const birthDate = new Date(displayUserProfile.dob);
+                    const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                    return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
+                  })()} than your chronological age
+                </p>
+              </div>
+
+              <button className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-foreground font-rounded font-medium hover:shadow-[0_4px_20px_rgba(234,179,8,0.3)] transition-all text-sm">
+                SHARE
+              </button>
+            </div>
           </div>
         </div>
-      )}
 
       {/* Medical Overview Card */}
       {labSummary ? (
