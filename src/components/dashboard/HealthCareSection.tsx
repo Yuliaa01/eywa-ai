@@ -478,7 +478,7 @@ export default function HealthCareSection() {
           </div>
 
           {/* Test Report Metadata */}
-          <div className="space-y-3 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
             <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/5 to-transparent border border-purple-500/10">
               <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
                 <span className="text-lg">👤</span>
