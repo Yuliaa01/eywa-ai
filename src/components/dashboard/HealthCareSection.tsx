@@ -281,38 +281,92 @@ export default function HealthCareSection() {
     const now = new Date();
     return [
       { 
-        test_code: "CBC", 
-        test_name: "Complete Blood Count",
+        test_code: "Free T3", 
+        test_name: "Free T3",
+        value_num: "3.3",
+        units: "pg/mL",
+        reference_low: "2.0",
+        reference_high: "4.4",
         reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), 
         collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() 
       },
       { 
-        test_code: "CMP", 
-        test_name: "Comprehensive Metabolic Panel",
+        test_code: "Free T4", 
+        test_name: "Free T4",
+        value_num: "1.2",
+        units: "ng/dL",
+        reference_low: "0.8",
+        reference_high: "1.8",
+        reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "TPOAb", 
+        test_name: "TPOAb",
+        value_num: "20",
+        units: "IU/mL",
+        reference_low: "0",
+        reference_high: "34",
         reported_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), 
         collected_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString() 
       },
       { 
-        test_code: "LIPID", 
-        test_name: "Lipid Panel",
+        test_code: "TSH", 
+        test_name: "TSH",
+        value_num: "1.92",
+        units: "uIU/mL",
+        reference_low: "0.4",
+        reference_high: "4.0",
         reported_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString(), 
         collected_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString() 
       },
       { 
-        test_code: "HBA1C", 
-        test_name: "HbA1c Test",
+        test_code: "ApoB:ApoA1 Ratio", 
+        test_name: "ApoB:ApoA1 Ratio",
+        value_num: "0.88",
+        units: "",
+        reference_low: "0",
+        reference_high: "0.9",
         reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), 
         collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() 
       },
       { 
-        test_code: "TSH", 
-        test_name: "Thyroid Function",
+        test_code: "Triglycerides:HDL", 
+        test_name: "Triglycerides:HDL",
+        value_num: "1.08",
+        units: "",
+        reference_low: "0",
+        reference_high: "2.0",
+        reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "eGFR", 
+        test_name: "eGFR",
+        value_num: "105",
+        units: "mL/min/1.73 m2",
+        reference_low: "90",
+        reference_high: "120",
         reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), 
         collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() 
       },
       { 
-        test_code: "VITD", 
-        test_name: "Vitamin D Level",
+        test_code: "Creatinine", 
+        test_name: "Creatinine",
+        value_num: "0.68",
+        units: "mg/dL",
+        reference_low: "0.7",
+        reference_high: "1.3",
+        reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "ALT", 
+        test_name: "ALT",
+        value_num: "37",
+        units: "U/L",
+        reference_low: "7",
+        reference_high: "56",
         reported_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString(), 
         collected_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString() 
       }
@@ -708,33 +762,67 @@ export default function HealthCareSection() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 mb-6">
-            {labSummary.labs.slice(0, 4).map((lab: any, idx: number) => (
-              <div
-                key={idx}
-                className="p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/30 transition-all"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-rounded font-medium text-foreground">
-                    {lab.test_code}
-                  </span>
-                  <TestTube className="w-4 h-4 text-accent-teal" />
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-rounded font-bold text-foreground">
-                    {lab.value_num || lab.value_text}
-                  </span>
-                  {lab.units && (
-                    <span className="text-sm text-muted-foreground">{lab.units}</span>
-                  )}
-                </div>
-                {(lab.reference_low || lab.reference_high) && (
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    Reference: {lab.reference_low}-{lab.reference_high}
+          <div className="space-y-3">
+            {labSummary.labs.slice(0, 9).map((lab: any, idx: number) => {
+              // Map test codes to descriptions
+              const testDescriptions: Record<string, string> = {
+                'TSH': 'Metabolism regulator',
+                'Free T3': 'Active thyroid hormone',
+                'Free T4': 'Active thyroid hormone',
+                'TPOAb': 'Thyroid autoimmunity indicator',
+                'CBC': 'Complete blood health',
+                'CMP': 'Metabolic panel',
+                'LIPID': 'Cardiovascular risk indicator',
+                'HBA1C': 'Blood sugar control',
+                'VITD': 'Bone and immune health vitamin',
+                'ApoB:ApoA1 Ratio': 'Cardiovascular risk indicator',
+                'Triglycerides:HDL': 'Insulin resistance indicator',
+                'eGFR': 'Kidney function indicator',
+                'Creatinine': 'Kidney function indicator',
+                'ALT': 'Indicator of liver health'
+              };
+
+              // Determine status color based on reference ranges
+              const getStatusColor = () => {
+                if (!lab.value_num || !lab.reference_low || !lab.reference_high) return 'bg-blue-500';
+                const value = parseFloat(lab.value_num);
+                const low = parseFloat(lab.reference_low);
+                const high = parseFloat(lab.reference_high);
+                
+                if (value < low * 0.9 || value > high * 1.1) return 'bg-red-500';
+                if (value < low || value > high) return 'bg-orange-500';
+                return 'bg-green-500';
+              };
+
+              const description = testDescriptions[lab.test_code] || testDescriptions[lab.test_name] || 'Health indicator';
+
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all"
+                >
+                  <div className="flex-1">
+                    <div className="font-rounded font-semibold text-foreground">
+                      {lab.test_name || lab.test_code}
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-0.5">
+                      {description}
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <span className="text-lg font-rounded font-bold text-foreground">
+                        {lab.value_num || lab.value_text}
+                      </span>
+                      {lab.units && (
+                        <span className="text-sm text-muted-foreground ml-1">{lab.units}</span>
+                      )}
+                    </div>
+                    <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {biomarkerScores.length > 0 && (
