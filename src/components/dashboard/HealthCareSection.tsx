@@ -348,6 +348,10 @@ export default function HealthCareSection() {
   const displayUserProfile = userProfile || getMockUserProfile();
   const displayReviewer = latestReviewer || "Dr. Sarah Johnson, MD";
 
+  // Debug: Log the display data
+  console.log('displayLabResults:', displayLabResults);
+  console.log('displayLabResults length:', displayLabResults.length);
+
   const quickChecks = [
     {
       title: "Feeling Anxious?",
@@ -491,30 +495,36 @@ export default function HealthCareSection() {
           </div>
 
           {/* Timeline of Recent Tests */}
-          <div className="mb-6 overflow-x-auto pb-2">
-            <div className="flex gap-3 min-w-max">
-              {displayLabResults.slice(0, 6).map((lab: any, idx: number) => (
-                  <button
-                    key={idx}
-                    className={`px-4 py-3 rounded-xl border transition-all ${
-                      idx === 0 
-                        ? 'bg-accent-teal/10 border-accent-teal/30 text-accent-teal' 
-                        : 'bg-card/60 border-border text-muted-foreground hover:border-accent-teal/20'
-                    }`}
-                  >
-                    <div className="flex flex-col gap-1 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <TestTube className="w-4 h-4" />
-                        <span className="text-xs font-rounded font-semibold">
-                          {lab.test_name || lab.test_code}
+          <div className="mb-8">
+            <h4 className="font-rounded font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-accent-teal" />
+              Test Timeline ({displayLabResults.length} tests)
+            </h4>
+            <div className="overflow-x-auto pb-2">
+              <div className="flex gap-3 min-w-max">
+                {displayLabResults.slice(0, 6).map((lab: any, idx: number) => (
+                    <button
+                      key={idx}
+                      className={`px-4 py-3 rounded-xl border transition-all ${
+                        idx === 0 
+                          ? 'bg-accent-teal/10 border-accent-teal/30 text-accent-teal' 
+                          : 'bg-card/60 border-border text-muted-foreground hover:border-accent-teal/20'
+                      }`}
+                    >
+                      <div className="flex flex-col gap-1 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <TestTube className="w-4 h-4" />
+                          <span className="text-xs font-rounded font-semibold">
+                            {lab.test_name || lab.test_code}
+                          </span>
+                        </div>
+                        <span className="text-xs font-rounded font-medium opacity-80">
+                          {format(new Date(lab.reported_at), "MMM d, yyyy")}
                         </span>
                       </div>
-                      <span className="text-xs font-rounded font-medium opacity-80">
-                        {format(new Date(lab.reported_at), "MMM d, yyyy")}
-                      </span>
-                    </div>
-                  </button>
-              ))}
+                    </button>
+                ))}
+              </div>
             </div>
           </div>
 
