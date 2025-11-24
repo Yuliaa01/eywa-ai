@@ -1,4 +1,5 @@
 import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import stravaLogo from "@/assets/logos/strava.png";
 import appleLogo from "@/assets/logos/apple.png";
 import pelotonLogo from "@/assets/logos/peloton.png";
@@ -40,6 +41,8 @@ export default function ActivitiesSection() {
     const saved = localStorage.getItem('favoriteApps');
     return saved ? JSON.parse(saved) : {};
   });
+  const [selectedWorkoutType, setSelectedWorkoutType] = useState("Upper Body Strength");
+  const [selectedDuration, setSelectedDuration] = useState("45");
 
   const defaultWorkouts = [
     {
@@ -490,11 +493,24 @@ export default function ActivitiesSection() {
     });
   };
 
+  const workoutTypes = [
+    "Upper Body Strength",
+    "Lower Body Strength", 
+    "Full Body Strength",
+    "HIIT Cardio",
+    "Cardio Endurance",
+    "Core & Abs",
+    "Yoga & Flexibility",
+    "Recovery & Stretching"
+  ];
+
+  const durations = ["15", "30", "45", "60", "90"];
+
   const todaysPlan = {
     title: "Today's Workout",
-    type: "Upper Body Strength",
-    duration: "45 min",
-    calories: "320 kcal",
+    type: selectedWorkoutType,
+    duration: `${selectedDuration} min`,
+    calories: Math.round(parseInt(selectedDuration) * 7) + " kcal", // Rough estimate
     thumbnail: "/placeholder.svg",
   };
 
@@ -548,10 +564,37 @@ export default function ActivitiesSection() {
       {/* Today's Workout with Timer */}
       <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
         <div className="mb-6">
-          <h3 className="font-rounded text-2xl font-semibold text-[#0E1012] mb-2">
+          <h3 className="font-rounded text-2xl font-semibold text-[#0E1012] mb-4">
             {todaysPlan.title}
           </h3>
-          <p className="text-[#5A6B7F]">{todaysPlan.type}</p>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm text-[#5A6B7F] mb-1.5 block">Workout Type</label>
+              <Select value={selectedWorkoutType} onValueChange={setSelectedWorkoutType}>
+                <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {workoutTypes.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm text-[#5A6B7F] mb-1.5 block">Duration</label>
+              <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+                <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {durations.map((duration) => (
+                    <SelectItem key={duration} value={duration}>{duration} min</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         {!workoutActive && workoutSeconds === 0 ? (
@@ -559,15 +602,8 @@ export default function ActivitiesSection() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock className="w-4 h-4 text-[#12AFCB]" />
-                  <span className="text-sm text-[#5A6B7F]">Duration</span>
-                </div>
-                <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.duration}</p>
-              </div>
-              <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
-                <div className="flex items-center gap-2 mb-1">
                   <Zap className="w-4 h-4 text-[#12AFCB]" />
-                  <span className="text-sm text-[#5A6B7F]">Calories</span>
+                  <span className="text-sm text-[#5A6B7F]">Est. Calories</span>
                 </div>
                 <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.calories}</p>
               </div>
