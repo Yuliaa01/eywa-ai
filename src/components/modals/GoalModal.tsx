@@ -286,17 +286,20 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="goal-location">Location (optional)</Label>
-            <Input
-              id="goal-location"
-              value={formData.location_name}
-              onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
-              placeholder="e.g., Central Park, 24/7 Gym, Green Bowl Café"
-              aria-label="Location for this goal"
-              aria-autocomplete="list"
-            />
-          </div>
+          {/* Location field - shown for plan mode only */}
+          {mode === 'plan' && (
+            <div className="space-y-2">
+              <Label htmlFor="goal-location">Location (optional)</Label>
+              <Input
+                id="goal-location"
+                value={formData.location_name}
+                onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
+                placeholder="e.g., Central Park, 24/7 Gym, Green Bowl Café"
+                aria-label="Location for this goal"
+                aria-autocomplete="list"
+              />
+            </div>
+          )}
 
           {/* Date fields - shown for plan mode only */}
           {mode === 'plan' && (
@@ -321,20 +324,6 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
                   aria-label="Plan end date"
                 />
               </div>
-            </div>
-          )}
-
-          {/* Optional end date for global goals */}
-          {mode === 'global' && (
-            <div className="space-y-2">
-              <Label htmlFor="global-end-date">End Date (optional)</Label>
-              <Input
-                id="global-end-date"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                aria-label="Optional end date for global goal"
-              />
             </div>
           )}
 
