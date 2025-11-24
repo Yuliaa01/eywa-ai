@@ -298,7 +298,7 @@ export default function HealthCareSection() {
 
   const getMockUserProfile = () => ({
     dob: "1990-05-15",
-    biological_age_estimate: 32.5,
+    biological_age_estimate: 25,
     first_name: "Demo",
     last_name: "User"
   });
