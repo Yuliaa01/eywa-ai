@@ -792,7 +792,7 @@ export default function HealthCareSection() {
 
           <button onClick={() => navigate("/doctor-hub")} className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-semibold shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
             <Stethoscope className="w-5 h-5" />
-            View Full Report
+            DoctorHub
           </button>
         </div> : <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-accent-teal/10 flex items-center justify-center">
