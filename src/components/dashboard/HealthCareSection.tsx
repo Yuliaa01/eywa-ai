@@ -594,16 +594,16 @@ export default function HealthCareSection() {
             </div>
 
             {/* Biological Age Card */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="text-3xl">🏅</div>
-                <h4 className="font-rounded font-semibold text-foreground">
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="text-4xl">🏅</div>
+                <h4 className="font-rounded font-semibold text-foreground text-lg">
                   Biological Age
                 </h4>
               </div>
               
-              <div className="text-center mb-4">
-                <div className="text-5xl font-rounded font-bold text-foreground mb-2">
+              <div className="flex-1 flex flex-col justify-center text-center py-6">
+                <div className="text-6xl font-rounded font-bold text-foreground mb-4">
                   {(() => {
                     const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                     if (ageData) return ageData.biologicalAge;
@@ -615,25 +615,29 @@ export default function HealthCareSection() {
                     return Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
                   })()}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Your biological age is {(() => {
-                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                    if (ageData) return Math.abs(ageData.difference);
-                    const birthDate = new Date(displayUserProfile.dob);
-                    const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-                    return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
-                  })()} years{' '}
-                  {(() => {
-                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                    if (ageData) return ageData.isYounger ? 'younger' : 'older';
-                    const birthDate = new Date(displayUserProfile.dob);
-                    const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-                    return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
-                  })()} than your chronological age
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                  Your biological age is{' '}
+                  <span className="font-semibold text-foreground">
+                    {(() => {
+                      const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                      if (ageData) return Math.abs(ageData.difference);
+                      const birthDate = new Date(displayUserProfile.dob);
+                      const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                      return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
+                    })()} years{' '}
+                    {(() => {
+                      const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                      if (ageData) return ageData.isYounger ? 'younger' : 'older';
+                      const birthDate = new Date(displayUserProfile.dob);
+                      const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                      return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
+                    })()}
+                  </span>
+                  {' '}than your chronological age
                 </p>
               </div>
 
-              <button className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-foreground font-rounded font-medium hover:shadow-[0_4px_20px_rgba(234,179,8,0.3)] transition-all text-sm">
+              <button className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-foreground font-rounded font-medium hover:shadow-[0_4px_20px_rgba(234,179,8,0.3)] transition-all text-sm mt-6">
                 SHARE
               </button>
             </div>
