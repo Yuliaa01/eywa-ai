@@ -571,7 +571,7 @@ export default function NutritionSection() {
         />
 
         {/* Supplements */}
-        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[500px] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
             <button 
@@ -581,7 +581,7 @@ export default function NutritionSection() {
               <Plus className="w-4 h-4 text-[#12AFCB]" />
             </button>
           </div>
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto space-y-4">
             {activeSupplements.length === 0 ? (
               <p className="text-sm text-[#5A6B7F]">No supplements added yet. Click + to add.</p>
             ) : (
