@@ -195,7 +195,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   };
 
   return (
-    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[420px] flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
         <div className="flex items-center gap-2">
@@ -225,7 +225,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         </div>
       </div>
       
-      <div className="space-y-6">
+      <div className="space-y-6 flex-1 overflow-y-auto">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
