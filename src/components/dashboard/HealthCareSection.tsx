@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity, Plus, Calendar, TestTube, FileText, TrendingUp, Pill, Stethoscope } from "lucide-react";
+import { Heart, MessageCircle, AlertCircle, Sparkles, ChevronRight, Droplet, Moon, Activity, Plus, Calendar, TestTube, FileText, TrendingUp, Pill, Stethoscope, Info, ArrowUp, ArrowDown, CheckCircle2, XCircle } from "lucide-react";
 import { IssueModal } from "@/components/modals/IssueModal";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { useState, useEffect } from "react";
@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import ChatDrawer from "@/components/ChatDrawer";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -26,6 +28,7 @@ export default function HealthCareSection() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [domainScores, setDomainScores] = useState<any>({});
   const [latestReviewer, setLatestReviewer] = useState<string | null>(null);
+  const [expandedTestCategory, setExpandedTestCategory] = useState<string | null>(null);
   const {
     toast
   } = useToast();
@@ -258,6 +261,60 @@ export default function HealthCareSection() {
       hormones: "Hormonal"
     };
     return nameMap[domain] || domain;
+  };
+
+  // Get test category for a test
+  const getTestCategory = (testCode: string, testName: string) => {
+    const testKey = testName || testCode;
+    if (['TSH', 'Free T3', 'Free T4', 'TPOAb'].some(t => testKey.includes(t))) return 'Thyroid Function';
+    if (['ApoB:ApoA1 Ratio', 'Triglycerides:HDL', 'Apolipoprotein', 'HDL', 'LDL', 'Cholesterol', 'Triglycerides'].some(t => testKey.includes(t))) return 'Heart Health';
+    if (['eGFR', 'Creatinine'].some(t => testKey.includes(t))) return 'Kidney Function';
+    if (['ALT', 'AST'].some(t => testKey.includes(t))) return 'Liver Function';
+    return 'General Health';
+  };
+
+  // Generate historical trend data for a test
+  const getHistoricalTrend = (testCode: string, currentValue: number) => {
+    const trends: Record<string, number> = {
+      'Free T3': -3,
+      'Free T4': +2,
+      'TPOAb': -12,
+      'TSH': +5,
+      'ApoB:ApoA1 Ratio': -5,
+      'Triglycerides:HDL': -8,
+      'eGFR': +3,
+      'Creatinine': -2,
+      'ALT': +4
+    };
+    return trends[testCode] || 0;
+  };
+
+  // Get category tests with historical data
+  const getCategoryTests = (category: string) => {
+    const categoryTests = displayLabResults.filter((lab: any) => 
+      getTestCategory(lab.test_code, lab.test_name) === category
+    );
+
+    return categoryTests.map((lab: any) => ({
+      ...lab,
+      trend: getHistoricalTrend(lab.test_code, parseFloat(lab.value_num))
+    }));
+  };
+
+  // Get category status
+  const getCategoryStatus = (category: string) => {
+    const tests = getCategoryTests(category);
+    const abnormalCount = tests.filter((test: any) => {
+      if (!test.value_num || !test.reference_low || !test.reference_high) return false;
+      const value = parseFloat(test.value_num);
+      const low = parseFloat(test.reference_low);
+      const high = parseFloat(test.reference_high);
+      return value < low || value > high;
+    }).length;
+
+    if (abnormalCount === 0) return { message: `Your ${category} levels are in range.`, icon: CheckCircle2, color: 'text-green-500' };
+    if (abnormalCount <= tests.length / 3) return { message: `Some ${category} markers need attention.`, icon: AlertCircle, color: 'text-orange-500' };
+    return { message: `Multiple ${category} markers are out of range.`, icon: XCircle, color: 'text-red-500' };
   };
 
   // Mock data generators for when no real data exists
@@ -715,26 +772,136 @@ export default function HealthCareSection() {
             if (value < low || value > high) return 'bg-orange-500';
             return 'bg-green-500';
           };
+
+          const getStatusIcon = () => {
+            if (!lab.value_num || !lab.reference_low || !lab.reference_high) return CheckCircle2;
+            const value = parseFloat(lab.value_num);
+            const low = parseFloat(lab.reference_low);
+            const high = parseFloat(lab.reference_high);
+            if (value < low * 0.9 || value > high * 1.1) return XCircle;
+            if (value < low || value > high) return AlertCircle;
+            return CheckCircle2;
+          };
+
           const description = testDescriptions[lab.test_code] || testDescriptions[lab.test_name] || 'Health indicator';
-          return <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] my-[15px]">
-                  <div className="flex-1">
-                    <div className="font-rounded font-semibold text-foreground">
-                      {lab.test_name || lab.test_code}
+          const category = getTestCategory(lab.test_code, lab.test_name);
+          const isExpanded = expandedTestCategory === category;
+
+          return <Collapsible key={idx} open={isExpanded} onOpenChange={() => setExpandedTestCategory(isExpanded ? null : category)}>
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] my-[15px] cursor-pointer">
+                      <div className="flex-1 text-left">
+                        <div className="font-rounded font-semibold text-foreground">
+                          {lab.test_name || lab.test_code}
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-0.5">
+                          {description}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <span className="text-lg font-rounded font-bold text-foreground">
+                            {lab.value_num || lab.value_text}
+                          </span>
+                          {lab.units && <span className="text-sm text-muted-foreground ml-1">{lab.units}</span>}
+                        </div>
+                        <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-0.5">
-                      {description}
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent>
+                    <div className="mt-2 p-6 rounded-2xl bg-card/80 backdrop-blur-xl border border-accent-teal/20 shadow-lg">
+                      {/* Category Header */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center">
+                            <Activity className="w-5 h-5 text-accent-teal" />
+                          </div>
+                          <div>
+                            <h4 className="font-rounded font-bold text-xl text-foreground">{category}</h4>
+                            <div className={`flex items-center gap-2 mt-1 ${getCategoryStatus(category).color}`}>
+                              {(() => {
+                                const StatusIcon = getCategoryStatus(category).icon;
+                                return <StatusIcon className="w-4 h-4" />;
+                              })()}
+                              <span className="text-sm font-medium">{getCategoryStatus(category).message}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 rounded-lg bg-accent-teal/10 hover:bg-accent-teal/20 text-accent-teal font-rounded font-medium text-sm transition-colors">
+                          View History
+                        </button>
+                      </div>
+
+                      {/* Category Tests */}
+                      <div className="space-y-3">
+                        {getCategoryTests(category).map((test: any, testIdx: number) => {
+                          const StatusIcon = getStatusIcon();
+                          const statusColor = getStatusColor();
+                          const trendValue = test.trend;
+                          const isPositiveTrend = trendValue > 0;
+                          
+                          return (
+                            <div key={testIdx} className="flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border">
+                              <div className="flex items-center gap-3 flex-1">
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                  statusColor === 'bg-green-500' ? 'bg-green-500/10' :
+                                  statusColor === 'bg-orange-500' ? 'bg-orange-500/10' :
+                                  statusColor === 'bg-red-500' ? 'bg-red-500/10' : 'bg-blue-500/10'
+                                }`}>
+                                  <StatusIcon className={`w-4 h-4 ${
+                                    statusColor === 'bg-green-500' ? 'text-green-500' :
+                                    statusColor === 'bg-orange-500' ? 'text-orange-500' :
+                                    statusColor === 'bg-red-500' ? 'text-red-500' : 'text-blue-500'
+                                  }`} />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-rounded font-semibold text-foreground">
+                                    {test.test_name || test.test_code}
+                                  </div>
+                                  {test.reference_low && test.reference_high && (
+                                    <div className="text-xs text-muted-foreground mt-0.5">
+                                      Reference: {test.reference_low} - {test.reference_high} {test.units}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                  <div className="font-rounded font-bold text-foreground">
+                                    {test.value_num} <span className="text-sm text-muted-foreground">{test.units}</span>
+                                  </div>
+                                </div>
+                                <div className={`flex items-center gap-1 ${isPositiveTrend ? 'text-green-500' : 'text-red-500'}`}>
+                                  {isPositiveTrend ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+                                  <span className="text-sm font-rounded font-semibold">{Math.abs(trendValue)}%</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Detailed Explanation */}
+                      <div className="mt-6 p-4 rounded-xl bg-accent-teal/5 border border-accent-teal/10">
+                        <div className="flex items-start gap-2">
+                          <Info className="w-5 h-5 text-accent-teal flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <h5 className="font-rounded font-semibold text-foreground mb-2">About {category}</h5>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {category === 'Heart Health' && 'These biomarkers assess cardiovascular risk and lipid metabolism. Maintaining optimal ratios is crucial for long-term heart health.'}
+                              {category === 'Thyroid Function' && 'Thyroid hormones regulate metabolism, energy levels, and body temperature. These tests help identify potential thyroid disorders.'}
+                              {category === 'Kidney Function' && 'Kidney markers evaluate how well your kidneys filter waste and maintain fluid balance. Regular monitoring is important for overall health.'}
+                              {category === 'Liver Function' && 'Liver enzymes indicate liver health and help detect potential liver damage or disease. The liver plays a vital role in metabolism and detoxification.'}
+                              {category === 'General Health' && 'These general health markers provide insights into your overall wellness and help identify potential health concerns.'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <span className="text-lg font-rounded font-bold text-foreground">
-                        {lab.value_num || lab.value_text}
-                      </span>
-                      {lab.units && <span className="text-sm text-muted-foreground ml-1">{lab.units}</span>}
-                    </div>
-                    <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
-                  </div>
-                </div>;
+                  </CollapsibleContent>
+                </Collapsible>;
         })}
           </div>
 
