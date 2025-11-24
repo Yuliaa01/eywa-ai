@@ -29,9 +29,7 @@ const Hero = () => {
 
           {/* Main heading */}
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-            EYWA AI
-Your Personal 360° AI-driven health companion
-AI-driven Health Companion
+            EYWA AI Your Personal 360° AI-driven health companion Health Companion
 
 
 
