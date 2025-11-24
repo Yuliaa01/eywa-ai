@@ -478,11 +478,14 @@ export default function HealthCareSection() {
           </div>
 
           {/* Test Report Metadata */}
-          <div className="grid md:grid-cols-2 gap-4 mb-6 p-4 rounded-2xl bg-card/60 border border-border">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Age</span>
-                <span className="text-sm font-rounded font-semibold text-foreground">
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/5 to-transparent border border-purple-500/10">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-lg">👤</span>
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-muted-foreground mb-0.5">Patient Age</div>
+                <div className="text-sm font-rounded font-bold text-foreground">
                   {(() => {
                     const ageData = calculateBiologicalAgeDifference();
                     if (ageData) return `${ageData.chronologicalAge} years old`;
@@ -490,39 +493,43 @@ export default function HealthCareSection() {
                     const age = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
                     return `${age} years old`;
                   })()}
-                  </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Report Type</span>
-                <span className="text-sm font-rounded font-semibold text-foreground">
-                  Core Health Test
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Reviewed by</span>
-                <span className="text-sm font-rounded font-semibold text-foreground">
-                  {displayReviewer}
-                </span>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              {displayLabResults[0]?.collected_at && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Collection</span>
-                  <span className="text-sm font-rounded font-semibold text-foreground">
-                    {format(new Date(displayLabResults[0].collected_at), "MMM d, h:mm a")}
-                  </span>
-                </div>
-              )}
-              {displayLabResults[0]?.reported_at && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Result</span>
-                  <span className="text-sm font-rounded font-semibold text-foreground">
-                    {format(new Date(displayLabResults[0].reported_at), "MMM d, h:mm a")}
-                  </span>
-                </div>
-              )}
+
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/5 to-transparent border border-blue-500/10">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                <FileText className="w-5 h-5 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-muted-foreground mb-0.5">Report Type</div>
+                <div className="text-sm font-rounded font-bold text-foreground">Core Health Test</div>
+              </div>
             </div>
+
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10">
+              <div className="w-10 h-10 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
+                <Stethoscope className="w-5 h-5 text-accent-teal" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-muted-foreground mb-0.5">Reviewed By</div>
+                <div className="text-sm font-rounded font-bold text-foreground">{displayReviewer}</div>
+              </div>
+            </div>
+
+            {displayLabResults[0]?.reported_at && (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/10">
+                <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-5 h-5 text-green-500" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-muted-foreground mb-0.5">Result Date</div>
+                  <div className="text-sm font-rounded font-bold text-foreground">
+                    {format(new Date(displayLabResults[0].reported_at), "MMM d, yyyy 'at' h:mm a")}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Biomarker Summary and Biological Age */}
