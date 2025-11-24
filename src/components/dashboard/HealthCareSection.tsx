@@ -280,12 +280,42 @@ export default function HealthCareSection() {
   const getMockLabResults = () => {
     const now = new Date();
     return [
-      { test_code: "CBC", reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() },
-      { test_code: "CMP", reported_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString() },
-      { test_code: "Lipid Panel", reported_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString() },
-      { test_code: "HbA1c", reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() },
-      { test_code: "TSH", reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() },
-      { test_code: "Vitamin D", reported_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString(), collected_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString() }
+      { 
+        test_code: "CBC", 
+        test_name: "Complete Blood Count",
+        reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "CMP", 
+        test_name: "Comprehensive Metabolic Panel",
+        reported_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "LIPID", 
+        test_name: "Lipid Panel",
+        reported_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "HBA1C", 
+        test_name: "HbA1c Test",
+        reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "TSH", 
+        test_name: "Thyroid Function",
+        reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      { 
+        test_code: "VITD", 
+        test_name: "Vitamin D Level",
+        reported_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString(), 
+        collected_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString() 
+      }
     ];
   };
 
@@ -466,16 +496,21 @@ export default function HealthCareSection() {
               {displayLabResults.slice(0, 6).map((lab: any, idx: number) => (
                   <button
                     key={idx}
-                    className={`px-4 py-2 rounded-xl border transition-all ${
+                    className={`px-4 py-3 rounded-xl border transition-all ${
                       idx === 0 
                         ? 'bg-accent-teal/10 border-accent-teal/30 text-accent-teal' 
                         : 'bg-card/60 border-border text-muted-foreground hover:border-accent-teal/20'
                     }`}
                   >
-                    <div className="flex items-center gap-2 whitespace-nowrap">
-                      <TestTube className="w-4 h-4" />
-                      <span className="text-xs font-rounded font-medium">
-                        {format(new Date(lab.reported_at), "MMM d")}
+                    <div className="flex flex-col gap-1 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <TestTube className="w-4 h-4" />
+                        <span className="text-xs font-rounded font-semibold">
+                          {lab.test_name || lab.test_code}
+                        </span>
+                      </div>
+                      <span className="text-xs font-rounded font-medium opacity-80">
+                        {format(new Date(lab.reported_at), "MMM d, yyyy")}
                       </span>
                     </div>
                   </button>
