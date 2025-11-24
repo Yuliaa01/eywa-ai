@@ -44,6 +44,8 @@ export default function ActivitiesSection() {
   const [selectedWorkoutType, setSelectedWorkoutType] = useState("Upper Body Strength");
   const [selectedDifficulty, setSelectedDifficulty] = useState<"Beginner" | "Intermediate" | "Advanced">("Intermediate");
   const [selectedDuration, setSelectedDuration] = useState("45");
+  const [workoutMode, setWorkoutMode] = useState<"ai" | "custom">("ai");
+  const [selectedAISuggestion, setSelectedAISuggestion] = useState<number>(0);
 
   const defaultWorkouts = [
     {
@@ -458,10 +460,11 @@ export default function ActivitiesSection() {
 
       const { error } = await supabase.from("workout_plans").insert([{
         user_id: user.id,
-        block_name: todaysPlan.type,
+        block_name: currentWorkout.type,
         sessions: [{
           duration: workoutSeconds,
           completed_at: new Date().toISOString(),
+          ...(workoutMode === "custom" && { difficulty: selectedDifficulty }),
         }],
       }]);
 
@@ -469,7 +472,7 @@ export default function ActivitiesSection() {
 
       toast({
         title: "Workout saved",
-        description: `${todaysPlan.type} (${formatTime(workoutSeconds)}) has been saved.`,
+        description: `${currentWorkout.type} (${formatTime(workoutSeconds)}) has been saved.`,
       });
 
       setWorkoutActive(false);
@@ -555,6 +558,18 @@ export default function ActivitiesSection() {
       benefit: "Build aerobic base",
     },
   ];
+
+  const currentWorkout = workoutMode === "ai" 
+    ? {
+        type: aiSuggestions[selectedAISuggestion].type,
+        duration: aiSuggestions[selectedAISuggestion].duration,
+        benefit: aiSuggestions[selectedAISuggestion].benefit,
+      }
+    : {
+        type: selectedWorkoutType,
+        duration: `${selectedDuration} min`,
+        difficulty: selectedDifficulty,
+      };
 
   const localEvents = [
     {
@@ -867,66 +882,6 @@ export default function ActivitiesSection() {
         </div>
       </div>
 
-      {/* AI Movement Suggestions */}
-      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
-            </div>
-            <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">AI Suggestions</h3>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors">
-                <Plus className="w-4 h-4 text-[#12AFCB]" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => setWorkoutModalOpen(true)}>
-                <Activity className="w-4 h-4 mr-2" />
-                Add Workout
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleAddMovement}>
-                <Zap className="w-4 h-4 mr-2" />
-                Add Movement
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleBookSession}>
-                <Calendar className="w-4 h-4 mr-2" />
-                Book Session
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="space-y-3">
-          {aiSuggestions.map((suggestion) => (
-            <div
-              key={suggestion.type}
-              className="p-5 rounded-xl bg-white/80 border border-[#12AFCB]/10 hover:border-[#12AFCB]/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h4 className="font-rounded font-semibold text-[#0E1012] mb-1">
-                    {suggestion.type}
-                  </h4>
-                  <p className="text-sm text-[#5A6B7F]">{suggestion.benefit}</p>
-                </div>
-                <Activity className="w-5 h-5 text-[#12AFCB]" />
-              </div>
-              <div className="flex items-center gap-4 text-sm text-[#5A6B7F]">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {suggestion.duration}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {suggestion.time}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Local Events */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
