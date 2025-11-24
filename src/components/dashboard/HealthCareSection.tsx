@@ -20,6 +20,10 @@ export default function HealthCareSection() {
   const [supplements, setSupplements] = useState<any[]>([]);
   const [healthIssues, setHealthIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [specialtiesCount, setSpecialtiesCount] = useState(0);
+  const [testOrdersCount, setTestOrdersCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [testReminders, setTestReminders] = useState<any[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -214,7 +218,6 @@ export default function HealthCareSection() {
   ];
 
   const labSummary = getLatestLabSummary();
-  const testReminders = getTestReminders();
 
   if (loading) {
     return (
@@ -368,44 +371,38 @@ export default function HealthCareSection() {
             </div>
           )}
 
-          {/* Additional Health Indicators */}
+          {/* DoctorHub Information */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {/* Days Since Last Lab */}
+            {/* Available Specialties */}
             <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
               <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
-                {differenceInDays(new Date(), new Date(labSummary.date))}
+                {specialtiesCount}
               </div>
-              <div className="text-xs text-muted-foreground">Days Since<br/>Last Lab</div>
+              <div className="text-xs text-muted-foreground">Available<br/>Specialties</div>
             </div>
 
-            {/* Active Issues */}
+            {/* Pending Test Orders */}
+            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
+              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
+                {testOrdersCount}
+              </div>
+              <div className="text-xs text-muted-foreground">Pending<br/>Test Orders</div>
+            </div>
+
+            {/* Unread Messages */}
+            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
+              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
+                {unreadMessagesCount}
+              </div>
+              <div className="text-xs text-muted-foreground">Unread<br/>Messages</div>
+            </div>
+
+            {/* Active Health Issues */}
             <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
               <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
                 {healthIssues.length}
               </div>
               <div className="text-xs text-muted-foreground">Active<br/>Health Issues</div>
-            </div>
-
-            {/* Supplements */}
-            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Pill className="w-5 h-5 text-accent-teal" />
-              </div>
-              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
-                {supplements.length}
-              </div>
-              <div className="text-xs text-muted-foreground">Active<br/>Supplements</div>
-            </div>
-
-            {/* Recent Vitals */}
-            <div className="p-4 rounded-2xl bg-card/60 border border-border text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Activity className="w-5 h-5 text-accent-teal" />
-              </div>
-              <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
-                {vitals.length}
-              </div>
-              <div className="text-xs text-muted-foreground">Recent<br/>Vitals</div>
             </div>
           </div>
 
