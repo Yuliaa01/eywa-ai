@@ -1,4 +1,4 @@
-import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star } from "lucide-react";
+import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star, Pause, Square, Check } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import stravaLogo from "@/assets/logos/strava.png";
 import appleLogo from "@/assets/logos/apple.png";
@@ -14,7 +14,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Pause, Square } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -594,49 +593,114 @@ export default function ActivitiesSection() {
       <div className="rounded-3xl bg-gradient-to-br from-[#12AFCB]/10 to-[#19D0E4]/5 backdrop-blur-xl border border-[#12AFCB]/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
         <div className="mb-6">
           <h3 className="font-rounded text-2xl font-semibold text-[#0E1012] mb-4">
-            {todaysPlan.title}
+            Today's Workout
           </h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm text-[#5A6B7F] mb-1.5 block">Workout Type</label>
-              <Select value={selectedWorkoutType} onValueChange={setSelectedWorkoutType}>
-                <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {workoutTypes.map((type) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm text-[#5A6B7F] mb-1.5 block">Difficulty</label>
-              <Select value={selectedDifficulty} onValueChange={(value: "Beginner" | "Intermediate" | "Advanced") => setSelectedDifficulty(value)}>
-                <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Beginner">Beginner</SelectItem>
-                  <SelectItem value="Intermediate">Intermediate</SelectItem>
-                  <SelectItem value="Advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm text-[#5A6B7F] mb-1.5 block">Duration</label>
-              <Select value={selectedDuration} onValueChange={setSelectedDuration}>
-                <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {durations.map((duration) => (
-                    <SelectItem key={duration} value={duration}>{duration} min</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          
+          {/* Mode Toggle */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setWorkoutMode("ai")}
+              className={`flex-1 py-2.5 px-4 rounded-xl font-rounded font-medium transition-all ${
+                workoutMode === "ai"
+                  ? "bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white shadow-[0_4px_12px_rgba(18,175,203,0.2)]"
+                  : "bg-white/60 text-[#5A6B7F] hover:bg-white/80"
+              }`}
+            >
+              AI Suggestions
+            </button>
+            <button
+              onClick={() => setWorkoutMode("custom")}
+              className={`flex-1 py-2.5 px-4 rounded-xl font-rounded font-medium transition-all ${
+                workoutMode === "custom"
+                  ? "bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white shadow-[0_4px_12px_rgba(18,175,203,0.2)]"
+                  : "bg-white/60 text-[#5A6B7F] hover:bg-white/80"
+              }`}
+            >
+              Custom Workout
+            </button>
           </div>
+
+          {/* AI Suggestions Mode */}
+          {workoutMode === "ai" && (
+            <div className="space-y-3">
+              {aiSuggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion.type}
+                  onClick={() => setSelectedAISuggestion(index)}
+                  className={`w-full p-4 rounded-xl text-left transition-all ${
+                    selectedAISuggestion === index
+                      ? "bg-white border-2 border-[#12AFCB] shadow-[0_4px_16px_rgba(18,175,203,0.15)]"
+                      : "bg-white/60 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:bg-white/80"
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-rounded font-semibold text-[#0E1012]">
+                          {suggestion.type}
+                        </h4>
+                        {selectedAISuggestion === index && (
+                          <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm text-[#5A6B7F]">{suggestion.benefit}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-[#5A6B7F]">
+                    <Clock className="w-4 h-4" />
+                    {suggestion.duration}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Custom Workout Mode */}
+          {workoutMode === "custom" && (
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm text-[#5A6B7F] mb-1.5 block">Workout Type</label>
+                <Select value={selectedWorkoutType} onValueChange={setSelectedWorkoutType}>
+                  <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workoutTypes.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm text-[#5A6B7F] mb-1.5 block">Difficulty</label>
+                <Select value={selectedDifficulty} onValueChange={(value: "Beginner" | "Intermediate" | "Advanced") => setSelectedDifficulty(value)}>
+                  <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Beginner">Beginner</SelectItem>
+                    <SelectItem value="Intermediate">Intermediate</SelectItem>
+                    <SelectItem value="Advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm text-[#5A6B7F] mb-1.5 block">Duration</label>
+                <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+                  <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {durations.map((duration) => (
+                      <SelectItem key={duration} value={duration}>{duration} min</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
         </div>
 
         {!workoutActive && workoutSeconds === 0 ? (
@@ -686,7 +750,7 @@ export default function ActivitiesSection() {
                 {formatTime(workoutSeconds)}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {todaysPlan.type} in progress
+                {currentWorkout.type} in progress
               </p>
             </div>
 
