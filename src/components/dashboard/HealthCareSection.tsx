@@ -296,12 +296,18 @@ export default function HealthCareSection() {
     hormones: 68
   });
 
-  const getMockUserProfile = () => ({
-    dob: "1990-05-15",
-    biological_age_estimate: 25,
-    first_name: "Demo",
-    last_name: "User"
-  });
+  const getMockUserProfile = () => {
+    const dob = "1990-05-15";
+    const birthDate = new Date(dob);
+    const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    
+    return {
+      dob,
+      biological_age_estimate: chronologicalAge - 8, // AI-analyzed: 8 years younger than chronological age
+      first_name: "Demo",
+      last_name: "User"
+    };
+  };
 
   // Determine if we're using mock data
   const usingMockData = labResults.length === 0 && biomarkerScores.length === 0;
@@ -601,7 +607,12 @@ export default function HealthCareSection() {
                   {(() => {
                     const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                     if (ageData) return ageData.biologicalAge;
-                    return Math.floor(displayUserProfile.biological_age_estimate);
+                    if (displayUserProfile.biological_age_estimate) {
+                      return Math.floor(displayUserProfile.biological_age_estimate);
+                    }
+                    // Fallback to chronological age if no biological age estimate
+                    const birthDate = new Date(displayUserProfile.dob);
+                    return Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
                   })()}
                 </div>
                 <p className="text-sm text-muted-foreground">
