@@ -29,12 +29,9 @@ const Hero = () => {
 
           {/* Main heading */}
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-center">
-            
-Your Personal 360° AI-driven health companion
-AI-driven Health Companion
-
-            <span className="block bg-gradient-primary bg-clip-text text-transparent mt-2">
-              AI-driven Health Companion
+            EYWA AI
+            <span className="block mt-2">
+              Your Personal 360° AI-driven health companion
             </span>
           </h1>
 
