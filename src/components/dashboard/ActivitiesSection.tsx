@@ -42,6 +42,7 @@ export default function ActivitiesSection() {
     return saved ? JSON.parse(saved) : {};
   });
   const [selectedWorkoutType, setSelectedWorkoutType] = useState("Upper Body Strength");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<"Beginner" | "Intermediate" | "Advanced">("Intermediate");
   const [selectedDuration, setSelectedDuration] = useState("45");
 
   const defaultWorkouts = [
@@ -504,13 +505,26 @@ export default function ActivitiesSection() {
     "Recovery & Stretching"
   ];
 
-  const durations = ["15", "30", "45", "60", "90"];
+  const difficultyDurations = {
+    Beginner: ["15", "30", "45"],
+    Intermediate: ["30", "45", "60"],
+    Advanced: ["45", "60", "90"]
+  };
+
+  const durations = difficultyDurations[selectedDifficulty];
+
+  // Update duration when difficulty changes if current duration is not available
+  useEffect(() => {
+    if (!durations.includes(selectedDuration)) {
+      setSelectedDuration(durations[1]); // Set to middle option
+    }
+  }, [selectedDifficulty]);
 
   const todaysPlan = {
     title: "Today's Workout",
     type: selectedWorkoutType,
     duration: `${selectedDuration} min`,
-    calories: Math.round(parseInt(selectedDuration) * 7) + " kcal", // Rough estimate
+    difficulty: selectedDifficulty,
     thumbnail: "/placeholder.svg",
   };
 
@@ -582,6 +596,19 @@ export default function ActivitiesSection() {
               </Select>
             </div>
             <div>
+              <label className="text-sm text-[#5A6B7F] mb-1.5 block">Difficulty</label>
+              <Select value={selectedDifficulty} onValueChange={(value: "Beginner" | "Intermediate" | "Advanced") => setSelectedDifficulty(value)}>
+                <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Beginner">Beginner</SelectItem>
+                  <SelectItem value="Intermediate">Intermediate</SelectItem>
+                  <SelectItem value="Advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <label className="text-sm text-[#5A6B7F] mb-1.5 block">Duration</label>
               <Select value={selectedDuration} onValueChange={setSelectedDuration}>
                 <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
@@ -599,15 +626,6 @@ export default function ActivitiesSection() {
 
         {!workoutActive && workoutSeconds === 0 ? (
           <>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10">
-                <div className="flex items-center gap-2 mb-1">
-                  <Zap className="w-4 h-4 text-[#12AFCB]" />
-                  <span className="text-sm text-[#5A6B7F]">Est. Calories</span>
-                </div>
-                <p className="font-rounded font-semibold text-[#0E1012]">{todaysPlan.calories}</p>
-              </div>
-            </div>
 
             <button 
               onClick={handleStartWorkout}
