@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import ChatDrawer from "@/components/ChatDrawer";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
-
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -27,122 +26,108 @@ export default function HealthCareSection() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [domainScores, setDomainScores] = useState<any>({});
   const [latestReviewer, setLatestReviewer] = useState<string | null>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     loadHealthData();
 
     // Subscribe to uploaded_files changes for real-time updates
-    const channel = supabase
-      .channel('uploaded_files_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'uploaded_files',
-          filter: `status=eq.parsed`
-        },
-        () => {
-          console.log('File parsed, refreshing health data...');
-          loadHealthData();
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel('uploaded_files_changes').on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'uploaded_files',
+      filter: `status=eq.parsed`
+    }, () => {
+      console.log('File parsed, refreshing health data...');
+      loadHealthData();
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-
   const loadHealthData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       // Fetch lab results
-      const { data: labs } = await supabase
-        .from("lab_results")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("reported_at", { ascending: false })
-        .limit(10);
+      const {
+        data: labs
+      } = await supabase.from("lab_results").select("*").eq("user_id", user.id).order("reported_at", {
+        ascending: false
+      }).limit(10);
 
       // Fetch biomarker scores
-      const { data: biomarkers } = await supabase
-        .from("biomarker_scores")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(5);
+      const {
+        data: biomarkers
+      } = await supabase.from("biomarker_scores").select("*").eq("user_id", user.id).order("created_at", {
+        ascending: false
+      }).limit(5);
 
       // Fetch test orders
-      const { data: orders } = await supabase
-        .from("user_test_orders")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const {
+        data: orders
+      } = await supabase.from("user_test_orders").select("*").eq("user_id", user.id).order("created_at", {
+        ascending: false
+      });
 
       // Fetch latest AI feedback
-      const { data: feedback } = await supabase
-        .from("ai_feedback_unified")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("generated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const {
+        data: feedback
+      } = await supabase.from("ai_feedback_unified").select("*").eq("user_id", user.id).order("generated_at", {
+        ascending: false
+      }).limit(1).maybeSingle();
 
       // Fetch recent vitals
-      const { data: vitalData } = await supabase
-        .from("vitals_stream")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("recorded_at", { ascending: false })
-        .limit(5);
+      const {
+        data: vitalData
+      } = await supabase.from("vitals_stream").select("*").eq("user_id", user.id).order("recorded_at", {
+        ascending: false
+      }).limit(5);
 
       // Fetch supplements
-      const { data: supplementData } = await supabase
-        .from("supplements")
-        .select("*")
-        .eq("user_id", user.id)
-        .is("deleted_at", null);
+      const {
+        data: supplementData
+      } = await supabase.from("supplements").select("*").eq("user_id", user.id).is("deleted_at", null);
 
       // Fetch active health issues
-      const { data: issuesData } = await supabase
-        .from("health_issues")
-        .select("*")
-        .eq("user_id", user.id)
-        .is("resolved_at", null);
+      const {
+        data: issuesData
+      } = await supabase.from("health_issues").select("*").eq("user_id", user.id).is("resolved_at", null);
 
       // Fetch user profile for age calculation
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      const {
+        data: profile
+      } = await supabase.from("user_profiles").select("*").eq("user_id", user.id).maybeSingle();
 
       // Fetch doctor reviews for reviewer info
-      const { data: reviews } = await supabase
-        .from("doctor_reviews")
-        .select("*, doctors(name)")
-        .eq("user_id", user.id)
-        .order("generated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const {
+        data: reviews
+      } = await supabase.from("doctor_reviews").select("*, doctors(name)").eq("user_id", user.id).order("generated_at", {
+        ascending: false
+      }).limit(1).maybeSingle();
 
       // Fetch specialties count
-      const { count: specialties } = await supabase
-        .from("doctors")
-        .select("*", { count: 'exact', head: true })
-        .eq("active", true);
+      const {
+        count: specialties
+      } = await supabase.from("doctors").select("*", {
+        count: 'exact',
+        head: true
+      }).eq("active", true);
 
       // Fetch pending test orders count
-      const { count: pendingTests } = await supabase
-        .from("user_test_orders")
-        .select("*", { count: 'exact', head: true })
-        .eq("user_id", user.id)
-        .eq("status", "ordered");
+      const {
+        count: pendingTests
+      } = await supabase.from("user_test_orders").select("*", {
+        count: 'exact',
+        head: true
+      }).eq("user_id", user.id).eq("status", "ordered");
 
       // Process biomarker scores by domain
       const scoresByDomain: any = {};
@@ -151,7 +136,6 @@ export default function HealthCareSection() {
           scoresByDomain[score.domain] = score.score;
         });
       }
-
       setLabResults(labs || []);
       setBiomarkerScores(biomarkers || []);
       setTestOrders(orders || []);
@@ -171,10 +155,9 @@ export default function HealthCareSection() {
       setLoading(false);
     }
   };
-
   const getTestReminders = () => {
     const reminders: any[] = [];
-    
+
     // Check for pending test orders
     testOrders.filter(order => order.status === 'ordered' || order.status === 'pending').forEach(order => {
       reminders.push({
@@ -187,11 +170,10 @@ export default function HealthCareSection() {
 
     // Check for overdue tests based on last lab results
     const now = new Date();
-    
     labResults.forEach(lab => {
       const daysSinceTest = differenceInDays(now, new Date(lab.reported_at));
       let dueInDays = null;
-      
+
       // Basic cadence estimates (can be enhanced with tests_catalog)
       if (lab.test_code.includes('HbA1c') && daysSinceTest > 90) {
         dueInDays = 180 - daysSinceTest;
@@ -200,7 +182,6 @@ export default function HealthCareSection() {
       } else if (lab.test_code.includes('CBC') && daysSinceTest > 180) {
         dueInDays = 365 - daysSinceTest;
       }
-      
       if (dueInDays !== null && !reminders.some(r => r.testCode === lab.test_code)) {
         reminders.push({
           type: 'recheck_due',
@@ -210,32 +191,25 @@ export default function HealthCareSection() {
         });
       }
     });
-
     return reminders;
   };
-
   const getLatestLabSummary = () => {
     if (labResults.length === 0) return null;
-    
     const recentLabs = labResults.slice(0, 5);
     const latestDate = labResults[0]?.reported_at;
-    
     return {
       date: latestDate,
       count: recentLabs.length,
       labs: recentLabs
     };
   };
-
   const calculateBiologicalAgeDifference = (profile: any) => {
     if (!profile?.dob || !profile?.biological_age_estimate) return null;
-    
     const birthDate = new Date(profile.dob);
     const today = new Date();
     const chronologicalAge = differenceInDays(today, birthDate) / 365.25;
     const biologicalAge = profile.biological_age_estimate;
     const difference = chronologicalAge - biologicalAge;
-    
     return {
       chronologicalAge: Math.floor(chronologicalAge),
       biologicalAge: Math.floor(biologicalAge),
@@ -243,19 +217,30 @@ export default function HealthCareSection() {
       isYounger: difference > 0
     };
   };
-
   const getOverallHealthStatus = () => {
     const scores = Object.values(domainScores) as number[];
-    if (scores.length === 0) return { status: "No Data", color: "text-muted-foreground" };
-    
+    if (scores.length === 0) return {
+      status: "No Data",
+      color: "text-muted-foreground"
+    };
     const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    
-    if (avgScore >= 80) return { status: "Excellent", color: "text-green-600" };
-    if (avgScore >= 70) return { status: "Within Range", color: "text-accent-teal" };
-    if (avgScore >= 60) return { status: "Needs Attention", color: "text-yellow-600" };
-    return { status: "Needs Improvement", color: "text-red-600" };
+    if (avgScore >= 80) return {
+      status: "Excellent",
+      color: "text-green-600"
+    };
+    if (avgScore >= 70) return {
+      status: "Within Range",
+      color: "text-accent-teal"
+    };
+    if (avgScore >= 60) return {
+      status: "Needs Attention",
+      color: "text-yellow-600"
+    };
+    return {
+      status: "Needs Improvement",
+      color: "text-red-600"
+    };
   };
-
   const getDomainIcon = (domain: string) => {
     const iconMap: any = {
       cardio_resp: "❤️",
@@ -265,7 +250,6 @@ export default function HealthCareSection() {
     };
     return iconMap[domain] || "📊";
   };
-
   const getDomainName = (domain: string) => {
     const nameMap: any = {
       cardio_resp: "Heart Health",
@@ -279,115 +263,103 @@ export default function HealthCareSection() {
   // Mock data generators for when no real data exists
   const getMockLabResults = () => {
     const now = new Date();
-    return [
-      { 
-        test_code: "Free T3", 
-        test_name: "Free T3",
-        value_num: "3.3",
-        units: "pg/mL",
-        reference_low: "2.0",
-        reference_high: "4.4",
-        reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "Free T4", 
-        test_name: "Free T4",
-        value_num: "1.2",
-        units: "ng/dL",
-        reference_low: "0.8",
-        reference_high: "1.8",
-        reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "TPOAb", 
-        test_name: "TPOAb",
-        value_num: "20",
-        units: "IU/mL",
-        reference_low: "0",
-        reference_high: "34",
-        reported_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "TSH", 
-        test_name: "TSH",
-        value_num: "1.92",
-        units: "uIU/mL",
-        reference_low: "0.4",
-        reference_high: "4.0",
-        reported_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "ApoB:ApoA1 Ratio", 
-        test_name: "ApoB:ApoA1 Ratio",
-        value_num: "0.88",
-        units: "",
-        reference_low: "0",
-        reference_high: "0.9",
-        reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "Triglycerides:HDL", 
-        test_name: "Triglycerides:HDL",
-        value_num: "1.08",
-        units: "",
-        reference_low: "0",
-        reference_high: "2.0",
-        reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "eGFR", 
-        test_name: "eGFR",
-        value_num: "105",
-        units: "mL/min/1.73 m2",
-        reference_low: "90",
-        reference_high: "120",
-        reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "Creatinine", 
-        test_name: "Creatinine",
-        value_num: "0.68",
-        units: "mg/dL",
-        reference_low: "0.7",
-        reference_high: "1.3",
-        reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString() 
-      },
-      { 
-        test_code: "ALT", 
-        test_name: "ALT",
-        value_num: "37",
-        units: "U/L",
-        reference_low: "7",
-        reference_high: "56",
-        reported_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString(), 
-        collected_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString() 
-      }
-    ];
+    return [{
+      test_code: "Free T3",
+      test_name: "Free T3",
+      value_num: "3.3",
+      units: "pg/mL",
+      reference_low: "2.0",
+      reference_high: "4.4",
+      reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "Free T4",
+      test_name: "Free T4",
+      value_num: "1.2",
+      units: "ng/dL",
+      reference_low: "0.8",
+      reference_high: "1.8",
+      reported_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "TPOAb",
+      test_name: "TPOAb",
+      value_num: "20",
+      units: "IU/mL",
+      reference_low: "0",
+      reference_high: "34",
+      reported_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "TSH",
+      test_name: "TSH",
+      value_num: "1.92",
+      units: "uIU/mL",
+      reference_low: "0.4",
+      reference_high: "4.0",
+      reported_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 62 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "ApoB:ApoA1 Ratio",
+      test_name: "ApoB:ApoA1 Ratio",
+      value_num: "0.88",
+      units: "",
+      reference_low: "0",
+      reference_high: "0.9",
+      reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "Triglycerides:HDL",
+      test_name: "Triglycerides:HDL",
+      value_num: "1.08",
+      units: "",
+      reference_low: "0",
+      reference_high: "2.0",
+      reported_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 110 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "eGFR",
+      test_name: "eGFR",
+      value_num: "105",
+      units: "mL/min/1.73 m2",
+      reference_low: "90",
+      reference_high: "120",
+      reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "Creatinine",
+      test_name: "Creatinine",
+      value_num: "0.68",
+      units: "mg/dL",
+      reference_low: "0.7",
+      reference_high: "1.3",
+      reported_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 145 * 24 * 60 * 60 * 1000).toISOString()
+    }, {
+      test_code: "ALT",
+      test_name: "ALT",
+      value_num: "37",
+      units: "U/L",
+      reference_low: "7",
+      reference_high: "56",
+      reported_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString(),
+      collected_at: new Date(now.getTime() - 189 * 24 * 60 * 60 * 1000).toISOString()
+    }];
   };
-
   const getMockBiomarkerScores = () => ({
     cardio_resp: 78,
     metabolic_lipids: 72,
     inflammation_immunity: 85,
     hormones: 68
   });
-
   const getMockUserProfile = () => {
     const dob = "1990-05-15";
     const birthDate = new Date(dob);
     const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-    
     return {
       dob,
-      biological_age_estimate: chronologicalAge - 8, // AI-analyzed: 8 years younger than chronological age
+      biological_age_estimate: chronologicalAge - 8,
+      // AI-analyzed: 8 years younger than chronological age
       first_name: "Demo",
       last_name: "User"
     };
@@ -395,7 +367,7 @@ export default function HealthCareSection() {
 
   // Determine if we're using mock data
   const usingMockData = labResults.length === 0 && biomarkerScores.length === 0;
-  
+
   // Use real data or fallback to mock
   const displayLabResults = labResults.length > 0 ? labResults : getMockLabResults();
   const displayDomainScores = Object.keys(domainScores).length > 0 ? domainScores : getMockBiomarkerScores();
@@ -405,60 +377,44 @@ export default function HealthCareSection() {
   // Debug: Log the display data
   console.log('displayLabResults:', displayLabResults);
   console.log('displayLabResults length:', displayLabResults.length);
-
-  const quickChecks = [
-    {
-      title: "Feeling Anxious?",
-      description: "Quick self-assessment",
-      icon: AlertCircle,
-      color: "#12AFCB",
-    },
-    {
-      title: "Body Discomfort?",
-      description: "Log symptoms",
-      icon: Activity,
-      color: "#19D0E4",
-    },
-  ];
-
-  const tipCards = [
-    {
-      title: "Hydration Low Today",
-      description: "You've had 1.2L. Goal is 2.5L.",
-      icon: Droplet,
-      action: "Log Water",
-    },
-    {
-      title: "Try 10-Min Meditation",
-      description: "Your HRV suggests you could benefit from relaxation.",
-      icon: Moon,
-      action: "Start Session",
-    },
-    {
-      title: "Schedule Recovery Day",
-      description: "You've trained 6 days straight. Consider active recovery.",
-      icon: Heart,
-      action: "View Plan",
-    },
-  ];
-
+  const quickChecks = [{
+    title: "Feeling Anxious?",
+    description: "Quick self-assessment",
+    icon: AlertCircle,
+    color: "#12AFCB"
+  }, {
+    title: "Body Discomfort?",
+    description: "Log symptoms",
+    icon: Activity,
+    color: "#19D0E4"
+  }];
+  const tipCards = [{
+    title: "Hydration Low Today",
+    description: "You've had 1.2L. Goal is 2.5L.",
+    icon: Droplet,
+    action: "Log Water"
+  }, {
+    title: "Try 10-Min Meditation",
+    description: "Your HRV suggests you could benefit from relaxation.",
+    icon: Moon,
+    action: "Start Session"
+  }, {
+    title: "Schedule Recovery Day",
+    description: "You've trained 6 days straight. Consider active recovery.",
+    icon: Heart,
+    action: "View Plan"
+  }];
   const labSummary = getLatestLabSummary();
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
+    return <div className="flex items-center justify-center py-12">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 flex items-center justify-center animate-glow-pulse">
           <Activity className="w-6 h-6 text-accent-teal animate-spin" />
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* AI Analysis Summary */}
-      {aiFeedback && (
-        <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 via-accent-teal-alt/5 to-transparent backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_8px_40px_rgba(18,175,203,0.15)]">
+      {aiFeedback && <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 via-accent-teal-alt/5 to-transparent backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_8px_40px_rgba(18,175,203,0.15)]">
           <div className="flex items-start gap-4 mb-6">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center animate-glow-pulse flex-shrink-0">
               <Sparkles className="w-7 h-7 text-white" />
@@ -479,8 +435,7 @@ export default function HealthCareSection() {
           </div>
 
           {/* Summary */}
-          {aiFeedback.summary_md && (
-            <div className="p-6 rounded-2xl bg-card/80 border border-border mb-6">
+          {aiFeedback.summary_md && <div className="p-6 rounded-2xl bg-card/80 border border-border mb-6">
               <h4 className="font-rounded font-semibold text-foreground mb-3 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-accent-teal" />
                 Medical Summary
@@ -488,44 +443,31 @@ export default function HealthCareSection() {
               <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                 {aiFeedback.summary_md}
               </p>
-            </div>
-          )}
+            </div>}
 
           {/* AI Recommendations */}
-          {aiFeedback.next_best_actions && (
-            <div className="p-6 rounded-2xl bg-card/80 border border-border">
+          {aiFeedback.next_best_actions && <div className="p-6 rounded-2xl bg-card/80 border border-border">
               <h4 className="font-rounded font-semibold text-foreground mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-accent-teal" />
                 Recommended Actions
               </h4>
               <div className="space-y-3">
-                {typeof aiFeedback.next_best_actions === 'string' 
-                  ? JSON.parse(aiFeedback.next_best_actions).map((action: string, idx: number) => (
-                      <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10 hover:border-accent-teal/20 transition-all">
+                {typeof aiFeedback.next_best_actions === 'string' ? JSON.parse(aiFeedback.next_best_actions).map((action: string, idx: number) => <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10 hover:border-accent-teal/20 transition-all">
                         <div className="w-6 h-6 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-xs font-bold text-accent-teal">{idx + 1}</span>
                         </div>
                         <p className="text-sm text-foreground flex-1">{action}</p>
-                      </div>
-                    ))
-                  : Array.isArray(aiFeedback.next_best_actions) 
-                  ? aiFeedback.next_best_actions.map((action: any, idx: number) => (
-                      <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10 hover:border-accent-teal/20 transition-all">
+                      </div>) : Array.isArray(aiFeedback.next_best_actions) ? aiFeedback.next_best_actions.map((action: any, idx: number) => <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-accent-teal/5 to-transparent border border-accent-teal/10 hover:border-accent-teal/20 transition-all">
                         <div className="w-6 h-6 rounded-lg bg-accent-teal/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-xs font-bold text-accent-teal">{idx + 1}</span>
                         </div>
                         <p className="text-sm text-foreground flex-1">
                           {typeof action === 'string' ? action : action.title || action.action}
                         </p>
-                      </div>
-                    ))
-                  : null
-                }
+                      </div>) : null}
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            </div>}
+        </div>}
 
       {/* My Results Card */}
       <div className="rounded-3xl bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent backdrop-blur-xl border border-purple-500/20 p-8 shadow-[0_8px_40px_rgba(147,51,234,0.15)]">
@@ -534,16 +476,11 @@ export default function HealthCareSection() {
             <h3 className="font-rounded text-2xl font-bold text-foreground">
               My Results
             </h3>
-            {usingMockData && (
-              <span className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 text-xs font-rounded font-semibold">
+            {usingMockData && <span className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 text-xs font-rounded font-semibold">
                 Sample Data
-              </span>
-            )}
+              </span>}
           </div>
-            <button 
-              onClick={() => navigate("/doctor-hub")}
-              className="text-sm text-accent-teal hover:text-accent-teal-alt transition-colors flex items-center gap-1"
-            >
+            <button onClick={() => navigate("/doctor-hub")} className="text-sm text-accent-teal hover:text-accent-teal-alt transition-colors flex items-center gap-1">
               View Details <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -556,15 +493,7 @@ export default function HealthCareSection() {
             </h4>
             <div className="overflow-x-auto pb-2">
               <div className="flex gap-3 min-w-max">
-                {displayLabResults.slice(0, 6).map((lab: any, idx: number) => (
-                    <button
-                      key={idx}
-                      className={`px-4 py-3 rounded-xl border transition-all ${
-                        idx === 0 
-                          ? 'bg-accent-teal/10 border-accent-teal/30 text-accent-teal' 
-                          : 'bg-card/60 border-border text-muted-foreground hover:border-accent-teal/20'
-                      }`}
-                    >
+                {displayLabResults.slice(0, 6).map((lab: any, idx: number) => <button key={idx} className={`px-4 py-3 rounded-xl border transition-all ${idx === 0 ? 'bg-accent-teal/10 border-accent-teal/30 text-accent-teal' : 'bg-card/60 border-border text-muted-foreground hover:border-accent-teal/20'}`}>
                       <div className="flex flex-col gap-1 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <TestTube className="w-4 h-4" />
@@ -576,8 +505,7 @@ export default function HealthCareSection() {
                           {format(new Date(lab.reported_at), "MMM d, yyyy")}
                         </span>
                       </div>
-                    </button>
-                ))}
+                    </button>)}
               </div>
             </div>
           </div>
@@ -592,12 +520,12 @@ export default function HealthCareSection() {
                 <div className="text-xs text-muted-foreground mb-0.5">Patient Age</div>
                 <div className="text-sm font-rounded font-bold text-foreground">
                   {(() => {
-                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                    if (ageData) return `${ageData.chronologicalAge} years old`;
-                    const birthDate = new Date(displayUserProfile.dob);
-                    const age = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-                    return `${age} years old`;
-                  })()}
+                const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                if (ageData) return `${ageData.chronologicalAge} years old`;
+                const birthDate = new Date(displayUserProfile.dob);
+                const age = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+                return `${age} years old`;
+              })()}
                 </div>
               </div>
             </div>
@@ -622,8 +550,7 @@ export default function HealthCareSection() {
               </div>
             </div>
 
-            {displayLabResults[0]?.reported_at && (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/10">
+            {displayLabResults[0]?.reported_at && <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/10">
                 <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
                   <Calendar className="w-5 h-5 text-green-500" />
                 </div>
@@ -633,8 +560,7 @@ export default function HealthCareSection() {
                     {format(new Date(displayLabResults[0].reported_at), "MMM d, yyyy 'at' h:mm a")}
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Biomarker Summary and Biological Age */}
@@ -649,23 +575,23 @@ export default function HealthCareSection() {
               <div className="mb-4 pb-4 border-b border-border">
                 <div className="flex items-center justify-between mb-2">
                   <span className={`text-lg font-rounded font-bold ${(() => {
-                    const scores = Object.values(displayDomainScores) as number[];
-                    if (scores.length === 0) return "text-muted-foreground";
-                    const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-                    if (avgScore >= 80) return "text-green-600";
-                    if (avgScore >= 70) return "text-accent-teal";
-                    if (avgScore >= 60) return "text-yellow-600";
-                    return "text-red-600";
-                  })()}`}>
+                const scores = Object.values(displayDomainScores) as number[];
+                if (scores.length === 0) return "text-muted-foreground";
+                const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                if (avgScore >= 80) return "text-green-600";
+                if (avgScore >= 70) return "text-accent-teal";
+                if (avgScore >= 60) return "text-yellow-600";
+                return "text-red-600";
+              })()}`}>
                     {(() => {
-                      const scores = Object.values(displayDomainScores) as number[];
-                      if (scores.length === 0) return "No Data";
-                      const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-                      if (avgScore >= 80) return "Excellent";
-                      if (avgScore >= 70) return "Within Range";
-                      if (avgScore >= 60) return "Needs Attention";
-                      return "Needs Improvement";
-                    })()}
+                  const scores = Object.values(displayDomainScores) as number[];
+                  if (scores.length === 0) return "No Data";
+                  const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                  if (avgScore >= 80) return "Excellent";
+                  if (avgScore >= 70) return "Within Range";
+                  if (avgScore >= 60) return "Needs Attention";
+                  return "Needs Improvement";
+                })()}
                   </span>
                 </div>
                 <span className="text-sm text-muted-foreground">
@@ -674,8 +600,7 @@ export default function HealthCareSection() {
               </div>
 
               <div className="space-y-3">
-                {Object.entries(displayDomainScores).map(([domain, score]: [string, any]) => (
-                  <div key={domain} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-500/5 to-transparent">
+                {Object.entries(displayDomainScores).map(([domain, score]: [string, any]) => <div key={domain} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-500/5 to-transparent">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{getDomainIcon(domain)}</span>
                       <span className="text-sm font-rounded font-medium text-foreground">
@@ -687,8 +612,7 @@ export default function HealthCareSection() {
                         {score}%
                       </span>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
 
@@ -704,33 +628,33 @@ export default function HealthCareSection() {
               <div className="flex-1 flex flex-col justify-center text-center py-6">
                 <div className="text-6xl font-rounded font-bold text-foreground mb-4">
                   {(() => {
-                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                    if (ageData) return ageData.biologicalAge;
-                    if (displayUserProfile.biological_age_estimate) {
-                      return Math.floor(displayUserProfile.biological_age_estimate);
-                    }
-                    // Fallback to chronological age if no biological age estimate
-                    const birthDate = new Date(displayUserProfile.dob);
-                    return Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-                  })()}
+                const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                if (ageData) return ageData.biologicalAge;
+                if (displayUserProfile.biological_age_estimate) {
+                  return Math.floor(displayUserProfile.biological_age_estimate);
+                }
+                // Fallback to chronological age if no biological age estimate
+                const birthDate = new Date(displayUserProfile.dob);
+                return Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+              })()}
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
                   Your biological age is{' '}
                   <span className="font-semibold text-foreground">
                     {(() => {
-                      const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                      if (ageData) return Math.abs(ageData.difference);
-                      const birthDate = new Date(displayUserProfile.dob);
-                      const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-                      return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
-                    })()} years{' '}
+                  const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                  if (ageData) return Math.abs(ageData.difference);
+                  const birthDate = new Date(displayUserProfile.dob);
+                  const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                  return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
+                })()} years{' '}
                     {(() => {
-                      const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                      if (ageData) return ageData.isYounger ? 'younger' : 'older';
-                      const birthDate = new Date(displayUserProfile.dob);
-                      const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-                      return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
-                    })()}
+                  const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                  if (ageData) return ageData.isYounger ? 'younger' : 'older';
+                  const birthDate = new Date(displayUserProfile.dob);
+                  const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                  return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
+                })()}
                   </span>
                   {' '}than your chronological age
                 </p>
@@ -744,8 +668,7 @@ export default function HealthCareSection() {
         </div>
 
       {/* Medical Overview Card */}
-      {labSummary ? (
-        <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
+      {labSummary ? <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
           <div className="flex items-start justify-between mb-6">
             <div>
               <h3 className="font-rounded text-xl font-semibold text-foreground mb-2">
@@ -764,43 +687,36 @@ export default function HealthCareSection() {
 
           <div className="space-y-3">
             {labSummary.labs.slice(0, 9).map((lab: any, idx: number) => {
-              // Map test codes to descriptions
-              const testDescriptions: Record<string, string> = {
-                'TSH': 'Metabolism regulator',
-                'Free T3': 'Active thyroid hormone',
-                'Free T4': 'Active thyroid hormone',
-                'TPOAb': 'Thyroid autoimmunity indicator',
-                'CBC': 'Complete blood health',
-                'CMP': 'Metabolic panel',
-                'LIPID': 'Cardiovascular risk indicator',
-                'HBA1C': 'Blood sugar control',
-                'VITD': 'Bone and immune health vitamin',
-                'ApoB:ApoA1 Ratio': 'Cardiovascular risk indicator',
-                'Triglycerides:HDL': 'Insulin resistance indicator',
-                'eGFR': 'Kidney function indicator',
-                'Creatinine': 'Kidney function indicator',
-                'ALT': 'Indicator of liver health'
-              };
+          // Map test codes to descriptions
+          const testDescriptions: Record<string, string> = {
+            'TSH': 'Metabolism regulator',
+            'Free T3': 'Active thyroid hormone',
+            'Free T4': 'Active thyroid hormone',
+            'TPOAb': 'Thyroid autoimmunity indicator',
+            'CBC': 'Complete blood health',
+            'CMP': 'Metabolic panel',
+            'LIPID': 'Cardiovascular risk indicator',
+            'HBA1C': 'Blood sugar control',
+            'VITD': 'Bone and immune health vitamin',
+            'ApoB:ApoA1 Ratio': 'Cardiovascular risk indicator',
+            'Triglycerides:HDL': 'Insulin resistance indicator',
+            'eGFR': 'Kidney function indicator',
+            'Creatinine': 'Kidney function indicator',
+            'ALT': 'Indicator of liver health'
+          };
 
-              // Determine status color based on reference ranges
-              const getStatusColor = () => {
-                if (!lab.value_num || !lab.reference_low || !lab.reference_high) return 'bg-blue-500';
-                const value = parseFloat(lab.value_num);
-                const low = parseFloat(lab.reference_low);
-                const high = parseFloat(lab.reference_high);
-                
-                if (value < low * 0.9 || value > high * 1.1) return 'bg-red-500';
-                if (value < low || value > high) return 'bg-orange-500';
-                return 'bg-green-500';
-              };
-
-              const description = testDescriptions[lab.test_code] || testDescriptions[lab.test_name] || 'Health indicator';
-
-              return (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all"
-                >
+          // Determine status color based on reference ranges
+          const getStatusColor = () => {
+            if (!lab.value_num || !lab.reference_low || !lab.reference_high) return 'bg-blue-500';
+            const value = parseFloat(lab.value_num);
+            const low = parseFloat(lab.reference_low);
+            const high = parseFloat(lab.reference_high);
+            if (value < low * 0.9 || value > high * 1.1) return 'bg-red-500';
+            if (value < low || value > high) return 'bg-orange-500';
+            return 'bg-green-500';
+          };
+          const description = testDescriptions[lab.test_code] || testDescriptions[lab.test_name] || 'Health indicator';
+          return <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] my-[15px]">
                   <div className="flex-1">
                     <div className="font-rounded font-semibold text-foreground">
                       {lab.test_name || lab.test_code}
@@ -814,37 +730,30 @@ export default function HealthCareSection() {
                       <span className="text-lg font-rounded font-bold text-foreground">
                         {lab.value_num || lab.value_text}
                       </span>
-                      {lab.units && (
-                        <span className="text-sm text-muted-foreground ml-1">{lab.units}</span>
-                      )}
+                      {lab.units && <span className="text-sm text-muted-foreground ml-1">{lab.units}</span>}
                     </div>
                     <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
                   </div>
-                </div>
-              );
-            })}
+                </div>;
+        })}
           </div>
 
-          {biomarkerScores.length > 0 && (
-            <div className="p-6 rounded-2xl bg-card/80 border border-border mb-4">
+          {biomarkerScores.length > 0 && <div className="p-6 rounded-2xl bg-card/80 border border-border mb-4">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-5 h-5 text-accent-teal" />
                 <h4 className="font-rounded font-semibold text-foreground">Health Scores</h4>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {biomarkerScores.slice(0, 4).map((score: any, idx: number) => (
-                  <div key={idx} className="text-center">
+                {biomarkerScores.slice(0, 4).map((score: any, idx: number) => <div key={idx} className="text-center">
                     <div className="text-3xl font-rounded font-bold text-accent-teal mb-1">
                       {score.score}
                     </div>
                     <div className="text-xs text-muted-foreground capitalize">
                       {score.domain}
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* DoctorHub Information */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -853,7 +762,7 @@ export default function HealthCareSection() {
               <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
                 {specialtiesCount}
               </div>
-              <div className="text-xs text-muted-foreground">Available<br/>Specialties</div>
+              <div className="text-xs text-muted-foreground">Available<br />Specialties</div>
             </div>
 
             {/* Pending Test Orders */}
@@ -861,7 +770,7 @@ export default function HealthCareSection() {
               <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
                 {testOrdersCount}
               </div>
-              <div className="text-xs text-muted-foreground">Pending<br/>Test Orders</div>
+              <div className="text-xs text-muted-foreground">Pending<br />Test Orders</div>
             </div>
 
             {/* Unread Messages */}
@@ -869,7 +778,7 @@ export default function HealthCareSection() {
               <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
                 {unreadMessagesCount}
               </div>
-              <div className="text-xs text-muted-foreground">Unread<br/>Messages</div>
+              <div className="text-xs text-muted-foreground">Unread<br />Messages</div>
             </div>
 
             {/* Active Health Issues */}
@@ -877,20 +786,15 @@ export default function HealthCareSection() {
               <div className="text-2xl font-rounded font-bold text-accent-teal mb-1">
                 {healthIssues.length}
               </div>
-              <div className="text-xs text-muted-foreground">Active<br/>Health Issues</div>
+              <div className="text-xs text-muted-foreground">Active<br />Health Issues</div>
             </div>
           </div>
 
-          <button 
-            onClick={() => navigate("/doctor-hub")}
-            className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-semibold shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
+          <button onClick={() => navigate("/doctor-hub")} className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-semibold shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
             <Stethoscope className="w-5 h-5" />
             View Full Report
           </button>
-        </div>
-      ) : (
-        <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 text-center">
+        </div> : <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-accent-teal/10 flex items-center justify-center">
             <FileText className="w-8 h-8 text-accent-teal" />
           </div>
@@ -901,30 +805,22 @@ export default function HealthCareSection() {
             Upload a lab report or connect your health records to begin tracking your health metrics.
           </p>
           <div className="flex gap-3 justify-center">
-            <button 
-              onClick={() => setUploadModalOpen(true)}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-medium hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-shadow"
-            >
+            <button onClick={() => setUploadModalOpen(true)} className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-medium hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-shadow">
               Upload File
             </button>
-            <button 
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "EHR integration will be available soon. Use 'Upload File' for now.",
-                });
-              }}
-              className="px-6 py-3 rounded-xl bg-card border border-accent-teal/20 text-accent-teal font-rounded font-medium hover:bg-accent-teal/5 transition-colors"
-            >
+            <button onClick={() => {
+          toast({
+            title: "Coming Soon",
+            description: "EHR integration will be available soon. Use 'Upload File' for now."
+          });
+        }} className="px-6 py-3 rounded-xl bg-card border border-accent-teal/20 text-accent-teal font-rounded font-medium hover:bg-accent-teal/5 transition-colors">
               Connect EHR
             </button>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Test Reminders */}
-      {testReminders.length > 0 && (
-        <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
+      {testReminders.length > 0 && <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 flex items-center justify-center">
               <Calendar className="w-5 h-5 text-accent-teal" />
@@ -932,11 +828,7 @@ export default function HealthCareSection() {
             <h3 className="font-rounded text-xl font-semibold text-foreground">Test Reminders</h3>
           </div>
           <div className="space-y-3">
-            {testReminders.slice(0, 5).map((reminder: any, idx: number) => (
-              <div
-                key={idx}
-                className="p-4 rounded-2xl bg-card border border-border hover:border-accent-teal/20 transition-all"
-              >
+            {testReminders.slice(0, 5).map((reminder: any, idx: number) => <div key={idx} className="p-4 rounded-2xl bg-card border border-border hover:border-accent-teal/20 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center">
@@ -947,25 +839,17 @@ export default function HealthCareSection() {
                         {reminder.testCode}
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        {reminder.type === 'pending_order'
-                          ? `Status: ${reminder.status}`
-                          : reminder.dueInDays > 0
-                          ? `Due in ${reminder.dueInDays} days`
-                          : `Overdue by ${Math.abs(reminder.dueInDays)} days`}
+                        {reminder.type === 'pending_order' ? `Status: ${reminder.status}` : reminder.dueInDays > 0 ? `Due in ${reminder.dueInDays} days` : `Overdue by ${Math.abs(reminder.dueInDays)} days`}
                       </p>
                     </div>
                   </div>
-                  {reminder.type === 'recheck_due' && reminder.dueInDays <= 30 && (
-                    <div className="px-3 py-1 rounded-lg bg-accent-teal/10 text-accent-teal text-xs font-rounded font-semibold">
+                  {reminder.type === 'recheck_due' && reminder.dueInDays <= 30 && <div className="px-3 py-1 rounded-lg bg-accent-teal/10 text-accent-teal text-xs font-rounded font-semibold">
                       {reminder.dueInDays <= 0 ? 'Overdue' : 'Soon'}
-                    </div>
-                  )}
+                    </div>}
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* AI Health Agent */}
       <div className="rounded-3xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 backdrop-blur-xl border border-accent-teal/20 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.1)]">
@@ -980,10 +864,7 @@ export default function HealthCareSection() {
             <p className="text-muted-foreground mb-4">
               I can analyze your lab results, biomarkers, and health data to provide personalized medical guidance.
             </p>
-            <button
-              onClick={() => setChatOpen(true)}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-semibold shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all"
-            >
+            <button onClick={() => setChatOpen(true)} className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white font-rounded font-semibold shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all">
               Start Conversation
             </button>
           </div>
@@ -994,22 +875,14 @@ export default function HealthCareSection() {
       <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-rounded text-xl font-semibold text-foreground">Quick Check-Ins</h3>
-          <button 
-            onClick={() => setIssueModalOpen(true)}
-            className="w-8 h-8 rounded-xl bg-accent-teal/10 hover:bg-accent-teal/20 flex items-center justify-center transition-colors"
-          >
+          <button onClick={() => setIssueModalOpen(true)} className="w-8 h-8 rounded-xl bg-accent-teal/10 hover:bg-accent-teal/20 flex items-center justify-center transition-colors">
             <Plus className="w-4 h-4 text-accent-teal" />
           </button>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
-          {quickChecks.map((check) => (
-            <button
-              key={check.title}
-              onClick={() => {
-                setIssueModalOpen(true);
-              }}
-              className="p-6 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all text-left group"
-            >
+          {quickChecks.map(check => <button key={check.title} onClick={() => {
+          setIssueModalOpen(true);
+        }} className="p-6 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all text-left group">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
@@ -1022,8 +895,7 @@ export default function HealthCareSection() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-accent-teal group-hover:translate-x-1 transition-all flex-shrink-0" />
               </div>
-            </button>
-          ))}
+            </button>)}
         </div>
       </div>
 
@@ -1055,11 +927,7 @@ export default function HealthCareSection() {
       <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
         <h3 className="font-rounded text-xl font-semibold text-foreground mb-6">Health Tips</h3>
         <div className="space-y-4">
-          {tipCards.map((tip, idx) => (
-            <div
-              key={idx}
-              className="p-6 rounded-2xl bg-card/80 border border-border hover:border-accent-teal/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
-            >
+          {tipCards.map((tip, idx) => <div key={idx} className="p-6 rounded-2xl bg-card/80 border border-border hover:border-accent-teal/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-accent-teal/10 flex items-center justify-center flex-shrink-0">
                   <tip.icon className="w-6 h-6 text-accent-teal" />
@@ -1072,26 +940,12 @@ export default function HealthCareSection() {
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
       </div>
 
-      <IssueModal 
-        open={issueModalOpen} 
-        onOpenChange={setIssueModalOpen} 
-        onSuccess={loadHealthData} 
-      />
-      <FileUploadModal
-        open={uploadModalOpen}
-        onOpenChange={setUploadModalOpen}
-        onSuccess={loadHealthData}
-      />
-      <ChatDrawer 
-        open={chatOpen} 
-        onClose={() => setChatOpen(false)}
-        initialMessage="Review my latest health data and tell me what I should improve next."
-      />
-    </div>
-  );
+      <IssueModal open={issueModalOpen} onOpenChange={setIssueModalOpen} onSuccess={loadHealthData} />
+      <FileUploadModal open={uploadModalOpen} onOpenChange={setUploadModalOpen} onSuccess={loadHealthData} />
+      <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} initialMessage="Review my latest health data and tell me what I should improve next." />
+    </div>;
 }
