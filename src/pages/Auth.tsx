@@ -11,20 +11,9 @@ import { z } from "zod";
 
 // Security: Input validation schema to prevent malformed data and enforce password strength
 const authSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .email("Please enter a valid email address")
-    .max(255, "Email must be less than 255 characters"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must be less than 128 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+  email: z.string().trim().email("Please enter a valid email address").max(255, "Email must be less than 255 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password must be less than 128 characters").regex(/[A-Z]/, "Password must contain at least one uppercase letter").regex(/[a-z]/, "Password must contain at least one lowercase letter").regex(/[0-9]/, "Password must contain at least one number")
 });
-
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,18 +21,17 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     // Check if user is already logged in
     const checkUserAndRedirect = async (userId: string) => {
       try {
         setCheckingAuth(true);
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('onboarding_completed')
-          .eq('user_id', userId)
-          .maybeSingle();
+        const {
+          data: profile
+        } = await supabase.from('user_profiles').select('onboarding_completed').eq('user_id', userId).maybeSingle();
 
         // Explicitly check if onboarding_completed is true
         if (profile && profile.onboarding_completed === true) {
@@ -55,16 +43,22 @@ export default function Auth() {
         setCheckingAuth(false);
       }
     };
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       if (session?.user) {
         checkUserAndRedirect(session.user.id);
       } else {
         setCheckingAuth(false);
       }
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((event, session) => {
       try {
         if (event === 'SIGNED_IN' && session?.user) {
           checkUserAndRedirect(session.user.id);
@@ -74,49 +68,45 @@ export default function Auth() {
         setCheckingAuth(false);
       }
     });
-
     return () => subscription.unsubscribe();
   }, [navigate]);
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('🔵 Sign up button clicked');
     setLoading(true);
-
     try {
-      console.log('🔵 Validating credentials...', { email: email.trim(), passwordLength: password.length });
-      
+      console.log('🔵 Validating credentials...', {
+        email: email.trim(),
+        passwordLength: password.length
+      });
+
       // Security: Validate inputs before submitting to prevent malformed data
       const validatedData = authSchema.parse({
         email: email.trim(),
-        password,
+        password
       });
-
       console.log('✅ Validation passed');
 
       // Store credentials temporarily and navigate to onboarding
       // Account will be created at the end of onboarding flow
       sessionStorage.setItem('signupCredentials', JSON.stringify({
         email: validatedData.email,
-        password: validatedData.password,
+        password: validatedData.password
       }));
-
       console.log('✅ Credentials stored in sessionStorage');
       console.log('🔵 Navigating to onboarding...');
-
-      navigate('/onboarding', { 
-        state: { 
+      navigate('/onboarding', {
+        state: {
           credentials: {
             email: validatedData.email,
-            password: validatedData.password,
+            password: validatedData.password
           }
-        } 
+        }
       });
-
       console.log('✅ Navigate called');
     } catch (error: any) {
       console.error('❌ Sign up error:', error);
-      
+
       // Handle validation errors separately for better user experience
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
@@ -125,14 +115,14 @@ export default function Auth() {
           variant: "destructive",
           title: "Validation Error",
           description: firstError.message,
-          duration: 3000,
+          duration: 3000
         });
       } else {
         toast({
           variant: "destructive",
           title: "Sign up failed",
           description: error.message,
-          duration: 3000,
+          duration: 3000
         });
       }
     } finally {
@@ -140,26 +130,24 @@ export default function Auth() {
       console.log('🔵 Sign up handler complete');
     }
   };
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       // Basic validation for sign-in (no password strength requirements)
       if (!email || !password) {
         throw new Error("Please enter both email and password");
       }
-
       if (!email.includes("@")) {
         throw new Error("Please enter a valid email address");
       }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const {
+        data,
+        error
+      } = await supabase.auth.signInWithPassword({
         email: email.trim(),
-        password,
+        password
       });
-
       if (error) throw error;
 
       // Success - redirect will be handled by onAuthStateChange
@@ -168,28 +156,23 @@ export default function Auth() {
         variant: "destructive",
         title: "Sign in failed",
         description: error.message,
-        duration: 3000,
+        duration: 3000
       });
     } finally {
       setLoading(false);
     }
   };
-
   if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-accentTeal/20 to-accentTealAlt/20 backdrop-blur-xl border border-white/10 flex items-center justify-center animate-pulse">
             <Activity className="w-8 h-8 text-accentTeal" />
           </div>
           <p className="text-muted-foreground">Loading...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
+  return <div className="min-h-screen flex flex-col bg-gradient-to-br from-background/50 via-background/80 to-primary/[0.02] backdrop-blur-xl">
       {/* Header */}
       <div className="p-8 pb-0">
         <div className="flex items-center gap-3">
@@ -197,7 +180,7 @@ export default function Auth() {
             <Activity className="w-6 h-6 text-accentTeal" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Eywa AI</h1>
+            <h1 className="text-xl font-semibold text-foreground">EYWA AI</h1>
             <p className="text-sm text-muted-foreground/80">Your Health & Longevity Hub</p>
           </div>
         </div>
@@ -229,16 +212,7 @@ export default function Auth() {
                     <Mail className="w-4 h-4 inline mr-2 text-accentTeal" />
                     Email
                   </Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
-                  />
+                  <Input id="signin-email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required disabled={loading} className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12" />
                 </div>
 
                 <div className="space-y-3">
@@ -247,40 +221,19 @@ export default function Auth() {
                     Password
                   </Label>
                   <div className="relative">
-                    <Input
-                      id="signin-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={loading}
-                      className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12 pr-12"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-accentTeal transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
+                    <Input id="signin-password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required disabled={loading} className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12 pr-12" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-accentTeal transition-colors" aria-label={showPassword ? "Hide password" : "Show password"}>
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   <div className="flex justify-end">
-                    <Link
-                      to="/auth/forgot-password"
-                      className="text-xs text-accentTeal/80 hover:text-accentTeal hover:underline transition-colors"
-                    >
+                    <Link to="/auth/forgot-password" className="text-xs text-accentTeal/80 hover:text-accentTeal hover:underline transition-colors">
                       Forgot password?
                     </Link>
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-2xl transition-all"
-                  disabled={loading}
-                >
+                <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-2xl transition-all" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
@@ -293,16 +246,7 @@ export default function Auth() {
                       <Mail className="w-4 h-4 inline mr-2 text-accentTeal" />
                       Email
                     </Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={loading}
-                      className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12"
-                    />
+                    <Input id="signup-email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required disabled={loading} className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12" />
                   </div>
 
                 <div className="space-y-3">
@@ -311,23 +255,8 @@ export default function Auth() {
                     Password
                   </Label>
                   <div className="relative">
-                    <Input
-                      id="signup-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={loading}
-                      minLength={8}
-                      className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12 pr-12"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-accentTeal transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
+                    <Input id="signup-password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required disabled={loading} minLength={8} className="bg-white/5 backdrop-blur-xl border-white/10 focus:border-accentTeal/50 h-12 pr-12" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-accentTeal transition-colors" aria-label={showPassword ? "Hide password" : "Show password"}>
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
@@ -336,11 +265,7 @@ export default function Auth() {
                   </p>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-2xl transition-all"
-                  disabled={loading}
-                >
+                <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-2xl transition-all" disabled={loading}>
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
 
@@ -357,6 +282,5 @@ export default function Auth() {
       <div className="p-8 text-center text-xs text-muted-foreground/50">
         <p>🔒 HIPAA-compliant • End-to-end encrypted</p>
       </div>
-    </div>
-  );
+    </div>;
 }
