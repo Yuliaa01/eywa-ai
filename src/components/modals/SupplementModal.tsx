@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,18 +12,50 @@ interface SupplementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  existingSupplement?: {
+    id: string;
+    name: string;
+    dosage: string | null;
+    units: string | null;
+    form: string | null;
+    schedule: any;
+    notes: string | null;
+  } | null;
 }
 
-export function SupplementModal({ open, onOpenChange, onSuccess }: SupplementModalProps) {
+export function SupplementModal({ open, onOpenChange, onSuccess, existingSupplement }: SupplementModalProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    dosage: "",
-    units: "",
-    form: "capsule",
-    schedule: "daily",
-    notes: "",
+    name: existingSupplement?.name || "",
+    dosage: existingSupplement?.dosage || "",
+    units: existingSupplement?.units || "",
+    form: existingSupplement?.form || "capsule",
+    schedule: existingSupplement?.schedule?.frequency || "daily",
+    notes: existingSupplement?.notes || "",
   });
+
+  // Update form when existingSupplement changes
+  useEffect(() => {
+    if (existingSupplement) {
+      setFormData({
+        name: existingSupplement.name,
+        dosage: existingSupplement.dosage || "",
+        units: existingSupplement.units || "",
+        form: existingSupplement.form || "capsule",
+        schedule: existingSupplement.schedule?.frequency || "daily",
+        notes: existingSupplement.notes || "",
+      });
+    } else if (!open) {
+      setFormData({
+        name: "",
+        dosage: "",
+        units: "",
+        form: "capsule",
+        schedule: "daily",
+        notes: "",
+      });
+    }
+  }, [existingSupplement, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,23 +65,46 @@ export function SupplementModal({ open, onOpenChange, onSuccess }: SupplementMod
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase.from("supplements").insert({
-        user_id: user.id,
-        name: formData.name,
-        dosage: formData.dosage,
-        units: formData.units,
-        form: formData.form as any,
-        schedule: { frequency: formData.schedule },
-        notes: formData.notes || null,
-        source: "user",
-      });
+      if (existingSupplement) {
+        // Update existing supplement
+        const { error } = await supabase
+          .from("supplements")
+          .update({
+            name: formData.name,
+            dosage: formData.dosage,
+            units: formData.units,
+            form: formData.form as any,
+            schedule: { frequency: formData.schedule },
+            notes: formData.notes || null,
+          })
+          .eq('id', existingSupplement.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Supplement added",
-        description: `${formData.name} has been added to your routine.`,
-      });
+        toast({
+          title: "Supplement updated",
+          description: `${formData.name} has been updated.`,
+        });
+      } else {
+        // Create new supplement
+        const { error } = await supabase.from("supplements").insert({
+          user_id: user.id,
+          name: formData.name,
+          dosage: formData.dosage,
+          units: formData.units,
+          form: formData.form as any,
+          schedule: { frequency: formData.schedule },
+          notes: formData.notes || null,
+          source: "user",
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Supplement added",
+          description: `${formData.name} has been added to your routine.`,
+        });
+      }
 
       onSuccess?.();
       onOpenChange(false);
@@ -76,7 +131,9 @@ export function SupplementModal({ open, onOpenChange, onSuccess }: SupplementMod
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-[#12AFCB]/20">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-rounded">Add Supplement</DialogTitle>
+          <DialogTitle className="text-2xl font-rounded">
+            {existingSupplement ? 'Edit Supplement' : 'Add Supplement'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -194,7 +251,7 @@ export function SupplementModal({ open, onOpenChange, onSuccess }: SupplementMod
               Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? "Adding..." : "Add Supplement"}
+              {loading ? (existingSupplement ? "Updating..." : "Adding...") : (existingSupplement ? "Update Supplement" : "Add Supplement")}
             </Button>
           </div>
         </form>

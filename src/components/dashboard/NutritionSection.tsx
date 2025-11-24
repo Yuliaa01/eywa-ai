@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
+import { GoalActions } from "@/components/priorities/GoalActions";
 import FastingTimer from "./FastingTimer";
 import RecipesSection from "./RecipesSection";
 import MealPlannerSection from "./MealPlannerSection";
@@ -47,6 +48,9 @@ export default function NutritionSection() {
   });
   const [todaysMeals, setTodaysMeals] = useState<any[]>([]);
   const [activeSupplements, setActiveSupplements] = useState<Tables<'supplements'>[]>([]);
+  const [editingSupplement, setEditingSupplement] = useState<Tables<'supplements'> | null>(null);
+  const [supplementToDelete, setSupplementToDelete] = useState<Tables<'supplements'> | null>(null);
+  const [supplementDeleteConfirmOpen, setSupplementDeleteConfirmOpen] = useState(false);
   const [macros, setMacros] = useState([
     { name: "Carbs", current: 0, target: 250, color: "#19D0E4", unit: "g" },
     { name: "Protein", current: 0, target: 180, color: "#12AFCB", unit: "g" },
@@ -338,6 +342,51 @@ export default function NutritionSection() {
     }
   };
 
+  const handleEditSupplement = (supplement: Tables<'supplements'>) => {
+    setEditingSupplement(supplement);
+    setSupplementModalOpen(true);
+  };
+
+  const handleDeleteSupplementClick = (supplement: Tables<'supplements'>) => {
+    setSupplementToDelete(supplement);
+    setSupplementDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteSupplement = async () => {
+    if (!supplementToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('supplements')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', supplementToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Supplement deleted",
+        description: "The supplement has been removed.",
+      });
+
+      fetchSupplements();
+    } catch (error) {
+      console.error('Error deleting supplement:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete supplement. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSupplementDeleteConfirmOpen(false);
+      setSupplementToDelete(null);
+    }
+  };
+
+  const handleSupplementModalClose = () => {
+    setSupplementModalOpen(false);
+    setEditingSupplement(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Nutrition Dashboard */}
@@ -593,15 +642,21 @@ export default function NutritionSection() {
                 <SortableContext items={supplementIds} strategy={supplementSortingStrategy}>
                   {orderedSupplements.map((supplement) => (
                     <SortableItem key={supplement.id} id={supplement.id} showHandle={false}>
-                      <div className="flex items-start justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10">
-                        <div className="flex items-start gap-3">
-                          <div className="w-2 h-2 rounded-full bg-[#12AFCB] mt-2" />
-                          <div>
+                      <div className="flex items-start justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10 group">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className="w-2 h-2 rounded-full bg-[#12AFCB] mt-2 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
                             <h4 className="font-rounded font-medium text-[#0E1012]">{supplement.name}</h4>
                             <p className="text-sm text-[#5A6B7F]">{supplement.dosage} {supplement.units || ''}</p>
                           </div>
                         </div>
-                        <span className="text-xs text-[#5A6B7F]">{supplement.form || ''}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs text-[#5A6B7F]">{supplement.form || ''}</span>
+                          <GoalActions 
+                            onEdit={() => handleEditSupplement(supplement)}
+                            onDelete={() => handleDeleteSupplementClick(supplement)}
+                          />
+                        </div>
                       </div>
                     </SortableItem>
                   ))}
@@ -697,7 +752,21 @@ export default function NutritionSection() {
         onOpenChange={setMealPlanModalOpen}
         onSuccess={handleMealSuccess}
       />
-      <SupplementModal open={supplementModalOpen} onOpenChange={setSupplementModalOpen} onSuccess={() => {}} />
+      <SupplementModal 
+        open={supplementModalOpen} 
+        onOpenChange={handleSupplementModalClose}
+        existingSupplement={editingSupplement}
+        onSuccess={() => {
+          fetchSupplements();
+          handleSupplementModalClose();
+        }} 
+      />
+      <DeleteConfirmDialog
+        open={supplementDeleteConfirmOpen}
+        onOpenChange={setSupplementDeleteConfirmOpen}
+        onConfirm={handleDeleteSupplement}
+        title={supplementToDelete?.name || 'this supplement'}
+      />
       <FastingQuickStart open={fastingModalOpen} onOpenChange={setFastingModalOpen} onSuccess={handleFastingSuccess} />
       <RecipeSelectorModal
         open={recipeSelectorOpen}
