@@ -789,10 +789,15 @@ export default function HealthCareSection() {
 
           return <Collapsible key={idx} open={isExpanded} onOpenChange={() => setExpandedTestCategory(isExpanded ? null : category)}>
                   <CollapsibleTrigger className="w-full">
-                    <div className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] my-[15px] cursor-pointer">
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] my-[15px] cursor-pointer group">
                       <div className="flex-1 text-left">
-                        <div className="font-rounded font-semibold text-foreground">
-                          {lab.test_name || lab.test_code}
+                        <div className="flex items-center gap-2">
+                          <div className="font-rounded font-semibold text-foreground">
+                            {lab.test_name || lab.test_code}
+                          </div>
+                          <div className="w-5 h-5 rounded-full bg-accent-teal/10 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
+                            <Info className="w-3 h-3 text-accent-teal" />
+                          </div>
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
                           {description}
@@ -806,6 +811,7 @@ export default function HealthCareSection() {
                           {lab.units && <span className="text-sm text-muted-foreground ml-1">{lab.units}</span>}
                         </div>
                         <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+                        <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                       </div>
                     </div>
                   </CollapsibleTrigger>
