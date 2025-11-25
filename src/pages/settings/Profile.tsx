@@ -899,7 +899,7 @@ export default function ProfileSettings() {
           <Button
             onClick={handleSave}
             disabled={loading}
-            className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+            className="flex-1 rounded-xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_6px_16px_rgba(18,175,203,0.4)] transition-all"
           >
             {loading ? "Saving..." : "Save Changes"}
           </Button>
