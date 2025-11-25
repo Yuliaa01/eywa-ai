@@ -187,7 +187,7 @@ export default {
   					transform: 'translateY(0)'
   				}
   			},
-  			'shimmer': {
+  			shimmer: {
   				'0%': {
   					backgroundPosition: '-200% 0'
   				},
@@ -195,7 +195,7 @@ export default {
   					backgroundPosition: '200% 0'
   				}
   			},
-  			'parallax': {
+  			parallax: {
   				'0%': {
   					transform: 'translateY(0px)'
   				},
@@ -228,8 +228,8 @@ export default {
   			'accordion-down': 'accordion-down 180ms ease-out',
   			'accordion-up': 'accordion-up 180ms ease-out',
   			'fade-in': 'fade-in 240ms ease-out',
-  			'shimmer': 'shimmer 2.5s linear infinite',
-  			'parallax': 'parallax 1s ease-out',
+  			shimmer: 'shimmer 2.5s linear infinite',
+  			parallax: 'parallax 1s ease-out',
   			'scale-in': 'scale-in 240ms cubic-bezier(0.33, 1, 0.68, 1)',
   			'glow-pulse': 'glow-pulse 2s ease-in-out infinite'
   		}
