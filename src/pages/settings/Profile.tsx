@@ -897,10 +897,9 @@ export default function ProfileSettings() {
             Cancel
           </Button>
           <Button
-            variant="default"
             onClick={handleSave}
             disabled={loading}
-            className="flex-1 rounded-xl"
+            className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {loading ? "Saving..." : "Save Changes"}
           </Button>
