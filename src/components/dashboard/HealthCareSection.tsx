@@ -8,7 +8,6 @@ import ChatDrawer from "@/components/ChatDrawer";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -291,10 +290,7 @@ export default function HealthCareSection() {
 
   // Get category tests with historical data
   const getCategoryTests = (category: string) => {
-    const categoryTests = displayLabResults.filter((lab: any) => 
-      getTestCategory(lab.test_code, lab.test_name) === category
-    );
-
+    const categoryTests = displayLabResults.filter((lab: any) => getTestCategory(lab.test_code, lab.test_name) === category);
     return categoryTests.map((lab: any) => ({
       ...lab,
       trend: getHistoricalTrend(lab.test_code, parseFloat(lab.value_num))
@@ -311,10 +307,21 @@ export default function HealthCareSection() {
       const high = parseFloat(test.reference_high);
       return value < low || value > high;
     }).length;
-
-    if (abnormalCount === 0) return { message: `Your ${category} levels are in range.`, icon: CheckCircle2, color: 'text-green-500' };
-    if (abnormalCount <= tests.length / 3) return { message: `Some ${category} markers need attention.`, icon: AlertCircle, color: 'text-orange-500' };
-    return { message: `Multiple ${category} markers are out of range.`, icon: XCircle, color: 'text-red-500' };
+    if (abnormalCount === 0) return {
+      message: `Your ${category} levels are in range.`,
+      icon: CheckCircle2,
+      color: 'text-green-500'
+    };
+    if (abnormalCount <= tests.length / 3) return {
+      message: `Some ${category} markers need attention.`,
+      icon: AlertCircle,
+      color: 'text-orange-500'
+    };
+    return {
+      message: `Multiple ${category} markers are out of range.`,
+      icon: XCircle,
+      color: 'text-red-500'
+    };
   };
 
   // Mock data generators for when no real data exists
@@ -772,7 +779,6 @@ export default function HealthCareSection() {
             if (value < low || value > high) return 'bg-orange-500';
             return 'bg-green-500';
           };
-
           const getStatusIcon = () => {
             if (!lab.value_num || !lab.reference_low || !lab.reference_high) return CheckCircle2;
             const value = parseFloat(lab.value_num);
@@ -782,14 +788,12 @@ export default function HealthCareSection() {
             if (value < low || value > high) return AlertCircle;
             return CheckCircle2;
           };
-
           const description = testDescriptions[lab.test_code] || testDescriptions[lab.test_name] || 'Health indicator';
           const category = getTestCategory(lab.test_code, lab.test_name);
           const isExpanded = expandedTestCategory === category;
-
           return <Collapsible key={idx} open={isExpanded} onOpenChange={() => setExpandedTestCategory(isExpanded ? null : category)}>
                   <CollapsibleTrigger className="w-full">
-                    <div className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] my-[15px] cursor-pointer group">
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border hover:border-accent-teal/20 transition-all py-[16px] cursor-pointer group my-[15px]">
                       <div className="flex-1 text-left">
                         <div className="flex items-center gap-2">
                           <div className="font-rounded font-semibold text-foreground">
@@ -828,9 +832,9 @@ export default function HealthCareSection() {
                             <h4 className="font-rounded font-bold text-xl text-foreground">{category}</h4>
                             <div className={`flex items-center gap-2 mt-1 ${getCategoryStatus(category).color}`}>
                               {(() => {
-                                const StatusIcon = getCategoryStatus(category).icon;
-                                return <StatusIcon className="w-4 h-4" />;
-                              })()}
+                          const StatusIcon = getCategoryStatus(category).icon;
+                          return <StatusIcon className="w-4 h-4" />;
+                        })()}
                               <span className="text-sm font-medium">{getCategoryStatus(category).message}</span>
                             </div>
                           </div>
@@ -843,34 +847,22 @@ export default function HealthCareSection() {
                       {/* Category Tests */}
                       <div className="space-y-3">
                         {getCategoryTests(category).map((test: any, testIdx: number) => {
-                          const StatusIcon = getStatusIcon();
-                          const statusColor = getStatusColor();
-                          const trendValue = test.trend;
-                          const isPositiveTrend = trendValue > 0;
-                          
-                          return (
-                            <div key={testIdx} className="flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border">
+                    const StatusIcon = getStatusIcon();
+                    const statusColor = getStatusColor();
+                    const trendValue = test.trend;
+                    const isPositiveTrend = trendValue > 0;
+                    return <div key={testIdx} className="flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border">
                               <div className="flex items-center gap-3 flex-1">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                                  statusColor === 'bg-green-500' ? 'bg-green-500/10' :
-                                  statusColor === 'bg-orange-500' ? 'bg-orange-500/10' :
-                                  statusColor === 'bg-red-500' ? 'bg-red-500/10' : 'bg-blue-500/10'
-                                }`}>
-                                  <StatusIcon className={`w-4 h-4 ${
-                                    statusColor === 'bg-green-500' ? 'text-green-500' :
-                                    statusColor === 'bg-orange-500' ? 'text-orange-500' :
-                                    statusColor === 'bg-red-500' ? 'text-red-500' : 'text-blue-500'
-                                  }`} />
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${statusColor === 'bg-green-500' ? 'bg-green-500/10' : statusColor === 'bg-orange-500' ? 'bg-orange-500/10' : statusColor === 'bg-red-500' ? 'bg-red-500/10' : 'bg-blue-500/10'}`}>
+                                  <StatusIcon className={`w-4 h-4 ${statusColor === 'bg-green-500' ? 'text-green-500' : statusColor === 'bg-orange-500' ? 'text-orange-500' : statusColor === 'bg-red-500' ? 'text-red-500' : 'text-blue-500'}`} />
                                 </div>
                                 <div className="flex-1">
                                   <div className="font-rounded font-semibold text-foreground">
                                     {test.test_name || test.test_code}
                                   </div>
-                                  {test.reference_low && test.reference_high && (
-                                    <div className="text-xs text-muted-foreground mt-0.5">
+                                  {test.reference_low && test.reference_high && <div className="text-xs text-muted-foreground mt-0.5">
                                       Reference: {test.reference_low} - {test.reference_high} {test.units}
-                                    </div>
-                                  )}
+                                    </div>}
                                 </div>
                               </div>
                               <div className="flex items-center gap-4">
@@ -884,9 +876,8 @@ export default function HealthCareSection() {
                                   <span className="text-sm font-rounded font-semibold">{Math.abs(trendValue)}%</span>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            </div>;
+                  })}
                       </div>
 
                       {/* Detailed Explanation */}
