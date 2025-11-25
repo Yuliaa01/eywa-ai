@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, Clock, Map, List, Utensils, Star, Filter, X } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Map, List, Utensils, Star, Filter, X, Navigation, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useMemo } from "react";
@@ -485,9 +485,28 @@ export default function NearbyRestaurants() {
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-medium mb-3">
+                <div className="text-right space-y-2">
+                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-medium mb-1">
                     {place.match}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.coords.lat},${place.coords.lng}`, '_blank')}
+                      className="flex-1"
+                    >
+                      <Navigation className="w-4 h-4 mr-1" />
+                      Direction
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      <Info className="w-4 h-4 mr-1" />
+                      Details
+                    </Button>
                   </div>
                   <Button className="w-full bg-gradient-to-r from-accent-teal to-accent-teal-alt hover:opacity-90">
                     View Menu
