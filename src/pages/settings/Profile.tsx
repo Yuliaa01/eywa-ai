@@ -70,10 +70,13 @@ export default function ProfileSettings() {
           height_cm: data.height_cm?.toString() || "",
           weight_kg: data.weight_kg?.toString() || "",
         });
-        // Load view mode, AI tone, and macro mode from locale field (stored as JSON)
+        
+        // Load view mode from database column
+        setViewMode(data.view_mode || 'standard');
+        
+        // Load AI tone, macro mode from locale field (stored as JSON)
         try {
           const preferences = data.locale ? JSON.parse(data.locale) : {};
-          setViewMode(preferences.viewMode || 'standard');
           setAiTone(preferences.aiTone || 'friendly');
           setMacroMode(preferences.macroMode || 'ai');
           setPreferredUnits(preferences.preferredUnits || 'metric');
@@ -84,7 +87,6 @@ export default function ProfileSettings() {
             fats: preferences.manualMacros?.fats || ''
           });
         } catch {
-          setViewMode('standard');
           setAiTone('friendly');
           setMacroMode('ai');
           setPreferredUnits('metric');
@@ -105,9 +107,8 @@ export default function ProfileSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Store view mode, AI tone, macro mode, and manual macros in locale field as JSON
+      // Store AI tone, macro mode, and manual macros in locale field as JSON
       const preferences = JSON.stringify({ 
-        viewMode, 
         aiTone, 
         macroMode,
         preferredUnits,
@@ -127,6 +128,7 @@ export default function ProfileSettings() {
           weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
           diet_preferences: dietPreferences,
           allergies: allergies,
+          view_mode: viewMode,
           locale: preferences,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
@@ -746,25 +748,30 @@ export default function ProfileSettings() {
                 <Eye className="w-4 h-4 text-accent" />
                 <Label>View Mode</Label>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Standard', value: 'standard' },
-                  { label: 'Professional', value: 'professional' },
-                  { label: 'Doctor View', value: 'doctor_view' }
+                  { label: 'Standard', value: 'standard', description: 'Goal-focused cards with AI chat' },
+                  { label: 'Professional', value: 'professional', description: 'Apple Health-style metrics grid' }
                 ].map((mode) => (
                   <button
                     key={mode.value}
                     onClick={() => setViewMode(mode.value)}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                    className={`py-3 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard text-left ${
                       viewMode === mode.value
                         ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                         : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                     }`}
                   >
-                    {mode.label}
+                    <div className="font-semibold">{mode.label}</div>
+                    <div className={`text-xs mt-1 ${viewMode === mode.value ? 'text-white/80' : 'text-[#5A6B7F]'}`}>
+                      {mode.description}
+                    </div>
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-[#5A6B7F] mt-2">
+                Switch between Standard view (goals & AI chat) and Professional view (health metrics grid). Save changes to apply.
+              </p>
             </div>
 
             {/* AI Tone */}
