@@ -897,6 +897,7 @@ export default function ProfileSettings() {
             Cancel
           </Button>
           <Button
+            variant="default"
             onClick={handleSave}
             disabled={loading}
             className="flex-1 rounded-xl"
