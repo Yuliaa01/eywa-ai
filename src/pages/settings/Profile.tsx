@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ export default function ProfileSettings() {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
   const [profile, setProfile] = useState({
     first_name: "",
     last_name: "",
@@ -50,6 +51,8 @@ export default function ProfileSettings() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      if (user?.email) setEmail(user.email);
 
       const { data, error } = await supabase
         .from("user_profiles")
@@ -373,6 +376,19 @@ export default function ProfileSettings() {
                   className="rounded-xl"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                disabled
+                className="rounded-xl bg-muted/50 text-muted-foreground cursor-not-allowed"
+              />
             </div>
           </div>
         </div>
