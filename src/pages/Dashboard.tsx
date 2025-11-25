@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import PrioritiesSection from "@/components/dashboard/PrioritiesSection";
+import ProfessionalPrioritiesSection from "@/components/dashboard/ProfessionalPrioritiesSection";
 import NutritionSection from "@/components/dashboard/NutritionSection";
 import ActivitiesSection from "@/components/dashboard/ActivitiesSection";
 import HealthCareSection from "@/components/dashboard/HealthCareSection";
@@ -33,6 +34,7 @@ import HealthCareSection from "@/components/dashboard/HealthCareSection";
 export default function Dashboard() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [viewMode, setViewMode] = useState<'standard' | 'professional'>('standard');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("priorities");
   const navigate = useNavigate();
@@ -42,11 +44,16 @@ export default function Dashboard() {
     const loadUserData = async (userId: string) => {
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('first_name, last_name')
+        .select('first_name, last_name, view_mode')
         .eq('user_id', userId)
         .maybeSingle();
       
       setUserProfile(profile);
+      if (profile?.view_mode === 'professional' || profile?.view_mode === 'standard') {
+        setViewMode(profile.view_mode);
+      } else {
+        setViewMode('standard');
+      }
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -251,7 +258,11 @@ export default function Dashboard() {
 
           {/* Tab Content */}
           <TabsContent value="priorities" className="animate-scale-in">
-            <PrioritiesSection />
+            {viewMode === 'professional' ? (
+              <ProfessionalPrioritiesSection />
+            ) : (
+              <PrioritiesSection />
+            )}
           </TabsContent>
 
           <TabsContent value="nutrition" className="animate-scale-in">

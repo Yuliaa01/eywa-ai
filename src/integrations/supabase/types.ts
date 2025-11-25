@@ -1257,6 +1257,7 @@ export type Database = {
           timezone: string | null
           updated_at: string
           user_id: string
+          view_mode: string | null
           weight_kg: number | null
         }
         Insert: {
@@ -1280,6 +1281,7 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id: string
+          view_mode?: string | null
           weight_kg?: number | null
         }
         Update: {
@@ -1303,6 +1305,7 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id?: string
+          view_mode?: string | null
           weight_kg?: number | null
         }
         Relationships: []
