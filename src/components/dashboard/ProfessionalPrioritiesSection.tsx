@@ -17,6 +17,11 @@ import {
   Droplet,
   Wind,
   Target,
+  Pill,
+  Accessibility,
+  Stethoscope,
+  FileText,
+  Clock,
 } from "lucide-react";
 
 export default function ProfessionalPrioritiesSection() {
@@ -338,6 +343,226 @@ export default function ProfessionalPrioritiesSection() {
     },
   ];
 
+  // Medications metrics
+  const medicationsMetrics = [
+    {
+      icon: <Pill className="w-4 h-4" />,
+      title: "Daily Supplements",
+      value: "3",
+      unit: "/ 5 taken",
+      timestamp: `Today, ${getCurrentTime()}`,
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <Pill className="w-4 h-4" />,
+      title: "Prescriptions",
+      value: "2",
+      unit: "active",
+      timestamp: "Current",
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <Clock className="w-4 h-4" />,
+      title: "Next Dose",
+      value: "2:00 PM",
+      unit: "",
+      timestamp: "Vitamin D",
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <Pill className="w-4 h-4" />,
+      title: "Adherence Rate",
+      value: "95",
+      unit: "%",
+      timestamp: "Last 30 days",
+      trendData: generateTrendData(),
+      hasData: true,
+      badge: "Demo",
+    },
+  ];
+
+  // Mobility metrics
+  const mobilityMetrics = [
+    {
+      icon: <Accessibility className="w-4 h-4" />,
+      title: "Range of Motion",
+      value: "Normal",
+      unit: "",
+      timestamp: "Last assessment",
+      hasData: true,
+      badge: "Demo",
+      trendData: undefined,
+    },
+    {
+      icon: <Target className="w-4 h-4" />,
+      title: "Balance Score",
+      value: "8.5",
+      unit: "/ 10",
+      timestamp: "Last week",
+      trendData: generateTrendData(),
+      hasData: true,
+      badge: "Demo",
+    },
+    {
+      icon: <Footprints className="w-4 h-4" />,
+      title: "Gait Analysis",
+      value: "Stable",
+      unit: "",
+      timestamp: "Last check",
+      hasData: true,
+      badge: "Demo",
+      trendData: undefined,
+    },
+    {
+      icon: <Dumbbell className="w-4 h-4" />,
+      title: "Flexibility",
+      value: "Good",
+      unit: "",
+      timestamp: "Last month",
+      hasData: true,
+      badge: "Demo",
+      trendData: undefined,
+    },
+  ];
+
+  // Respiratory metrics
+  const respiratoryMetrics = [
+    {
+      icon: <Wind className="w-4 h-4" />,
+      title: "Respiratory Rate",
+      value: "14",
+      unit: "breaths/min",
+      timestamp: "Last night",
+      trendData: generateTrendData(),
+      hasData: true,
+      badge: undefined,
+    },
+    {
+      icon: <Wind className="w-4 h-4" />,
+      title: "Blood Oxygen",
+      value: "98",
+      unit: "%",
+      timestamp: `Today, ${getCurrentTime()}`,
+      trendData: generateTrendData(),
+      hasData: true,
+      badge: undefined,
+    },
+    {
+      icon: <Activity className="w-4 h-4" />,
+      title: "Lung Capacity",
+      value: "4.2",
+      unit: "L",
+      timestamp: "Last assessment",
+      hasData: false,
+      badge: "Demo",
+      trendData: undefined,
+    },
+    {
+      icon: <Wind className="w-4 h-4" />,
+      title: "Peak Flow",
+      value: "450",
+      unit: "L/min",
+      timestamp: "This morning",
+      hasData: false,
+      badge: "Demo",
+      trendData: undefined,
+    },
+  ];
+
+  // Symptoms metrics
+  const symptomsMetrics = [
+    {
+      icon: <Stethoscope className="w-4 h-4" />,
+      title: "Active Symptoms",
+      value: "0",
+      unit: "tracked",
+      timestamp: `Today`,
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <Brain className="w-4 h-4" />,
+      title: "Headaches",
+      value: "2",
+      unit: "this month",
+      timestamp: "Last: 3 days ago",
+      trendData: generateTrendData(),
+      hasData: true,
+      badge: "Demo",
+    },
+    {
+      icon: <Heart className="w-4 h-4" />,
+      title: "Pain Level",
+      value: "0",
+      unit: "/ 10",
+      timestamp: `Today`,
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <Stethoscope className="w-4 h-4" />,
+      title: "Fatigue Score",
+      value: "3",
+      unit: "/ 10",
+      timestamp: `Today, ${getCurrentTime()}`,
+      trendData: generateTrendData(),
+      hasData: true,
+      badge: "Demo",
+    },
+  ];
+
+  // Health Records metrics
+  const recordsMetrics = [
+    {
+      icon: <FileText className="w-4 h-4" />,
+      title: "Lab Results",
+      value: "5",
+      unit: "reports",
+      timestamp: "Last: 2 weeks ago",
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <FileText className="w-4 h-4" />,
+      title: "Doctor Visits",
+      value: "3",
+      unit: "this year",
+      timestamp: "Last: 1 month ago",
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <FileText className="w-4 h-4" />,
+      title: "Immunizations",
+      value: "Up to date",
+      unit: "",
+      timestamp: "Last: Flu shot Oct 2024",
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+    {
+      icon: <FileText className="w-4 h-4" />,
+      title: "Uploaded Files",
+      value: "12",
+      unit: "documents",
+      timestamp: "Last: Yesterday",
+      hasData: true,
+      badge: undefined,
+      trendData: undefined,
+    },
+  ];
+
   const getCategoryMetrics = () => {
     switch (activeCategory) {
       case "pinned":
@@ -354,6 +579,16 @@ export default function ProfessionalPrioritiesSection() {
         return heartMetrics;
       case "mental":
         return mentalMetrics;
+      case "medications":
+        return medicationsMetrics;
+      case "mobility":
+        return mobilityMetrics;
+      case "respiratory":
+        return respiratoryMetrics;
+      case "symptoms":
+        return symptomsMetrics;
+      case "records":
+        return recordsMetrics;
       default:
         return pinnedMetrics;
     }
@@ -375,6 +610,16 @@ export default function ProfessionalPrioritiesSection() {
         return "Heart / Vitals";
       case "mental":
         return "Mental Wellbeing";
+      case "medications":
+        return "Medications";
+      case "mobility":
+        return "Mobility";
+      case "respiratory":
+        return "Respiratory";
+      case "symptoms":
+        return "Symptoms";
+      case "records":
+        return "Health Records";
       default:
         return "Health Metrics";
     }
@@ -382,11 +627,6 @@ export default function ProfessionalPrioritiesSection() {
 
   return (
     <div className="max-w-[1400px] mx-auto">
-      {/* AI Chat at top */}
-      <div className="mb-6">
-        <AIChatCenter />
-      </div>
-
       {/* Main layout: Sidebar + Metrics Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
         {/* Left: Category Sidebar - Hidden on mobile, shown as tabs instead */}
@@ -410,6 +650,11 @@ export default function ProfessionalPrioritiesSection() {
               { id: "sleep", label: "Sleep" },
               { id: "heart", label: "Heart" },
               { id: "mental", label: "Mental" },
+              { id: "medications", label: "Medications" },
+              { id: "mobility", label: "Mobility" },
+              { id: "respiratory", label: "Respiratory" },
+              { id: "symptoms", label: "Symptoms" },
+              { id: "records", label: "Records" },
             ].map((cat) => (
               <button
                 key={cat.id}
@@ -428,9 +673,15 @@ export default function ProfessionalPrioritiesSection() {
 
         {/* Right: Metrics Grid */}
         <div>
-          <h2 className="text-2xl font-bold text-[#0E1012] mb-6">
+          <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
             {getCategoryTitle()}
           </h2>
+
+          {/* AI Chat below category title */}
+          <div className="mb-6">
+            <AIChatCenter />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {getCategoryMetrics().map((metric, index) => (
               <MetricCard
