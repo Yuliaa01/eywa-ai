@@ -1,4 +1,4 @@
-import { Activity, Heart, Moon, Brain, Salad, Scale, Star } from "lucide-react";
+import { Activity, Heart, Moon, Brain, Salad, Scale, Star, Pill, Accessibility, Wind, Stethoscope, FileText } from "lucide-react";
 
 interface HealthCategorySidebarProps {
   activeCategory: string;
@@ -13,6 +13,11 @@ const categories = [
   { id: "sleep", label: "Sleep", icon: Moon },
   { id: "heart", label: "Heart / Vitals", icon: Heart },
   { id: "mental", label: "Mental", icon: Brain },
+  { id: "medications", label: "Medications", icon: Pill },
+  { id: "mobility", label: "Mobility", icon: Accessibility },
+  { id: "respiratory", label: "Respiratory", icon: Wind },
+  { id: "symptoms", label: "Symptoms", icon: Stethoscope },
+  { id: "records", label: "Health Records", icon: FileText },
 ];
 
 export function HealthCategorySidebar({
