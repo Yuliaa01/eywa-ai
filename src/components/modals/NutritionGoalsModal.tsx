@@ -158,7 +158,7 @@ export function NutritionGoalsModal({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1"
+              className="flex-1 hover:bg-primary hover:text-primary-foreground"
               disabled={loading}
             >
               Cancel
