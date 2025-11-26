@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { AudioRecorder, blobToBase64 } from "@/utils/audioRecorder";
 import { supabase } from "@/integrations/supabase/client";
+import eywaAvatar from "@/assets/eywa-avatar.png";
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -19,6 +21,7 @@ export function AIChatCenter() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,11 +35,22 @@ export function AIChatCenter() {
   }, [messages]);
 
   useEffect(() => {
-    const loadDailyInsight = async () => {
+    const loadUserDataAndInsight = async () => {
       try {
         setInsightLoading(true);
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
+
+        // Load user profile for name
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('first_name')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        
+        if (profile?.first_name) {
+          setUserName(profile.first_name);
+        }
 
         const { data, error } = await supabase.functions.invoke('generate-daily-insight', {
           headers: {
@@ -50,13 +64,13 @@ export function AIChatCenter() {
         }
       } catch (error) {
         console.error('Error loading daily insight:', error);
-        setDailyInsight("I see your recent activity shows progress. Would you like to dive deeper into your health metrics?");
+        setDailyInsight("Your new insight suggests adjusting your Omega-3 intake for long-term cognitive health. How would you like to proceed?");
       } finally {
         setInsightLoading(false);
       }
     };
 
-    loadDailyInsight();
+    loadUserDataAndInsight();
   }, []);
 
   // Request browser notification permission
@@ -392,16 +406,30 @@ export function AIChatCenter() {
             {/* AI Message */}
             <div className="mb-8 space-y-4">
             <div className="relative rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] p-4 sm:p-8 border border-[#12AFCB]/10 shadow-md hover:shadow-lg transition-shadow duration-300 animate-fade-in">
-              {/* New insight badge */}
+              {/* New insight badge with prominent glow */}
               <div className="absolute top-3 right-3">
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#12AFCB]/10 text-xs font-medium text-[#12AFCB]">
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#12AFCB]/20 text-xs font-semibold text-[#12AFCB] shadow-[0_0_20px_rgba(18,175,203,0.4)] animate-glow-pulse">
                   <Sparkles className="w-3 h-3" />
                   New insight
                 </span>
               </div>
               
               {/* Eywa avatar and message */}
-              <div className="flex gap-3 mt-3">
+              <div className="flex gap-4 mt-3 items-start">
+                {/* AI Avatar */}
+                <div className="flex-shrink-0 relative">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#12AFCB]/30 shadow-[0_0_30px_rgba(18,175,203,0.3)] animate-glow-pulse">
+                    <img 
+                      src={eywaAvatar} 
+                      alt="EYWA AI" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {/* Glow effect around avatar */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-radial from-[#12AFCB]/20 to-transparent animate-pulse" />
+                </div>
+                
+                {/* Message content */}
                 <div className="flex-1 relative">
                   {insightLoading ? (
                     <div className="space-y-2">
@@ -410,7 +438,7 @@ export function AIChatCenter() {
                     </div>
                   ) : (
                     <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
-                      {dailyInsight}
+                      Let's focus on your longevity and well-being today{userName ? `, ${userName}` : ''}. {dailyInsight}
                     </p>
                   )}
                   <span className="absolute -bottom-1 right-0 text-xs text-[#5A6B7F]/50">Just now</span>
