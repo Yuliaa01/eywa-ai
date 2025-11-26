@@ -20,7 +20,63 @@ export function useBioAge(): BioAgeData {
   });
 
   useEffect(() => {
-    loadBioAgeData();
+    let mounted = true;
+
+    const loadData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !mounted) {
+          setData(prev => ({ ...prev, loading: false }));
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('dob, biological_age_estimate')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!profile?.dob || !mounted) {
+          setData(prev => ({ ...prev, loading: false }));
+          return;
+        }
+
+        // Calculate chronological age from DOB
+        const birthDate = new Date(profile.dob);
+        const today = new Date();
+        const chronologicalAge = Math.floor(differenceInDays(today, birthDate) / 365.25);
+
+        // Get biological age if available
+        const biologicalAge = profile.biological_age_estimate 
+          ? Math.round(profile.biological_age_estimate) 
+          : null;
+
+        // Calculate difference only if biological age exists
+        let difference = null;
+        let isYounger = false;
+        if (biologicalAge !== null) {
+          difference = chronologicalAge - biologicalAge;
+          isYounger = difference > 0;
+        }
+
+        if (mounted) {
+          setData({
+            chronologicalAge,
+            biologicalAge,
+            difference: difference !== null ? parseFloat(difference.toFixed(1)) : null,
+            isYounger,
+            loading: false,
+          });
+        }
+      } catch (error) {
+        console.error('Error loading bio-age data:', error);
+        if (mounted) {
+          setData(prev => ({ ...prev, loading: false }));
+        }
+      }
+    };
+
+    loadData();
 
     // Subscribe to user_profiles changes for real-time updates
     const channel = supabase
@@ -33,65 +89,16 @@ export function useBioAge(): BioAgeData {
           table: 'user_profiles',
         },
         () => {
-          loadBioAgeData();
+          if (mounted) loadData();
         }
       )
       .subscribe();
 
     return () => {
+      mounted = false;
       supabase.removeChannel(channel);
     };
   }, []);
-
-  const loadBioAgeData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setData(prev => ({ ...prev, loading: false }));
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('dob, biological_age_estimate')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.dob) {
-        setData(prev => ({ ...prev, loading: false }));
-        return;
-      }
-
-      // Calculate chronological age from DOB
-      const birthDate = new Date(profile.dob);
-      const today = new Date();
-      const chronologicalAge = Math.floor(differenceInDays(today, birthDate) / 365.25);
-
-      // Get biological age if available
-      const biologicalAge = profile.biological_age_estimate 
-        ? Math.round(profile.biological_age_estimate) 
-        : null;
-
-      // Calculate difference only if biological age exists
-      let difference = null;
-      let isYounger = false;
-      if (biologicalAge !== null) {
-        difference = chronologicalAge - biologicalAge;
-        isYounger = difference > 0;
-      }
-
-      setData({
-        chronologicalAge,
-        biologicalAge,
-        difference: difference !== null ? parseFloat(difference.toFixed(1)) : null,
-        isYounger,
-        loading: false,
-      });
-    } catch (error) {
-      console.error('Error loading bio-age data:', error);
-      setData(prev => ({ ...prev, loading: false }));
-    }
-  };
 
   return data;
 }
