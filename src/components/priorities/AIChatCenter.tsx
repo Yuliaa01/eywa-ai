@@ -123,13 +123,31 @@ export function AIChatCenter() {
   }, [notificationsEnabled]);
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || input.trim();
-    if (!textToSend || isLoading) return;
+    if ((!textToSend && !selectedImage) || isLoading) return;
+
+    // Prepare message content
+    let messageContent: string | any[] = textToSend;
+    
+    // If there's an image, format as multimodal content
+    if (selectedImage && imagePreview) {
+      messageContent = [
+        { type: "text", text: textToSend || "Please analyze this image." },
+        { type: "image_url", image_url: { url: imagePreview } }
+      ];
+    }
+
     const userMessage: Message = {
       role: "user",
-      content: textToSend
+      content: typeof messageContent === 'string' ? messageContent : textToSend
     };
+    
     setMessages(prev => [...prev, userMessage]);
     setInput("");
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setIsLoading(true);
     try {
       const {
@@ -147,6 +165,12 @@ export function AIChatCenter() {
         return;
       }
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`;
+      // Prepare the actual message to send (with multimodal content if image exists)
+      const messageToSend = {
+        role: "user",
+        content: messageContent
+      };
+
       const response = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -154,7 +178,7 @@ export function AIChatCenter() {
           Authorization: `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage]
+          messages: [...messages, messageToSend]
         })
       });
       if (!response.ok) {
@@ -457,18 +481,18 @@ export function AIChatCenter() {
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              if (input.trim()) {
+              if (input.trim() || selectedImage) {
                 setChatMode(true);
                 setTimeout(() => sendMessage(), 100);
               }
             }
           }} placeholder={isRecording ? "Listening..." : "Ask me anything..."} disabled={isRecording} className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
               <button onClick={() => {
-            if (input.trim()) {
+            if (input.trim() || selectedImage) {
               setChatMode(true);
               setTimeout(() => sendMessage(), 100);
             }
-          }} disabled={!input.trim() || isRecording} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
+          }} disabled={(!input.trim() && !selectedImage) || isRecording} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
                 <Send className="w-4 h-4" />
               </button>
               <button onClick={handleVoiceRecord} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#12AFCB] hover:bg-[#19D0E4]'} text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
@@ -525,12 +549,12 @@ export function AIChatCenter() {
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              if (input.trim() && !isLoading) {
+              if ((input.trim() || selectedImage) && !isLoading) {
                 sendMessage();
               }
             }
           }} placeholder={isRecording ? "Listening..." : "Type your message..."} disabled={isRecording || isLoading} className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
-              <button onClick={() => sendMessage()} disabled={isLoading || !input.trim() || isRecording} className="flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
+              <button onClick={() => sendMessage()} disabled={isLoading || (!input.trim() && !selectedImage) || isRecording} className="flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
                 <Send className="w-4 h-4" />
               </button>
               <button onClick={handleVoiceRecord} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#12AFCB] hover:bg-[#19D0E4]'} text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
