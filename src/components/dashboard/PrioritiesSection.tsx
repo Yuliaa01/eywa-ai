@@ -9,7 +9,7 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { SortableItem } from '@/components/ui/sortable-item';
-import { Target, Calendar, MapPin, Plus, TrendingUp, Heart, Activity, User, ArrowUpRight } from "lucide-react";
+import { Target, Calendar, MapPin, Plus, TrendingUp, Heart, Activity, User, ArrowUpRight, ChevronRight } from "lucide-react";
 
 
 export default function PrioritiesSection() {
@@ -391,7 +391,7 @@ export default function PrioritiesSection() {
   );
 
   const renderPlansCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[150px] flex flex-col">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Plans</h3>
         <button
@@ -401,37 +401,55 @@ export default function PrioritiesSection() {
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
-        {plans.length === 0 ? (
-          <p className="text-sm text-[#5A6B7F]">No plans yet</p>
-        ) : (
-          <DndContext
-            sensors={plansSensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handlePlansDragEnd}
-          >
-            <SortableContext items={plansIds} strategy={plansSortingStrategy}>
-              {orderedPlans.slice(0, 2).map((plan) => (
+      <DndContext
+        sensors={plansSensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handlePlansDragEnd}
+      >
+        <SortableContext items={plansIds} strategy={plansSortingStrategy}>
+          <div className="space-y-2 overflow-y-auto pr-1 flex-1">
+            {plans.length === 0 ? (
+              <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-white/40 p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1">
+                  <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-[#0E1012]">Porto Wellness Retreat</p>
+                    <p className="text-xs text-[#5A6B7F]">Porto</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
+              </div>
+            ) : (
+              orderedPlans.map((plan) => (
                 <SortableItem key={plan.id} id={plan.id} showHandle={false}>
-                  <div 
-                    className="flex items-start gap-3 cursor-pointer hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors"
+                  <div
                     onClick={() => handleEdit(plan)}
+                    className="rounded-2xl bg-white/60 backdrop-blur-sm border border-white/40 p-4 hover:bg-white/80 transition-all cursor-pointer flex items-center justify-between group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-4 h-4 text-[#12AFCB]" />
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[#0E1012] truncate">
+                          {plan.title}
+                        </p>
+                        {plan.location_name && (
+                          <p className="text-xs text-[#5A6B7F]">{plan.location_name}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#0E1012] line-clamp-1">{plan.title}</p>
-                      {plan.location_name && (
-                        <p className="text-xs text-[#5A6B7F] mt-1 line-clamp-1">{plan.location_name}</p>
-                      )}
-                    </div>
+                    <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
                   </div>
                 </SortableItem>
-              ))}
-            </SortableContext>
-          </DndContext>
-        )}
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
+      {/* Drag handle dots at bottom */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>
   );
