@@ -57,27 +57,33 @@ export function useBioAge(): BioAgeData {
         .eq('user_id', user.id)
         .single();
 
-      if (!profile?.dob || !profile?.biological_age_estimate) {
+      if (!profile?.dob) {
         setData(prev => ({ ...prev, loading: false }));
         return;
       }
 
-      // Calculate chronological age
+      // Calculate chronological age from DOB
       const birthDate = new Date(profile.dob);
       const today = new Date();
       const chronologicalAge = Math.floor(differenceInDays(today, birthDate) / 365.25);
 
-      // Get biological age
-      const biologicalAge = Math.round(profile.biological_age_estimate);
+      // Get biological age if available
+      const biologicalAge = profile.biological_age_estimate 
+        ? Math.round(profile.biological_age_estimate) 
+        : null;
 
-      // Calculate difference
-      const difference = chronologicalAge - biologicalAge;
-      const isYounger = difference > 0;
+      // Calculate difference only if biological age exists
+      let difference = null;
+      let isYounger = false;
+      if (biologicalAge !== null) {
+        difference = chronologicalAge - biologicalAge;
+        isYounger = difference > 0;
+      }
 
       setData({
         chronologicalAge,
         biologicalAge,
-        difference: parseFloat(difference.toFixed(1)),
+        difference: difference !== null ? parseFloat(difference.toFixed(1)) : null,
         isYounger,
         loading: false,
       });
