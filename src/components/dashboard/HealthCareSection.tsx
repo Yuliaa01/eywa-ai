@@ -708,15 +708,20 @@ export default function HealthCareSection() {
                     {(() => {
                   const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                   if (ageData) return Math.abs(ageData.difference);
+                  // Fallback calculation
+                  if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) return '—';
                   const birthDate = new Date(displayUserProfile.dob);
-                  const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-                  return Math.abs(parseFloat((chronologicalAge - displayUserProfile.biological_age_estimate).toFixed(1)));
+                  const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+                  const difference = chronologicalAge - displayUserProfile.biological_age_estimate;
+                  return Math.abs(difference);
                 })()} years{' '}
                     {(() => {
                   const ageData = calculateBiologicalAgeDifference(displayUserProfile);
                   if (ageData) return ageData.isYounger ? 'younger' : 'older';
+                  // Fallback calculation
+                  if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) return '';
                   const birthDate = new Date(displayUserProfile.dob);
-                  const chronologicalAge = (new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+                  const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
                   return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
                 })()}
                   </span>
