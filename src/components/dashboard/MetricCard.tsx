@@ -36,12 +36,12 @@ export function MetricCard({
       onClick={onClick}
       className="w-full bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left"
     >
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center text-[#12AFCB] shrink-0">
             {icon}
           </div>
-          <h4 className="text-sm font-medium text-[#0E1012] leading-8">{title}</h4>
+          <h4 className="text-sm font-medium text-[#0E1012]">{title}</h4>
         </div>
         <div className="flex items-center gap-1">
           {onTogglePin && category !== "pinned" && (
