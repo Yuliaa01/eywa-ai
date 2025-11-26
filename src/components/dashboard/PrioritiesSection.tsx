@@ -78,8 +78,8 @@ export default function PrioritiesSection() {
   });
 
   // Card-level drag and drop for reordering cards in column 2
-  type CardType = 'global-goals' | 'today' | 'this-week' | 'plans';
-  const defaultCardOrder: CardType[] = ['global-goals', 'today', 'this-week', 'plans'];
+  type CardType = 'global-goals' | 'today' | 'this-week' | 'plans' | 'longevity-insights';
+  const defaultCardOrder: CardType[] = ['global-goals', 'today', 'this-week', 'plans', 'longevity-insights'];
   
   const {
     orderedItems: orderedCards,
@@ -217,7 +217,7 @@ export default function PrioritiesSection() {
 
   // Card rendering functions
   const renderGlobalGoalsCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Goals</h3>
         <button
@@ -308,11 +308,17 @@ export default function PrioritiesSection() {
           </DndContext>
         )}
       </div>
+      {/* Drag handle dots at bottom */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+      </div>
     </div>
   );
 
   const renderTodayCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[160px] flex flex-col">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[160px] flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Well-being Path</h3>
@@ -347,11 +353,17 @@ export default function PrioritiesSection() {
           </DndContext>
         )}
       </div>
+      {/* Drag handle dots at bottom */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+      </div>
     </div>
   );
 
   const renderThisWeekCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] flex flex-col">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">This Week</h3>
@@ -386,6 +398,12 @@ export default function PrioritiesSection() {
             </SortableContext>
           </DndContext>
         )}
+      </div>
+      {/* Drag handle dots at bottom */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>
   );
@@ -455,7 +473,7 @@ export default function PrioritiesSection() {
   );
 
   const renderLongevityInsightsCard = () => (
-    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[140px]">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[140px]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Insights</h3>
         <button
@@ -504,6 +522,12 @@ export default function PrioritiesSection() {
           </div>
         </div>
       </div>
+      {/* Drag handle dots at bottom */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+        <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
+      </div>
     </div>
   );
 
@@ -517,6 +541,10 @@ export default function PrioritiesSection() {
         return renderThisWeekCard();
       case 'plans':
         return renderPlansCard();
+      case 'longevity-insights':
+        return renderLongevityInsightsCard();
+      default:
+        return null;
     }
   };
 
@@ -529,22 +557,21 @@ export default function PrioritiesSection() {
           <AIChatCenter />
         </div>
 
-        {/* Column 2 Cards - Fixed layout with mixed arrangement */}
+        {/* Column 2 Cards - Draggable and reorderable */}
         <div className="space-y-4 lg:h-[760px]">
-          {/* Longevity Goals - full width */}
-          {renderGlobalGoalsCard()}
-          
-          {/* Well-being Path - full width */}
-          {renderTodayCard()}
-          
-          {/* This Week + Plans - side by side */}
-          <div className="grid grid-cols-2 gap-4">
-            {renderThisWeekCard()}
-            {renderPlansCard()}
-          </div>
-          
-          {/* Longevity Insights - full width */}
-          {renderLongevityInsightsCard()}
+          <DndContext
+            sensors={cardSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleCardDragEnd}
+          >
+            <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+              {orderedCards.map((cardType) => (
+                <SortableItem key={cardType} id={cardType} showHandle={false}>
+                  {getCardRenderer(cardType)}
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
 
