@@ -19,6 +19,7 @@ interface SpecialtiesTabProps {
 
 const filterGroups = [
   { label: "All", value: "all" },
+  { label: "Saved", value: "saved" },
   { label: "Primary Care", value: "primary_care" },
   { label: "Specialists", value: "specialist" },
   { label: "Fitness", value: "fitness" },
@@ -29,16 +30,51 @@ const filterGroups = [
 export default function SpecialtiesTab({ searchQuery }: SpecialtiesTabProps) {
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [filteredSpecialties, setFilteredSpecialties] = useState<Specialty[]>([]);
+  const [savedDoctorIds, setSavedDoctorIds] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSpecialties();
+    loadSavedDoctors();
+
+    // Subscribe to saved_doctors changes for realtime updates
+    const channel = supabase
+      .channel('saved_doctors_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'saved_doctors'
+      }, () => {
+        loadSavedDoctors();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
     filterSpecialties();
-  }, [activeFilter, searchQuery, specialties]);
+  }, [activeFilter, searchQuery, specialties, savedDoctorIds]);
+
+  const loadSavedDoctors = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('saved_doctors')
+        .select('doctor_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      setSavedDoctorIds(data?.map(d => d.doctor_id) || []);
+    } catch (error) {
+      console.error('Error loading saved doctors:', error);
+    }
+  };
 
   const loadSpecialties = async () => {
     try {
@@ -60,8 +96,12 @@ export default function SpecialtiesTab({ searchQuery }: SpecialtiesTabProps) {
   const filterSpecialties = () => {
     let filtered = [...specialties];
 
+    // Apply saved filter
+    if (activeFilter === "saved") {
+      filtered = filtered.filter((s) => savedDoctorIds.includes(s.id));
+    }
     // Apply role group filter
-    if (activeFilter !== "all") {
+    else if (activeFilter !== "all") {
       filtered = filtered.filter((s) => s.role_group === activeFilter);
     }
 
