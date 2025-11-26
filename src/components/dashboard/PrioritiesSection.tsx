@@ -180,7 +180,7 @@ export default function PrioritiesSection() {
   // Card rendering functions
   const renderGlobalGoalsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Goals</h3>
+        <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Longevity Goals</h3>
         <button onClick={() => openModal('global')} className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
@@ -257,7 +257,7 @@ export default function PrioritiesSection() {
   const renderTodayCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[160px] flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-[#12AFCB]" />
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Well-being Path</h3>
+        <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Well-being Path</h3>
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {todayGoals.length === 0 ? <div className="text-sm text-[#5A6B7F] space-y-2">
@@ -286,7 +286,7 @@ export default function PrioritiesSection() {
   const renderThisWeekCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">This Week</h3>
+        <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">This Week</h3>
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {weekGoals.length === 0 ? <div className="text-sm text-[#5A6B7F] space-y-2">
@@ -315,7 +315,7 @@ export default function PrioritiesSection() {
     </div>;
   const renderPlansCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Plans</h3>
+        <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Plans</h3>
         <button onClick={() => openModal('plan')} className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
@@ -358,7 +358,7 @@ export default function PrioritiesSection() {
     </div>;
   const renderLongevityInsightsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 flex-1 flex flex-col py-[20px]">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Insights</h3>
+        <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Longevity Insights</h3>
         <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
