@@ -940,6 +940,35 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_doctors: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_doctor"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_recipes: {
         Row: {
           created_at: string

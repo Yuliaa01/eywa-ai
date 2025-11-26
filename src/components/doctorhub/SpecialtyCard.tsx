@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/glass/GlassCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Play, Clock, Activity, MessageCircle } from "lucide-react";
+import { Play, Clock, Activity, MessageCircle, Heart } from "lucide-react";
 import EvidenceDrawer from "./EvidenceDrawer";
 import DoctorChatModal from "./DoctorChatModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Specialty {
   id: string;
@@ -40,7 +42,92 @@ export default function SpecialtyCard({ specialty }: SpecialtyCardProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
   const Icon = getSpecialtyIcon(specialty.specialty);
+
+  useEffect(() => {
+    checkIfSaved();
+  }, [specialty.id]);
+
+  const checkIfSaved = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('saved_doctors')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('doctor_id', specialty.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setIsSaved(!!data);
+    } catch (error) {
+      console.error('Error checking saved status:', error);
+    }
+  };
+
+  const toggleSave = async () => {
+    if (isSaving) return;
+    
+    try {
+      setIsSaving(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to save doctors",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (isSaved) {
+        // Unsave
+        const { error } = await supabase
+          .from('saved_doctors')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('doctor_id', specialty.id);
+
+        if (error) throw error;
+        
+        setIsSaved(false);
+        toast({
+          title: "Doctor removed",
+          description: `${specialty.name} removed from your saved doctors`
+        });
+      } else {
+        // Save
+        const { error } = await supabase
+          .from('saved_doctors')
+          .insert({
+            user_id: user.id,
+            doctor_id: specialty.id
+          });
+
+        if (error) throw error;
+        
+        setIsSaved(true);
+        toast({
+          title: "Doctor saved",
+          description: `${specialty.name} added to your saved doctors`
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update saved status",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
@@ -67,6 +154,21 @@ export default function SpecialtyCard({ specialty }: SpecialtyCardProps) {
               {specialty.specialty.replace(/_/g, " ")}
             </Badge>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSave}
+            disabled={isSaving}
+            className={`rounded-xl transition-all ${
+              isSaved 
+                ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10' 
+                : 'text-[#5A6B7F] hover:text-[#12AFCB] hover:bg-[#12AFCB]/10'
+            }`}
+          >
+            <Heart 
+              className={`w-5 h-5 transition-all ${isSaved ? 'fill-current' : ''}`}
+            />
+          </Button>
         </div>
 
         {/* Bio */}
