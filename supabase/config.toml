@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.analyze-bio-age]
 verify_jwt = true
+
+[functions.ai-doctor-chat]
+verify_jwt = true

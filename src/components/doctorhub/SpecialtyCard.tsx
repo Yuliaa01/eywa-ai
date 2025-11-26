@@ -2,8 +2,9 @@ import { useState } from "react";
 import { GlassCard } from "@/components/glass/GlassCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Play, Clock, Activity } from "lucide-react";
+import { Play, Clock, Activity, MessageCircle } from "lucide-react";
 import EvidenceDrawer from "./EvidenceDrawer";
+import DoctorChatModal from "./DoctorChatModal";
 
 interface Specialty {
   id: string;
@@ -37,6 +38,7 @@ const getSpecialtyColor = (roleGroup: string) => {
 
 export default function SpecialtyCard({ specialty }: SpecialtyCardProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const Icon = getSpecialtyIcon(specialty.specialty);
 
@@ -119,6 +121,13 @@ export default function SpecialtyCard({ specialty }: SpecialtyCardProps) {
             )}
           </Button>
           <Button
+            onClick={() => setIsChatOpen(true)}
+            className="rounded-xl bg-white/80 backdrop-blur-sm border border-[#12AFCB]/20 hover:bg-[#12AFCB]/5 text-[#12AFCB]"
+          >
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Chat
+          </Button>
+          <Button
             variant="outline"
             onClick={() => setIsDrawerOpen(true)}
             className="rounded-xl border-[#12AFCB]/20 hover:bg-[#12AFCB]/5"
@@ -132,6 +141,13 @@ export default function SpecialtyCard({ specialty }: SpecialtyCardProps) {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         specialty={specialty}
+      />
+
+      <DoctorChatModal
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        doctorId={specialty.id}
+        doctorName={specialty.name}
       />
     </>
   );
