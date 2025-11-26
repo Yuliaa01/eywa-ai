@@ -642,21 +642,22 @@ export default function ProfessionalPrioritiesSection() {
               onCategoryClick={setActiveCategory}
             />
             
-            <Collapsible open={isAIChatOpen} onOpenChange={setIsAIChatOpen}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full gap-2">
-                  {isAIChatOpen ? (
-                    <>
-                      Hide AI Chat <ChevronUp className="h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Show AI Chat <ChevronDown className="h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </Collapsible>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full gap-2"
+              onClick={() => setIsAIChatOpen(!isAIChatOpen)}
+            >
+              {isAIChatOpen ? (
+                <>
+                  Hide AI Chat <ChevronUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Show AI Chat <ChevronDown className="h-4 w-4" />
+                </>
+              )}
+            </Button>
           </div>
         </div>
 
@@ -698,9 +699,11 @@ export default function ProfessionalPrioritiesSection() {
             {getCategoryTitle()}
           </h2>
 
-          <CollapsibleContent className="mb-6">
-            <AIChatCenter />
-          </CollapsibleContent>
+          {isAIChatOpen && (
+            <div className="mb-6">
+              <AIChatCenter />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {getCategoryMetrics().map((metric, index) => (
