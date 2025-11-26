@@ -563,13 +563,13 @@ export default function PrioritiesSection() {
     <div className="max-w-[1400px] mx-auto space-y-6">
       {/* Grid layout with fixed AI Chat height */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full">
-        {/* AI Chat Center - Column 1, Fixed height */}
-        <div className="lg:h-[760px]">
+      {/* AI Chat Center - Column 1, Fixed height */}
+        <div className="lg:h-[760px] flex flex-col">
           <AIChatCenter />
         </div>
 
         {/* Column 2 Cards - Draggable with side-by-side This Week and Plans */}
-        <div className="flex flex-col gap-4 lg:h-[760px]">
+        <div className="flex flex-col gap-4 lg:h-[760px] lg:max-h-[760px]">
           <DndContext
             sensors={cardSensors}
             collisionDetection={closestCenter}
