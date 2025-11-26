@@ -43,10 +43,14 @@ export default function DoctorChatModal({ isOpen, onClose, doctorId, doctorName 
     setIsLoading(true);
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase.functions.invoke('ai-doctor-chat', {
         body: {
           doctorId,
-          messages: newMessages
+          messages: newMessages,
+          userId: user?.id
         }
       });
 
