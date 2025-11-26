@@ -28,6 +28,7 @@ export default function HealthCareSection() {
   const [domainScores, setDomainScores] = useState<any>({});
   const [latestReviewer, setLatestReviewer] = useState<string | null>(null);
   const [expandedTestCategory, setExpandedTestCategory] = useState<string | null>(null);
+  const [bioAgeAnalysis, setBioAgeAnalysis] = useState<string | null>(null);
   const {
     toast
   } = useToast();
@@ -49,6 +50,15 @@ export default function HealthCareSection() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    if (userProfile?.biological_age_estimate && userProfile?.dob) {
+      const ageData = calculateBiologicalAgeDifference(userProfile);
+      if (ageData) {
+        generateBioAgeAnalysis(ageData.biologicalAge, ageData.chronologicalAge);
+      }
+    }
+  }, [userProfile]);
   const loadHealthData = async () => {
     try {
       const {
@@ -155,6 +165,25 @@ export default function HealthCareSection() {
       console.error("Error loading health data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateBioAgeAnalysis = async (biologicalAge: number, chronologicalAge: number) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-bio-age', {
+        body: { biologicalAge, chronologicalAge }
+      });
+
+      if (error) {
+        console.error('Error generating bio-age analysis:', error);
+        return;
+      }
+
+      if (data?.analysis) {
+        setBioAgeAnalysis(data.analysis);
+      }
+    } catch (error) {
+      console.error('Error calling analyze-bio-age function:', error);
     }
   };
   const getTestReminders = () => {
@@ -703,23 +732,21 @@ export default function HealthCareSection() {
               })()}
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                  Your biological age is{' '}
-                  <span className="font-semibold text-foreground">
-                    {(() => {
-                  const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                  if (ageData) {
-                    return `${Math.abs(ageData.difference)} years ${ageData.isYounger ? 'younger' : 'older'}`;
-                  }
-                  // Fallback calculation
-                  if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) return 'similar';
-                  const birthDate = new Date(displayUserProfile.dob);
-                  const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-                  const difference = chronologicalAge - displayUserProfile.biological_age_estimate;
-                  const isYounger = difference > 0;
-                  return `${Math.abs(difference)} years ${isYounger ? 'younger' : 'older'}`;
-                })()}
-                  </span>
-                  {' '}than your chronological age
+                  {bioAgeAnalysis || (() => {
+                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
+                    if (ageData) {
+                      return `Your biological age is ${Math.abs(ageData.difference)} years ${ageData.isYounger ? 'younger' : 'older'} than your chronological age`;
+                    }
+                    // Fallback calculation
+                    if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) {
+                      return 'Your biological age is similar to your chronological age';
+                    }
+                    const birthDate = new Date(displayUserProfile.dob);
+                    const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+                    const difference = chronologicalAge - displayUserProfile.biological_age_estimate;
+                    const isYounger = difference > 0;
+                    return `Your biological age is ${Math.abs(difference)} years ${isYounger ? 'younger' : 'older'} than your chronological age`;
+                  })()}
                 </p>
               </div>
 
