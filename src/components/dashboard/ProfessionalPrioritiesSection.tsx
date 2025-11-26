@@ -657,7 +657,6 @@ export default function ProfessionalPrioritiesSection() {
               { id: "respiratory", label: "Respiratory" },
               { id: "symptoms", label: "Symptoms" },
               { id: "records", label: "Records" },
-              { id: "chat", label: "AI Chat" },
             ].map((cat) => (
               <button
                 key={cat.id}
