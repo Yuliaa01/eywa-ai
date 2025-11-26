@@ -425,11 +425,6 @@ export default function GroceryListSection() {
                         >
                           {item.ingredient}
                         </span>
-                        {item.quantity && (
-                          <span className="text-xs text-[#5A6B7F] mt-0.5 block">
-                            {item.quantity}
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
