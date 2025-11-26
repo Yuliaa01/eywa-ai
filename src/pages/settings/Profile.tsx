@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -838,59 +839,61 @@ export default function ProfileSettings() {
               <p className="text-sm">No files uploaded yet</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {uploadedFiles.map((file: any) => (
-                <div
-                  key={file.id}
-                  className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                      {isImageFile(file.name) ? (
-                        <FileImage className="w-5 h-5 text-accent" />
-                      ) : (
-                        <File className="w-5 h-5 text-accent" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() => getFileUrl(file.storage_path)}
-                        className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
-                      >
-                        {file.name}
-                      </button>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </p>
-                        {getStatusBadge(file.status)}
+            <ScrollArea className="h-[280px] pr-4">
+              <div className="space-y-3">
+                {uploadedFiles.map((file: any) => (
+                  <div
+                    key={file.id}
+                    className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                        {isImageFile(file.name) ? (
+                          <FileImage className="w-5 h-5 text-accent" />
+                        ) : (
+                          <File className="w-5 h-5 text-accent" />
+                        )}
                       </div>
-                      {file.error_message && (
-                        <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>
-                      )}
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      {file.status === 'error' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleReanalyze(file.id, file.storage_path, file.name)}
-                          className="rounded-lg"
+                      <div className="flex-1 min-w-0">
+                        <button
+                          onClick={() => getFileUrl(file.storage_path)}
+                          className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
                         >
-                          Analyze again
-                        </Button>
-                      )}
-                      <button
-                        onClick={() => handleDeleteFile(file.id, file.storage_path)}
-                        className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
-                      >
-                        <X className="w-4 h-4 text-destructive" />
-                      </button>
+                          {file.name}
+                        </button>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs text-muted-foreground">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                          {getStatusBadge(file.status)}
+                        </div>
+                        {file.error_message && (
+                          <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        {file.status === 'error' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleReanalyze(file.id, file.storage_path, file.name)}
+                            className="rounded-lg"
+                          >
+                            Analyze again
+                          </Button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteFile(file.id, file.storage_path)}
+                          className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-4 h-4 text-destructive" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
           )}
         </div>
 
