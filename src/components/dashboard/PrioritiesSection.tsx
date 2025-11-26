@@ -477,7 +477,7 @@ export default function PrioritiesSection() {
   );
 
   const renderLongevityInsightsCard = () => (
-    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[140px]">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 flex-1 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Insights</h3>
         <button
@@ -486,7 +486,7 @@ export default function PrioritiesSection() {
           <Plus className="w-4 h-4 text-[#12AFCB]" />
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 flex-1 content-start">
         {/* Bio-Age Column */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
@@ -527,7 +527,7 @@ export default function PrioritiesSection() {
         </div>
       </div>
       {/* Drag handle dots at bottom */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+      <div className="mt-auto pt-4 flex justify-center gap-1">
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
@@ -569,7 +569,7 @@ export default function PrioritiesSection() {
         </div>
 
         {/* Column 2 Cards - Draggable with side-by-side This Week and Plans */}
-        <div className="space-y-4 lg:h-[760px]">
+        <div className="flex flex-col gap-4 lg:h-[760px]">
           <DndContext
             sensors={cardSensors}
             collisionDetection={closestCenter}
