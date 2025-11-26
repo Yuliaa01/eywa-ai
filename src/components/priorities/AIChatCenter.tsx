@@ -5,7 +5,6 @@ import { toast } from "@/hooks/use-toast";
 import { AudioRecorder, blobToBase64 } from "@/utils/audioRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import eywaAvatar from "@/assets/eywa-avatar.png";
-
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -33,31 +32,32 @@ export function AIChatCenter() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   useEffect(() => {
     const loadUserDataAndInsight = async () => {
       try {
         setInsightLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: {
+            session
+          }
+        } = await supabase.auth.getSession();
         if (!session) return;
 
         // Load user profile for name
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('first_name')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-        
+        const {
+          data: profile
+        } = await supabase.from('user_profiles').select('first_name').eq('user_id', session.user.id).maybeSingle();
         if (profile?.first_name) {
           setUserName(profile.first_name);
         }
-
-        const { data, error } = await supabase.functions.invoke('generate-daily-insight', {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('generate-daily-insight', {
           headers: {
             Authorization: `Bearer ${session.access_token}`
           }
         });
-
         if (error) throw error;
         if (data?.insight?.summary) {
           setDailyInsight(data.insight.summary);
@@ -69,7 +69,6 @@ export function AIChatCenter() {
         setInsightLoading(false);
       }
     };
-
     loadUserDataAndInsight();
   }, []);
 
@@ -87,74 +86,71 @@ export function AIChatCenter() {
   // Subscribe to new insights via Realtime
   useEffect(() => {
     const setupRealtimeSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
+      const channel = supabase.channel('ai-insights-changes').on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'ai_insights',
+        filter: `user_id=eq.${user.id}`
+      }, payload => {
+        console.log('New insight received:', payload);
+        const newInsight = payload.new;
 
-      const channel = supabase
-        .channel('ai-insights-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'ai_insights',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('New insight received:', payload);
-            const newInsight = payload.new;
-            
-            // Update the daily insight
-            if (newInsight.kind === 'education' && newInsight.summary) {
-              setDailyInsight(newInsight.summary);
-              
-              // Show toast notification
-              toast({
-                title: "✨ New Daily Insight Ready!",
-                description: newInsight.summary.substring(0, 100) + "...",
-                duration: 5000,
-              });
+        // Update the daily insight
+        if (newInsight.kind === 'education' && newInsight.summary) {
+          setDailyInsight(newInsight.summary);
 
-              // Show browser notification if enabled
-              if (notificationsEnabled) {
-                new Notification("EYWA AI - New Insight", {
-                  body: newInsight.summary.substring(0, 100) + "...",
-                  icon: "/favicon.ico",
-                  badge: "/favicon.ico",
-                });
-              }
-            }
+          // Show toast notification
+          toast({
+            title: "✨ New Daily Insight Ready!",
+            description: newInsight.summary.substring(0, 100) + "...",
+            duration: 5000
+          });
+
+          // Show browser notification if enabled
+          if (notificationsEnabled) {
+            new Notification("EYWA AI - New Insight", {
+              body: newInsight.summary.substring(0, 100) + "...",
+              icon: "/favicon.ico",
+              badge: "/favicon.ico"
+            });
           }
-        )
-        .subscribe();
-
+        }
+      }).subscribe();
       return () => {
         supabase.removeChannel(channel);
       };
     };
-
     setupRealtimeSubscription();
   }, [notificationsEnabled]);
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || input.trim();
-    if ((!textToSend && !selectedImage) || isLoading) return;
+    if (!textToSend && !selectedImage || isLoading) return;
 
     // Prepare message content
     let messageContent: string | any[] = textToSend;
-    
+
     // If there's an image, format as multimodal content
     if (selectedImage && imagePreview) {
-      messageContent = [
-        { type: "text", text: textToSend || "Please analyze this image." },
-        { type: "image_url", image_url: { url: imagePreview } }
-      ];
+      messageContent = [{
+        type: "text",
+        text: textToSend || "Please analyze this image."
+      }, {
+        type: "image_url",
+        image_url: {
+          url: imagePreview
+        }
+      }];
     }
-
     const userMessage: Message = {
       role: "user",
       content: typeof messageContent === 'string' ? messageContent : textToSend
     };
-    
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setSelectedImage(null);
@@ -184,7 +180,6 @@ export function AIChatCenter() {
         role: "user",
         content: messageContent
       };
-
       const response = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -299,7 +294,6 @@ export function AIChatCenter() {
     setSelectedImage(null);
     setImagePreview(null);
   };
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
@@ -317,7 +311,6 @@ export function AIChatCenter() {
       });
     }
   };
-
   const handleRemoveImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
@@ -419,11 +412,7 @@ export function AIChatCenter() {
                 {/* AI Avatar */}
                 <div className="flex-shrink-0 relative">
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#12AFCB]/30 shadow-[0_0_30px_rgba(18,175,203,0.3)] animate-glow-pulse">
-                    <img 
-                      src={eywaAvatar} 
-                      alt="EYWA AI" 
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={eywaAvatar} alt="EYWA AI" className="w-full h-full object-cover" />
                   </div>
                   {/* Glow effect around avatar */}
                   <div className="absolute inset-0 rounded-full bg-gradient-radial from-[#12AFCB]/20 to-transparent animate-pulse" />
@@ -431,16 +420,12 @@ export function AIChatCenter() {
                 
                 {/* Message content */}
                 <div className="flex-1 relative">
-                  {insightLoading ? (
-                    <div className="space-y-2">
+                  {insightLoading ? <div className="space-y-2">
                       <div className="h-4 bg-[#12AFCB]/10 rounded animate-pulse w-full"></div>
                       <div className="h-4 bg-[#12AFCB]/10 rounded animate-pulse w-3/4"></div>
-                    </div>
-                  ) : (
-                    <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
+                    </div> : <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
                       {dailyInsight}
-                    </p>
-                  )}
+                    </p>}
                   <span className="absolute -bottom-1 right-0 text-xs text-[#5A6B7F]/50">Just now</span>
                 </div>
               </div>
@@ -460,8 +445,9 @@ export function AIChatCenter() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in" style={{
             animationDelay: '150ms'
           }}>
-              <button onClick={() => handleSendWithMessage("Show me my overall health progress and trends")} className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200">
-                📊 View Progress
+              <button onClick={() => handleSendWithMessage("Show me my overall health progress and trends")} className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200 text-center">
+                📊
+View Progress
               </button>
               <button onClick={() => handleSendWithMessage("Give me a detailed sleep analysis and recommendations")} className="rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/10 p-4 text-sm text-[#0E1012] font-medium hover:scale-105 hover:shadow-lg transition-all duration-200">
                 💤 Sleep Analysis
@@ -479,32 +465,15 @@ export function AIChatCenter() {
           {/* Chat Input at Very Bottom */}
           <div className="mt-auto pt-6 flex-shrink-0">
             {/* Image Preview */}
-            {imagePreview && (
-              <div className="mb-3 relative inline-block">
+            {imagePreview && <div className="mb-3 relative inline-block">
                 <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-[#12AFCB]/20" />
-                <button
-                  onClick={handleRemoveImage}
-                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center"
-                >
+                <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center">
                   <X className="w-4 h-4" />
                 </button>
-              </div>
-            )}
+              </div>}
             <div className="flex items-center gap-3">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                accept="image/*"
-                capture
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isRecording}
-                className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
-                title="Take photo or choose from gallery"
-              >
+              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" capture className="hidden" />
+              <button onClick={() => fileInputRef.current?.click()} disabled={isRecording} className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105" title="Take photo or choose from gallery">
                 <Camera className="w-4 h-4" />
               </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
@@ -521,7 +490,7 @@ export function AIChatCenter() {
               setChatMode(true);
               setTimeout(() => sendMessage(), 100);
             }
-          }} disabled={(!input.trim() && !selectedImage) || isRecording} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
+          }} disabled={!input.trim() && !selectedImage || isRecording} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
                 <Send className="w-4 h-4" />
               </button>
               <button onClick={handleVoiceRecord} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#12AFCB] hover:bg-[#19D0E4]'} text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
@@ -556,24 +525,14 @@ export function AIChatCenter() {
           {/* Input area at very bottom */}
           <div className="pt-4 border-t border-[#12AFCB]/10 flex-shrink-0">
             {/* Image Preview */}
-            {imagePreview && (
-              <div className="mb-3 relative inline-block">
+            {imagePreview && <div className="mb-3 relative inline-block">
                 <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-[#12AFCB]/20" />
-                <button
-                  onClick={handleRemoveImage}
-                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center"
-                >
+                <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center">
                   <X className="w-4 h-4" />
                 </button>
-              </div>
-            )}
+              </div>}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isRecording || isLoading}
-                className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
-                title="Take photo or choose from gallery"
-              >
+              <button onClick={() => fileInputRef.current?.click()} disabled={isRecording || isLoading} className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105" title="Take photo or choose from gallery">
                 <Camera className="w-4 h-4" />
               </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
@@ -584,7 +543,7 @@ export function AIChatCenter() {
               }
             }
           }} placeholder={isRecording ? "Listening..." : "Type your message..."} disabled={isRecording || isLoading} className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
-              <button onClick={() => sendMessage()} disabled={isLoading || (!input.trim() && !selectedImage) || isRecording} className="flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
+              <button onClick={() => sendMessage()} disabled={isLoading || !input.trim() && !selectedImage || isRecording} className="flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
                 <Send className="w-4 h-4" />
               </button>
               <button onClick={handleVoiceRecord} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#12AFCB] hover:bg-[#19D0E4]'} text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
