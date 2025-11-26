@@ -89,7 +89,7 @@ export default function ProfessionalPrioritiesSection() {
   const activityMetrics = [
     {
       icon: <Flame className="w-4 h-4" />,
-      title: "Move Ring",
+      title: "Move",
       value: "420",
       unit: "/ 600 cal",
       timestamp: `Today, ${getCurrentTime()}`,
