@@ -796,6 +796,30 @@ export type Database = {
         }
         Relationships: []
       }
+      pinned_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metric_category: string
+          metric_title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metric_category: string
+          metric_title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metric_category?: string
+          metric_title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       priorities: {
         Row: {
           created_at: string

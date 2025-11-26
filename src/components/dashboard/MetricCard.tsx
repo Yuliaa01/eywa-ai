@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pin } from "lucide-react";
 import { TrendBar } from "./TrendBar";
 
 interface MetricCardProps {
@@ -12,6 +12,9 @@ interface MetricCardProps {
   hasData?: boolean;
   onClick?: () => void;
   badge?: string;
+  isPinned?: boolean;
+  onTogglePin?: () => void;
+  category?: string;
 }
 
 export function MetricCard({
@@ -24,6 +27,9 @@ export function MetricCard({
   hasData = true,
   onClick,
   badge,
+  isPinned = false,
+  onTogglePin,
+  category,
 }: MetricCardProps) {
   return (
     <button
@@ -38,6 +44,22 @@ export function MetricCard({
           <h4 className="text-sm font-medium text-[#0E1012]">{title}</h4>
         </div>
         <div className="flex items-center gap-1">
+          {onTogglePin && category !== "pinned" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin();
+              }}
+              className={`p-1 rounded-lg transition-colors ${
+                isPinned
+                  ? "text-[#12AFCB] bg-[#12AFCB]/10"
+                  : "text-gray-400 hover:text-[#12AFCB] hover:bg-[#12AFCB]/5"
+              }`}
+              title={isPinned ? "Unpin metric" : "Pin metric"}
+            >
+              <Pin className="w-3.5 h-3.5" fill={isPinned ? "currentColor" : "none"} />
+            </button>
+          )}
           {badge && (
             <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md">
               {badge}
