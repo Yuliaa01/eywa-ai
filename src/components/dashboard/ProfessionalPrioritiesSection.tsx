@@ -22,10 +22,15 @@ import {
   Stethoscope,
   FileText,
   Clock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export default function ProfessionalPrioritiesSection() {
   const [activeCategory, setActiveCategory] = useState("pinned");
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
   // Mock data generators
   const generateTrendData = () =>
@@ -673,13 +678,30 @@ export default function ProfessionalPrioritiesSection() {
 
         {/* Right: Metrics Grid */}
         <div>
-          <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
-            {getCategoryTitle()}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-[#0E1012]">
+              {getCategoryTitle()}
+            </h2>
+            
+            <Collapsible open={isAIChatOpen} onOpenChange={setIsAIChatOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  {isAIChatOpen ? (
+                    <>
+                      Hide AI Chat <ChevronUp className="h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      Show AI Chat <ChevronDown className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </CollapsibleTrigger>
 
-          {/* AI Chat below category title */}
-          <div className="mb-6">
-            <AIChatCenter />
+              <CollapsibleContent className="mt-4 mb-6">
+                <AIChatCenter />
+              </CollapsibleContent>
+            </Collapsible>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
