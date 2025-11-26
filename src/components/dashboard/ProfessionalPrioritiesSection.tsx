@@ -109,7 +109,7 @@ export default function ProfessionalPrioritiesSection() {
     },
     {
       icon: <TrendingUp className="w-4 h-4" />,
-      title: "Stand Ring",
+      title: "Stand",
       value: "10",
       unit: "/ 12 hrs",
       timestamp: `Today`,
