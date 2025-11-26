@@ -468,7 +468,7 @@ export function AIChatCenter() {
                 ref={fileInputRef}
                 onChange={handleFileSelect}
                 accept="image/*"
-                capture="environment"
+                capture
                 className="hidden"
               />
               <button
