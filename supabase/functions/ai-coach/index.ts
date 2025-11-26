@@ -7,11 +7,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Input validation schema
+// Input validation schema - supports both text and multimodal content
 const requestSchema = z.object({
   messages: z.array(z.object({
     role: z.string(),
-    content: z.string().max(10000)
+    content: z.union([
+      z.string().max(10000),
+      z.array(z.object({
+        type: z.string(),
+        text: z.string().optional(),
+        image_url: z.object({
+          url: z.string()
+        }).optional()
+      }))
+    ])
   })).min(1).max(50)
 });
 
