@@ -242,6 +242,34 @@ export default function GroceryListSection() {
     }
   };
 
+  const clearAllItems = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('grocery_list_items')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setItems([]);
+      
+      toast({
+        title: "List Cleared",
+        description: "All items have been removed",
+      });
+    } catch (error) {
+      console.error('Error clearing all items:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear list",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8">
@@ -274,6 +302,16 @@ export default function GroceryListSection() {
           </p>
         </div>
         <div className="flex gap-2">
+          {items.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearAllItems}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              Clear All
+            </Button>
+          )}
           {checkedCount > 0 && (
             <Button
               variant="outline"
