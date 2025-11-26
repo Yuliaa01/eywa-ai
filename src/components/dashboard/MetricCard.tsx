@@ -41,7 +41,7 @@ export function MetricCard({
           <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center text-[#12AFCB] shrink-0">
             {icon}
           </div>
-          <h4 className="text-sm font-medium text-[#0E1012]">{title}</h4>
+          <h4 className="text-sm font-medium text-[#0E1012] flex items-center h-8">{title}</h4>
         </div>
         <div className="flex items-center gap-1">
           {onTogglePin && category !== "pinned" && (
