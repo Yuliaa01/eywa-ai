@@ -2,7 +2,7 @@ import { GoalModal } from "@/components/modals/GoalModal";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
 import { GoalActions } from "@/components/priorities/GoalActions";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchActivePriorities, deletePriority, restorePriority, Priority } from "@/api/priorities";
 import { useToast } from "@/hooks/use-toast";
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -79,7 +79,11 @@ export default function PrioritiesSection() {
 
   // Card-level drag and drop for reordering cards in column 2
   type CardType = 'global-goals' | 'today' | 'week-plans-row' | 'longevity-insights';
-  const defaultCardOrder: CardType[] = ['global-goals', 'today', 'week-plans-row', 'longevity-insights'];
+  
+  const cardItems = useMemo<CardType[]>(
+    () => ['global-goals', 'today', 'week-plans-row', 'longevity-insights'],
+    []
+  );
   
   const {
     orderedItems: orderedCards,
@@ -87,7 +91,7 @@ export default function PrioritiesSection() {
     handleDragEnd: handleCardDragEnd,
     itemIds: cardIds,
   } = useDragAndDrop({
-    items: defaultCardOrder,
+    items: cardItems,
     storageKey: 'priorities-cards-order',
     idExtractor: (item) => item,
   });
