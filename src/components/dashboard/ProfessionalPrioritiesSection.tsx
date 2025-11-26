@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { HealthCategorySidebar } from "./HealthCategorySidebar";
 import { MetricCard } from "./MetricCard";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
+import { usePinnedMetrics } from "@/hooks/usePinnedMetrics";
 import {
   Activity,
   Heart,
@@ -26,6 +27,7 @@ import {
 
 export default function ProfessionalPrioritiesSection() {
   const [activeCategory, setActiveCategory] = useState("pinned");
+  const { isPinned, togglePin } = usePinnedMetrics();
 
   // Mock data generators
   const generateTrendData = () =>
@@ -564,9 +566,26 @@ export default function ProfessionalPrioritiesSection() {
   ];
 
   const getCategoryMetrics = () => {
+    const allMetrics = [
+      ...activityMetrics,
+      ...bodyMetrics,
+      ...nutritionMetrics,
+      ...sleepMetrics,
+      ...heartMetrics,
+      ...mentalMetrics,
+      ...medicationsMetrics,
+      ...mobilityMetrics,
+      ...respiratoryMetrics,
+      ...symptomsMetrics,
+      ...recordsMetrics,
+    ];
+
     switch (activeCategory) {
       case "pinned":
-        return pinnedMetrics;
+        // Show only metrics that are pinned
+        return allMetrics.filter((metric) =>
+          isPinned(getCategoryForMetric(metric), metric.title)
+        );
       case "activity":
         return activityMetrics;
       case "body":
@@ -592,6 +611,22 @@ export default function ProfessionalPrioritiesSection() {
       default:
         return pinnedMetrics;
     }
+  };
+
+  // Helper function to determine which category a metric belongs to
+  const getCategoryForMetric = (metric: any) => {
+    if (activityMetrics.includes(metric)) return "activity";
+    if (bodyMetrics.includes(metric)) return "body";
+    if (nutritionMetrics.includes(metric)) return "nutrition";
+    if (sleepMetrics.includes(metric)) return "sleep";
+    if (heartMetrics.includes(metric)) return "heart";
+    if (mentalMetrics.includes(metric)) return "mental";
+    if (medicationsMetrics.includes(metric)) return "medications";
+    if (mobilityMetrics.includes(metric)) return "mobility";
+    if (respiratoryMetrics.includes(metric)) return "respiratory";
+    if (symptomsMetrics.includes(metric)) return "symptoms";
+    if (recordsMetrics.includes(metric)) return "records";
+    return "activity"; // default
   };
 
   const getCategoryTitle = () => {
@@ -683,20 +718,29 @@ export default function ProfessionalPrioritiesSection() {
             <AIChatCenter />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {getCategoryMetrics().map((metric, index) => (
-                <MetricCard
-                  key={index}
-                  icon={metric.icon}
-                  title={metric.title}
-                  value={metric.value}
-                  unit={metric.unit}
-                  timestamp={metric.timestamp}
-                  trendData={metric.trendData}
-                  hasData={metric.hasData}
-                  badge={metric.badge}
-                  onClick={() => console.log("Metric clicked:", metric.title)}
-                />
-              ))}
+              {getCategoryMetrics().map((metric, index) => {
+                const metricCategory = activeCategory === "pinned" 
+                  ? getCategoryForMetric(metric) 
+                  : activeCategory;
+                
+                return (
+                  <MetricCard
+                    key={index}
+                    icon={metric.icon}
+                    title={metric.title}
+                    value={metric.value}
+                    unit={metric.unit}
+                    timestamp={metric.timestamp}
+                    trendData={metric.trendData}
+                    hasData={metric.hasData}
+                    badge={metric.badge}
+                    category={activeCategory}
+                    isPinned={isPinned(metricCategory, metric.title)}
+                    onTogglePin={() => togglePin(metricCategory, metric.title)}
+                    onClick={() => console.log("Metric clicked:", metric.title)}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
