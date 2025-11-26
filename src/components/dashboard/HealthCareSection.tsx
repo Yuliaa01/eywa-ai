@@ -707,22 +707,16 @@ export default function HealthCareSection() {
                   <span className="font-semibold text-foreground">
                     {(() => {
                   const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                  if (ageData) return Math.abs(ageData.difference);
+                  if (ageData) {
+                    return `${Math.abs(ageData.difference)} years ${ageData.isYounger ? 'younger' : 'older'}`;
+                  }
                   // Fallback calculation
-                  if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) return '—';
+                  if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) return 'similar';
                   const birthDate = new Date(displayUserProfile.dob);
                   const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
                   const difference = chronologicalAge - displayUserProfile.biological_age_estimate;
-                  return Math.abs(difference);
-                })()} years{' '}
-                    {(() => {
-                  const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                  if (ageData) return ageData.isYounger ? 'younger' : 'older';
-                  // Fallback calculation
-                  if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) return '';
-                  const birthDate = new Date(displayUserProfile.dob);
-                  const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-                  return chronologicalAge > displayUserProfile.biological_age_estimate ? 'younger' : 'older';
+                  const isYounger = difference > 0;
+                  return `${Math.abs(difference)} years ${isYounger ? 'younger' : 'older'}`;
                 })()}
                   </span>
                   {' '}than your chronological age
