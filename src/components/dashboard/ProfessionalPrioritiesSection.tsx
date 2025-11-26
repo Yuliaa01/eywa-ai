@@ -99,7 +99,7 @@ export default function ProfessionalPrioritiesSection() {
     },
     {
       icon: <Timer className="w-4 h-4" />,
-      title: "Exercise Ring",
+      title: "Exercise",
       value: "28",
       unit: "/ 30 min",
       timestamp: `Today`,
