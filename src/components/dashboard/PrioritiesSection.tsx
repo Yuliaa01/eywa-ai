@@ -78,8 +78,8 @@ export default function PrioritiesSection() {
   });
 
   // Card-level drag and drop for reordering cards in column 2
-  type CardType = 'global-goals' | 'today' | 'this-week' | 'plans' | 'longevity-insights';
-  const defaultCardOrder: CardType[] = ['global-goals', 'today', 'this-week', 'plans', 'longevity-insights'];
+  type CardType = 'global-goals' | 'today' | 'week-plans-row' | 'longevity-insights';
+  const defaultCardOrder: CardType[] = ['global-goals', 'today', 'week-plans-row', 'longevity-insights'];
   
   const {
     orderedItems: orderedCards,
@@ -531,16 +531,23 @@ export default function PrioritiesSection() {
     </div>
   );
 
+  const renderWeekPlansRow = () => {
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        {renderThisWeekCard()}
+        {renderPlansCard()}
+      </div>
+    );
+  };
+
   const getCardRenderer = (cardType: CardType) => {
     switch (cardType) {
       case 'global-goals':
         return renderGlobalGoalsCard();
       case 'today':
         return renderTodayCard();
-      case 'this-week':
-        return renderThisWeekCard();
-      case 'plans':
-        return renderPlansCard();
+      case 'week-plans-row':
+        return renderWeekPlansRow();
       case 'longevity-insights':
         return renderLongevityInsightsCard();
       default:
@@ -557,22 +564,21 @@ export default function PrioritiesSection() {
           <AIChatCenter />
         </div>
 
-        {/* Column 2 Cards - Fixed layout with side-by-side This Week and Plans */}
+        {/* Column 2 Cards - Draggable with side-by-side This Week and Plans */}
         <div className="space-y-4 lg:h-[760px]">
-          {/* Longevity Goals */}
-          {renderGlobalGoalsCard()}
-          
-          {/* Well-being Path */}
-          {renderTodayCard()}
-          
-          {/* This Week + Plans - side by side */}
-          <div className="grid grid-cols-2 gap-4">
-            {renderThisWeekCard()}
-            {renderPlansCard()}
-          </div>
-          
-          {/* Longevity Insights */}
-          {renderLongevityInsightsCard()}
+          <DndContext
+            sensors={cardSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleCardDragEnd}
+          >
+            <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+              {orderedCards.map((cardType) => (
+                <SortableItem key={cardType} id={cardType} showHandle={false}>
+                  {getCardRenderer(cardType)}
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
 
