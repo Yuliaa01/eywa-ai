@@ -161,7 +161,7 @@ export default function SpecialtyCard({ specialty }: SpecialtyCardProps) {
             disabled={isSaving}
             className={`rounded-xl transition-all ${
               isSaved 
-                ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10' 
+                ? 'text-blue-500 hover:text-blue-600 hover:bg-blue-500/10' 
                 : 'text-[#5A6B7F] hover:text-[#12AFCB] hover:bg-[#12AFCB]/10'
             }`}
           >
