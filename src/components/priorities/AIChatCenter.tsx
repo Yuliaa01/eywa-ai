@@ -1,4 +1,4 @@
-import { Mic, Sparkles, X, Send } from "lucide-react";
+import { Mic, Sparkles, X, Send, Paperclip, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -17,8 +17,11 @@ export function AIChatCenter() {
   const [dailyInsight, setDailyInsight] = useState<string>("");
   const [insightLoading, setInsightLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth"
@@ -255,6 +258,34 @@ export function AIChatCenter() {
     setChatMode(false);
     setMessages([]);
     setInput("");
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      toast({
+        title: "Invalid file",
+        description: "Please select an image file",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
   const handleVoiceRecord = async () => {
     if (isRecording) {
@@ -395,7 +426,34 @@ export function AIChatCenter() {
 
           {/* Chat Input at Very Bottom */}
           <div className="mt-auto pt-6 flex-shrink-0">
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="mb-3 relative inline-block">
+                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-[#12AFCB]/20" />
+                <button
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             <div className="flex items-center gap-3">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isRecording}
+                className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
+              >
+                <Paperclip className="w-4 h-4" />
+              </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
@@ -444,7 +502,26 @@ export function AIChatCenter() {
 
           {/* Input area at very bottom */}
           <div className="pt-4 border-t border-[#12AFCB]/10 flex-shrink-0">
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="mb-3 relative inline-block">
+                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-[#12AFCB]/20" />
+                <button
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isRecording || isLoading}
+                className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
+              >
+                <Paperclip className="w-4 h-4" />
+              </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
