@@ -557,7 +557,7 @@ export default function PrioritiesSection() {
           <AIChatCenter />
         </div>
 
-        {/* Column 2 Cards - Draggable and reorderable */}
+        {/* Column 2 Cards - Draggable with custom layout */}
         <div className="space-y-4 lg:h-[760px]">
           <DndContext
             sensors={cardSensors}
@@ -565,11 +565,48 @@ export default function PrioritiesSection() {
             onDragEnd={handleCardDragEnd}
           >
             <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-              {orderedCards.map((cardType) => (
-                <SortableItem key={cardType} id={cardType} showHandle={false}>
-                  {getCardRenderer(cardType)}
-                </SortableItem>
-              ))}
+              {orderedCards.map((cardType, index) => {
+                // Check if this is "this-week" and "plans" is next - render them side by side
+                if (cardType === 'this-week' && orderedCards[index + 1] === 'plans') {
+                  return (
+                    <div key="week-plans-row" className="grid grid-cols-2 gap-4">
+                      <SortableItem id="this-week" showHandle={false}>
+                        {renderThisWeekCard()}
+                      </SortableItem>
+                      <SortableItem id="plans" showHandle={false}>
+                        {renderPlansCard()}
+                      </SortableItem>
+                    </div>
+                  );
+                }
+                // Check if this is "plans" and "this-week" is previous - skip (already rendered)
+                if (cardType === 'plans' && orderedCards[index - 1] === 'this-week') {
+                  return null;
+                }
+                // Check if this is "plans" and "this-week" is next - render them side by side
+                if (cardType === 'plans' && orderedCards[index + 1] === 'this-week') {
+                  return (
+                    <div key="plans-week-row" className="grid grid-cols-2 gap-4">
+                      <SortableItem id="plans" showHandle={false}>
+                        {renderPlansCard()}
+                      </SortableItem>
+                      <SortableItem id="this-week" showHandle={false}>
+                        {renderThisWeekCard()}
+                      </SortableItem>
+                    </div>
+                  );
+                }
+                // Check if this is "this-week" and "plans" is previous - skip (already rendered)
+                if (cardType === 'this-week' && orderedCards[index - 1] === 'plans') {
+                  return null;
+                }
+                // Render other cards normally
+                return (
+                  <SortableItem key={cardType} id={cardType} showHandle={false}>
+                    {getCardRenderer(cardType)}
+                  </SortableItem>
+                );
+              })}
             </SortableContext>
           </DndContext>
         </div>
