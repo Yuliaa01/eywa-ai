@@ -219,7 +219,7 @@ export default function PrioritiesSection() {
   const renderGlobalGoalsCard = () => (
     <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Global Goals</h3>
+        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Goals</h3>
         <button
           onClick={() => openModal('global')}
           className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200"
@@ -229,7 +229,50 @@ export default function PrioritiesSection() {
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {globalGoals.length === 0 ? (
-          <p className="text-sm text-[#5A6B7F]">No global goals yet</p>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
+                <Target className="w-4 h-4 text-[#12AFCB]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[#0E1012] line-clamp-2">Cellular Health (Lower stress)</p>
+                <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500"
+                    style={{ width: '65%' }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
+                <Target className="w-4 h-4 text-[#12AFCB]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[#0E1012] line-clamp-2">Vitality (Daily movement)</p>
+                <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500"
+                    style={{ width: '45%' }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
+                <Target className="w-4 h-4 text-[#12AFCB]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[#0E1012] line-clamp-2">Cognitive Boost</p>
+                <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500"
+                    style={{ width: '80%' }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <DndContext
             sensors={globalSensors}
@@ -272,7 +315,7 @@ export default function PrioritiesSection() {
     <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[160px] flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-[#12AFCB]" />
-        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Today</h3>
+        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Well-being Path</h3>
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3">
         {todayGoals.length === 0 ? (
