@@ -9,7 +9,7 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { SortableItem } from '@/components/ui/sortable-item';
-import { Target, Calendar, MapPin, Plus, TrendingUp } from "lucide-react";
+import { Target, Calendar, MapPin, Plus, TrendingUp, Heart, Activity, User, ArrowUpRight } from "lucide-react";
 
 
 export default function PrioritiesSection() {
@@ -436,6 +436,59 @@ export default function PrioritiesSection() {
     </div>
   );
 
+  const renderLongevityInsightsCard = () => (
+    <div className="rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[140px]">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-rounded text-xl font-bold text-[#0E1012]">Longevity Insights</h3>
+        <button
+          className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200"
+        >
+          <Plus className="w-4 h-4 text-[#12AFCB]" />
+        </button>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        {/* Bio-Age Column */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
+            <User className="w-5 h-5 text-[#12AFCB]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <p className="text-sm font-semibold text-[#0E1012]">Bio-Age: 34</p>
+              <ArrowUpRight className="w-3 h-3 text-[#12AFCB]" />
+            </div>
+            <p className="text-xs text-[#5A6B7F]">(Actual 38)</p>
+          </div>
+        </div>
+
+        {/* Health Score Column */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
+            <Heart className="w-5 h-5 text-[#12AFCB]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <p className="text-sm font-semibold text-[#0E1012]">88/100</p>
+              <ArrowUpRight className="w-3 h-3 text-[#12AFCB]" />
+            </div>
+            <p className="text-xs text-[#5A6B7F]">Health Score</p>
+          </div>
+        </div>
+
+        {/* Key Vitals Column */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
+            <Activity className="w-5 h-5 text-[#12AFCB]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[#0E1012]">Key Vitals</p>
+            <p className="text-xs text-[#5A6B7F]">HR, HRV, BP, BMI</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const getCardRenderer = (cardType: CardType) => {
     switch (cardType) {
       case 'global-goals':
@@ -458,21 +511,22 @@ export default function PrioritiesSection() {
           <AIChatCenter />
         </div>
 
-        {/* Column 2 Cards - Draggable and reorderable, same height as AI Chat */}
+        {/* Column 2 Cards - Fixed layout with mixed arrangement */}
         <div className="space-y-4 lg:h-[760px]">
-          <DndContext
-            sensors={cardSensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleCardDragEnd}
-          >
-            <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-              {orderedCards.map((cardType) => (
-                <SortableItem key={cardType} id={cardType}>
-                  {getCardRenderer(cardType)}
-                </SortableItem>
-              ))}
-            </SortableContext>
-          </DndContext>
+          {/* Longevity Goals - full width */}
+          {renderGlobalGoalsCard()}
+          
+          {/* Well-being Path - full width */}
+          {renderTodayCard()}
+          
+          {/* This Week + Plans - side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            {renderThisWeekCard()}
+            {renderPlansCard()}
+          </div>
+          
+          {/* Longevity Insights - full width */}
+          {renderLongevityInsightsCard()}
         </div>
       </div>
 
