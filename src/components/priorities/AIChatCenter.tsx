@@ -1,4 +1,4 @@
-import { Mic, Sparkles, X, Send, Paperclip, Image as ImageIcon } from "lucide-react";
+import { Mic, Sparkles, X, Send, Paperclip, Image as ImageIcon, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -22,6 +22,7 @@ export function AIChatCenter() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth"
@@ -468,6 +469,13 @@ export function AIChatCenter() {
                 ref={fileInputRef}
                 onChange={handleFileSelect}
                 accept="image/*"
+                className="hidden"
+              />
+              <input
+                type="file"
+                ref={cameraInputRef}
+                onChange={handleFileSelect}
+                accept="image/*"
                 capture="environment"
                 className="hidden"
               />
@@ -477,6 +485,13 @@ export function AIChatCenter() {
                 className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
               >
                 <Paperclip className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={isRecording}
+                className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
+              >
+                <Camera className="w-4 h-4" />
               </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -545,6 +560,13 @@ export function AIChatCenter() {
                 className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
               >
                 <Paperclip className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={isRecording || isLoading}
+                className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105"
+              >
+                <Camera className="w-4 h-4" />
               </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
