@@ -22,15 +22,10 @@ import {
   Stethoscope,
   FileText,
   Clock,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export default function ProfessionalPrioritiesSection() {
   const [activeCategory, setActiveCategory] = useState("pinned");
-  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
   // Mock data generators
   const generateTrendData = () =>
@@ -625,6 +620,8 @@ export default function ProfessionalPrioritiesSection() {
         return "Symptoms";
       case "records":
         return "Health Records";
+      case "chat":
+        return "AI Health Coach";
       default:
         return "Health Metrics";
     }
@@ -636,28 +633,11 @@ export default function ProfessionalPrioritiesSection() {
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
         {/* Left: Category Sidebar - Hidden on mobile, shown as tabs instead */}
         <div className="hidden lg:block">
-          <div className="sticky top-24 space-y-4">
+          <div className="sticky top-24">
             <HealthCategorySidebar
               activeCategory={activeCategory}
               onCategoryClick={setActiveCategory}
             />
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full gap-2"
-              onClick={() => setIsAIChatOpen(!isAIChatOpen)}
-            >
-              {isAIChatOpen ? (
-                <>
-                  Hide AI Chat <ChevronUp className="h-4 w-4" />
-                </>
-              ) : (
-                <>
-                  Show AI Chat <ChevronDown className="h-4 w-4" />
-                </>
-              )}
-            </Button>
           </div>
         </div>
 
@@ -677,6 +657,7 @@ export default function ProfessionalPrioritiesSection() {
               { id: "respiratory", label: "Respiratory" },
               { id: "symptoms", label: "Symptoms" },
               { id: "records", label: "Records" },
+              { id: "chat", label: "AI Chat" },
             ].map((cat) => (
               <button
                 key={cat.id}
@@ -693,34 +674,32 @@ export default function ProfessionalPrioritiesSection() {
           </div>
         </div>
 
-        {/* Right: Metrics Grid */}
+        {/* Right: Content Area */}
         <div>
           <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
             {getCategoryTitle()}
           </h2>
 
-          {isAIChatOpen && (
-            <div className="mb-6">
-              <AIChatCenter />
+          {activeCategory === "chat" ? (
+            <AIChatCenter />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {getCategoryMetrics().map((metric, index) => (
+                <MetricCard
+                  key={index}
+                  icon={metric.icon}
+                  title={metric.title}
+                  value={metric.value}
+                  unit={metric.unit}
+                  timestamp={metric.timestamp}
+                  trendData={metric.trendData}
+                  hasData={metric.hasData}
+                  badge={metric.badge}
+                  onClick={() => console.log("Metric clicked:", metric.title)}
+                />
+              ))}
             </div>
           )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {getCategoryMetrics().map((metric, index) => (
-              <MetricCard
-                key={index}
-                icon={metric.icon}
-                title={metric.title}
-                value={metric.value}
-                unit={metric.unit}
-                timestamp={metric.timestamp}
-                trendData={metric.trendData}
-                hasData={metric.hasData}
-                badge={metric.badge}
-                onClick={() => console.log("Metric clicked:", metric.title)}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </div>
