@@ -213,6 +213,46 @@ export default function GroceryListSection() {
     }
   };
 
+  const parseQuantity = (quantityStr: string | null | undefined): { number: number; unit: string; rest: string } => {
+    if (!quantityStr) return { number: 1, unit: '', rest: '' };
+    
+    const match = quantityStr.match(/^(\d+\.?\d*)\s*([a-zA-Z]*)\s*(.*)$/);
+    if (match) {
+      return {
+        number: parseFloat(match[1]),
+        unit: match[2],
+        rest: match[3]
+      };
+    }
+    return { number: 1, unit: '', rest: quantityStr };
+  };
+
+  const adjustQuantity = async (itemId: string, currentQuantity: string | null | undefined, increment: boolean) => {
+    try {
+      const parsed = parseQuantity(currentQuantity);
+      const newNumber = increment ? parsed.number + 1 : Math.max(1, parsed.number - 1);
+      const newQuantity = `${newNumber}${parsed.unit ? ' ' + parsed.unit : ''}${parsed.rest ? ' ' + parsed.rest : ''}`.trim();
+
+      const { error } = await supabase
+        .from('grocery_list_items')
+        .update({ quantity: newQuantity })
+        .eq('id', itemId);
+
+      if (error) throw error;
+
+      setItems(prev => prev.map(item => 
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      ));
+    } catch (error) {
+      console.error('Error adjusting quantity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to adjust quantity",
+        variant: "destructive",
+      });
+    }
+  };
+
   const clearCheckedItems = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -358,16 +398,16 @@ export default function GroceryListSection() {
                 {categoryItems.map((item) => (
                   <div
                     key={item.id}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                    className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
                       item.checked
                         ? 'bg-[#12AFCB]/5 border-[#12AFCB]/20'
                         : 'bg-white/80 border-[#12AFCB]/10 hover:border-[#12AFCB]/30'
                     }`}
                   >
-                    <div className="flex items-center gap-3 flex-1">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <button
                         onClick={() => toggleItem(item.id, !item.checked)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                           item.checked
                             ? 'bg-[#12AFCB] border-[#12AFCB]'
                             : 'border-[#12AFCB]/30 hover:border-[#12AFCB]'
@@ -375,22 +415,46 @@ export default function GroceryListSection() {
                       >
                         {item.checked && <Check className="w-4 h-4 text-white" />}
                       </button>
-                      <span
-                        className={`text-sm ${
-                          item.checked
-                            ? 'line-through text-[#5A6B7F]'
-                            : 'text-[#0E1012]'
-                        }`}
-                      >
-                        {item.ingredient}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span
+                          className={`text-sm block ${
+                            item.checked
+                              ? 'line-through text-[#5A6B7F]'
+                              : 'text-[#0E1012]'
+                          }`}
+                        >
+                          {item.ingredient}
+                        </span>
+                        {item.quantity && (
+                          <span className="text-xs text-[#5A6B7F] mt-0.5 block">
+                            {item.quantity}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => deleteItem(item.id)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-red-100 text-red-500 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => adjustQuantity(item.id, item.quantity, false)}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-[#12AFCB]/10 text-[#12AFCB] transition-colors"
+                        title="Decrease quantity"
+                      >
+                        <span className="text-lg font-semibold">−</span>
+                      </button>
+                      <button
+                        onClick={() => adjustQuantity(item.id, item.quantity, true)}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-[#12AFCB]/10 text-[#12AFCB] transition-colors"
+                        title="Increase quantity"
+                      >
+                        <span className="text-lg font-semibold">+</span>
+                      </button>
+                      <button
+                        onClick={() => deleteItem(item.id)}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-red-100 text-red-500 transition-colors ml-1"
+                        title="Remove item"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
