@@ -8,6 +8,7 @@ import ChatDrawer from "@/components/ChatDrawer";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useBioAge } from "@/hooks/useBioAge";
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function HealthCareSection() {
   const [latestReviewer, setLatestReviewer] = useState<string | null>(null);
   const [expandedTestCategory, setExpandedTestCategory] = useState<string | null>(null);
   const [bioAgeAnalysis, setBioAgeAnalysis] = useState<string | null>(null);
+  const { chronologicalAge, biologicalAge, difference, isYounger } = useBioAge();
   const {
     toast
   } = useToast();
@@ -52,13 +54,10 @@ export default function HealthCareSection() {
   }, []);
 
   useEffect(() => {
-    if (userProfile?.biological_age_estimate && userProfile?.dob) {
-      const ageData = calculateBiologicalAgeDifference(userProfile);
-      if (ageData) {
-        generateBioAgeAnalysis(ageData.biologicalAge, ageData.chronologicalAge);
-      }
+    if (biologicalAge && chronologicalAge) {
+      generateBioAgeAnalysis(biologicalAge, chronologicalAge);
     }
-  }, [userProfile]);
+  }, [biologicalAge, chronologicalAge]);
   const loadHealthData = async () => {
     try {
       const {

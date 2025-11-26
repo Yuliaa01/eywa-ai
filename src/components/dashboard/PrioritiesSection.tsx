@@ -10,7 +10,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { SortableItem } from '@/components/ui/sortable-item';
 import { Target, Calendar, MapPin, Plus, TrendingUp, Heart, Activity, User, ArrowUpRight, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useBioAge } from "@/hooks/useBioAge";
 export default function PrioritiesSection() {
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalMode, setGoalMode] = useState<'global' | 'temporary' | 'plan'>('global');
@@ -21,8 +21,7 @@ export default function PrioritiesSection() {
   const [globalGoals, setGlobalGoals] = useState<Priority[]>([]);
   const [temporaryGoals, setTemporaryGoals] = useState<Priority[]>([]);
   const [plans, setPlans] = useState<Priority[]>([]);
-  const [actualAge, setActualAge] = useState<number | null>(null);
-  const [bioAge, setBioAge] = useState<number | null>(null);
+  const { chronologicalAge: actualAge, biologicalAge: bioAge } = useBioAge();
   const {
     toast
   } = useToast();
@@ -92,38 +91,7 @@ export default function PrioritiesSection() {
   });
   useEffect(() => {
     loadGoals();
-    loadUserAgeData();
   }, []);
-
-  const loadUserAgeData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('dob, biological_age_estimate')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profile?.dob) {
-        const birthDate = new Date(profile.dob);
-        const today = new Date();
-        const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        const adjustedAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) 
-          ? age - 1 
-          : age;
-        setActualAge(adjustedAge);
-      }
-
-      if (profile?.biological_age_estimate) {
-        setBioAge(Math.round(profile.biological_age_estimate));
-      }
-    } catch (error) {
-      console.error('Error loading user age data:', error);
-    }
-  };
   const loadGoals = async () => {
     try {
       const [globals, temps, planData] = await Promise.all([fetchActivePriorities('global_goal'), fetchActivePriorities('temporary_goal'), Promise.all([fetchActivePriorities('plan_trip'), fetchActivePriorities('plan_event')]).then(([trips, events]) => [...trips, ...events])]);
