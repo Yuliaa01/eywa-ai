@@ -305,9 +305,8 @@ export default function GroceryListSection() {
           {items.length > 0 && (
             <Button
               variant="outline"
-              size="sm"
               onClick={clearAllItems}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="text-[#12AFCB] hover:text-[#0E8FA6] hover:bg-[#12AFCB]/10 border-[#12AFCB]/30"
             >
               Clear All
             </Button>
