@@ -74,7 +74,7 @@ export function HealthCategorySidebar({
       </div>
 
       {/* Separate AI Chat Button */}
-      <button onClick={() => onCategoryClick("chat")} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all border shadow-sm ${activeCategory === "chat" ? "bg-[#12AFCB] text-white border-[#12AFCB]" : "bg-white/80 backdrop-blur-xl text-[#5A6B7F] hover:bg-gray-50 border-gray-100"}`}>
+      <button onClick={() => onCategoryClick("chat")} className={`w-full flex items-center gap-3 pl-7 pr-4 py-3 rounded-2xl transition-all border shadow-sm ${activeCategory === "chat" ? "bg-[#12AFCB] text-white border-[#12AFCB]" : "bg-white/80 backdrop-blur-xl text-[#5A6B7F] hover:bg-gray-50 border-gray-100"}`}>
         <MessageSquare className="w-5 h-5 flex-shrink-0" />
         <span className="text-sm font-medium ">AI Health Coach</span>
       </button>
