@@ -438,7 +438,7 @@ export function AIChatCenter() {
                     </div>
                   ) : (
                     <p className="text-base sm:text-lg leading-relaxed text-[#333333] font-medium pb-6">
-                      Let's focus on your longevity and well-being today{userName ? `, ${userName}` : ''}. {dailyInsight}
+                      {dailyInsight}
                     </p>
                   )}
                   <span className="absolute -bottom-1 right-0 text-xs text-[#5A6B7F]/50">Just now</span>
