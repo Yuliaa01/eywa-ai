@@ -719,32 +719,17 @@ export default function HealthCareSection() {
               
               <div className="flex-1 flex flex-col justify-center text-center py-6">
                 <div className="text-6xl font-rounded font-bold text-foreground mb-4">
-                  {(() => {
-                const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                if (ageData) return ageData.biologicalAge;
-                if (displayUserProfile.biological_age_estimate) {
-                  return Math.floor(displayUserProfile.biological_age_estimate);
-                }
-                // Fallback to chronological age if no biological age estimate
-                const birthDate = new Date(displayUserProfile.dob);
-                return Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-              })()}
+                  {biologicalAge ?? chronologicalAge ?? '—'}
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
                   {bioAgeAnalysis || (() => {
-                    const ageData = calculateBiologicalAgeDifference(displayUserProfile);
-                    if (ageData) {
-                      return `Your biological age is ${Math.abs(ageData.difference)} years ${ageData.isYounger ? 'younger' : 'older'} than your chronological age`;
+                    if (biologicalAge && chronologicalAge && difference !== null) {
+                      return `Your biological age is ${Math.abs(difference)} years ${isYounger ? 'younger' : 'older'} than your chronological age`;
                     }
-                    // Fallback calculation
-                    if (!displayUserProfile?.dob || !displayUserProfile?.biological_age_estimate) {
-                      return 'Your biological age is similar to your chronological age';
+                    if (chronologicalAge) {
+                      return `Your chronological age is ${chronologicalAge} years`;
                     }
-                    const birthDate = new Date(displayUserProfile.dob);
-                    const chronologicalAge = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-                    const difference = chronologicalAge - displayUserProfile.biological_age_estimate;
-                    const isYounger = difference > 0;
-                    return `Your biological age is ${Math.abs(difference)} years ${isYounger ? 'younger' : 'older'} than your chronological age`;
+                    return 'Complete your profile to see your biological age estimate';
                   })()}
                 </p>
               </div>
