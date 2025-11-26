@@ -636,11 +636,27 @@ export default function ProfessionalPrioritiesSection() {
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
         {/* Left: Category Sidebar - Hidden on mobile, shown as tabs instead */}
         <div className="hidden lg:block">
-          <div className="sticky top-24">
+          <div className="sticky top-24 space-y-4">
             <HealthCategorySidebar
               activeCategory={activeCategory}
               onCategoryClick={setActiveCategory}
             />
+            
+            <Collapsible open={isAIChatOpen} onOpenChange={setIsAIChatOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full gap-2">
+                  {isAIChatOpen ? (
+                    <>
+                      Hide AI Chat <ChevronUp className="h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      Show AI Chat <ChevronDown className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </Collapsible>
           </div>
         </div>
 
@@ -678,31 +694,13 @@ export default function ProfessionalPrioritiesSection() {
 
         {/* Right: Metrics Grid */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[#0E1012]">
-              {getCategoryTitle()}
-            </h2>
-            
-            <Collapsible open={isAIChatOpen} onOpenChange={setIsAIChatOpen}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  {isAIChatOpen ? (
-                    <>
-                      Hide AI Chat <ChevronUp className="h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Show AI Chat <ChevronDown className="h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </CollapsibleTrigger>
+          <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
+            {getCategoryTitle()}
+          </h2>
 
-              <CollapsibleContent className="mt-4 mb-6">
-                <AIChatCenter />
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <CollapsibleContent className="mb-6">
+            <AIChatCenter />
+          </CollapsibleContent>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {getCategoryMetrics().map((metric, index) => (
