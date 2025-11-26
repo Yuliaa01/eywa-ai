@@ -323,7 +323,7 @@ export default function PrioritiesSection() {
       <DndContext sensors={plansSensors} collisionDetection={closestCenter} onDragEnd={handlePlansDragEnd}>
         <SortableContext items={plansIds} strategy={plansSortingStrategy}>
           <div className="space-y-2 overflow-y-auto pr-1 flex-1">
-            {plans.length === 0 ? <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-white/40 p-4 flex items-center justify-between">
+            {plans.length === 0 ? <div className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1">
                   <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
                   <div>
@@ -333,7 +333,7 @@ export default function PrioritiesSection() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
               </div> : orderedPlans.map(plan => <SortableItem key={plan.id} id={plan.id} showHandle={false}>
-                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-white/60 backdrop-blur-sm border border-white/40 p-4 hover:bg-white/80 transition-all cursor-pointer flex items-center justify-between group">
+                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 hover:bg-[#12AFCB]/20 transition-all cursor-pointer flex items-center justify-between group">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
                       <div className="flex-1 min-w-0">
