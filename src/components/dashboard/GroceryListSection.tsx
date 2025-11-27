@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Loader2, Check, X, RefreshCw, Share } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ShoppingCart, Loader2, Check, X, RefreshCw, Share, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek, addDays } from "date-fns";
 
@@ -22,6 +23,7 @@ export default function GroceryListSection() {
   const [items, setItems] = useState<GroceryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [newItem, setNewItem] = useState("");
   const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
 
   useEffect(() => {
@@ -336,6 +338,47 @@ export default function GroceryListSection() {
     }
   };
 
+  const addCustomItem = async () => {
+    if (!newItem.trim()) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const category = categorizeIngredient(newItem);
+      
+      const { data, error } = await supabase
+        .from('grocery_list_items')
+        .insert({
+          user_id: user.id,
+          ingredient: newItem.trim(),
+          category,
+          checked: false
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setItems([...items, data]);
+        setNewItem("");
+        
+        toast({
+          title: "Item Added",
+          description: `${newItem} has been added to your list`,
+        });
+      }
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatGroceryListText = (): string => {
     const date = format(new Date(), 'MMMM dd, yyyy');
     let text = `🛒 Grocery List - ${date}\n`;
@@ -497,6 +540,29 @@ export default function GroceryListSection() {
             )}
           </Button>
         </div>
+      </div>
+
+      {/* Add custom item input */}
+      <div className="mb-6 flex gap-2">
+        <Input
+          placeholder="Add custom item (e.g., 2 cups rice)"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              addCustomItem();
+            }
+          }}
+          className="flex-1 bg-white/80"
+        />
+        <Button
+          onClick={addCustomItem}
+          disabled={!newItem.trim()}
+          className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add
+        </Button>
       </div>
 
       {items.length === 0 ? (
