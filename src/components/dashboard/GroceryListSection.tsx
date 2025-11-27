@@ -367,42 +367,53 @@ export default function GroceryListSection() {
 
       // Check if Web Share API is available and supports file sharing
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Grocery List',
-          text: 'My grocery list'
-        });
-        toast({
-          title: "Shared Successfully",
-          description: "Your grocery list has been shared",
-        });
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Grocery List',
+            text: 'My grocery list'
+          });
+          toast({
+            title: "Shared Successfully",
+            description: "Your grocery list has been shared",
+          });
+          return;
+        } catch (shareError) {
+          // If share fails (e.g., in iframe), fall through to clipboard
+          if ((shareError as Error).name === 'AbortError') {
+            return; // User cancelled
+          }
+        }
       } else if (navigator.share) {
-        // Fallback to text sharing
-        await navigator.share({
-          title: 'Grocery List',
-          text: text
-        });
-        toast({
-          title: "Shared Successfully",
-          description: "Your grocery list has been shared",
-        });
-      } else {
-        // Final fallback: copy to clipboard
-        await navigator.clipboard.writeText(text);
-        toast({
-          title: "Copied to Clipboard",
-          description: "Grocery list copied. You can paste it in any app.",
-        });
+        try {
+          await navigator.share({
+            title: 'Grocery List',
+            text: text
+          });
+          toast({
+            title: "Shared Successfully",
+            description: "Your grocery list has been shared",
+          });
+          return;
+        } catch (shareError) {
+          // If share fails (e.g., in iframe), fall through to clipboard
+          if ((shareError as Error).name === 'AbortError') {
+            return; // User cancelled
+          }
+        }
       }
+      
+      // Fallback: copy to clipboard (works in all contexts)
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied to Clipboard",
+        description: "Grocery list copied. You can paste it in any app.",
+      });
     } catch (error) {
-      if ((error as Error).name === 'AbortError') {
-        // User cancelled the share - not an error
-        return;
-      }
       console.error('Error sharing:', error);
       toast({
         title: "Error",
-        description: "Failed to share grocery list",
+        description: "Failed to copy grocery list",
         variant: "destructive",
       });
     }
