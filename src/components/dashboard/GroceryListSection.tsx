@@ -452,7 +452,7 @@ export default function GroceryListSection() {
                                 step="0.5"
                                 value={parsed.number}
                                 onChange={(e) => updateQuantityDirect(item.id, item.ingredient, e.target.value)}
-                                className={`w-12 text-sm px-1 py-0.5 rounded border bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                                className={`w-12 text-sm px-1 py-0.5 rounded border bg-transparent text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                                   item.checked
                                     ? 'line-through text-[#5A6B7F] border-[#12AFCB]/20'
                                     : 'text-[#0E1012] border-[#12AFCB]/30 hover:border-[#12AFCB]'
