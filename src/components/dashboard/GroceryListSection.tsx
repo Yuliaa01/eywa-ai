@@ -235,19 +235,45 @@ export default function GroceryListSection() {
 
       const { error } = await supabase
         .from('grocery_list_items')
-        .update({ quantity: newQuantity })
+        .update({ ingredient: newQuantity })
         .eq('id', itemId);
 
       if (error) throw error;
 
       setItems(prev => prev.map(item => 
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
+        item.id === itemId ? { ...item, ingredient: newQuantity } : item
       ));
     } catch (error) {
       console.error('Error adjusting quantity:', error);
       toast({
         title: "Error",
         description: "Failed to adjust quantity",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateQuantityDirect = async (itemId: string, currentIngredient: string, newNumber: string) => {
+    try {
+      const parsed = parseQuantity(currentIngredient);
+      const numValue = parseFloat(newNumber) || 1;
+      const newIngredient = `${numValue}${parsed.unit ? ' ' + parsed.unit : ''}${parsed.rest ? ' ' + parsed.rest : ''}`.trim();
+
+      const { error } = await supabase
+        .from('grocery_list_items')
+        .update({ ingredient: newIngredient })
+        .eq('id', itemId);
+
+      if (error) throw error;
+
+      setItems(prev => prev.map(item => 
+        item.id === itemId ? { ...item, ingredient: newIngredient } : item
+      ));
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update quantity",
         variant: "destructive",
       });
     }
@@ -415,28 +441,47 @@ export default function GroceryListSection() {
                       >
                         {item.checked && <Check className="w-4 h-4 text-white" />}
                       </button>
-                      <div className="flex-1 min-w-0">
-                        <span
-                          className={`text-sm block ${
-                            item.checked
-                              ? 'line-through text-[#5A6B7F]'
-                              : 'text-[#0E1012]'
-                          }`}
-                        >
-                          {item.ingredient}
-                        </span>
+                      <div className="flex-1 min-w-0 flex items-baseline gap-1">
+                        {(() => {
+                          const parsed = parseQuantity(item.ingredient);
+                          return (
+                            <>
+                              <input
+                                type="number"
+                                min="0.1"
+                                step="0.5"
+                                value={parsed.number}
+                                onChange={(e) => updateQuantityDirect(item.id, item.ingredient, e.target.value)}
+                                className={`w-12 text-sm px-1 py-0.5 rounded border bg-transparent ${
+                                  item.checked
+                                    ? 'line-through text-[#5A6B7F] border-[#12AFCB]/20'
+                                    : 'text-[#0E1012] border-[#12AFCB]/30 hover:border-[#12AFCB]'
+                                }`}
+                              />
+                              <span
+                                className={`text-sm ${
+                                  item.checked
+                                    ? 'line-through text-[#5A6B7F]'
+                                    : 'text-[#0E1012]'
+                                }`}
+                              >
+                                {parsed.unit} {parsed.rest}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => adjustQuantity(item.id, item.quantity, false)}
+                        onClick={() => adjustQuantity(item.id, item.ingredient, false)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-[#12AFCB]/10 text-[#12AFCB] transition-colors"
                         title="Decrease quantity"
                       >
                         <span className="text-lg font-semibold">−</span>
                       </button>
                       <button
-                        onClick={() => adjustQuantity(item.id, item.quantity, true)}
+                        onClick={() => adjustQuantity(item.id, item.ingredient, true)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-[#12AFCB]/10 text-[#12AFCB] transition-colors"
                         title="Increase quantity"
                       >
