@@ -542,29 +542,6 @@ export default function GroceryListSection() {
         </div>
       </div>
 
-      {/* Add custom item input */}
-      <div className="mb-6 flex gap-2">
-        <Input
-          placeholder="Add custom item (e.g., 2 cups rice)"
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              addCustomItem();
-            }
-          }}
-          className="flex-1 bg-white/80"
-        />
-        <Button
-          onClick={addCustomItem}
-          disabled={!newItem.trim()}
-          className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add
-        </Button>
-      </div>
-
       {items.length === 0 ? (
         <div className="text-center py-12">
           <ShoppingCart className="w-16 h-16 text-[#12AFCB]/30 mx-auto mb-4" />
@@ -661,6 +638,29 @@ export default function GroceryListSection() {
           ))}
         </div>
       )}
+
+      {/* Add custom item input */}
+      <div className="mt-6 flex gap-2">
+        <Input
+          placeholder="Add custom item (e.g., 2 cups rice)"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              addCustomItem();
+            }
+          }}
+          className="flex-1 bg-white/80"
+        />
+        <Button
+          onClick={addCustomItem}
+          disabled={!newItem.trim()}
+          className="bg-gradient-to-r from-[#12AFCB] to-[#0E8FA6] hover:opacity-90 text-white"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add
+        </Button>
+      </div>
     </div>
   );
 }
