@@ -11,6 +11,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,6 +30,7 @@ export default function NearbyRestaurants() {
     diet: string[];
     allergies: string[];
   }>({ diet: [], allergies: [] });
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
   
   // Filter states
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
@@ -503,6 +510,7 @@ export default function NearbyRestaurants() {
                       variant="outline"
                       size="sm"
                       className="flex-1"
+                      onClick={() => setSelectedRestaurant(place)}
                     >
                       <Info className="w-4 h-4 mr-1" />
                       Details
@@ -518,6 +526,94 @@ export default function NearbyRestaurants() {
           )}
         </div>
       </div>
+
+      {/* Restaurant Details Dialog */}
+      <Dialog open={!!selectedRestaurant} onOpenChange={(open) => !open && setSelectedRestaurant(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-rounded">
+              {selectedRestaurant?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedRestaurant && (
+            <div className="space-y-6">
+              {/* Rating and Match */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <span className="font-semibold">{selectedRestaurant.rating}</span>
+                </div>
+                <Badge className="bg-accent-teal text-white">
+                  {selectedRestaurant.match}
+                </Badge>
+                <span className="text-muted-foreground">{selectedRestaurant.priceLevel}</span>
+              </div>
+
+              {/* Location and Hours */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-5 h-5 text-accent-teal mt-0.5" />
+                  <div>
+                    <p className="font-medium">Address</p>
+                    <p className="text-muted-foreground">{selectedRestaurant.address}</p>
+                    <p className="text-sm text-accent-teal">{selectedRestaurant.distance} away</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <Clock className="w-5 h-5 text-accent-teal mt-0.5" />
+                  <div>
+                    <p className="font-medium">Hours</p>
+                    <p className="text-muted-foreground">{selectedRestaurant.hours}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cuisine Tags */}
+              <div>
+                <p className="font-medium mb-2">Cuisine Types</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedRestaurant.cuisine.map((tag: string) => (
+                    <Badge key={tag} variant="secondary" className="bg-accent-teal/10 text-accent-teal">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Diet Options */}
+              {selectedRestaurant.dietOptions && (
+                <div>
+                  <p className="font-medium mb-2">Dietary Options Available</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedRestaurant.dietOptions.map((option: string) => (
+                      <Badge key={option} variant="outline">
+                        {option}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  className="flex-1 bg-gradient-to-r from-accent-teal to-accent-teal-alt hover:opacity-90"
+                  onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${selectedRestaurant.coords.lat},${selectedRestaurant.coords.lng}`, '_blank')}
+                >
+                  <Navigation className="w-4 h-4 mr-2" />
+                  Get Directions
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <Utensils className="w-4 h-4 mr-2" />
+                  View Menu
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
