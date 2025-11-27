@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Loader2, Check, X, RefreshCw } from "lucide-react";
+import { ShoppingCart, Loader2, Check, X, RefreshCw, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek, addDays } from "date-fns";
 
@@ -336,6 +336,78 @@ export default function GroceryListSection() {
     }
   };
 
+  const formatGroceryListText = (): string => {
+    const date = format(new Date(), 'MMMM dd, yyyy');
+    let text = `🛒 Grocery List - ${date}\n`;
+    text += '================================\n\n';
+
+    Object.entries(groupedItems).forEach(([category, categoryItems]) => {
+      const emoji = category === 'Protein' ? '🍖' :
+                    category === 'Produce' ? '🥬' :
+                    category === 'Dairy' ? '🥛' :
+                    category === 'Grains' ? '🌾' :
+                    category === 'Pantry' ? '🏺' : '📦';
+      
+      text += `${emoji} ${category.toUpperCase()}\n`;
+      categoryItems.forEach(item => {
+        const checkmark = item.checked ? '✓' : '☐';
+        text += `${checkmark} ${item.ingredient}\n`;
+      });
+      text += '\n';
+    });
+
+    return text.trim();
+  };
+
+  const shareGroceryList = async () => {
+    try {
+      const text = formatGroceryListText();
+      const blob = new Blob([text], { type: 'text/plain' });
+      const file = new File([blob], 'grocery-list.txt', { type: 'text/plain' });
+
+      // Check if Web Share API is available and supports file sharing
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Grocery List',
+          text: 'My grocery list'
+        });
+        toast({
+          title: "Shared Successfully",
+          description: "Your grocery list has been shared",
+        });
+      } else if (navigator.share) {
+        // Fallback to text sharing
+        await navigator.share({
+          title: 'Grocery List',
+          text: text
+        });
+        toast({
+          title: "Shared Successfully",
+          description: "Your grocery list has been shared",
+        });
+      } else {
+        // Final fallback: copy to clipboard
+        await navigator.clipboard.writeText(text);
+        toast({
+          title: "Copied to Clipboard",
+          description: "Grocery list copied. You can paste it in any app.",
+        });
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        // User cancelled the share - not an error
+        return;
+      }
+      console.error('Error sharing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to share grocery list",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8">
@@ -369,13 +441,23 @@ export default function GroceryListSection() {
         </div>
         <div className="flex gap-2">
           {items.length > 0 && (
-            <Button
-              variant="outline"
-              onClick={clearAllItems}
-              className="text-[#12AFCB] hover:text-[#0E8FA6] hover:bg-[#12AFCB]/10 border-[#12AFCB]/30"
-            >
-              Clear All
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={shareGroceryList}
+                className="text-[#12AFCB] hover:text-[#0E8FA6] hover:bg-[#12AFCB]/10 border-[#12AFCB]/30"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+              <Button
+                variant="outline"
+                onClick={clearAllItems}
+                className="text-[#12AFCB] hover:text-[#0E8FA6] hover:bg-[#12AFCB]/10 border-[#12AFCB]/30"
+              >
+                Clear All
+              </Button>
+            </>
           )}
           {checkedCount > 0 && (
             <Button
