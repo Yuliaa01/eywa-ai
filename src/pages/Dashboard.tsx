@@ -15,6 +15,7 @@ import {
   CreditCard,
   Link2,
 } from "lucide-react";
+import RewardsDropdown from "@/components/rewards/RewardsDropdown";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -141,6 +142,9 @@ export default function Dashboard() {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
+              {/* Rewards Star Icon */}
+              {user && <RewardsDropdown userId={user.id} />}
+              
               {/* Notification Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
