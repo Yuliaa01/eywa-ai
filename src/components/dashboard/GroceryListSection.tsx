@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Loader2, Check, X, RefreshCw, Share2 } from "lucide-react";
+import { ShoppingCart, Loader2, Check, X, RefreshCw, Share } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek, addDays } from "date-fns";
 
@@ -453,14 +453,14 @@ export default function GroceryListSection() {
         <div className="flex gap-2">
           {items.length > 0 && (
             <>
-              <Button
-                variant="outline"
-                onClick={shareGroceryList}
-                className="text-[#12AFCB] hover:text-[#0E8FA6] hover:bg-[#12AFCB]/10 border-[#12AFCB]/30"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                Share
-              </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={shareGroceryList}
+              className="text-[#12AFCB] hover:text-[#0E8FA6] hover:bg-[#12AFCB]/10 border-[#12AFCB]/30"
+            >
+              <Share className="w-4 h-4" />
+            </Button>
               <Button
                 variant="outline"
                 onClick={clearAllItems}
