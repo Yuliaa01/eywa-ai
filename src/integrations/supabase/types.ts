@@ -940,6 +940,48 @@ export type Database = {
         }
         Relationships: []
       }
+      rewards: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          requirement_type: string
+          requirement_value: number
+          tier: string
+          xp_value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          is_active?: boolean
+          name: string
+          requirement_type: string
+          requirement_value: number
+          tier: string
+          xp_value?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          requirement_type?: string
+          requirement_value?: number
+          tier?: string
+          xp_value?: number
+        }
+        Relationships: []
+      }
       saved_doctors: {
         Row: {
           created_at: string
@@ -1363,6 +1405,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_rewards: {
+        Row: {
+          earned_at: string
+          id: string
+          reward_id: string
+          trigger_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          earned_at?: string
+          id?: string
+          reward_id: string
+          trigger_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          earned_at?: string
+          id?: string
+          reward_id?: string
+          trigger_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -1386,6 +1460,39 @@ export type Database = {
           id?: string
           notes?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_count: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          streak_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_count?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_count?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
