@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2 } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical } from "lucide-react";
+import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +48,14 @@ export default function ProfileSettings() {
   const [uploading, setUploading] = useState(false);
   const [folderModalOpen, setFolderModalOpen] = useState(false);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   useEffect(() => {
     loadProfile();
@@ -240,6 +250,7 @@ export default function ProfileSettings() {
       });
       
       loadFolders();
+      loadFiles();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -247,6 +258,45 @@ export default function ProfileSettings() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over) return;
+    
+    const fileId = active.id as string;
+    const folderId = over.id as string;
+    
+    try {
+      const { error } = await supabase
+        .from('uploaded_files')
+        .update({ folder_id: folderId })
+        .eq('id', fileId);
+
+      if (error) throw error;
+
+      toast({
+        title: "File moved",
+        description: "File moved to folder successfully.",
+      });
+      
+      loadFiles();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getFilesInFolder = (folderId: string) => {
+    return uploadedFiles.filter(file => file.folder_id === folderId);
+  };
+
+  const getFilesWithoutFolder = () => {
+    return uploadedFiles.filter(file => !file.folder_id);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -414,8 +464,119 @@ export default function ProfileSettings() {
     return ext ? imageExtensions.includes(ext) : false;
   };
 
+  const DraggableFile = ({ file }: { file: any }) => {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+      id: file.id,
+    });
+
+    const style = transform ? {
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      opacity: isDragging ? 0.5 : 1,
+    } : undefined;
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div 
+            {...listeners} 
+            {...attributes}
+            className="cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+            {isImageFile(file.name) ? (
+              <FileImage className="w-5 h-5 text-accent" />
+            ) : (
+              <File className="w-5 h-5 text-accent" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <button
+              onClick={() => getFileUrl(file.storage_path)}
+              className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
+            >
+              {file.name}
+            </button>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-muted-foreground">
+                {(file.size / 1024).toFixed(1)} KB
+              </p>
+              {getStatusBadge(file.status)}
+            </div>
+            {file.error_message && (
+              <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>
+            )}
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            {file.status === 'error' && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleReanalyze(file.id, file.storage_path, file.name)}
+                className="rounded-lg"
+              >
+                Analyze again
+              </Button>
+            )}
+            <button
+              onClick={() => handleDeleteFile(file.id, file.storage_path)}
+              className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4 text-destructive" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const DroppableFolder = ({ folder }: { folder: any }) => {
+    const { setNodeRef, isOver } = useDroppable({
+      id: folder.id,
+    });
+
+    const filesInFolder = getFilesInFolder(folder.id);
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={`p-4 rounded-xl border transition-all ${
+          isOver 
+            ? 'bg-accent/20 border-accent' 
+            : 'bg-accent/5 border-border hover:border-accent/30'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{folder.name}</div>
+              <div className="text-sm text-muted-foreground">
+                Created {new Date(folder.created_at).toLocaleDateString()} • {filesInFolder.length} file{filesInFolder.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDeleteFolder(folder.id)}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border z-10">
         <div className="max-w-3xl mx-auto px-6 py-4">
@@ -935,83 +1096,12 @@ export default function ProfileSettings() {
               <div className="space-y-3">
                 {/* Folders */}
                 {folders.map((folder: any) => (
-                  <div
-                    key={folder.id}
-                    className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1">
-                        <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">{folder.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            Created {new Date(folder.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteFolder(folder.id)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  <DroppableFolder key={folder.id} folder={folder} />
                 ))}
 
-                {/* Files */}
-                {uploadedFiles.map((file: any) => (
-                  <div
-                    key={file.id}
-                    className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                        {isImageFile(file.name) ? (
-                          <FileImage className="w-5 h-5 text-accent" />
-                        ) : (
-                          <File className="w-5 h-5 text-accent" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <button
-                          onClick={() => getFileUrl(file.storage_path)}
-                          className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
-                        >
-                          {file.name}
-                        </button>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className="text-xs text-muted-foreground">
-                            {(file.size / 1024).toFixed(1)} KB
-                          </p>
-                          {getStatusBadge(file.status)}
-                        </div>
-                        {file.error_message && (
-                          <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>
-                        )}
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        {file.status === 'error' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleReanalyze(file.id, file.storage_path, file.name)}
-                            className="rounded-lg"
-                          >
-                            Analyze again
-                          </Button>
-                        )}
-                        <button
-                          onClick={() => handleDeleteFile(file.id, file.storage_path)}
-                          className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
-                        >
-                          <X className="w-4 h-4 text-destructive" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                {/* Files without folder */}
+                {getFilesWithoutFolder().map((file: any) => (
+                  <DraggableFile key={file.id} file={file} />
                 ))}
               </div>
             </ScrollArea>
@@ -1044,6 +1134,7 @@ export default function ProfileSettings() {
         onSubmit={handleCreateFolder}
         isLoading={isCreatingFolder}
       />
-    </div>
+      </div>
+    </DndContext>
   );
 }
