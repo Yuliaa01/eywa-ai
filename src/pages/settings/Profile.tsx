@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useNavigate } from "react-router-dom";
@@ -48,6 +48,7 @@ export default function ProfileSettings() {
   const [uploading, setUploading] = useState(false);
   const [folderModalOpen, setFolderModalOpen] = useState(false);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -56,6 +57,18 @@ export default function ProfileSettings() {
       },
     })
   );
+
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(folderId)) {
+        newSet.delete(folderId);
+      } else {
+        newSet.add(folderId);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     loadProfile();
@@ -541,35 +554,65 @@ export default function ProfileSettings() {
     });
 
     const filesInFolder = getFilesInFolder(folder.id);
+    const isExpanded = expandedFolders.has(folder.id);
 
     return (
-      <div
-        ref={setNodeRef}
-        className={`p-4 rounded-xl border transition-all ${
-          isOver 
-            ? 'bg-accent/20 border-accent' 
-            : 'bg-accent/5 border-border hover:border-accent/30'
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{folder.name}</div>
-              <div className="text-sm text-muted-foreground">
-                Created {new Date(folder.created_at).toLocaleDateString()} • {filesInFolder.length} file{filesInFolder.length !== 1 ? 's' : ''}
+      <div ref={setNodeRef}>
+        <div
+          className={`p-4 rounded-xl border transition-all cursor-pointer ${
+            isOver 
+              ? 'bg-accent/20 border-accent' 
+              : 'bg-accent/5 border-border hover:border-accent/30'
+          }`}
+          onClick={() => toggleFolder(folder.id)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              )}
+              {isExpanded ? (
+                <FolderOpen className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+              ) : (
+                <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{folder.name}</div>
+                <div className="text-sm text-muted-foreground">
+                  Created {new Date(folder.created_at).toLocaleDateString()} • {filesInFolder.length} file{filesInFolder.length !== 1 ? 's' : ''}
+                </div>
               </div>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteFolder(folder.id);
+              }}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDeleteFolder(folder.id)}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
         </div>
+        
+        {/* Files inside folder */}
+        {isExpanded && filesInFolder.length > 0 && (
+          <div className="ml-8 mt-2 space-y-2">
+            {filesInFolder.map((file: any) => (
+              <DraggableFile key={file.id} file={file} />
+            ))}
+          </div>
+        )}
+        
+        {isExpanded && filesInFolder.length === 0 && (
+          <div className="ml-8 mt-2 p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground text-center">
+            Empty folder - drag files here
+          </div>
+        )}
       </div>
     );
   };
