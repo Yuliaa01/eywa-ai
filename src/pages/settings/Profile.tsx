@@ -13,6 +13,16 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FolderModal } from "@/components/modals/FolderModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
@@ -50,6 +60,7 @@ export default function ProfileSettings() {
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [editingFolder, setEditingFolder] = useState<{ id: string; name: string } | null>(null);
+  const [deletingFolder, setDeletingFolder] = useState<{ id: string; name: string } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -267,12 +278,14 @@ export default function ProfileSettings() {
     }
   };
 
-  const handleDeleteFolder = async (folderId: string) => {
+  const confirmDeleteFolder = async () => {
+    if (!deletingFolder) return;
+
     try {
       const { error } = await supabase
         .from('file_folders')
         .delete()
-        .eq('id', folderId);
+        .eq('id', deletingFolder.id);
 
       if (error) throw error;
 
@@ -281,6 +294,7 @@ export default function ProfileSettings() {
         description: "Folder removed successfully.",
       });
       
+      setDeletingFolder(null);
       loadFolders();
       loadFiles();
     } catch (error: any) {
@@ -622,7 +636,7 @@ export default function ProfileSettings() {
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDeleteFolder(folder.id);
+                  setDeletingFolder({ id: folder.id, name: folder.name });
                 }}
                 className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
               >
@@ -1215,7 +1229,29 @@ export default function ProfileSettings() {
         initialName={editingFolder?.name}
         mode={editingFolder ? 'edit' : 'create'}
       />
-      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingFolder} onOpenChange={(open) => !open && setDeletingFolder(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Folder</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "<span className="font-semibold">{deletingFolder?.name}</span>"? 
+              This action cannot be undone. Files in this folder will not be deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteFolder}
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
     </DndContext>
   );
 }
