@@ -342,7 +342,11 @@ export default function PrioritiesSection() {
                         <p className="text-sm font-semibold text-[#0E1012] truncate">
                           {plan.title}
                         </p>
-                        {plan.location_name && <p className="text-xs text-[#5A6B7F]">{plan.location_name}</p>}
+                        <div className="flex items-center gap-2 text-xs text-[#5A6B7F]">
+                          {plan.location_name && <span>{plan.location_name}</span>}
+                          {plan.location_name && plan.start_date && <span>•</span>}
+                          {plan.start_date && <span>{new Date(plan.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+                        </div>
                       </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
