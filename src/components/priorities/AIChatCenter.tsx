@@ -463,7 +463,7 @@ View Progress
           </div>
 
           {/* Chat Input at Very Bottom */}
-          <div className="mt-auto pt-6 flex-shrink-0">
+          <div className="mt-auto pt-6 flex-shrink-0 py-0">
             {/* Image Preview */}
             {imagePreview && <div className="mb-3 relative inline-block">
                 <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-[#12AFCB]/20" />

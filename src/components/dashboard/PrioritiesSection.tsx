@@ -183,7 +183,7 @@ export default function PrioritiesSection() {
   };
 
   // Card rendering functions
-  const renderGlobalGoalsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col">
+  const renderGlobalGoalsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[222px] flex flex-col py-[15px]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Longevity Goals</h3>
         <button onClick={() => openModal('global')} className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
@@ -259,7 +259,7 @@ export default function PrioritiesSection() {
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>;
-  const renderTodayCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[160px] flex flex-col">
+  const renderTodayCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[160px] flex flex-col py-[15px]">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Well-being Path</h3>
@@ -288,7 +288,7 @@ export default function PrioritiesSection() {
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>;
-  const renderThisWeekCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] flex flex-col">
+  const renderThisWeekCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] flex flex-col py-[15px]">
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="w-5 h-5 text-[#12AFCB]" />
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">This Week</h3>
@@ -369,7 +369,7 @@ export default function PrioritiesSection() {
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>;
-  const renderLongevityInsightsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 flex-1 flex flex-col py-[20px]">
+  const renderLongevityInsightsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 flex-1 flex flex-col py-[15px]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Longevity Insights</h3>
         <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
