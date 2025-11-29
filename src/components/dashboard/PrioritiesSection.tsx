@@ -21,7 +21,10 @@ export default function PrioritiesSection() {
   const [globalGoals, setGlobalGoals] = useState<Priority[]>([]);
   const [temporaryGoals, setTemporaryGoals] = useState<Priority[]>([]);
   const [plans, setPlans] = useState<Priority[]>([]);
-  const { chronologicalAge: actualAge, biologicalAge: bioAge } = useBioAge();
+  const {
+    chronologicalAge: actualAge,
+    biologicalAge: bioAge
+  } = useBioAge();
   const {
     toast
   } = useToast();
@@ -315,7 +318,7 @@ export default function PrioritiesSection() {
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>;
-  const renderPlansCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] overflow-hidden flex flex-col">
+  const renderPlansCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] overflow-hidden flex flex-col py-[15px]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Plans</h3>
         <button onClick={() => openModal('plan')} className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
@@ -345,7 +348,11 @@ export default function PrioritiesSection() {
                         <div className="flex items-center gap-2 text-xs text-[#5A6B7F]">
                           {plan.location_name && <span>{plan.location_name}</span>}
                           {plan.location_name && plan.start_date && <span>•</span>}
-                          {plan.start_date && <span>{new Date(plan.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+                          {plan.start_date && <span>{new Date(plan.start_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}</span>}
                         </div>
                       </div>
                     </div>
@@ -378,11 +385,9 @@ export default function PrioritiesSection() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
               <p className="text-sm font-semibold text-[#0E1012]">
-                Bio-Age: {bioAge !== null ? bioAge : (actualAge !== null ? actualAge : '—')}
+                Bio-Age: {bioAge !== null ? bioAge : actualAge !== null ? actualAge : '—'}
               </p>
-              {bioAge !== null && actualAge !== null && bioAge < actualAge && (
-                <ArrowUpRight className="w-3 h-3 text-[#12AFCB]" />
-              )}
+              {bioAge !== null && actualAge !== null && bioAge < actualAge && <ArrowUpRight className="w-3 h-3 text-[#12AFCB]" />}
             </div>
             <p className="text-xs text-[#5A6B7F]">
               (Actual {actualAge !== null ? actualAge : '—'})
