@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen, Pencil } from "lucide-react";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useNavigate } from "react-router-dom";
@@ -49,6 +49,7 @@ export default function ProfileSettings() {
   const [folderModalOpen, setFolderModalOpen] = useState(false);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [editingFolder, setEditingFolder] = useState<{ id: string; name: string } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -221,21 +222,39 @@ export default function ProfileSettings() {
       if (!user) throw new Error("Not authenticated");
 
       setIsCreatingFolder(true);
-      const { error } = await supabase
-        .from('file_folders')
-        .insert({
-          user_id: user.id,
-          name: folderName,
+      
+      if (editingFolder) {
+        // Update existing folder
+        const { error } = await supabase
+          .from('file_folders')
+          .update({ name: folderName })
+          .eq('id', editingFolder.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Folder renamed",
+          description: "Folder name updated successfully.",
         });
+      } else {
+        // Create new folder
+        const { error } = await supabase
+          .from('file_folders')
+          .insert({
+            user_id: user.id,
+            name: folderName,
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Folder created",
-        description: "New folder created successfully.",
-      });
+        toast({
+          title: "Folder created",
+          description: "New folder created successfully.",
+        });
+      }
       
       setFolderModalOpen(false);
+      setEditingFolder(null);
       loadFolders();
     } catch (error: any) {
       toast({
@@ -585,17 +604,31 @@ export default function ProfileSettings() {
                 </div>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteFolder(folder.id);
-              }}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            <div className="flex gap-1 flex-shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingFolder({ id: folder.id, name: folder.name });
+                  setFolderModalOpen(true);
+                }}
+                className="hover:bg-accent/10 flex-shrink-0"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteFolder(folder.id);
+                }}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
         
@@ -1173,9 +1206,14 @@ export default function ProfileSettings() {
       {/* Folder Modal */}
       <FolderModal
         open={folderModalOpen}
-        onOpenChange={setFolderModalOpen}
+        onOpenChange={(open) => {
+          setFolderModalOpen(open);
+          if (!open) setEditingFolder(null);
+        }}
         onSubmit={handleCreateFolder}
         isLoading={isCreatingFolder}
+        initialName={editingFolder?.name}
+        mode={editingFolder ? 'edit' : 'create'}
       />
       </div>
     </DndContext>
