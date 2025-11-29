@@ -429,6 +429,30 @@ export type Database = {
         }
         Relationships: []
       }
+      file_folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fitness_app_connections: {
         Row: {
           access_token: string | null
@@ -1292,6 +1316,7 @@ export type Database = {
         Row: {
           created_at: string
           error_message: string | null
+          folder_id: string | null
           id: string
           name: string
           parsed_at: string | null
@@ -1305,6 +1330,7 @@ export type Database = {
         Insert: {
           created_at?: string
           error_message?: string | null
+          folder_id?: string | null
           id?: string
           name: string
           parsed_at?: string | null
@@ -1318,6 +1344,7 @@ export type Database = {
         Update: {
           created_at?: string
           error_message?: string | null
+          folder_id?: string | null
           id?: string
           name?: string
           parsed_at?: string | null
@@ -1328,7 +1355,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "uploaded_files_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "file_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_profiles: {
         Row: {
