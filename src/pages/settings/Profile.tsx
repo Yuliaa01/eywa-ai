@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { FolderModal } from "@/components/modals/FolderModal";
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
@@ -41,11 +42,15 @@ export default function ProfileSettings() {
     fats: ''
   });
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [folders, setFolders] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [folderModalOpen, setFolderModalOpen] = useState(false);
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
 
   useEffect(() => {
     loadProfile();
     loadFiles();
+    loadFolders();
   }, []);
 
   const loadProfile = async () => {
@@ -166,6 +171,81 @@ export default function ProfileSettings() {
       setUploadedFiles(data || []);
     } catch (error) {
       console.error("Error loading files:", error);
+    }
+  };
+
+  const loadFolders = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('file_folders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setFolders(data || []);
+    } catch (error) {
+      console.error("Error loading folders:", error);
+    }
+  };
+
+  const handleCreateFolder = async (folderName: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      setIsCreatingFolder(true);
+      const { error } = await supabase
+        .from('file_folders')
+        .insert({
+          user_id: user.id,
+          name: folderName,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Folder created",
+        description: "New folder created successfully.",
+      });
+      
+      setFolderModalOpen(false);
+      loadFolders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingFolder(false);
+    }
+  };
+
+  const handleDeleteFolder = async (folderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('file_folders')
+        .delete()
+        .eq('id', folderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Folder deleted",
+        description: "Folder removed successfully.",
+      });
+      
+      loadFolders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -810,37 +890,78 @@ export default function ProfileSettings() {
               <File className="w-4 h-4" />
               Uploaded Files
             </div>
-            <label htmlFor="file-upload">
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={uploading}
-                className="rounded-xl cursor-pointer"
-                onClick={() => document.getElementById('file-upload')?.click()}
+                onClick={() => setFolderModalOpen(true)}
+                className="rounded-xl"
               >
-                <Upload className="w-4 h-4 mr-2" />
-                {uploading ? "Uploading..." : "Upload Files"}
+                <FolderPlus className="w-4 h-4 mr-2" />
+                New Folder
               </Button>
-              <input
-                id="file-upload"
-                type="file"
-                multiple
-                accept="image/*,.pdf"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </label>
+              <label htmlFor="file-upload">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  className="rounded-xl cursor-pointer"
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploading ? "Uploading..." : "Upload Files"}
+                </Button>
+                <input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
 
-          {uploadedFiles.length === 0 ? (
+          {uploadedFiles.length === 0 && folders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Upload className="w-12 h-12 mx-auto mb-2 opacity-20" />
-              <p className="text-sm">No files uploaded yet</p>
+              <p className="text-sm">No files or folders yet</p>
             </div>
           ) : (
             <ScrollArea className="h-[280px] pr-4">
               <div className="space-y-3">
+                {/* Folders */}
+                {folders.map((folder: any) => (
+                  <div
+                    key={folder.id}
+                    className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{folder.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Created {new Date(folder.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteFolder(folder.id)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Files */}
                 {uploadedFiles.map((file: any) => (
                   <div
                     key={file.id}
@@ -915,6 +1036,14 @@ export default function ProfileSettings() {
           </Button>
         </div>
       </div>
+
+      {/* Folder Modal */}
+      <FolderModal
+        open={folderModalOpen}
+        onOpenChange={setFolderModalOpen}
+        onSubmit={handleCreateFolder}
+        isLoading={isCreatingFolder}
+      />
     </div>
   );
 }
