@@ -546,7 +546,7 @@ export default function LocalEvents() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap hover:bg-muted/80"
                     onClick={() => {
                       window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.coords.lat},${place.coords.lng}`, '_blank');
                     }}
