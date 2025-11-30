@@ -503,7 +503,7 @@ export default function LocalEvents() {
                   <Button
                     className="bg-gradient-to-r from-accent-teal to-accent-teal-alt hover:opacity-90 text-white whitespace-nowrap"
                   >
-                    View Menu
+                    Details
                   </Button>
                   <Button
                     variant="outline"
