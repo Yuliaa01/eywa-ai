@@ -14,6 +14,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EventDetailModal } from "@/components/modals/EventDetailModal";
 
 export default function LocalEvents() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function LocalEvents() {
     diet: string[];
     allergies: string[];
   }>({ diet: [], allergies: [] });
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   
   // Filter states
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
@@ -94,7 +96,19 @@ export default function LocalEvents() {
       address: "Central Park East",
       match: "95% match",
       hours: "7:00 AM - 8:30 AM",
-      coords: { lat: userLocation.lat + 0.002, lng: userLocation.lng - 0.003 }
+      coords: { lat: userLocation.lat + 0.002, lng: userLocation.lng - 0.003 },
+      description: "Start your day with a peaceful yoga session in the heart of Central Park. This outdoor class focuses on gentle flows and mindfulness, perfect for all levels. Bring your own mat and enjoy the fresh morning air while connecting with nature.",
+      instructor: {
+        name: "Sarah Chen",
+        bio: "Certified yoga instructor with 10+ years of experience in Vinyasa and Hatha yoga. Passionate about making yoga accessible to everyone.",
+        certifications: ["RYT-500", "Mindfulness Meditation", "Trauma-Informed Yoga"]
+      },
+      bookingInfo: {
+        capacity: 20,
+        spotsAvailable: 7,
+        phone: "(212) 555-0123",
+        email: "yoga@centralparkwellness.com"
+      }
     },
     {
       name: "Community Running Club",
@@ -106,7 +120,19 @@ export default function LocalEvents() {
       address: "456 Park Ave",
       match: "90% match",
       hours: "6:00 PM - 7:30 PM",
-      coords: { lat: userLocation.lat + 0.005, lng: userLocation.lng + 0.008 }
+      coords: { lat: userLocation.lat + 0.005, lng: userLocation.lng + 0.008 },
+      description: "Join our friendly community of runners for a social evening run through the city. All paces welcome - we have groups for beginners to advanced runners. Stay after for optional coffee and socializing!",
+      instructor: {
+        name: "Marcus Johnson",
+        bio: "Marathon runner and RRCA certified running coach. Building community through running since 2018.",
+        certifications: ["RRCA Certified Coach", "First Aid/CPR", "Running Safety Specialist"]
+      },
+      bookingInfo: {
+        capacity: 30,
+        spotsAvailable: 15,
+        phone: "(212) 555-0456",
+        email: "join@cityrunclub.com"
+      }
     },
     {
       name: "Outdoor HIIT Bootcamp",
@@ -118,7 +144,19 @@ export default function LocalEvents() {
       address: "789 Broadway",
       match: "88% match",
       hours: "5:30 PM - 7:00 PM",
-      coords: { lat: userLocation.lat - 0.012, lng: userLocation.lng + 0.018 }
+      coords: { lat: userLocation.lat - 0.012, lng: userLocation.lng + 0.018 },
+      description: "High-intensity interval training meets functional fitness in this challenging outdoor bootcamp. Expect bodyweight exercises, plyometrics, and strength training that will push your limits. Modifications provided for all fitness levels.",
+      instructor: {
+        name: "Alex Rivera",
+        bio: "Former Marine Corps trainer with expertise in functional fitness and athletic performance. Known for motivating workouts that deliver results.",
+        certifications: ["NASM-CPT", "CrossFit Level 2", "Mobility Specialist"]
+      },
+      bookingInfo: {
+        capacity: 15,
+        spotsAvailable: 3,
+        phone: "(212) 555-0789",
+        email: "bootcamp@fitnessoutdoors.com"
+      }
     },
     {
       name: "Mindfulness Meditation",
@@ -502,12 +540,16 @@ export default function LocalEvents() {
                 <div className="flex flex-col gap-2">
                   <Button
                     className="bg-gradient-to-r from-accent-teal to-accent-teal-alt hover:opacity-90 text-white whitespace-nowrap"
+                    onClick={() => setSelectedEvent(place)}
                   >
                     Details
                   </Button>
                   <Button
                     variant="outline"
                     className="whitespace-nowrap"
+                    onClick={() => {
+                      window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.coords.lat},${place.coords.lng}`, '_blank');
+                    }}
                   >
                     Directions
                   </Button>
@@ -518,6 +560,12 @@ export default function LocalEvents() {
         )}
         </div>
       </div>
+
+      <EventDetailModal
+        event={selectedEvent}
+        open={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+      />
     </div>
   );
 }
