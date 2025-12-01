@@ -22,6 +22,9 @@ interface GoalModalProps {
     end_date?: string;
     location_name?: string;
     time_scope?: 'day' | 'week';
+    target_value?: number;
+    target_metric?: string;
+    units?: string;
   };
 }
 
@@ -60,9 +63,9 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
           start_date: initialValues.start_date || "",
           end_date: initialValues.end_date || "",
           location_name: initialValues.location_name || "",
-          target_value: "",
-          target_metric: "",
-          units: "",
+          target_value: initialValues.target_value?.toString() || "",
+          target_metric: initialValues.target_metric || "",
+          units: initialValues.units || "",
         });
         setTimeScope(initialValues.time_scope || 'day');
       } else {
