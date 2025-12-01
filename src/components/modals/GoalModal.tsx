@@ -206,7 +206,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4" role="form" aria-label="Goal form">
           {/* Quick Suggestions */}
-          {!editMode && (
+          {!editMode && mode !== 'plan' && (
             <div className="space-y-2">
               <Label className="text-sm text-[#5A6B7F]">Quick Suggestions</Label>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Quick suggestion chips">
