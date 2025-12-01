@@ -1018,12 +1018,6 @@ export default function ProfessionalPrioritiesSection() {
                                     </Button>
                                   </div>
                                 </div>
-                                <div className="mt-2 h-1.5 bg-white/50 rounded-full overflow-hidden">
-                                  <div 
-                                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
-                                    style={{ width: `${Math.random() * 40 + 30}%` }}
-                                  />
-                                </div>
                               </div>
                             ))
                           )}
