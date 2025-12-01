@@ -879,7 +879,7 @@ export default function ProfessionalPrioritiesSection() {
                 </Collapsible>
 
                 {/* This Week and Plans Side-by-Side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 -mb-4">
                   {/* This Week Goals */}
                   <Collapsible open={weekOpen} onOpenChange={setWeekOpen}>
                     <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
