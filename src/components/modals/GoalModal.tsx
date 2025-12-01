@@ -44,6 +44,9 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
     start_date: initialValues?.start_date || "",
     end_date: initialValues?.end_date || "",
     location_name: initialValues?.location_name || "",
+    target_value: "",
+    target_metric: "",
+    units: "",
   });
 
   // Update form when modal opens or mode changes
@@ -57,6 +60,9 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
           start_date: initialValues.start_date || "",
           end_date: initialValues.end_date || "",
           location_name: initialValues.location_name || "",
+          target_value: "",
+          target_metric: "",
+          units: "",
         });
         setTimeScope(initialValues.time_scope || 'day');
       } else {
@@ -68,6 +74,9 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
           start_date: "",
           end_date: "",
           location_name: "",
+          target_value: "",
+          target_metric: "",
+          units: "",
         });
         setTimeScope('day');
       }
@@ -131,6 +140,9 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
         location_name: formData.location_name || null,
+        target_value: formData.target_value ? parseFloat(formData.target_value) : null,
+        target_metric: formData.target_metric || null,
+        units: formData.units || null,
         status: "planned",
       };
 
@@ -162,6 +174,9 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
         start_date: "",
         end_date: "",
         location_name: "",
+        target_value: "",
+        target_metric: "",
+        units: "",
       });
       setTimeScope('day');
     } catch (error: any) {
@@ -285,6 +300,63 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
               aria-label="Goal description"
             />
           </div>
+
+          {/* Progress Tracking Fields */}
+          {(mode === 'global' || mode === 'temporary') && (
+            <div className="space-y-3 p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
+              <Label className="text-sm font-semibold text-[#0E1012]">Progress Tracking (Optional)</Label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="goal-target-value" className="text-xs">Target Value</Label>
+                  <Input
+                    id="goal-target-value"
+                    type="number"
+                    step="0.01"
+                    value={formData.target_value}
+                    onChange={(e) => setFormData({ ...formData, target_value: e.target.value })}
+                    placeholder="e.g., 10000"
+                    aria-label="Target value"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="goal-units" className="text-xs">Units</Label>
+                  <Select
+                    value={formData.units}
+                    onValueChange={(value) => setFormData({ ...formData, units: value })}
+                  >
+                    <SelectTrigger id="goal-units">
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="steps">steps</SelectItem>
+                      <SelectItem value="kg">kg</SelectItem>
+                      <SelectItem value="lbs">lbs</SelectItem>
+                      <SelectItem value="hours">hours</SelectItem>
+                      <SelectItem value="minutes">minutes</SelectItem>
+                      <SelectItem value="km">km</SelectItem>
+                      <SelectItem value="miles">miles</SelectItem>
+                      <SelectItem value="reps">reps</SelectItem>
+                      <SelectItem value="sessions">sessions</SelectItem>
+                      <SelectItem value="days">days</SelectItem>
+                      <SelectItem value="%">%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="goal-metric" className="text-xs">What are you measuring? (Optional)</Label>
+                <Input
+                  id="goal-metric"
+                  value={formData.target_metric}
+                  onChange={(e) => setFormData({ ...formData, target_metric: e.target.value })}
+                  placeholder="e.g., Daily Steps, Weight Loss, Running Distance"
+                  aria-label="Target metric description"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Location field - shown for plan mode only */}
           {mode === 'plan' && (
