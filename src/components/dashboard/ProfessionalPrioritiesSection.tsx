@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import { HealthCategorySidebar } from "./HealthCategorySidebar";
 import { MetricCard } from "./MetricCard";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
+import { AISuggestionsPanel } from "@/components/priorities/AISuggestionsPanel";
+import { GoalModal } from "@/components/modals/GoalModal";
+import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
+import { GoalProgress } from "@/components/glass/GoalProgress";
 import { usePinnedMetrics } from "@/hooks/usePinnedMetrics";
+import { fetchActivePriorities, deletePriority, restorePriority, type Priority } from "@/api/priorities";
+import { toast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 import {
   Activity,
   Heart,
@@ -23,11 +31,79 @@ import {
   Stethoscope,
   FileText,
   Clock,
+  ChevronDown,
+  Plus,
+  MapPin,
+  Calendar,
+  Edit,
+  Trash2,
+  Sparkles,
 } from "lucide-react";
 
 export default function ProfessionalPrioritiesSection() {
   const [activeCategory, setActiveCategory] = useState("pinned");
   const { isPinned, togglePin } = usePinnedMetrics();
+  
+  // Goals & Plans state
+  const [globalGoals, setGlobalGoals] = useState<Priority[]>([]);
+  const [temporaryGoals, setTemporaryGoals] = useState<Priority[]>([]);
+  const [plans, setPlans] = useState<Priority[]>([]);
+  const [goalModalOpen, setGoalModalOpen] = useState(false);
+  const [goalModalMode, setGoalModalMode] = useState<'global' | 'temporary' | 'plan'>('global');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState<Priority | null>(null);
+  const [goalsOpen, setGoalsOpen] = useState(true);
+  const [weekOpen, setWeekOpen] = useState(true);
+  const [plansOpen, setPlansOpen] = useState(true);
+
+  // Load priorities
+  useEffect(() => {
+    loadPriorities();
+  }, []);
+
+  const loadPriorities = async () => {
+    try {
+      const allPriorities = await fetchActivePriorities();
+      setGlobalGoals(allPriorities.filter(p => p.type === 'global_goal'));
+      setTemporaryGoals(allPriorities.filter(p => p.type === 'temporary_goal'));
+      setPlans(allPriorities.filter(p => p.type === 'plan_trip' || p.type === 'plan_event'));
+    } catch (error) {
+      console.error('Failed to load priorities:', error);
+    }
+  };
+
+  const handleDeleteGoal = async () => {
+    if (!goalToDelete) return;
+    
+    try {
+      await deletePriority(goalToDelete.id);
+      toast({
+        title: "Goal deleted",
+        description: "Click to undo",
+        action: (
+          <Button variant="outline" size="sm" onClick={() => handleRestoreGoal(goalToDelete.id)}>
+            Undo
+          </Button>
+        ),
+      });
+      loadPriorities();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete goal", variant: "destructive" });
+    } finally {
+      setDeleteDialogOpen(false);
+      setGoalToDelete(null);
+    }
+  };
+
+  const handleRestoreGoal = async (id: string) => {
+    try {
+      await restorePriority(id);
+      toast({ title: "Goal restored" });
+      loadPriorities();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to restore goal", variant: "destructive" });
+    }
+  };
 
   // Mock data generators
   const generateTrendData = () =>
@@ -633,6 +709,8 @@ export default function ProfessionalPrioritiesSection() {
     switch (activeCategory) {
       case "pinned":
         return "Pinned Metrics";
+      case "action-plan":
+        return "My Action Plan";
       case "activity":
         return "Activity";
       case "body":
@@ -663,62 +741,267 @@ export default function ProfessionalPrioritiesSection() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto">
-      {/* Main layout: Sidebar + Metrics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
-        {/* Left: Category Sidebar - Hidden on mobile, shown as tabs instead */}
-        <div className="hidden lg:block">
-          <div className="sticky top-24">
-            <HealthCategorySidebar
-              activeCategory={activeCategory}
-              onCategoryClick={setActiveCategory}
-            />
+    <>
+      <div className="max-w-[1400px] mx-auto">
+        {/* Main layout: Sidebar + Metrics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
+          {/* Left: Category Sidebar - Hidden on mobile, shown as tabs instead */}
+          <div className="hidden lg:block">
+            <div className="sticky top-24">
+              <HealthCategorySidebar
+                activeCategory={activeCategory}
+                onCategoryClick={setActiveCategory}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Mobile category tabs (visible only on mobile) */}
-        <div className="lg:hidden overflow-x-auto">
-          <div className="flex gap-2 pb-2">
-            {[
-              { id: "pinned", label: "Pinned" },
-              { id: "activity", label: "Activity" },
-              { id: "body", label: "Body" },
-              { id: "nutrition", label: "Nutrition" },
-              { id: "sleep", label: "Sleep" },
-              { id: "heart", label: "Heart" },
-              { id: "mental", label: "Mental" },
-              { id: "medications", label: "Medications" },
-              { id: "mobility", label: "Mobility" },
-              { id: "respiratory", label: "Respiratory" },
-              { id: "symptoms", label: "Symptoms" },
-              { id: "records", label: "Records" },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  activeCategory === cat.id
-                    ? "bg-[#12AFCB] text-white"
-                    : "bg-white/80 text-[#5A6B7F]"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+          {/* Mobile category tabs (visible only on mobile) */}
+          <div className="lg:hidden overflow-x-auto">
+            <div className="flex gap-2 pb-2">
+              {[
+                { id: "pinned", label: "Pinned" },
+                { id: "action-plan", label: "Action Plan" },
+                { id: "activity", label: "Activity" },
+                { id: "body", label: "Body" },
+                { id: "nutrition", label: "Nutrition" },
+                { id: "sleep", label: "Sleep" },
+                { id: "heart", label: "Heart" },
+                { id: "mental", label: "Mental" },
+                { id: "medications", label: "Medications" },
+                { id: "mobility", label: "Mobility" },
+                { id: "respiratory", label: "Respiratory" },
+                { id: "symptoms", label: "Symptoms" },
+                { id: "records", label: "Records" },
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                    activeCategory === cat.id
+                      ? "bg-[#12AFCB] text-white"
+                      : "bg-white/80 text-[#5A6B7F]"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Right: Content Area */}
-        <div>
-          <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
-            {getCategoryTitle()}
-          </h2>
+          {/* Right: Content Area */}
+          <div>
+            <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
+              {getCategoryTitle()}
+            </h2>
 
-          {activeCategory === "chat" ? (
-            <AIChatCenter />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {getCategoryMetrics().map((metric, index) => {
+            {activeCategory === "chat" ? (
+              <AIChatCenter />
+            ) : activeCategory === "action-plan" ? (
+              <div className="space-y-4">
+                {/* Longevity Goals */}
+                <Collapsible open={goalsOpen} onOpenChange={setGoalsOpen}>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
+                        <Target className="w-5 h-5 text-[#12AFCB]" />
+                        <h3 className="text-lg font-semibold text-[#0E1012]">Longevity Goals</h3>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${goalsOpen ? '' : '-rotate-90'}`} />
+                      </CollapsibleTrigger>
+                      <Button
+                        onClick={() => {
+                          setGoalModalMode('global');
+                          setGoalModalOpen(true);
+                        }}
+                        size="sm"
+                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Goal
+                      </Button>
+                    </div>
+                    <CollapsibleContent>
+                      <div className="space-y-3">
+                        {globalGoals.length === 0 ? (
+                          <p className="text-sm text-[#5A6B7F] py-4 text-center">No longevity goals yet. Add one to get started!</p>
+                        ) : (
+                          globalGoals.map(goal => (
+                            <div key={goal.id} className="p-4 bg-gradient-to-r from-[#12AFCB]/5 to-transparent rounded-xl border border-[#12AFCB]/10">
+                              <div className="flex items-start justify-between mb-2">
+                                <h4 className="font-medium text-[#0E1012]">{goal.title}</h4>
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => {
+                                      setGoalToDelete(goal);
+                                      setDeleteDialogOpen(true);
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </div>
+                              </div>
+                              {goal.description && (
+                                <p className="text-sm text-[#5A6B7F] mb-2">{goal.description}</p>
+                              )}
+                              {goal.target_value && (
+                                <GoalProgress
+                                  title="Progress"
+                                  current={0}
+                                  target={goal.target_value}
+                                  unit={goal.units || ''}
+                                  className="mt-2"
+                                />
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+
+                {/* This Week Goals */}
+                <Collapsible open={weekOpen} onOpenChange={setWeekOpen}>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
+                        <Calendar className="w-5 h-5 text-[#12AFCB]" />
+                        <h3 className="text-lg font-semibold text-[#0E1012]">This Week</h3>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${weekOpen ? '' : '-rotate-90'}`} />
+                      </CollapsibleTrigger>
+                      <Button
+                        onClick={() => {
+                          setGoalModalMode('temporary');
+                          setGoalModalOpen(true);
+                        }}
+                        size="sm"
+                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Goal
+                      </Button>
+                    </div>
+                    <CollapsibleContent>
+                      <div className="space-y-3">
+                        {temporaryGoals.length === 0 ? (
+                          <p className="text-sm text-[#5A6B7F] py-4 text-center">No weekly goals yet. Add one to get started!</p>
+                        ) : (
+                          temporaryGoals.map(goal => (
+                            <div key={goal.id} className="p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-[#0E1012] mb-1">{goal.title}</h4>
+                                  {goal.description && (
+                                    <p className="text-sm text-[#5A6B7F]">{goal.description}</p>
+                                  )}
+                                  <div className="text-xs text-[#5A6B7F] mt-2">
+                                    {goal.time_scope === 'day' ? 'Today' : 'This Week'}
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => {
+                                    setGoalToDelete(goal);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+
+                {/* Upcoming Plans */}
+                <Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
+                        <MapPin className="w-5 h-5 text-[#12AFCB]" />
+                        <h3 className="text-lg font-semibold text-[#0E1012]">Upcoming Plans</h3>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${plansOpen ? '' : '-rotate-90'}`} />
+                      </CollapsibleTrigger>
+                      <Button
+                        onClick={() => {
+                          setGoalModalMode('plan');
+                          setGoalModalOpen(true);
+                        }}
+                        size="sm"
+                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Plan
+                      </Button>
+                    </div>
+                    <CollapsibleContent>
+                      <div className="space-y-3">
+                        {plans.length === 0 ? (
+                          <p className="text-sm text-[#5A6B7F] py-4 text-center">No plans yet. Add one to get started!</p>
+                        ) : (
+                          plans.map(plan => (
+                            <div key={plan.id} className="p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl border border-purple-100">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-[#0E1012] mb-1">{plan.title}</h4>
+                                  {plan.description && (
+                                    <p className="text-sm text-[#5A6B7F] mb-2">{plan.description}</p>
+                                  )}
+                                  <div className="flex flex-wrap gap-3 text-xs text-[#5A6B7F]">
+                                    {plan.location_name && (
+                                      <div className="flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" />
+                                        {plan.location_name}
+                                      </div>
+                                    )}
+                                    {plan.start_date && (
+                                      <div className="flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        {new Date(plan.start_date).toLocaleDateString()}
+                                        {plan.end_date && ` - ${new Date(plan.end_date).toLocaleDateString()}`}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => {
+                                    setGoalToDelete(plan);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+
+                {/* AI Recommendations */}
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Sparkles className="w-5 h-5 text-[#12AFCB]" />
+                    <h3 className="text-lg font-semibold text-[#0E1012]">AI Recommendations</h3>
+                  </div>
+                  <AISuggestionsPanel />
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {getCategoryMetrics().map((metric, index) => {
                 const metricCategory = activeCategory === "pinned" 
                   ? getCategoryForMetric(metric) 
                   : activeCategory;
@@ -741,10 +1024,25 @@ export default function ProfessionalPrioritiesSection() {
                   />
                 );
               })}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Modals */}
+      <GoalModal
+        open={goalModalOpen}
+        onOpenChange={setGoalModalOpen}
+        onSuccess={loadPriorities}
+        mode={goalModalMode}
+      />
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteGoal}
+        title={goalToDelete?.title || ''}
+      />
+    </>
   );
 }
