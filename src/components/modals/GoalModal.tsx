@@ -407,7 +407,7 @@ export function GoalModal({ open, onOpenChange, onSuccess, mode = 'global', edit
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1"
+              className="flex-1 hover:bg-[#12AFCB]/10"
               disabled={loading}
             >
               Cancel
