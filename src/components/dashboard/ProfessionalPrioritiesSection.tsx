@@ -882,7 +882,7 @@ export default function ProfessionalPrioritiesSection() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 -mb-4">
                   {/* This Week Goals */}
                   <Collapsible open={weekOpen} onOpenChange={setWeekOpen}>
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
                       <div className="flex items-center justify-between mb-4">
                         <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
                           <Calendar className="w-5 h-5 text-[#12AFCB]" />
@@ -951,7 +951,7 @@ export default function ProfessionalPrioritiesSection() {
 
                   {/* Upcoming Plans */}
                   <Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
                       <div className="flex items-center justify-between mb-4">
                         <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
                           <MapPin className="w-5 h-5 text-[#12AFCB]" />
