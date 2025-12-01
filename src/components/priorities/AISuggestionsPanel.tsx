@@ -16,7 +16,7 @@ const categoryIcons = {
 const categoryColors = {
   movement: "text-blue-500",
   nutrition: "text-green-500",
-  sleep: "text-purple-500",
+  sleep: "text-blue-500",
   recovery: "text-pink-500",
   mindset: "text-amber-500",
   medical: "text-red-500",
