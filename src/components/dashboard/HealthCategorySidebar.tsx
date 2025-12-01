@@ -1,4 +1,4 @@
-import { Activity, Heart, Moon, Brain, Salad, Scale, Pin, Pill, Accessibility, Wind, Stethoscope, FileText, MessageSquare } from "lucide-react";
+import { Activity, Heart, Moon, Brain, Salad, Scale, Pin, Pill, Accessibility, Wind, Stethoscope, FileText, MessageSquare, Rocket } from "lucide-react";
 interface HealthCategorySidebarProps {
   activeCategory: string;
   onCategoryClick: (category: string) => void;
@@ -10,7 +10,7 @@ const categories = [{
 }, {
   id: "action-plan",
   label: "My Action Plan",
-  icon: Activity
+  icon: Rocket
 }, {
   id: "activity",
   label: "Activity",
