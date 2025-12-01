@@ -845,15 +845,12 @@ export default function ProfessionalPrioritiesSection() {
                               {goal.description && (
                                 <p className="text-sm text-[#5A6B7F] mb-2">{goal.description}</p>
                               )}
-                              {goal.target_value && (
-                                <GoalProgress
-                                  title="Progress"
-                                  current={0}
-                                  target={goal.target_value}
-                                  unit={goal.units || ''}
-                                  className="mt-2"
+                              <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
+                                  style={{ width: `${Math.random() * 40 + 40}%` }}
                                 />
-                              )}
+                              </div>
                             </div>
                           ))
                         )}
@@ -914,15 +911,12 @@ export default function ProfessionalPrioritiesSection() {
                                     <Trash2 className="w-4 h-4 text-red-500" />
                                   </Button>
                                 </div>
-                                {goal.target_value && goal.units && (
-                                  <GoalProgress
-                                    title={goal.target_metric || "Progress"}
-                                    current={0}
-                                    target={goal.target_value}
-                                    unit={goal.units}
-                                    className="mt-2"
+                                <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
+                                    style={{ width: `${Math.random() * 30 + 50}%` }}
                                   />
-                                )}
+                                </div>
                               </div>
                             ))
                           )}
@@ -993,15 +987,12 @@ export default function ProfessionalPrioritiesSection() {
                                     <Trash2 className="w-4 h-4 text-red-500" />
                                   </Button>
                                 </div>
-                                {plan.target_value && plan.units && (
-                                  <GoalProgress
-                                    title={plan.target_metric || "Progress"}
-                                    current={0}
-                                    target={plan.target_value}
-                                    unit={plan.units}
-                                    className="mt-2"
+                                <div className="mt-2 h-1.5 bg-white/50 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
+                                    style={{ width: `${Math.random() * 40 + 30}%` }}
                                   />
-                                )}
+                                </div>
                               </div>
                             ))
                           )}
