@@ -270,12 +270,19 @@ export default function PrioritiesSection() {
             <p>• Breathing and light training</p>
           </div> : <DndContext sensors={todaySensors} collisionDetection={closestCenter} onDragEnd={handleTodayDragEnd}>
             <SortableContext items={todayIds} strategy={todaySortingStrategy}>
-              {orderedTodayGoals.map(goal => <SortableItem key={goal.id} id={goal.id} showHandle={false}>
+               {orderedTodayGoals.map(goal => <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                   <div className="flex items-start gap-3 cursor-pointer hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors" onClick={() => handleEdit(goal)}>
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <Calendar className="w-4 h-4 text-[#12AFCB]" />
                     </div>
-                    <p className="text-sm font-medium text-[#0E1012] line-clamp-2 flex-1">{goal.title}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#0E1012] line-clamp-2">{goal.title}</p>
+                      <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" style={{
+                          width: `${Math.random() * 30 + 50}%`
+                        }} />
+                      </div>
+                    </div>
                   </div>
                 </SortableItem>)}
             </SortableContext>
@@ -300,12 +307,19 @@ export default function PrioritiesSection() {
             <p>• Morning walks daily</p>
           </div> : <DndContext sensors={weekSensors} collisionDetection={closestCenter} onDragEnd={handleWeekDragEnd}>
             <SortableContext items={weekIds} strategy={weekSortingStrategy}>
-              {orderedWeekGoals.map(goal => <SortableItem key={goal.id} id={goal.id} showHandle={false}>
+               {orderedWeekGoals.map(goal => <SortableItem key={goal.id} id={goal.id} showHandle={false}>
                   <div className="flex items-start gap-3 cursor-pointer hover:bg-[#12AFCB]/5 rounded-lg p-2 -m-2 transition-colors" onClick={() => handleEdit(goal)}>
                     <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
                       <Calendar className="w-4 h-4 text-[#12AFCB]" />
                     </div>
-                    <p className="text-sm font-medium text-[#0E1012] line-clamp-2 flex-1">{goal.title}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#0E1012] line-clamp-2">{goal.title}</p>
+                      <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" style={{
+                          width: `${Math.random() * 30 + 50}%`
+                        }} />
+                      </div>
+                    </div>
                   </div>
                 </SortableItem>)}
             </SortableContext>
@@ -338,8 +352,8 @@ export default function PrioritiesSection() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
               </div> : orderedPlans.map(plan => <SortableItem key={plan.id} id={plan.id} showHandle={false}>
-                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 hover:bg-[#12AFCB]/20 transition-all cursor-pointer flex items-center justify-between group">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 hover:bg-[#12AFCB]/20 transition-all cursor-pointer group">
+                    <div className="flex items-center gap-3 flex-1 min-w-0 mb-2">
                       <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-[#0E1012] truncate">
@@ -356,7 +370,11 @@ export default function PrioritiesSection() {
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
+                    <div className="h-1.5 bg-white/50 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" style={{
+                        width: `${Math.random() * 40 + 30}%`
+                      }} />
+                    </div>
                   </div>
                 </SortableItem>)}
           </div>
