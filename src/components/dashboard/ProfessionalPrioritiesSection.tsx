@@ -862,133 +862,154 @@ export default function ProfessionalPrioritiesSection() {
                   </div>
                 </Collapsible>
 
-                {/* This Week Goals */}
-                <Collapsible open={weekOpen} onOpenChange={setWeekOpen}>
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
-                        <Calendar className="w-5 h-5 text-[#12AFCB]" />
-                        <h3 className="text-lg font-semibold text-[#0E1012]">This Week</h3>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${weekOpen ? '' : '-rotate-90'}`} />
-                      </CollapsibleTrigger>
-                      <Button
-                        onClick={() => {
-                          setGoalModalMode('temporary');
-                          setGoalModalOpen(true);
-                        }}
-                        size="sm"
-                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Goal
-                      </Button>
-                    </div>
-                    <CollapsibleContent>
-                      <div className="space-y-3">
-                        {temporaryGoals.length === 0 ? (
-                          <p className="text-sm text-[#5A6B7F] py-4 text-center">No weekly goals yet. Add one to get started!</p>
-                        ) : (
-                          temporaryGoals.map(goal => (
-                            <div key={goal.id} className="p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <h4 className="font-medium text-[#0E1012] mb-1">{goal.title}</h4>
-                                  {goal.description && (
-                                    <p className="text-sm text-[#5A6B7F]">{goal.description}</p>
-                                  )}
-                                  <div className="text-xs text-[#5A6B7F] mt-2">
-                                    {goal.time_scope === 'day' ? 'Today' : 'This Week'}
-                                  </div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => {
-                                    setGoalToDelete(goal);
-                                    setDeleteDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))
-                        )}
+                {/* This Week and Plans Side-by-Side */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* This Week Goals */}
+                  <Collapsible open={weekOpen} onOpenChange={setWeekOpen}>
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
+                          <Calendar className="w-5 h-5 text-[#12AFCB]" />
+                          <h3 className="text-lg font-semibold text-[#0E1012]">This Week</h3>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${weekOpen ? '' : '-rotate-90'}`} />
+                        </CollapsibleTrigger>
+                        <Button
+                          onClick={() => {
+                            setGoalModalMode('temporary');
+                            setGoalModalOpen(true);
+                          }}
+                          size="sm"
+                          className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Goal
+                        </Button>
                       </div>
-                    </CollapsibleContent>
-                  </div>
-                </Collapsible>
+                      <CollapsibleContent>
+                        <div className="space-y-3">
+                          {temporaryGoals.length === 0 ? (
+                            <p className="text-sm text-[#5A6B7F] py-4 text-center">No weekly goals yet. Add one to get started!</p>
+                          ) : (
+                            temporaryGoals.map(goal => (
+                              <div key={goal.id} className="p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex-1">
+                                    <h4 className="font-medium text-[#0E1012] mb-1">{goal.title}</h4>
+                                    {goal.description && (
+                                      <p className="text-sm text-[#5A6B7F]">{goal.description}</p>
+                                    )}
+                                    <div className="text-xs text-[#5A6B7F] mt-2">
+                                      {goal.time_scope === 'day' ? 'Today' : 'This Week'}
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => {
+                                      setGoalToDelete(goal);
+                                      setDeleteDialogOpen(true);
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </div>
+                                {goal.target_value && goal.units && (
+                                  <GoalProgress
+                                    title={goal.target_metric || "Progress"}
+                                    current={0}
+                                    target={goal.target_value}
+                                    unit={goal.units}
+                                    className="mt-2"
+                                  />
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
 
-                {/* Upcoming Plans */}
-                <Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
-                        <MapPin className="w-5 h-5 text-[#12AFCB]" />
-                        <h3 className="text-lg font-semibold text-[#0E1012]">Upcoming Plans</h3>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${plansOpen ? '' : '-rotate-90'}`} />
-                      </CollapsibleTrigger>
-                      <Button
-                        onClick={() => {
-                          setGoalModalMode('plan');
-                          setGoalModalOpen(true);
-                        }}
-                        size="sm"
-                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Plan
-                      </Button>
-                    </div>
-                    <CollapsibleContent>
-                      <div className="space-y-3">
-                        {plans.length === 0 ? (
-                          <p className="text-sm text-[#5A6B7F] py-4 text-center">No plans yet. Add one to get started!</p>
-                        ) : (
-                          plans.map(plan => (
-                            <div key={plan.id} className="p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl border border-purple-100">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <h4 className="font-medium text-[#0E1012] mb-1">{plan.title}</h4>
-                                  {plan.description && (
-                                    <p className="text-sm text-[#5A6B7F] mb-2">{plan.description}</p>
-                                  )}
-                                  <div className="flex flex-wrap gap-3 text-xs text-[#5A6B7F]">
-                                    {plan.location_name && (
-                                      <div className="flex items-center gap-1">
-                                        <MapPin className="w-3 h-3" />
-                                        {plan.location_name}
-                                      </div>
-                                    )}
-                                    {plan.start_date && (
-                                      <div className="flex items-center gap-1">
-                                        <Calendar className="w-3 h-3" />
-                                        {new Date(plan.start_date).toLocaleDateString()}
-                                        {plan.end_date && ` - ${new Date(plan.end_date).toLocaleDateString()}`}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => {
-                                    setGoalToDelete(plan);
-                                    setDeleteDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))
-                        )}
+                  {/* Upcoming Plans */}
+                  <Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
+                          <MapPin className="w-5 h-5 text-[#12AFCB]" />
+                          <h3 className="text-lg font-semibold text-[#0E1012]">Upcoming Plans</h3>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${plansOpen ? '' : '-rotate-90'}`} />
+                        </CollapsibleTrigger>
+                        <Button
+                          onClick={() => {
+                            setGoalModalMode('plan');
+                            setGoalModalOpen(true);
+                          }}
+                          size="sm"
+                          className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Plan
+                        </Button>
                       </div>
-                    </CollapsibleContent>
-                  </div>
-                </Collapsible>
+                      <CollapsibleContent>
+                        <div className="space-y-3">
+                          {plans.length === 0 ? (
+                            <p className="text-sm text-[#5A6B7F] py-4 text-center">No plans yet. Add one to get started!</p>
+                          ) : (
+                            plans.map(plan => (
+                              <div key={plan.id} className="p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl border border-purple-100">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex-1">
+                                    <h4 className="font-medium text-[#0E1012] mb-1">{plan.title}</h4>
+                                    {plan.description && (
+                                      <p className="text-sm text-[#5A6B7F] mb-2">{plan.description}</p>
+                                    )}
+                                    <div className="flex flex-wrap gap-3 text-xs text-[#5A6B7F]">
+                                      {plan.location_name && (
+                                        <div className="flex items-center gap-1">
+                                          <MapPin className="w-3 h-3" />
+                                          {plan.location_name}
+                                        </div>
+                                      )}
+                                      {plan.start_date && (
+                                        <div className="flex items-center gap-1">
+                                          <Calendar className="w-3 h-3" />
+                                          {new Date(plan.start_date).toLocaleDateString()}
+                                          {plan.end_date && ` - ${new Date(plan.end_date).toLocaleDateString()}`}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => {
+                                      setGoalToDelete(plan);
+                                      setDeleteDialogOpen(true);
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </div>
+                                {plan.target_value && plan.units && (
+                                  <GoalProgress
+                                    title={plan.target_metric || "Progress"}
+                                    current={0}
+                                    target={plan.target_value}
+                                    unit={plan.units}
+                                    className="mt-2"
+                                  />
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                </div>
 
                 {/* AI Recommendations */}
                 <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
