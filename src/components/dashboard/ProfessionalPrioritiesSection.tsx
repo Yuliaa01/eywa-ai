@@ -50,6 +50,7 @@ export default function ProfessionalPrioritiesSection() {
   const [plans, setPlans] = useState<Priority[]>([]);
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalModalMode, setGoalModalMode] = useState<'global' | 'temporary' | 'plan'>('global');
+  const [editingGoal, setEditingGoal] = useState<Priority | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<Priority | null>(null);
   const [goalsOpen, setGoalsOpen] = useState(true);
@@ -103,6 +104,19 @@ export default function ProfessionalPrioritiesSection() {
     } catch (error) {
       toast({ title: "Error", description: "Failed to restore goal", variant: "destructive" });
     }
+  };
+
+  const handleEditGoal = (goal: Priority) => {
+    setEditingGoal(goal);
+    const mode = goal.type === 'global_goal' ? 'global' : goal.type === 'temporary_goal' ? 'temporary' : 'plan';
+    setGoalModalMode(mode);
+    setGoalModalOpen(true);
+  };
+
+  const handleAddGoal = (mode: 'global' | 'temporary' | 'plan') => {
+    setEditingGoal(null);
+    setGoalModalMode(mode);
+    setGoalModalOpen(true);
   };
 
   // Mock data generators
@@ -808,10 +822,7 @@ export default function ProfessionalPrioritiesSection() {
                         <ChevronDown className={`w-4 h-4 transition-transform ${goalsOpen ? '' : '-rotate-90'}`} />
                       </CollapsibleTrigger>
                       <Button
-                        onClick={() => {
-                          setGoalModalMode('global');
-                          setGoalModalOpen(true);
-                        }}
+                        onClick={() => handleAddGoal('global')}
                         size="sm"
                         className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
                       >
@@ -829,6 +840,14 @@ export default function ProfessionalPrioritiesSection() {
                               <div className="flex items-start justify-between mb-2">
                                 <h4 className="font-medium text-[#0E1012]">{goal.title}</h4>
                                 <div className="flex gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => handleEditGoal(goal)}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -871,10 +890,7 @@ export default function ProfessionalPrioritiesSection() {
                           <ChevronDown className={`w-4 h-4 transition-transform ${weekOpen ? '' : '-rotate-90'}`} />
                         </CollapsibleTrigger>
                         <Button
-                          onClick={() => {
-                            setGoalModalMode('temporary');
-                            setGoalModalOpen(true);
-                          }}
+                          onClick={() => handleAddGoal('temporary')}
                           size="sm"
                           className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
                         >
@@ -899,6 +915,14 @@ export default function ProfessionalPrioritiesSection() {
                                       {goal.time_scope === 'day' ? 'Today' : 'This Week'}
                                     </div>
                                   </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => handleEditGoal(goal)}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -935,10 +959,7 @@ export default function ProfessionalPrioritiesSection() {
                           <ChevronDown className={`w-4 h-4 transition-transform ${plansOpen ? '' : '-rotate-90'}`} />
                         </CollapsibleTrigger>
                         <Button
-                          onClick={() => {
-                            setGoalModalMode('plan');
-                            setGoalModalOpen(true);
-                          }}
+                          onClick={() => handleAddGoal('plan')}
                           size="sm"
                           className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
                         >
@@ -975,17 +996,27 @@ export default function ProfessionalPrioritiesSection() {
                                       )}
                                     </div>
                                   </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => {
-                                      setGoalToDelete(plan);
-                                      setDeleteDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                  </Button>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      onClick={() => handleEditGoal(plan)}
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      onClick={() => {
+                                        setGoalToDelete(plan);
+                                        setDeleteDialogOpen(true);
+                                      }}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </Button>
+                                  </div>
                                 </div>
                                 <div className="mt-2 h-1.5 bg-white/50 rounded-full overflow-hidden">
                                   <div 
@@ -1045,9 +1076,25 @@ export default function ProfessionalPrioritiesSection() {
       {/* Modals */}
       <GoalModal
         open={goalModalOpen}
-        onOpenChange={setGoalModalOpen}
+        onOpenChange={(open) => {
+          setGoalModalOpen(open);
+          if (!open) setEditingGoal(null);
+        }}
         onSuccess={loadPriorities}
         mode={goalModalMode}
+        editMode={!!editingGoal}
+        initialValues={editingGoal ? {
+          id: editingGoal.id,
+          title: editingGoal.title,
+          description: editingGoal.description || undefined,
+          start_date: editingGoal.start_date || undefined,
+          end_date: editingGoal.end_date || undefined,
+          location_name: editingGoal.location_name || undefined,
+          time_scope: editingGoal.time_scope as 'day' | 'week' | undefined,
+          target_value: editingGoal.target_value || undefined,
+          target_metric: editingGoal.target_metric || undefined,
+          units: editingGoal.units || undefined,
+        } : undefined}
       />
       <DeleteConfirmDialog
         open={deleteDialogOpen}
