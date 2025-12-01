@@ -8,6 +8,10 @@ const categories = [{
   label: "Pinned",
   icon: Pin
 }, {
+  id: "action-plan",
+  label: "My Action Plan",
+  icon: Activity
+}, {
   id: "activity",
   label: "Activity",
   icon: Activity

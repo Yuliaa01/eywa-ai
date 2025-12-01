@@ -11,6 +11,9 @@ export interface Priority {
   location_name?: string;
   status: 'planned' | 'in_progress' | 'completed' | 'paused';
   time_scope?: 'day' | 'week';
+  target_metric?: string;
+  target_value?: number;
+  units?: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string;
