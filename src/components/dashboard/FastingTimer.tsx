@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -225,8 +225,9 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         </div>
       </div>
       
-      <div className="space-y-6 flex-1 overflow-y-auto">
-        <div className="flex items-center justify-between text-sm">
+      <div className="space-y-4 flex-1 overflow-y-auto">
+        {/* Time displays above arc */}
+        <div className="flex items-center justify-between text-sm px-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
             Start: {fastingWindow.start}
@@ -263,7 +264,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                       </Button>
                       <Button
                         onClick={handleUpdateStartTime}
-                        className="flex-1 bg-gradient-to-r from-accent-teal to-accent-teal-alt"
+                        className="flex-1 bg-gradient-to-r from-[#FF6B35] via-[#F7B801] to-[#12AFCB]"
                       >
                         Update
                       </Button>
@@ -278,34 +279,80 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             End: {fastingWindow.end}
           </div>
         </div>
-        
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-rounded font-semibold text-accent-teal">
-              {currentProgress.toFixed(0)}%
-            </span>
-          </div>
-          <div className="relative h-3 rounded-full bg-accent-teal/10 overflow-hidden">
-            <div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-accent-teal to-accent-teal-alt transition-all duration-300"
-              style={{ width: `${currentProgress}%` }}
+
+        {/* Semi-circular progress arc */}
+        <div className="relative flex items-center justify-center py-4">
+          <svg width="280" height="160" viewBox="0 0 280 160" className="overflow-visible">
+            <defs>
+              {/* Gradient for progress arc */}
+              <linearGradient id="fastingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FF6B35" />
+                <stop offset="33%" stopColor="#F72585" />
+                <stop offset="66%" stopColor="#7209B7" />
+                <stop offset="100%" stopColor="#4361EE" />
+              </linearGradient>
+            </defs>
+            
+            {/* Background arc (light gray track) */}
+            <path
+              d="M 20 140 A 120 120 0 0 1 260 140"
+              fill="none"
+              stroke="hsl(var(--muted))"
+              strokeWidth="12"
+              strokeLinecap="round"
+              opacity="0.2"
             />
+            
+            {/* Progress arc with gradient */}
+            <path
+              d="M 20 140 A 120 120 0 0 1 260 140"
+              fill="none"
+              stroke="url(#fastingGradient)"
+              strokeWidth="12"
+              strokeLinecap="round"
+              strokeDasharray={`${(currentProgress / 100) * 377} 377`}
+              className="transition-all duration-500"
+            />
+            
+            {/* Progress indicator dot */}
+            {currentProgress > 0 && currentProgress < 100 && (
+              <circle
+                cx={20 + 240 * (currentProgress / 100)}
+                cy={140 - 120 * Math.sin((currentProgress / 100) * Math.PI)}
+                r="8"
+                fill="white"
+                className="drop-shadow-lg transition-all duration-500"
+              />
+            )}
+          </svg>
+          
+          {/* Sun icon on the left */}
+          <div className="absolute left-2 bottom-8">
+            <Sun className="w-6 h-6 text-orange-500" />
+          </div>
+          
+          {/* Moon icon on the right */}
+          <div className="absolute right-2 bottom-8">
+            <Moon className="w-6 h-6 text-blue-400" />
+          </div>
+          
+          {/* Hours remaining text centered in arc */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+            <p className="text-2xl font-rounded font-bold text-foreground">
+              {currentProgress < 100 ? hoursRemaining : "0"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {currentProgress < 100 ? "hours remaining" : "Complete! 🎉"}
+            </p>
           </div>
         </div>
-        
-        <p className="text-sm text-muted-foreground text-center">
-          {currentProgress < 100
-            ? `${hoursRemaining} hours remaining`
-            : "Fasting window complete! 🎉"}
-        </p>
 
         {/* Timer Controls */}
         <div className="flex gap-2 pt-2">
           {!isRunning ? (
             <Button
               onClick={handleStart}
-              className="flex-1 bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white hover:shadow-[0_4px_20px_rgba(18,175,203,0.3)]"
+              className="flex-1 bg-gradient-to-r from-[#FF6B35] via-[#F72585] to-[#4361EE] text-white hover:shadow-[0_4px_20px_rgba(255,107,53,0.4)] rounded-full h-12 font-semibold"
             >
               <Play className="w-4 h-4 mr-2" />
               Start
