@@ -10,6 +10,7 @@ import { BodyMetricsModal } from "@/components/modals/BodyMetricsModal";
 import { usePinnedMetrics } from "@/hooks/usePinnedMetrics";
 import { fetchActivePriorities, deletePriority, restorePriority, type Priority } from "@/api/priorities";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -57,11 +58,74 @@ export default function ProfessionalPrioritiesSection() {
   
   // Body metrics modal state
   const [bodyMetricsModalOpen, setBodyMetricsModalOpen] = useState(false);
+  
+  // Body metrics data from database
+  const [bodyMetricsData, setBodyMetricsData] = useState<{
+    weight: string;
+    height: string;
+    bodyFat: string;
+    temperature: string;
+  }>({
+    weight: "--",
+    height: "--",
+    bodyFat: "--",
+    temperature: "--",
+  });
 
   // Load priorities
   useEffect(() => {
     loadPriorities();
+    loadBodyMetrics();
   }, []);
+
+  const loadBodyMetrics = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Load from user_profiles
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('height_cm, weight_kg')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      // Load latest vitals
+      const { data: vitals } = await supabase
+        .from('vitals_stream')
+        .select('metric, value, recorded_at')
+        .eq('user_id', user.id)
+        .in('metric', ['weight', 'body_fat', 'temp'])
+        .order('recorded_at', { ascending: false });
+
+      const newData: typeof bodyMetricsData = {
+        weight: "--",
+        height: "--",
+        bodyFat: "--",
+        temperature: "--",
+      };
+
+      // Set profile data
+      if (profile?.height_cm) newData.height = String(profile.height_cm);
+      if (profile?.weight_kg) newData.weight = String(profile.weight_kg);
+
+      // Set latest vitals (get most recent for each metric)
+      const latestVitals: Record<string, number> = {};
+      vitals?.forEach(v => {
+        if (!latestVitals[v.metric]) {
+          latestVitals[v.metric] = v.value;
+        }
+      });
+
+      if (latestVitals.weight) newData.weight = String(latestVitals.weight);
+      if (latestVitals.body_fat) newData.bodyFat = String(latestVitals.body_fat);
+      if (latestVitals.temp) newData.temperature = String(latestVitals.temp);
+
+      setBodyMetricsData(newData);
+    } catch (error) {
+      console.error('Failed to load body metrics:', error);
+    }
+  };
 
   const loadPriorities = async () => {
     try {
@@ -245,121 +309,123 @@ export default function ProfessionalPrioritiesSection() {
     {
       icon: <Scale className="w-4 h-4" />,
       title: "Weight",
-      value: "75.2",
+      value: bodyMetricsData.weight,
       unit: "kg",
-      timestamp: "This morning",
+      timestamp: "From profile",
       trendData: generateTrendData(),
-      hasData: true,
+      hasData: bodyMetricsData.weight !== "--",
       badge: undefined,
     },
     {
       icon: <TrendingUp className="w-4 h-4" />,
       title: "Height",
-      value: "178",
+      value: bodyMetricsData.height,
       unit: "cm",
       timestamp: "Profile",
-      hasData: true,
+      hasData: bodyMetricsData.height !== "--",
       badge: undefined,
     },
     {
       icon: <Scale className="w-4 h-4" />,
       title: "Body Fat %",
-      value: "18.5",
+      value: bodyMetricsData.bodyFat,
       unit: "%",
-      timestamp: "Last week",
+      timestamp: "Last recorded",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: "Demo",
+      hasData: bodyMetricsData.bodyFat !== "--",
+      badge: bodyMetricsData.bodyFat === "--" ? "No data" : undefined,
     },
     {
       icon: <Scale className="w-4 h-4" />,
       title: "BMI",
-      value: "23.4",
+      value: bodyMetricsData.weight !== "--" && bodyMetricsData.height !== "--"
+        ? (parseFloat(bodyMetricsData.weight) / Math.pow(parseFloat(bodyMetricsData.height) / 100, 2)).toFixed(1)
+        : "--",
       unit: "",
       timestamp: "Calculated",
       trendData: generateTrendData(),
-      hasData: true,
+      hasData: bodyMetricsData.weight !== "--" && bodyMetricsData.height !== "--",
       badge: undefined,
     },
     {
       icon: <Dumbbell className="w-4 h-4" />,
       title: "Skeletal Muscle Mass",
-      value: "32.5",
+      value: "--",
       unit: "kg",
-      timestamp: "Last scan",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
     {
       icon: <Target className="w-4 h-4" />,
       title: "Waist",
-      value: "82",
+      value: "--",
       unit: "cm",
-      timestamp: "Last month",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
     {
       icon: <Activity className="w-4 h-4" />,
       title: "Temperature",
-      value: "36.6",
+      value: bodyMetricsData.temperature,
       unit: "°C",
-      timestamp: "This morning",
+      timestamp: "Last recorded",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: bodyMetricsData.temperature !== "--",
+      badge: bodyMetricsData.temperature === "--" ? "No data" : undefined,
     },
     {
       icon: <Flame className="w-4 h-4" />,
       title: "Visceral Fat",
-      value: "8",
+      value: "--",
       unit: "level",
-      timestamp: "Last scan",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
     {
       icon: <Droplet className="w-4 h-4" />,
       title: "Body Water",
-      value: "55.2",
+      value: "--",
       unit: "%",
-      timestamp: "Last scan",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
     {
       icon: <Salad className="w-4 h-4" />,
       title: "Body Protein",
-      value: "16.8",
+      value: "--",
       unit: "%",
-      timestamp: "Last scan",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
     {
       icon: <Scale className="w-4 h-4" />,
       title: "Minerals",
-      value: "4.2",
+      value: "--",
       unit: "kg",
-      timestamp: "Last scan",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
     {
       icon: <Flame className="w-4 h-4" />,
       title: "Metabolic Rate",
-      value: "1,680",
+      value: "--",
       unit: "kcal/day",
-      timestamp: "Calculated",
+      timestamp: "No data",
       trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
+      hasData: false,
+      badge: "No data",
     },
   ];
 
@@ -1178,9 +1244,8 @@ export default function ProfessionalPrioritiesSection() {
       <BodyMetricsModal
         open={bodyMetricsModalOpen}
         onOpenChange={setBodyMetricsModalOpen}
-        onSave={(metrics) => {
-          console.log("Saved metrics:", metrics);
-          // TODO: Persist to database when backend is ready
+        onSave={() => {
+          loadBodyMetrics();
         }}
       />
     </>
