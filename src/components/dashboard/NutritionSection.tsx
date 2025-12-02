@@ -52,9 +52,9 @@ export default function NutritionSection() {
   const [supplementToDelete, setSupplementToDelete] = useState<Tables<'supplements'> | null>(null);
   const [supplementDeleteConfirmOpen, setSupplementDeleteConfirmOpen] = useState(false);
   const [macros, setMacros] = useState([
-    { name: "Carbs", current: 0, target: 250, color: "#19D0E4", unit: "g" },
-    { name: "Protein", current: 0, target: 180, color: "#12AFCB", unit: "g" },
-    { name: "Fat", current: 0, target: 80, color: "#0E8FA6", unit: "g" },
+    { name: "Carbs", current: 0, target: 250, color: "#5B8DEE", unit: "g" },
+    { name: "Protein", current: 0, target: 180, color: "#7DD3FC", unit: "g" },
+    { name: "Fat", current: 0, target: 80, color: "#A78BFA", unit: "g" },
   ]);
   const [calories, setCalories] = useState({ current: 0, target: 2000 });
   const [nutritionView, setNutritionView] = useState<'macros' | 'calories'>('macros');
@@ -108,9 +108,9 @@ export default function NutritionSection() {
       if (data) {
         const macrosTarget = data.macros_target as any;
         setMacros([
-          { name: "Carbs", current: macros[0].current, target: macrosTarget?.carbs || 250, color: "#19D0E4", unit: "g" },
-          { name: "Protein", current: macros[1].current, target: macrosTarget?.protein || 180, color: "#12AFCB", unit: "g" },
-          { name: "Fat", current: macros[2].current, target: macrosTarget?.fat || 80, color: "#0E8FA6", unit: "g" },
+          { name: "Carbs", current: macros[0].current, target: macrosTarget?.carbs || 250, color: "#5B8DEE", unit: "g" },
+          { name: "Protein", current: macros[1].current, target: macrosTarget?.protein || 180, color: "#7DD3FC", unit: "g" },
+          { name: "Fat", current: macros[2].current, target: macrosTarget?.fat || 80, color: "#A78BFA", unit: "g" },
         ]);
         setCalories({ current: calories.current, target: data.daily_calories_target || 2000 });
       }
@@ -417,8 +417,8 @@ export default function NutritionSection() {
                         cy="64"
                         r="56"
                         fill="none"
-                        stroke="#12AFCB"
-                        strokeOpacity="0.1"
+                        stroke={macro.color}
+                        strokeOpacity="0.15"
                         strokeWidth="10"
                       />
                       <circle
