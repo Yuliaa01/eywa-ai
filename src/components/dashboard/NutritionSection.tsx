@@ -635,22 +635,25 @@ export default function NutritionSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[340px] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setSupplementPhotoModalOpen(true)}
-                className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
-                title="Analyze supplement photo"
-              >
-                <Camera className="w-4 h-4 text-[#12AFCB]" />
-              </button>
-              <button 
-                onClick={() => setSupplementModalOpen(true)}
-                className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
-                title="Add supplement manually"
-              >
-                <Plus className="w-4 h-4 text-[#12AFCB]" />
-              </button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+                >
+                  <Plus className="w-4 h-4 text-[#12AFCB]" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setSupplementModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add manually
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSupplementPhotoModalOpen(true)}>
+                  <Camera className="w-4 h-4 mr-2" />
+                  Analyze photo
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="flex-1 overflow-y-auto space-y-4">
             {activeSupplements.length === 0 ? (

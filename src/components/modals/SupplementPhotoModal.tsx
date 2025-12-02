@@ -1,7 +1,10 @@
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Camera, Upload, Loader2, Check, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Camera, Upload, Loader2, Check, Plus, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,7 +19,10 @@ interface DetectedSupplement {
   dosage: string;
   form: string;
   selected: boolean;
+  isEditing: boolean;
 }
+
+const FORM_OPTIONS = ['tablet', 'capsule', 'liquid', 'powder', 'gummy'];
 
 export function SupplementPhotoModal({ open, onOpenChange, onSuccess }: SupplementPhotoModalProps) {
   const { toast } = useToast();
@@ -60,10 +66,14 @@ export function SupplementPhotoModal({ open, onOpenChange, onSuccess }: Suppleme
       if (error) throw error;
 
       if (data.supplements && data.supplements.length > 0) {
-        setDetectedSupplements(data.supplements.map((s: any) => ({ ...s, selected: true })));
+        setDetectedSupplements(data.supplements.map((s: any) => ({ 
+          ...s, 
+          selected: true,
+          isEditing: false 
+        })));
         toast({
           title: "Supplements detected",
-          description: `Found ${data.supplements.length} supplement(s) in your photo.`,
+          description: `Found ${data.supplements.length} supplement(s). Tap to edit details.`,
         });
       } else {
         toast({
@@ -87,6 +97,18 @@ export function SupplementPhotoModal({ open, onOpenChange, onSuccess }: Suppleme
   const toggleSupplementSelection = (index: number) => {
     setDetectedSupplements(prev => 
       prev.map((s, i) => i === index ? { ...s, selected: !s.selected } : s)
+    );
+  };
+
+  const toggleEditMode = (index: number) => {
+    setDetectedSupplements(prev => 
+      prev.map((s, i) => i === index ? { ...s, isEditing: !s.isEditing } : s)
+    );
+  };
+
+  const updateSupplement = (index: number, field: keyof DetectedSupplement, value: string) => {
+    setDetectedSupplements(prev => 
+      prev.map((s, i) => i === index ? { ...s, [field]: value } : s)
     );
   };
 
@@ -155,11 +177,11 @@ export function SupplementPhotoModal({ open, onOpenChange, onSuccess }: Suppleme
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-rounded">Analyze Supplement Photo</DialogTitle>
           <DialogDescription>
-            Take a photo of your supplement bottles and we'll automatically detect and add them.
+            Take a photo of your supplement bottles and we'll automatically detect them.
           </DialogDescription>
         </DialogHeader>
 
@@ -188,7 +210,7 @@ export function SupplementPhotoModal({ open, onOpenChange, onSuccess }: Suppleme
                 <img 
                   src={imagePreview} 
                   alt="Supplement photo" 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-40 object-cover"
                 />
                 {isAnalyzing && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -201,34 +223,90 @@ export function SupplementPhotoModal({ open, onOpenChange, onSuccess }: Suppleme
               </div>
 
               {detectedSupplements.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p className="text-sm font-medium text-foreground">Detected Supplements:</p>
                   {detectedSupplements.map((supplement, index) => (
-                    <button
+                    <div
                       key={index}
-                      onClick={() => toggleSupplementSelection(index)}
-                      className={`w-full p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3 rounded-xl border transition-all ${
                         supplement.selected 
-                          ? 'border-accent bg-accent/10' 
+                          ? 'border-accent bg-accent/5' 
                           : 'border-border bg-muted/30'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-foreground">{supplement.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {supplement.dosage} • {supplement.form}
-                          </p>
+                      {supplement.isEditing ? (
+                        <div className="space-y-3">
+                          <div>
+                            <Label className="text-xs">Name</Label>
+                            <Input
+                              value={supplement.name}
+                              onChange={(e) => updateSupplement(index, 'name', e.target.value)}
+                              className="h-9 mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Dosage</Label>
+                            <Input
+                              value={supplement.dosage}
+                              onChange={(e) => updateSupplement(index, 'dosage', e.target.value)}
+                              placeholder="e.g., 1000mg"
+                              className="h-9 mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Form</Label>
+                            <Select 
+                              value={supplement.form} 
+                              onValueChange={(value) => updateSupplement(index, 'form', value)}
+                            >
+                              <SelectTrigger className="h-9 mt-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FORM_OPTIONS.map(form => (
+                                  <SelectItem key={form} value={form} className="capitalize">
+                                    {form}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => toggleEditMode(index)}
+                            className="w-full"
+                          >
+                            Done editing
+                          </Button>
                         </div>
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          supplement.selected 
-                            ? 'border-accent bg-accent' 
-                            : 'border-muted-foreground'
-                        }`}>
-                          {supplement.selected && <Check className="w-3 h-3 text-white" />}
+                      ) : (
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => toggleSupplementSelection(index)}
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                              supplement.selected 
+                                ? 'border-accent bg-accent' 
+                                : 'border-muted-foreground'
+                            }`}
+                          >
+                            {supplement.selected && <Check className="w-3 h-3 text-white" />}
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground truncate">{supplement.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {supplement.dosage} • {supplement.form}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => toggleEditMode(index)}
+                            className="p-2 rounded-lg hover:bg-muted transition-colors"
+                          >
+                            <Pencil className="w-4 h-4 text-muted-foreground" />
+                          </button>
                         </div>
-                      </div>
-                    </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
