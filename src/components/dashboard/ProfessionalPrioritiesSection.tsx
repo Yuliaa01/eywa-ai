@@ -6,6 +6,7 @@ import { AISuggestionsPanel } from "@/components/priorities/AISuggestionsPanel";
 import { GoalModal } from "@/components/modals/GoalModal";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { GoalProgress } from "@/components/glass/GoalProgress";
+import { BodyMetricsModal } from "@/components/modals/BodyMetricsModal";
 import { usePinnedMetrics } from "@/hooks/usePinnedMetrics";
 import { fetchActivePriorities, deletePriority, restorePriority, type Priority } from "@/api/priorities";
 import { toast } from "@/hooks/use-toast";
@@ -37,6 +38,7 @@ import {
   Edit,
   Trash2,
   Sparkles,
+  Pencil,
 } from "lucide-react";
 
 export default function ProfessionalPrioritiesSection() {
@@ -52,6 +54,9 @@ export default function ProfessionalPrioritiesSection() {
   const [editingGoal, setEditingGoal] = useState<Priority | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<Priority | null>(null);
+  
+  // Body metrics modal state
+  const [bodyMetricsModalOpen, setBodyMetricsModalOpen] = useState(false);
 
   // Load priorities
   useEffect(() => {
@@ -880,9 +885,22 @@ export default function ProfessionalPrioritiesSection() {
 
           {/* Right: Content Area */}
           <div>
-            <h2 className="text-2xl font-bold text-[#0E1012] mb-4">
-              {getCategoryTitle()}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-[#0E1012]">
+                {getCategoryTitle()}
+              </h2>
+              {activeCategory === "body" && (
+                <Button
+                  onClick={() => setBodyMetricsModalOpen(true)}
+                  size="sm"
+                  variant="outline"
+                  className="border-[#12AFCB]/30 text-[#12AFCB] hover:bg-[#12AFCB]/10"
+                >
+                  <Pencil className="w-4 h-4 mr-1" />
+                  Edit Metrics
+                </Button>
+              )}
+            </div>
 
             {activeCategory === "chat" ? (
               <AIChatCenter />
@@ -1156,6 +1174,14 @@ export default function ProfessionalPrioritiesSection() {
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDeleteGoal}
         title={goalToDelete?.title || ''}
+      />
+      <BodyMetricsModal
+        open={bodyMetricsModalOpen}
+        onOpenChange={setBodyMetricsModalOpen}
+        onSave={(metrics) => {
+          console.log("Saved metrics:", metrics);
+          // TODO: Persist to database when backend is ready
+        }}
       />
     </>
   );
