@@ -303,7 +303,17 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
               opacity="0.2"
             />
             
-            {/* Progress arc with gradient */}
+            {/* Full gradient arc at lower opacity (always visible) */}
+            <path
+              d="M 20 115 A 100 100 0 0 1 220 115"
+              fill="none"
+              stroke="url(#fastingGradient)"
+              strokeWidth="10"
+              strokeLinecap="round"
+              opacity="0.2"
+            />
+            
+            {/* Progress arc with gradient (full opacity, fills based on progress) */}
             <path
               d="M 20 115 A 100 100 0 0 1 220 115"
               fill="none"
