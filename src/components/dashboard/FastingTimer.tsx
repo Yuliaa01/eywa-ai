@@ -282,7 +282,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
 
         {/* Semi-circular progress arc */}
         <div className="relative flex items-center justify-center py-2 flex-shrink-0">
-          <svg width="240" height="130" viewBox="0 0 240 130" className="overflow-visible">
+          <svg width="280" height="150" viewBox="0 0 280 150" className="overflow-visible">
             <defs>
               {/* Gradient for progress arc */}
               <linearGradient id="fastingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -295,7 +295,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             
             {/* Background arc (light gray track) */}
             <path
-              d="M 20 115 A 100 100 0 0 1 220 115"
+              d="M 25 135 A 115 115 0 0 1 255 135"
               fill="none"
               stroke="hsl(var(--muted))"
               strokeWidth="10"
@@ -305,7 +305,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             
             {/* Full gradient arc at lower opacity (always visible) */}
             <path
-              d="M 20 115 A 100 100 0 0 1 220 115"
+              d="M 25 135 A 115 115 0 0 1 255 135"
               fill="none"
               stroke="url(#fastingGradient)"
               strokeWidth="10"
@@ -315,20 +315,20 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             
             {/* Progress arc with gradient (full opacity, fills based on progress) */}
             <path
-              d="M 20 115 A 100 100 0 0 1 220 115"
+              d="M 25 135 A 115 115 0 0 1 255 135"
               fill="none"
               stroke="url(#fastingGradient)"
               strokeWidth="10"
               strokeLinecap="round"
-              strokeDasharray={`${(currentProgress / 100) * 314} 314`}
+              strokeDasharray={`${(currentProgress / 100) * 361} 361`}
               className="transition-all duration-500"
             />
             
             {/* Progress indicator dot */}
             {currentProgress > 0 && currentProgress < 100 && (
               <circle
-                cx={20 + 200 * (currentProgress / 100)}
-                cy={115 - 100 * Math.sin((currentProgress / 100) * Math.PI)}
+                cx={25 + 230 * (currentProgress / 100)}
+                cy={135 - 115 * Math.sin((currentProgress / 100) * Math.PI)}
                 r="7"
                 fill="white"
                 className="drop-shadow-lg transition-all duration-500"
@@ -337,12 +337,12 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
           </svg>
           
           {/* Sun icon on the left */}
-          <div className="absolute left-1 bottom-4">
+          <div className="absolute left-2 bottom-4">
             <Sun className="w-5 h-5 text-orange-500" />
           </div>
           
           {/* Moon icon on the right */}
-          <div className="absolute right-1 bottom-4">
+          <div className="absolute right-2 bottom-4">
             <Moon className="w-5 h-5 text-blue-400" />
           </div>
           
