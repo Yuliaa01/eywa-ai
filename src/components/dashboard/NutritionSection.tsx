@@ -1,4 +1,4 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
@@ -59,6 +59,16 @@ export default function NutritionSection() {
   const [calories, setCalories] = useState({ current: 0, target: 2000 });
   const [nutritionView, setNutritionView] = useState<'macros' | 'calories'>('macros');
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
+
+  // Color palette for supplement pill containers
+  const supplementColors = [
+    'from-orange-400 to-orange-500',
+    'from-purple-500 to-purple-600',
+    'from-pink-500 to-pink-600',
+    'from-blue-500 to-blue-600',
+    'from-green-500 to-green-600',
+    'from-amber-400 to-amber-500',
+  ];
 
   // Fetch active fasting window and today's meals
   useEffect(() => {
@@ -640,26 +650,36 @@ export default function NutritionSection() {
                 onDragEnd={handleSupplementDragEnd}
               >
                 <SortableContext items={supplementIds} strategy={supplementSortingStrategy}>
-                  {orderedSupplements.map((supplement) => (
-                    <SortableItem key={supplement.id} id={supplement.id} showHandle={false}>
-                      <div className="flex items-start justify-between p-4 rounded-xl bg-white/80 border border-[#12AFCB]/10 group">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <div className="w-2 h-2 rounded-full bg-[#12AFCB] mt-2 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-rounded font-medium text-[#0E1012]">{supplement.name}</h4>
-                            <p className="text-sm text-[#5A6B7F]">{supplement.dosage} {supplement.units || ''}</p>
+                  {orderedSupplements.map((supplement, index) => {
+                    const colorIndex = index % supplementColors.length;
+                    const color = supplementColors[colorIndex];
+                    
+                    return (
+                      <SortableItem key={supplement.id} id={supplement.id} showHandle={false}>
+                        <div className="flex items-center gap-3 p-2 rounded-xl bg-white/80 border border-[#12AFCB]/10 group">
+                          {/* Colorful pill-shaped container */}
+                          <div className={`flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r ${color} flex-shrink-0`}>
+                            <Pill className="w-5 h-5 text-white/80 flex-shrink-0" />
+                            <div>
+                              <h4 className="font-rounded font-semibold text-white text-sm">{supplement.name}</h4>
+                              <p className="text-white/80 text-xs">{supplement.dosage} {supplement.units || ''}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Form label and actions */}
+                          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+                            {supplement.form && (
+                              <span className="text-xs text-[#5A6B7F] capitalize">{supplement.form}</span>
+                            )}
+                            <GoalActions 
+                              onEdit={() => handleEditSupplement(supplement)}
+                              onDelete={() => handleDeleteSupplementClick(supplement)}
+                            />
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-xs text-[#5A6B7F]">{supplement.form || ''}</span>
-                          <GoalActions 
-                            onEdit={() => handleEditSupplement(supplement)}
-                            onDelete={() => handleDeleteSupplementClick(supplement)}
-                          />
-                        </div>
-                      </div>
-                    </SortableItem>
-                  ))}
+                      </SortableItem>
+                    );
+                  })}
                 </SortableContext>
               </DndContext>
             )}
