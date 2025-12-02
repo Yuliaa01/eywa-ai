@@ -2,6 +2,7 @@ import { GoalModal } from "@/components/modals/GoalModal";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
 import { GoalActions } from "@/components/priorities/GoalActions";
+import { HealthIndicatorModal } from "@/components/modals/HealthIndicatorModal";
 import { useState, useEffect, useMemo } from "react";
 import { fetchActivePriorities, deletePriority, restorePriority, Priority } from "@/api/priorities";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,8 @@ export default function PrioritiesSection() {
   const [editingGoal, setEditingGoal] = useState<Priority | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingGoal, setDeletingGoal] = useState<Priority | null>(null);
+  const [indicatorModalOpen, setIndicatorModalOpen] = useState(false);
+  const [selectedIndicator, setSelectedIndicator] = useState<"bio-age" | "health-score" | "vitals" | null>(null);
   const [globalGoals, setGlobalGoals] = useState<Priority[]>([]);
   const [temporaryGoals, setTemporaryGoals] = useState<Priority[]>([]);
   const [plans, setPlans] = useState<Priority[]>([]);
@@ -396,7 +399,13 @@ export default function PrioritiesSection() {
       </div>
       <div className="grid grid-cols-3 gap-4 flex-1 content-start">
         {/* Bio-Age Column */}
-        <div className="flex items-center gap-3">
+        <button 
+          onClick={() => {
+            setSelectedIndicator("bio-age");
+            setIndicatorModalOpen(true);
+          }}
+          className="flex items-center gap-3 hover:bg-[#12AFCB]/5 rounded-xl p-2 -m-2 transition-all duration-200 text-left"
+        >
           <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
             <User className="w-5 h-5 text-[#12AFCB]" />
           </div>
@@ -411,10 +420,16 @@ export default function PrioritiesSection() {
               (Actual {actualAge !== null ? actualAge : '—'})
             </p>
           </div>
-        </div>
+        </button>
 
         {/* Health Score Column */}
-        <div className="flex items-center gap-3">
+        <button 
+          onClick={() => {
+            setSelectedIndicator("health-score");
+            setIndicatorModalOpen(true);
+          }}
+          className="flex items-center gap-3 hover:bg-[#12AFCB]/5 rounded-xl p-2 -m-2 transition-all duration-200 text-left"
+        >
           <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
             <Heart className="w-5 h-5 text-[#12AFCB]" />
           </div>
@@ -425,10 +440,16 @@ export default function PrioritiesSection() {
             </div>
             <p className="text-xs text-[#5A6B7F]">Health Score</p>
           </div>
-        </div>
+        </button>
 
         {/* Key Vitals Column */}
-        <div className="flex items-center gap-3">
+        <button 
+          onClick={() => {
+            setSelectedIndicator("vitals");
+            setIndicatorModalOpen(true);
+          }}
+          className="flex items-center gap-3 hover:bg-[#12AFCB]/5 rounded-xl p-2 -m-2 transition-all duration-200 text-left"
+        >
           <div className="w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
             <Activity className="w-5 h-5 text-[#12AFCB]" />
           </div>
@@ -436,7 +457,7 @@ export default function PrioritiesSection() {
             <p className="text-sm font-semibold text-[#0E1012]">Key Vitals</p>
             <p className="text-xs text-[#5A6B7F]">HR, HRV, BP, BMI</p>
           </div>
-        </div>
+        </button>
       </div>
       {/* Drag handle dots at bottom */}
       <div className="mt-auto pt-4 flex justify-center gap-1">
@@ -488,5 +509,13 @@ export default function PrioritiesSection() {
       <GoalModal open={goalModalOpen} onOpenChange={setGoalModalOpen} mode={goalMode} editMode={editMode} initialValues={editingGoal || undefined} onSuccess={loadGoals} />
 
       <DeleteConfirmDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDeleteConfirm} title={deletingGoal?.title || ''} />
+      
+      <HealthIndicatorModal
+        open={indicatorModalOpen}
+        onOpenChange={setIndicatorModalOpen}
+        indicatorType={selectedIndicator}
+        bioAge={bioAge}
+        actualAge={actualAge}
+      />
     </div>;
 }
