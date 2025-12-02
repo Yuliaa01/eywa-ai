@@ -1,6 +1,7 @@
 import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
+import { SupplementPhotoModal } from "@/components/modals/SupplementPhotoModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { MealPlanSelectorModal } from "@/components/modals/MealPlanSelectorModal";
@@ -51,6 +52,7 @@ export default function NutritionSection() {
   const [editingSupplement, setEditingSupplement] = useState<Tables<'supplements'> | null>(null);
   const [supplementToDelete, setSupplementToDelete] = useState<Tables<'supplements'> | null>(null);
   const [supplementDeleteConfirmOpen, setSupplementDeleteConfirmOpen] = useState(false);
+  const [supplementPhotoModalOpen, setSupplementPhotoModalOpen] = useState(false);
   const [macros, setMacros] = useState([
     { name: "Carbs", current: 0, target: 250, color: "#5B8DEE", unit: "g" },
     { name: "Protein", current: 0, target: 180, color: "#7DD3FC", unit: "g" },
@@ -633,12 +635,22 @@ export default function NutritionSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[340px] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
-            <button 
-              onClick={() => setSupplementModalOpen(true)}
-              className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
-            >
-              <Plus className="w-4 h-4 text-[#12AFCB]" />
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setSupplementPhotoModalOpen(true)}
+                className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+                title="Analyze supplement photo"
+              >
+                <Camera className="w-4 h-4 text-[#12AFCB]" />
+              </button>
+              <button 
+                onClick={() => setSupplementModalOpen(true)}
+                className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+                title="Add supplement manually"
+              >
+                <Plus className="w-4 h-4 text-[#12AFCB]" />
+              </button>
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto space-y-4">
             {activeSupplements.length === 0 ? (
@@ -780,6 +792,11 @@ export default function NutritionSection() {
           fetchSupplements();
           handleSupplementModalClose();
         }} 
+      />
+      <SupplementPhotoModal
+        open={supplementPhotoModalOpen}
+        onOpenChange={setSupplementPhotoModalOpen}
+        onSuccess={fetchSupplements}
       />
       <DeleteConfirmDialog
         open={supplementDeleteConfirmOpen}
