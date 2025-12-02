@@ -195,7 +195,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   };
 
   return (
-    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[340px] flex flex-col">
+    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[340px] flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
         <div className="flex items-center gap-2">
@@ -225,9 +225,9 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         </div>
       </div>
       
-      <div className="space-y-4 flex-1 overflow-y-auto">
+      <div className="space-y-2 flex-1 flex flex-col">
         {/* Time displays above arc */}
-        <div className="flex items-center justify-between text-sm px-4">
+        <div className="flex items-center justify-between text-sm px-2">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
             Start: {fastingWindow.start}
@@ -281,8 +281,8 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         </div>
 
         {/* Semi-circular progress arc */}
-        <div className="relative flex items-center justify-center py-4">
-          <svg width="280" height="160" viewBox="0 0 280 160" className="overflow-visible">
+        <div className="relative flex items-center justify-center py-2 flex-shrink-0">
+          <svg width="240" height="130" viewBox="0 0 240 130" className="overflow-visible">
             <defs>
               {/* Gradient for progress arc */}
               <linearGradient id="fastingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -295,31 +295,31 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             
             {/* Background arc (light gray track) */}
             <path
-              d="M 20 140 A 120 120 0 0 1 260 140"
+              d="M 20 115 A 100 100 0 0 1 220 115"
               fill="none"
               stroke="hsl(var(--muted))"
-              strokeWidth="12"
+              strokeWidth="10"
               strokeLinecap="round"
               opacity="0.2"
             />
             
             {/* Progress arc with gradient */}
             <path
-              d="M 20 140 A 120 120 0 0 1 260 140"
+              d="M 20 115 A 100 100 0 0 1 220 115"
               fill="none"
               stroke="url(#fastingGradient)"
-              strokeWidth="12"
+              strokeWidth="10"
               strokeLinecap="round"
-              strokeDasharray={`${(currentProgress / 100) * 377} 377`}
+              strokeDasharray={`${(currentProgress / 100) * 314} 314`}
               className="transition-all duration-500"
             />
             
             {/* Progress indicator dot */}
             {currentProgress > 0 && currentProgress < 100 && (
               <circle
-                cx={20 + 240 * (currentProgress / 100)}
-                cy={140 - 120 * Math.sin((currentProgress / 100) * Math.PI)}
-                r="8"
+                cx={20 + 200 * (currentProgress / 100)}
+                cy={115 - 100 * Math.sin((currentProgress / 100) * Math.PI)}
+                r="7"
                 fill="white"
                 className="drop-shadow-lg transition-all duration-500"
               />
@@ -327,28 +327,28 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
           </svg>
           
           {/* Sun icon on the left */}
-          <div className="absolute left-2 bottom-8">
-            <Sun className="w-6 h-6 text-orange-500" />
+          <div className="absolute left-1 bottom-4">
+            <Sun className="w-5 h-5 text-orange-500" />
           </div>
           
           {/* Moon icon on the right */}
-          <div className="absolute right-2 bottom-8">
-            <Moon className="w-6 h-6 text-blue-400" />
+          <div className="absolute right-1 bottom-4">
+            <Moon className="w-5 h-5 text-blue-400" />
           </div>
           
           {/* Hours remaining text centered in arc */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pt-2">
             <p className="text-2xl font-rounded font-bold text-foreground">
               {currentProgress < 100 ? hoursRemaining : "0"}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {currentProgress < 100 ? "hours remaining" : "Complete! 🎉"}
             </p>
           </div>
         </div>
 
         {/* Timer Controls */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 mt-auto">
           {!isRunning ? (
             <Button
               onClick={handleStart}
