@@ -45,10 +45,10 @@ const defaultMetrics: BodyMetric[] = [
   { id: "weight", title: "Weight", defaultValue: "", unit: "kg", icon: <Scale className="w-4 h-4" />, dbField: "weight", dbType: "vital" },
   { id: "height", title: "Height", defaultValue: "", unit: "cm", icon: <TrendingUp className="w-4 h-4" />, dbField: "height_cm", dbType: "profile" },
   { id: "bodyFat", title: "Body Fat %", defaultValue: "", unit: "%", icon: <Scale className="w-4 h-4" />, dbField: "body_fat", dbType: "vital" },
-  { id: "skeletalMuscle", title: "Skeletal Muscle Mass", defaultValue: "", unit: "kg", icon: <Dumbbell className="w-4 h-4" /> },
-  { id: "waist", title: "Waist", defaultValue: "", unit: "cm", icon: <Target className="w-4 h-4" /> },
+  { id: "skeletalMuscle", title: "Skeletal Muscle Mass", defaultValue: "", unit: "kg", icon: <Dumbbell className="w-4 h-4" />, dbField: "skeletal_muscle_mass", dbType: "vital" },
+  { id: "waist", title: "Waist", defaultValue: "", unit: "cm", icon: <Target className="w-4 h-4" />, dbField: "waist_circumference", dbType: "vital" },
   { id: "temperature", title: "Temperature", defaultValue: "", unit: "°C", icon: <Activity className="w-4 h-4" />, dbField: "temp", dbType: "vital" },
-  { id: "visceralFat", title: "Visceral Fat", defaultValue: "", unit: "level", icon: <Flame className="w-4 h-4" /> },
+  { id: "visceralFat", title: "Visceral Fat", defaultValue: "", unit: "level", icon: <Flame className="w-4 h-4" />, dbField: "visceral_fat", dbType: "vital" },
   { id: "bodyWater", title: "Body Water", defaultValue: "", unit: "%", icon: <Droplet className="w-4 h-4" /> },
   { id: "bodyProtein", title: "Body Protein", defaultValue: "", unit: "%", icon: <Salad className="w-4 h-4" /> },
   { id: "minerals", title: "Minerals", defaultValue: "", unit: "kg", icon: <Scale className="w-4 h-4" /> },
@@ -84,7 +84,6 @@ export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModa
         .from('vitals_stream')
         .select('metric, value')
         .eq('user_id', user.id)
-        .in('metric', ['weight', 'body_fat', 'bmi', 'temp'])
         .order('recorded_at', { ascending: false });
 
       const initial: Record<string, string> = {};
@@ -104,6 +103,9 @@ export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModa
       if (latestVitals.weight && !initial.weight) initial.weight = String(latestVitals.weight);
       if (latestVitals.body_fat) initial.bodyFat = String(latestVitals.body_fat);
       if (latestVitals.temp) initial.temperature = String(latestVitals.temp);
+      if (latestVitals.skeletal_muscle_mass) initial.skeletalMuscle = String(latestVitals.skeletal_muscle_mass);
+      if (latestVitals.waist_circumference) initial.waist = String(latestVitals.waist_circumference);
+      if (latestVitals.visceral_fat) initial.visceralFat = String(latestVitals.visceral_fat);
 
       setMetrics(initial);
     } catch (error) {
@@ -133,7 +135,7 @@ export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModa
       const now = new Date().toISOString();
       const vitalsToInsert: Array<{
         user_id: string;
-        metric: 'weight' | 'body_fat' | 'bmi' | 'temp';
+        metric: string;
         value: number;
         recorded_at: string;
         source: 'manual';
@@ -176,11 +178,47 @@ export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModa
         });
       }
 
+      // Save skeletal muscle mass to vitals_stream
+      if (metrics.skeletalMuscle) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'skeletal_muscle_mass',
+          value: parseFloat(metrics.skeletalMuscle),
+          recorded_at: now,
+          source: 'manual',
+          units: 'kg',
+        });
+      }
+
+      // Save waist circumference to vitals_stream
+      if (metrics.waist) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'waist_circumference',
+          value: parseFloat(metrics.waist),
+          recorded_at: now,
+          source: 'manual',
+          units: 'cm',
+        });
+      }
+
+      // Save visceral fat to vitals_stream
+      if (metrics.visceralFat) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'visceral_fat',
+          value: parseFloat(metrics.visceralFat),
+          recorded_at: now,
+          source: 'manual',
+          units: 'level',
+        });
+      }
+
       // Insert vitals
       if (vitalsToInsert.length > 0) {
         const { error: vitalsError } = await supabase
           .from('vitals_stream')
-          .insert(vitalsToInsert);
+          .insert(vitalsToInsert as any);
 
         if (vitalsError) throw vitalsError;
       }

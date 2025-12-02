@@ -65,11 +65,17 @@ export default function ProfessionalPrioritiesSection() {
     height: string;
     bodyFat: string;
     temperature: string;
+    skeletalMuscle: string;
+    waist: string;
+    visceralFat: string;
   }>({
     weight: "--",
     height: "--",
     bodyFat: "--",
     temperature: "--",
+    skeletalMuscle: "--",
+    waist: "--",
+    visceralFat: "--",
   });
 
   // Load priorities
@@ -95,7 +101,6 @@ export default function ProfessionalPrioritiesSection() {
         .from('vitals_stream')
         .select('metric, value, recorded_at')
         .eq('user_id', user.id)
-        .in('metric', ['weight', 'body_fat', 'temp'])
         .order('recorded_at', { ascending: false });
 
       const newData: typeof bodyMetricsData = {
@@ -103,6 +108,9 @@ export default function ProfessionalPrioritiesSection() {
         height: "--",
         bodyFat: "--",
         temperature: "--",
+        skeletalMuscle: "--",
+        waist: "--",
+        visceralFat: "--",
       };
 
       // Set profile data
@@ -120,6 +128,9 @@ export default function ProfessionalPrioritiesSection() {
       if (latestVitals.weight) newData.weight = String(latestVitals.weight);
       if (latestVitals.body_fat) newData.bodyFat = String(latestVitals.body_fat);
       if (latestVitals.temp) newData.temperature = String(latestVitals.temp);
+      if (latestVitals.skeletal_muscle_mass) newData.skeletalMuscle = String(latestVitals.skeletal_muscle_mass);
+      if (latestVitals.waist_circumference) newData.waist = String(latestVitals.waist_circumference);
+      if (latestVitals.visceral_fat) newData.visceralFat = String(latestVitals.visceral_fat);
 
       setBodyMetricsData(newData);
     } catch (error) {
@@ -350,22 +361,22 @@ export default function ProfessionalPrioritiesSection() {
     {
       icon: <Dumbbell className="w-4 h-4" />,
       title: "Skeletal Muscle Mass",
-      value: "--",
+      value: bodyMetricsData.skeletalMuscle,
       unit: "kg",
-      timestamp: "No data",
+      timestamp: bodyMetricsData.skeletalMuscle !== "--" ? "Last recorded" : "No data",
       trendData: generateTrendData(),
-      hasData: false,
-      badge: "No data",
+      hasData: bodyMetricsData.skeletalMuscle !== "--",
+      badge: bodyMetricsData.skeletalMuscle === "--" ? "No data" : undefined,
     },
     {
       icon: <Target className="w-4 h-4" />,
       title: "Waist",
-      value: "--",
+      value: bodyMetricsData.waist,
       unit: "cm",
-      timestamp: "No data",
+      timestamp: bodyMetricsData.waist !== "--" ? "Last recorded" : "No data",
       trendData: generateTrendData(),
-      hasData: false,
-      badge: "No data",
+      hasData: bodyMetricsData.waist !== "--",
+      badge: bodyMetricsData.waist === "--" ? "No data" : undefined,
     },
     {
       icon: <Activity className="w-4 h-4" />,
@@ -380,12 +391,12 @@ export default function ProfessionalPrioritiesSection() {
     {
       icon: <Flame className="w-4 h-4" />,
       title: "Visceral Fat",
-      value: "--",
+      value: bodyMetricsData.visceralFat,
       unit: "level",
-      timestamp: "No data",
+      timestamp: bodyMetricsData.visceralFat !== "--" ? "Last recorded" : "No data",
       trendData: generateTrendData(),
-      hasData: false,
-      badge: "No data",
+      hasData: bodyMetricsData.visceralFat !== "--",
+      badge: bodyMetricsData.visceralFat === "--" ? "No data" : undefined,
     },
     {
       icon: <Droplet className="w-4 h-4" />,

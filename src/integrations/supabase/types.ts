@@ -1827,6 +1827,9 @@ export type Database = {
         | "sleep_rem"
         | "calories_burned"
         | "active_energy"
+        | "skeletal_muscle_mass"
+        | "waist_circumference"
+        | "visceral_fat"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2119,6 +2122,9 @@ export const Constants = {
         "sleep_rem",
         "calories_burned",
         "active_energy",
+        "skeletal_muscle_mass",
+        "waist_circumference",
+        "visceral_fat",
       ],
     },
   },
