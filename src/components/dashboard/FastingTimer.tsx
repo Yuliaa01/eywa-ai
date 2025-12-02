@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, Sun, Moon } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, Sun, Moon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -155,6 +155,42 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   const handleLogMeal = () => {
     setStopDialogOpen(false);
     setMealModalOpen(true);
+  };
+
+  const handleDiscard = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Delete the active fasting window
+      if (activeFastId) {
+        const { error } = await supabase
+          .from("fasting_windows")
+          .delete()
+          .eq("id", activeFastId)
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Fasting discarded",
+        description: "Your fasting session has been cancelled.",
+      });
+      
+      setStopDialogOpen(false);
+      setIsRunning(false);
+      setIsPaused(false);
+      setHasActiveFast(false);
+      setActiveFastId(null);
+      onRefresh?.();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to discard fasting session",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUpdateStartTime = async () => {
@@ -424,6 +460,14 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
               >
                 <Save className="w-4 h-4 mr-2" />
                 Save Session
+              </Button>
+              <Button
+                onClick={handleDiscard}
+                variant="ghost"
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Discard
               </Button>
             </div>
           </DialogContent>
