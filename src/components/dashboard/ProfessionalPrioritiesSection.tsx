@@ -9,7 +9,7 @@ import { GoalProgress } from "@/components/glass/GoalProgress";
 import { usePinnedMetrics } from "@/hooks/usePinnedMetrics";
 import { fetchActivePriorities, deletePriority, restorePriority, type Priority } from "@/api/priorities";
 import { toast } from "@/hooks/use-toast";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 import { Button } from "@/components/ui/button";
 import {
   Activity,
@@ -31,7 +31,6 @@ import {
   Stethoscope,
   FileText,
   Clock,
-  ChevronDown,
   Plus,
   MapPin,
   Calendar,
@@ -53,9 +52,6 @@ export default function ProfessionalPrioritiesSection() {
   const [editingGoal, setEditingGoal] = useState<Priority | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<Priority | null>(null);
-  const [goalsOpen, setGoalsOpen] = useState(true);
-  const [weekOpen, setWeekOpen] = useState(true);
-  const [plansOpen, setPlansOpen] = useState(true);
 
   // Load priorities
   useEffect(() => {
@@ -813,16 +809,77 @@ export default function ProfessionalPrioritiesSection() {
             ) : activeCategory === "action-plan" ? (
               <div className="space-y-4">
                 {/* Longevity Goals */}
-                <Collapsible open={goalsOpen} onOpenChange={setGoalsOpen}>
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Target className="w-5 h-5 text-[#12AFCB]" />
+                      <h3 className="text-lg font-semibold text-[#0E1012]">Longevity Goals</h3>
+                    </div>
+                    <Button
+                      onClick={() => handleAddGoal('global')}
+                      size="sm"
+                      className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Goal
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    {globalGoals.length === 0 ? (
+                      <p className="text-sm text-[#5A6B7F] py-4 text-center">No longevity goals yet. Add one to get started!</p>
+                    ) : (
+                      globalGoals.map(goal => (
+                        <div key={goal.id} className="p-4 bg-gradient-to-r from-[#12AFCB]/5 to-transparent rounded-xl border border-[#12AFCB]/10">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-medium text-[#0E1012]">{goal.title}</h4>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => handleEditGoal(goal)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => {
+                                  setGoalToDelete(goal);
+                                  setDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                          {goal.description && (
+                            <p className="text-sm text-[#5A6B7F] mb-2">{goal.description}</p>
+                          )}
+                          <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
+                              style={{ width: `${Math.random() * 40 + 40}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* This Week and Plans Side-by-Side */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 -mb-4">
+                  {/* This Week Goals */}
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
                     <div className="flex items-center justify-between mb-4">
-                      <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
-                        <Target className="w-5 h-5 text-[#12AFCB]" />
-                        <h3 className="text-lg font-semibold text-[#0E1012]">Longevity Goals</h3>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${goalsOpen ? '' : '-rotate-90'}`} />
-                      </CollapsibleTrigger>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-[#12AFCB]" />
+                        <h3 className="text-lg font-semibold text-[#0E1012]">This Week</h3>
+                      </div>
                       <Button
-                        onClick={() => handleAddGoal('global')}
+                        onClick={() => handleAddGoal('temporary')}
                         size="sm"
                         className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
                       >
@@ -830,201 +887,125 @@ export default function ProfessionalPrioritiesSection() {
                         Add Goal
                       </Button>
                     </div>
-                    <CollapsibleContent>
-                      <div className="space-y-3">
-                        {globalGoals.length === 0 ? (
-                          <p className="text-sm text-[#5A6B7F] py-4 text-center">No longevity goals yet. Add one to get started!</p>
-                        ) : (
-                          globalGoals.map(goal => (
-                            <div key={goal.id} className="p-4 bg-gradient-to-r from-[#12AFCB]/5 to-transparent rounded-xl border border-[#12AFCB]/10">
-                              <div className="flex items-start justify-between mb-2">
-                                <h4 className="font-medium text-[#0E1012]">{goal.title}</h4>
-                                <div className="flex gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => handleEditGoal(goal)}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => {
-                                      setGoalToDelete(goal);
-                                      setDeleteDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                  </Button>
+                    <div className="space-y-3">
+                      {temporaryGoals.length === 0 ? (
+                        <p className="text-sm text-[#5A6B7F] py-4 text-center">No weekly goals yet. Add one to get started!</p>
+                      ) : (
+                        temporaryGoals.map(goal => (
+                          <div key={goal.id} className="p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <h4 className="font-medium text-[#0E1012] mb-1">{goal.title}</h4>
+                                {goal.description && (
+                                  <p className="text-sm text-[#5A6B7F]">{goal.description}</p>
+                                )}
+                                <div className="text-xs text-[#5A6B7F] mt-2">
+                                  {goal.time_scope === 'day' ? 'Today' : 'This Week'}
                                 </div>
                               </div>
-                              {goal.description && (
-                                <p className="text-sm text-[#5A6B7F] mb-2">{goal.description}</p>
-                              )}
-                              <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
-                                  style={{ width: `${Math.random() * 40 + 40}%` }}
-                                />
-                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => handleEditGoal(goal)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => {
+                                  setGoalToDelete(goal);
+                                  setDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
                             </div>
-                          ))
-                        )}
-                      </div>
-                    </CollapsibleContent>
-                  </div>
-                </Collapsible>
-
-                {/* This Week and Plans Side-by-Side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 -mb-4">
-                  {/* This Week Goals */}
-                  <Collapsible open={weekOpen} onOpenChange={setWeekOpen}>
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
-                      <div className="flex items-center justify-between mb-4">
-                        <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
-                          <Calendar className="w-5 h-5 text-[#12AFCB]" />
-                          <h3 className="text-lg font-semibold text-[#0E1012]">This Week</h3>
-                          <ChevronDown className={`w-4 h-4 transition-transform ${weekOpen ? '' : '-rotate-90'}`} />
-                        </CollapsibleTrigger>
-                        <Button
-                          onClick={() => handleAddGoal('temporary')}
-                          size="sm"
-                          className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Goal
-                        </Button>
-                      </div>
-                      <CollapsibleContent>
-                        <div className="space-y-3">
-                          {temporaryGoals.length === 0 ? (
-                            <p className="text-sm text-[#5A6B7F] py-4 text-center">No weekly goals yet. Add one to get started!</p>
-                          ) : (
-                            temporaryGoals.map(goal => (
-                              <div key={goal.id} className="p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
-                                <div className="flex items-start justify-between mb-3">
-                                  <div className="flex-1">
-                                    <h4 className="font-medium text-[#0E1012] mb-1">{goal.title}</h4>
-                                    {goal.description && (
-                                      <p className="text-sm text-[#5A6B7F]">{goal.description}</p>
-                                    )}
-                                    <div className="text-xs text-[#5A6B7F] mt-2">
-                                      {goal.time_scope === 'day' ? 'Today' : 'This Week'}
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => handleEditGoal(goal)}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => {
-                                      setGoalToDelete(goal);
-                                      setDeleteDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                  </Button>
-                                </div>
-                                <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
-                                  <div 
-                                    className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
-                                    style={{ width: `${Math.random() * 30 + 50}%` }}
-                                  />
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </CollapsibleContent>
+                            <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
+                                style={{ width: `${Math.random() * 30 + 50}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
-                  </Collapsible>
+                  </div>
 
                   {/* Upcoming Plans */}
-                  <Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
-                      <div className="flex items-center justify-between mb-4">
-                        <CollapsibleTrigger className="flex items-center gap-2 hover:text-[#12AFCB] transition-colors">
-                          <MapPin className="w-5 h-5 text-[#12AFCB]" />
-                          <h3 className="text-lg font-semibold text-[#0E1012]">Upcoming Plans</h3>
-                          <ChevronDown className={`w-4 h-4 transition-transform ${plansOpen ? '' : '-rotate-90'}`} />
-                        </CollapsibleTrigger>
-                        <Button
-                          onClick={() => handleAddGoal('plan')}
-                          size="sm"
-                          className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Plan
-                        </Button>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-[#12AFCB]" />
+                        <h3 className="text-lg font-semibold text-[#0E1012]">Upcoming Plans</h3>
                       </div>
-                      <CollapsibleContent>
-                        <div className="space-y-3">
-                          {plans.length === 0 ? (
-                            <p className="text-sm text-[#5A6B7F] py-4 text-center">No plans yet. Add one to get started!</p>
-                          ) : (
-                            plans.map(plan => (
-                              <div key={plan.id} className="p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl border border-purple-100">
-                                <div className="flex items-start justify-between mb-3">
-                                  <div className="flex-1">
-                                    <h4 className="font-medium text-[#0E1012] mb-1">{plan.title}</h4>
-                                    {plan.description && (
-                                      <p className="text-sm text-[#5A6B7F] mb-2">{plan.description}</p>
-                                    )}
-                                    <div className="flex flex-wrap gap-3 text-xs text-[#5A6B7F]">
-                                      {plan.location_name && (
-                                        <div className="flex items-center gap-1">
-                                          <MapPin className="w-3 h-3" />
-                                          {plan.location_name}
-                                        </div>
-                                      )}
-                                      {plan.start_date && (
-                                        <div className="flex items-center gap-1">
-                                          <Calendar className="w-3 h-3" />
-                                          {new Date(plan.start_date).toLocaleDateString()}
-                                          {plan.end_date && ` - ${new Date(plan.end_date).toLocaleDateString()}`}
-                                        </div>
-                                      )}
+                      <Button
+                        onClick={() => handleAddGoal('plan')}
+                        size="sm"
+                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Plan
+                      </Button>
+                    </div>
+                    <div className="space-y-3">
+                      {plans.length === 0 ? (
+                        <p className="text-sm text-[#5A6B7F] py-4 text-center">No plans yet. Add one to get started!</p>
+                      ) : (
+                        plans.map(plan => (
+                          <div key={plan.id} className="p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl border border-purple-100">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <h4 className="font-medium text-[#0E1012] mb-1">{plan.title}</h4>
+                                {plan.description && (
+                                  <p className="text-sm text-[#5A6B7F] mb-2">{plan.description}</p>
+                                )}
+                                <div className="flex flex-wrap gap-3 text-xs text-[#5A6B7F]">
+                                  {plan.location_name && (
+                                    <div className="flex items-center gap-1">
+                                      <MapPin className="w-3 h-3" />
+                                      {plan.location_name}
                                     </div>
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 w-8 p-0"
-                                      onClick={() => handleEditGoal(plan)}
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 w-8 p-0"
-                                      onClick={() => {
-                                        setGoalToDelete(plan);
-                                        setDeleteDialogOpen(true);
-                                      }}
-                                    >
-                                      <Trash2 className="w-4 h-4 text-red-500" />
-                                    </Button>
-                                  </div>
+                                  )}
+                                  {plan.start_date && (
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="w-3 h-3" />
+                                      {new Date(plan.start_date).toLocaleDateString()}
+                                      {plan.end_date && ` - ${new Date(plan.end_date).toLocaleDateString()}`}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                            ))
-                          )}
-                        </div>
-                      </CollapsibleContent>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => handleEditGoal(plan)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => {
+                                    setGoalToDelete(plan);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
-                  </Collapsible>
+                  </div>
                 </div>
 
                 {/* AI Recommendations */}
