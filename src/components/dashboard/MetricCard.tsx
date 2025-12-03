@@ -1,6 +1,15 @@
 import { ReactNode } from "react";
 import { ChevronRight, Pin } from "lucide-react";
 import { TrendBar } from "./TrendBar";
+import {
+  SparklineChart,
+  RingProgress,
+  HeartRateWave,
+  SleepBars,
+  GradientBar,
+  MiniDonutChart,
+  ChartType,
+} from "./charts";
 
 interface MetricCardProps {
   icon: ReactNode;
@@ -15,6 +24,10 @@ interface MetricCardProps {
   isPinned?: boolean;
   onTogglePin?: () => void;
   category?: string;
+  chartType?: ChartType;
+  color?: string;
+  secondaryColor?: string;
+  progress?: number;
 }
 
 export function MetricCard({
@@ -30,7 +43,72 @@ export function MetricCard({
   isPinned = false,
   onTogglePin,
   category,
+  chartType = "trend",
+  color = "#12AFCB",
+  secondaryColor,
+  progress,
 }: MetricCardProps) {
+  const renderChart = () => {
+    if (!hasData) return null;
+
+    switch (chartType) {
+      case "sparkline":
+        return (
+          <SparklineChart
+            data={trendData.length > 0 ? trendData : Array.from({ length: 7 }, () => Math.random() * 100)}
+            color={color}
+            gradientId={`sparkline-${title.replace(/\s/g, "-")}`}
+            className="mt-2"
+          />
+        );
+      case "ring":
+        const ringProgress = progress ?? (trendData.length > 0 ? trendData[trendData.length - 1] : 70);
+        return (
+          <div className="mt-2 flex justify-center">
+            <RingProgress
+              progress={ringProgress}
+              color={color}
+              trackColor={`${color}20`}
+              size={48}
+              strokeWidth={5}
+            />
+          </div>
+        );
+      case "wave":
+        return <HeartRateWave color={color} className="mt-2" />;
+      case "bars":
+        return (
+          <SleepBars
+            data={trendData.length >= 4 ? trendData.slice(0, 4) : [35, 40, 20, 5]}
+            colors={["#4C1D95", "#7C3AED", "#A78BFA", "#C4B5FD"]}
+            className="mt-2"
+          />
+        );
+      case "gradient":
+        const gradientValue = progress ?? (trendData.length > 0 ? trendData[trendData.length - 1] : 40);
+        return <GradientBar value={gradientValue} className="mt-2" />;
+      case "donut":
+        return (
+          <div className="mt-2 flex justify-center">
+            <MiniDonutChart
+              segments={[
+                { value: 40, color: color },
+                { value: 30, color: secondaryColor || "#60A5FA" },
+                { value: 30, color: "#E5E7EB" },
+              ]}
+              size={48}
+              strokeWidth={6}
+            />
+          </div>
+        );
+      case "trend":
+      default:
+        return trendData.length > 0 ? (
+          <TrendBar data={trendData} color={color} className="mt-3" />
+        ) : null;
+    }
+  };
+
   return (
     <button
       onClick={onClick}
@@ -38,7 +116,13 @@ export function MetricCard({
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center text-[#12AFCB] shrink-0">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            style={{
+              backgroundColor: `${color}15`,
+              color: color,
+            }}
+          >
             {icon}
           </div>
           <h4 className="text-sm font-medium text-[#0E1012] flex items-center h-8">{title}</h4>
@@ -76,11 +160,9 @@ export function MetricCard({
             <span className="text-sm text-[#5A6B7F] ml-1">{unit}</span>
           </div>
           {timestamp && (
-            <p className="text-xs text-[#5A6B7F] mb-3">{timestamp}</p>
+            <p className="text-xs text-[#5A6B7F] mb-1">{timestamp}</p>
           )}
-          {trendData.length > 0 && (
-            <TrendBar data={trendData} className="mt-3" />
-          )}
+          {renderChart()}
         </>
       ) : (
         <div className="py-6">
