@@ -397,178 +397,34 @@ export default function ProfessionalPrioritiesSection() {
 
   // Mobility metrics
   const mobilityMetrics = [
-    {
-      icon: <Accessibility className="w-4 h-4" />,
-      title: "Range of Motion",
-      value: "Normal",
-      unit: "",
-      timestamp: "Last assessment",
-      hasData: true,
-      badge: "Demo",
-      trendData: undefined,
-    },
-    {
-      icon: <Target className="w-4 h-4" />,
-      title: "Balance Score",
-      value: "8.5",
-      unit: "/ 10",
-      timestamp: "Last week",
-      trendData: generateTrendData(),
-      hasData: true,
-      badge: "Demo",
-    },
-    {
-      icon: <Footprints className="w-4 h-4" />,
-      title: "Gait Analysis",
-      value: "Stable",
-      unit: "",
-      timestamp: "Last check",
-      hasData: true,
-      badge: "Demo",
-      trendData: undefined,
-    },
-    {
-      icon: <Dumbbell className="w-4 h-4" />,
-      title: "Flexibility",
-      value: "Good",
-      unit: "",
-      timestamp: "Last month",
-      hasData: true,
-      badge: "Demo",
-      trendData: undefined,
-    },
+    { icon: <Accessibility className="w-4 h-4" />, title: "Range of Motion", value: "Normal", unit: "", timestamp: "Last assessment", hasData: true, badge: "Demo", trendData: undefined, chartType: "trend" as ChartType, color: "#10B981" },
+    { icon: <Target className="w-4 h-4" />, title: "Balance Score", value: "8.5", unit: "/ 10", timestamp: "Last week", trendData: generateTrendData(), hasData: true, badge: "Demo", chartType: "ring" as ChartType, color: "#10B981", progress: 85 },
+    { icon: <Footprints className="w-4 h-4" />, title: "Gait Analysis", value: "Stable", unit: "", timestamp: "Last check", hasData: true, badge: "Demo", trendData: undefined, chartType: "trend" as ChartType, color: "#10B981" },
+    { icon: <Dumbbell className="w-4 h-4" />, title: "Flexibility", value: "Good", unit: "", timestamp: "Last month", hasData: true, badge: "Demo", trendData: undefined, chartType: "trend" as ChartType, color: "#10B981" },
   ];
 
   // Respiratory metrics
   const respiratoryMetrics = [
-    {
-      icon: <Wind className="w-4 h-4" />,
-      title: "Respiratory Rate",
-      value: "14",
-      unit: "breaths/min",
-      timestamp: "Last night",
-      trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
-    },
-    {
-      icon: <Wind className="w-4 h-4" />,
-      title: "Blood Oxygen",
-      value: "98",
-      unit: "%",
-      timestamp: `Today, ${getCurrentTime()}`,
-      trendData: generateTrendData(),
-      hasData: true,
-      badge: undefined,
-    },
-    {
-      icon: <Activity className="w-4 h-4" />,
-      title: "Lung Capacity",
-      value: "4.2",
-      unit: "L",
-      timestamp: "Last assessment",
-      hasData: false,
-      badge: "Demo",
-      trendData: undefined,
-    },
-    {
-      icon: <Wind className="w-4 h-4" />,
-      title: "Peak Flow",
-      value: "450",
-      unit: "L/min",
-      timestamp: "This morning",
-      hasData: false,
-      badge: "Demo",
-      trendData: undefined,
-    },
+    { icon: <Wind className="w-4 h-4" />, title: "Respiratory Rate", value: "14", unit: "breaths/min", timestamp: "Last night", trendData: generateTrendData(), hasData: true, badge: undefined, chartType: "sparkline" as ChartType, color: categoryColors.respiratory.primary },
+    { icon: <Wind className="w-4 h-4" />, title: "Blood Oxygen", value: "98", unit: "%", timestamp: `Today, ${getCurrentTime()}`, trendData: generateTrendData(), hasData: true, badge: undefined, chartType: "ring" as ChartType, color: categoryColors.respiratory.primary, progress: 98 },
+    { icon: <Activity className="w-4 h-4" />, title: "Lung Capacity", value: "4.2", unit: "L", timestamp: "Last assessment", hasData: false, badge: "Demo", trendData: undefined, chartType: "sparkline" as ChartType, color: categoryColors.respiratory.primary },
+    { icon: <Wind className="w-4 h-4" />, title: "Peak Flow", value: "450", unit: "L/min", timestamp: "This morning", hasData: false, badge: "Demo", trendData: undefined, chartType: "gradient" as ChartType, color: categoryColors.respiratory.primary, progress: 75 },
   ];
 
   // Symptoms metrics
   const symptomsMetrics = [
-    {
-      icon: <Stethoscope className="w-4 h-4" />,
-      title: "Active Symptoms",
-      value: "0",
-      unit: "tracked",
-      timestamp: `Today`,
-      hasData: true,
-      badge: undefined,
-      trendData: undefined,
-    },
-    {
-      icon: <Brain className="w-4 h-4" />,
-      title: "Headaches",
-      value: "2",
-      unit: "this month",
-      timestamp: "Last: 3 days ago",
-      trendData: generateTrendData(),
-      hasData: true,
-      badge: "Demo",
-    },
-    {
-      icon: <Heart className="w-4 h-4" />,
-      title: "Pain Level",
-      value: "0",
-      unit: "/ 10",
-      timestamp: `Today`,
-      hasData: true,
-      badge: undefined,
-      trendData: undefined,
-    },
-    {
-      icon: <Stethoscope className="w-4 h-4" />,
-      title: "Fatigue Score",
-      value: "3",
-      unit: "/ 10",
-      timestamp: `Today, ${getCurrentTime()}`,
-      trendData: generateTrendData(),
-      hasData: true,
-      badge: "Demo",
-    },
+    { icon: <Stethoscope className="w-4 h-4" />, title: "Active Symptoms", value: "0", unit: "tracked", timestamp: `Today`, hasData: true, badge: undefined, trendData: undefined, chartType: "donut" as ChartType, color: categoryColors.symptoms.primary },
+    { icon: <Brain className="w-4 h-4" />, title: "Headaches", value: "2", unit: "this month", timestamp: "Last: 3 days ago", trendData: generateTrendData(), hasData: true, badge: "Demo", chartType: "sparkline" as ChartType, color: categoryColors.symptoms.primary },
+    { icon: <Heart className="w-4 h-4" />, title: "Pain Level", value: "0", unit: "/ 10", timestamp: `Today`, hasData: true, badge: undefined, trendData: undefined, chartType: "gradient" as ChartType, color: categoryColors.symptoms.primary, progress: 0 },
+    { icon: <Stethoscope className="w-4 h-4" />, title: "Fatigue Score", value: "3", unit: "/ 10", timestamp: `Today, ${getCurrentTime()}`, trendData: generateTrendData(), hasData: true, badge: "Demo", chartType: "gradient" as ChartType, color: categoryColors.symptoms.primary, progress: 30 },
   ];
 
   // Health Records metrics
   const recordsMetrics = [
-    {
-      icon: <FileText className="w-4 h-4" />,
-      title: "Lab Results",
-      value: "5",
-      unit: "reports",
-      timestamp: "Last: 2 weeks ago",
-      hasData: true,
-      badge: undefined,
-      trendData: undefined,
-    },
-    {
-      icon: <FileText className="w-4 h-4" />,
-      title: "Doctor Visits",
-      value: "3",
-      unit: "this year",
-      timestamp: "Last: 1 month ago",
-      hasData: true,
-      badge: undefined,
-      trendData: undefined,
-    },
-    {
-      icon: <FileText className="w-4 h-4" />,
-      title: "Immunizations",
-      value: "Up to date",
-      unit: "",
-      timestamp: "Last: Flu shot Oct 2024",
-      hasData: true,
-      badge: undefined,
-      trendData: undefined,
-    },
-    {
-      icon: <FileText className="w-4 h-4" />,
-      title: "Uploaded Files",
-      value: "12",
-      unit: "documents",
-      timestamp: "Last: Yesterday",
-      hasData: true,
-      badge: undefined,
-      trendData: undefined,
-    },
+    { icon: <FileText className="w-4 h-4" />, title: "Lab Results", value: "5", unit: "reports", timestamp: "Last: 2 weeks ago", hasData: true, badge: undefined, trendData: undefined, chartType: "donut" as ChartType, color: categoryColors.records.primary },
+    { icon: <FileText className="w-4 h-4" />, title: "Doctor Visits", value: "3", unit: "this year", timestamp: "Last: 1 month ago", hasData: true, badge: undefined, trendData: undefined, chartType: "trend" as ChartType, color: categoryColors.records.primary },
+    { icon: <FileText className="w-4 h-4" />, title: "Immunizations", value: "Up to date", unit: "", timestamp: "Last: Flu shot Oct 2024", hasData: true, badge: undefined, trendData: undefined, chartType: "ring" as ChartType, color: "#22C55E", progress: 100 },
+    { icon: <FileText className="w-4 h-4" />, title: "Uploaded Files", value: "12", unit: "documents", timestamp: "Last: Yesterday", hasData: true, badge: undefined, trendData: undefined, chartType: "trend" as ChartType, color: categoryColors.records.primary },
   ];
 
   const getCategoryMetrics = () => {
@@ -971,6 +827,9 @@ export default function ProfessionalPrioritiesSection() {
                     isPinned={isPinned(metricCategory, metric.title)}
                     onTogglePin={() => togglePin(metricCategory, metric.title)}
                     onClick={() => console.log("Metric clicked:", metric.title)}
+                    chartType={metric.chartType}
+                    color={metric.color}
+                    progress={metric.progress}
                   />
                 );
               })}
