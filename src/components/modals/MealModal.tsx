@@ -468,7 +468,7 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white" disabled={loading || items.length === 0}>
+            <Button type="submit" className="flex-1 bg-[#12AFCB] hover:bg-[#0E9BB5] text-white" disabled={loading || items.length === 0}>
               {loading ? "Saving..." : "Log Meal"}
             </Button>
           </div>
