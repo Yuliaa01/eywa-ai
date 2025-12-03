@@ -1055,11 +1055,10 @@ export default function ProfessionalPrioritiesSection() {
                       </div>
                       <Button
                         onClick={() => handleAddGoal('temporary')}
-                        size="sm"
-                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                        size="icon"
+                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white h-8 w-8"
                       >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Goal
+                        <Plus className="w-4 h-4" />
                       </Button>
                     </div>
                     <div className="space-y-3">
