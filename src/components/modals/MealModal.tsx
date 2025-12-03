@@ -295,43 +295,44 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
               />
             </div>
             
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedCategory(null)}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  !selectedCategory 
-                    ? 'bg-[#12AFCB] text-white' 
-                    : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
-                }`}
-              >
-                All
-              </button>
-              {categories.map(cat => (
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={cat}
                   type="button"
-                  onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                  onClick={() => setSelectedCategory(null)}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    selectedCategory === cat 
+                    !selectedCategory 
                       ? 'bg-[#12AFCB] text-white' 
                       : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
                   }`}
                 >
-                  {cat}
+                  All
                 </button>
-              ))}
-              <button
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                    className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                      selectedCategory === cat 
+                        ? 'bg-[#12AFCB] text-white' 
+                        : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setShowManualEntry(!showManualEntry)}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  showManualEntry 
-                    ? 'bg-[#12AFCB] text-white' 
-                    : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
-                }`}
+                className={`shrink-0 ${showManualEntry ? 'bg-accent text-accent-foreground' : ''}`}
               >
-                + Manual
-              </button>
+                <Plus className="w-4 h-4 mr-1" />
+                Custom
+              </Button>
             </div>
           </div>
 
