@@ -1,9 +1,10 @@
 interface TrendBarProps {
   data: number[];
   className?: string;
+  color?: string;
 }
 
-export function TrendBar({ data, className = "" }: TrendBarProps) {
+export function TrendBar({ data, className = "", color = "#12AFCB" }: TrendBarProps) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -15,8 +16,11 @@ export function TrendBar({ data, className = "" }: TrendBarProps) {
         return (
           <div
             key={index}
-            className="flex-1 bg-[#12AFCB] rounded-sm transition-all"
-            style={{ height: `${Math.max(height, 5)}%` }}
+            className="flex-1 rounded-sm transition-all"
+            style={{ 
+              height: `${Math.max(height, 5)}%`,
+              backgroundColor: color,
+            }}
           />
         );
       })}
