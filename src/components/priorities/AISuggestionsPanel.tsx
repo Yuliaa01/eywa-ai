@@ -13,13 +13,13 @@ const categoryIcons = {
   medical: Stethoscope,
 };
 
-const categoryColors = {
-  movement: "text-blue-500",
-  nutrition: "text-green-500",
-  sleep: "text-blue-500",
-  recovery: "text-pink-500",
-  mindset: "text-amber-500",
-  medical: "text-red-500",
+const categoryStyles = {
+  movement: { text: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/40", gradient: "from-blue-500 to-cyan-500" },
+  nutrition: { text: "text-green-600", bg: "bg-green-100 dark:bg-green-900/40", gradient: "from-green-500 to-emerald-500" },
+  sleep: { text: "text-violet-600", bg: "bg-violet-100 dark:bg-violet-900/40", gradient: "from-violet-500 to-purple-500" },
+  recovery: { text: "text-pink-600", bg: "bg-pink-100 dark:bg-pink-900/40", gradient: "from-pink-500 to-rose-500" },
+  mindset: { text: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/40", gradient: "from-amber-500 to-orange-500" },
+  medical: { text: "text-red-600", bg: "bg-red-100 dark:bg-red-900/40", gradient: "from-red-500 to-rose-500" },
 };
 
 export function AISuggestionsPanel() {
@@ -165,28 +165,30 @@ export function AISuggestionsPanel() {
       <div className="space-y-3">
         {suggestions.map((suggestion) => {
           const CategoryIcon = categoryIcons[suggestion.category];
-          const colorClass = categoryColors[suggestion.category];
+          const styles = categoryStyles[suggestion.category];
 
           return (
             <div
               key={suggestion.id}
-              className="group p-4 rounded-xl bg-white/60 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all"
+              className="group p-4 rounded-xl bg-white/60 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 hover:border-[#12AFCB]/30 hover:shadow-lg transition-all duration-300"
             >
               <div className="flex items-start gap-3">
-                <CategoryIcon className={`w-5 h-5 mt-0.5 ${colorClass}`} />
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${styles.gradient} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                  <CategoryIcon className="w-5 h-5 text-white" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-[#0E1012] font-rounded font-medium mb-1">
+                  <h4 className="text-foreground font-medium mb-1">
                     {suggestion.title}
                   </h4>
                   {suggestion.reasoning && (
-                    <p className="text-sm text-[#5A6B7F] line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {suggestion.reasoning}
                     </p>
                   )}
                   {suggestion.duration_min && (
-                    <p className="text-xs text-[#5A6B7F] mt-1">
+                    <span className={`inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full ${styles.bg} ${styles.text}`}>
                       ~{suggestion.duration_min} min
-                    </p>
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
@@ -194,7 +196,7 @@ export function AISuggestionsPanel() {
                     size="icon"
                     variant="ghost"
                     onClick={() => handleComplete(suggestion.id, suggestion.title)}
-                    className="h-8 w-8 rounded-lg hover:bg-green-50 hover:text-green-600"
+                    className="h-8 w-8 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-600"
                   >
                     <Check className="w-4 h-4" />
                   </Button>
@@ -202,11 +204,11 @@ export function AISuggestionsPanel() {
                     size="icon"
                     variant="ghost"
                     onClick={() => handleDismiss(suggestion.id)}
-                    className="h-8 w-8 rounded-lg hover:bg-red-50 hover:text-red-600"
+                    className="h-8 w-8 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600"
                   >
                     <X className="w-4 h-4" />
                   </Button>
-                  <ChevronRight className="w-5 h-5 text-[#5A6B7F] group-hover:text-[#12AFCB] group-hover:translate-x-1 transition-all" />
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-[#12AFCB] group-hover:translate-x-1 transition-all" />
                 </div>
               </div>
             </div>
