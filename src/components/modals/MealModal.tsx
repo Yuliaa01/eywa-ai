@@ -36,6 +36,24 @@ interface ProductTemplate {
   category: string;
 }
 
+interface ManualProduct {
+  name: string;
+  quantity: string;
+  calories: string;
+  protein: string;
+  carbs: string;
+  fat: string;
+}
+
+const EMPTY_MANUAL_PRODUCT: ManualProduct = {
+  name: "",
+  quantity: "",
+  calories: "",
+  protein: "",
+  carbs: "",
+  fat: "",
+};
+
 const PRODUCT_TEMPLATES: ProductTemplate[] = [
   // Proteins
   { name: "Chicken Breast", defaultQuantity: "150g", calories: 165, protein: 31, carbs: 0, fat: 3.6, category: "Proteins" },
@@ -107,6 +125,8 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
   const [timestamp, setTimestamp] = useState(() => new Date().toISOString().slice(0, 16));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [manualProduct, setManualProduct] = useState<ManualProduct>(EMPTY_MANUAL_PRODUCT);
 
   const categories = useMemo(() => 
     [...new Set(PRODUCT_TEMPLATES.map(p => p.category))],
@@ -140,6 +160,27 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
       carbs: product.carbs,
       fat: product.fat,
     }]);
+  };
+
+  const addManualProduct = () => {
+    if (!manualProduct.name.trim() || !manualProduct.quantity.trim()) {
+      toast({
+        title: "Missing info",
+        description: "Please enter at least name and quantity",
+        variant: "destructive",
+      });
+      return;
+    }
+    setItems([...items, {
+      name: manualProduct.name.trim(),
+      quantity: manualProduct.quantity.trim(),
+      calories: parseInt(manualProduct.calories) || 0,
+      protein: parseInt(manualProduct.protein) || 0,
+      carbs: parseInt(manualProduct.carbs) || 0,
+      fat: parseInt(manualProduct.fat) || 0,
+    }]);
+    setManualProduct(EMPTY_MANUAL_PRODUCT);
+    setShowManualEntry(false);
   };
 
   const removeItem = (index: number) => {
@@ -280,8 +321,71 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
                   {cat}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setShowManualEntry(!showManualEntry)}
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                  showManualEntry 
+                    ? 'bg-[#12AFCB] text-white' 
+                    : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+                }`}
+              >
+                + Manual
+              </button>
             </div>
           </div>
+
+          {/* Manual Entry Form */}
+          {showManualEntry && (
+            <div className="border rounded-xl p-3 space-y-3 bg-muted/30">
+              <Label className="text-sm font-medium">Add Custom Food</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  placeholder="Food name *"
+                  value={manualProduct.name}
+                  onChange={(e) => setManualProduct({ ...manualProduct, name: e.target.value })}
+                  className="col-span-2"
+                />
+                <Input
+                  placeholder="Quantity *"
+                  value={manualProduct.quantity}
+                  onChange={(e) => setManualProduct({ ...manualProduct, quantity: e.target.value })}
+                />
+                <Input
+                  placeholder="Calories"
+                  type="number"
+                  value={manualProduct.calories}
+                  onChange={(e) => setManualProduct({ ...manualProduct, calories: e.target.value })}
+                />
+                <Input
+                  placeholder="Protein (g)"
+                  type="number"
+                  value={manualProduct.protein}
+                  onChange={(e) => setManualProduct({ ...manualProduct, protein: e.target.value })}
+                />
+                <Input
+                  placeholder="Carbs (g)"
+                  type="number"
+                  value={manualProduct.carbs}
+                  onChange={(e) => setManualProduct({ ...manualProduct, carbs: e.target.value })}
+                />
+                <Input
+                  placeholder="Fat (g)"
+                  type="number"
+                  value={manualProduct.fat}
+                  onChange={(e) => setManualProduct({ ...manualProduct, fat: e.target.value })}
+                />
+                <Button
+                  type="button"
+                  onClick={addManualProduct}
+                  className="col-span-2"
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add to Meal
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Product Templates Grid */}
           <ScrollArea className="h-[140px] border rounded-xl p-2">
