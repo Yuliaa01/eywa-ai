@@ -743,7 +743,7 @@ export default function ProfessionalPrioritiesSection() {
                 {/* AI Recommendations */}
                 <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#12AFCB] to-[#06B6D4] flex items-center justify-center shadow-lg shadow-[#12AFCB]/20">
                       <Sparkles className="w-4 h-4 text-white" />
                     </div>
                     <h3 className="text-lg font-semibold text-foreground">AI Recommendations</h3>
