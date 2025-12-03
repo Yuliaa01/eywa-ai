@@ -1,5 +1,6 @@
 import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill } from "lucide-react";
 import { MealModal } from "@/components/modals/MealModal";
+import { EditMealModal } from "@/components/modals/EditMealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
 import { SupplementPhotoModal } from "@/components/modals/SupplementPhotoModal";
 import { FastingQuickStart } from "@/components/modals/FastingQuickStart";
@@ -35,6 +36,7 @@ export default function NutritionSection() {
   const [supplementModalOpen, setSupplementModalOpen] = useState(false);
   const [fastingModalOpen, setFastingModalOpen] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'snack' | 'dinner'>('lunch');
+  const [editMealModalOpen, setEditMealModalOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<any>(null);
@@ -274,7 +276,7 @@ export default function NutritionSection() {
 
   const handleEditMeal = (meal: any) => {
     setEditingMeal(meal);
-    setMealModalOpen(true);
+    setEditMealModalOpen(true);
   };
 
   const handleDeleteMeal = (meal: any) => {
@@ -761,13 +763,18 @@ export default function NutritionSection() {
 
       <MealModal 
         open={mealModalOpen} 
-        onOpenChange={(open) => {
-          setMealModalOpen(open);
-          if (!open) setEditingMeal(null);
-        }}
+        onOpenChange={setMealModalOpen}
         onSuccess={handleMealSuccess} 
         mealType={selectedMealType}
-        existingMeal={editingMeal}
+      />
+      <EditMealModal
+        open={editMealModalOpen}
+        onOpenChange={(open) => {
+          setEditMealModalOpen(open);
+          if (!open) setEditingMeal(null);
+        }}
+        meal={editingMeal}
+        onSuccess={handleMealSuccess}
       />
       <DeleteConfirmDialog
         open={deleteConfirmOpen}
