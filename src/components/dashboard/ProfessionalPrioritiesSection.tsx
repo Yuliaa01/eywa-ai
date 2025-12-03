@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { HealthCategorySidebar } from "./HealthCategorySidebar";
 import { MetricCard } from "./MetricCard";
 import { categoryColors, ChartType } from "./charts";
+import { LongevityGoalCard, WeeklyGoalCard, PlanCard } from "./cards";
 import { AIChatCenter } from "@/components/priorities/AIChatCenter";
 import { AISuggestionsPanel } from "@/components/priorities/AISuggestionsPanel";
 import { GoalModal } from "@/components/modals/GoalModal";
@@ -598,16 +599,18 @@ export default function ProfessionalPrioritiesSection() {
             ) : activeCategory === "action-plan" ? (
               <div className="space-y-4">
                 {/* Longevity Goals */}
-                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <Target className="w-5 h-5 text-[#12AFCB]" />
-                      <h3 className="text-lg font-semibold text-[#0E1012]">Longevity Goals</h3>
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                        <Target className="w-4 h-4 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground">Longevity Goals</h3>
                     </div>
                     <Button
                       onClick={() => handleAddGoal('global')}
                       size="sm"
-                      className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                      className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       Add Goal
@@ -615,44 +618,28 @@ export default function ProfessionalPrioritiesSection() {
                   </div>
                   <div className="space-y-3">
                     {globalGoals.length === 0 ? (
-                      <p className="text-sm text-[#5A6B7F] py-4 text-center">No longevity goals yet. Add one to get started!</p>
+                      <div className="py-8 text-center">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                          <Target className="w-6 h-6 text-emerald-500" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">No longevity goals yet. Add one to get started!</p>
+                      </div>
                     ) : (
                       globalGoals.map(goal => (
-                        <div key={goal.id} className="p-4 bg-gradient-to-r from-[#12AFCB]/5 to-transparent rounded-xl border border-[#12AFCB]/10">
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="font-medium text-[#0E1012]">{goal.title}</h4>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => handleEditGoal(goal)}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => {
-                                  setGoalToDelete(goal);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </Button>
-                            </div>
-                          </div>
-                          {goal.description && (
-                            <p className="text-sm text-[#5A6B7F] mb-2">{goal.description}</p>
-                          )}
-                          <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
-                              style={{ width: `${Math.random() * 40 + 40}%` }}
-                            />
-                          </div>
-                        </div>
+                        <LongevityGoalCard
+                          key={goal.id}
+                          id={goal.id}
+                          title={goal.title}
+                          description={goal.description}
+                          targetValue={goal.target_value}
+                          targetMetric={goal.target_metric}
+                          units={goal.units}
+                          onEdit={() => handleEditGoal(goal)}
+                          onDelete={() => {
+                            setGoalToDelete(goal);
+                            setDeleteDialogOpen(true);
+                          }}
+                        />
                       ))
                     )}
                   </div>
@@ -661,79 +648,62 @@ export default function ProfessionalPrioritiesSection() {
                 {/* This Week and Plans Side-by-Side */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 -mb-4">
                   {/* This Week Goals */}
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
+                  <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-[#12AFCB]" />
-                        <h3 className="text-lg font-semibold text-[#0E1012]">This Week</h3>
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-sky-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                          <Calendar className="w-4 h-4 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground">This Week</h3>
                       </div>
                       <Button
                         onClick={() => handleAddGoal('temporary')}
                         size="icon"
-                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white h-8 w-8"
+                        className="bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-600 hover:to-sky-600 text-white h-8 w-8 shadow-lg shadow-cyan-500/20"
                       >
                         <Plus className="w-4 h-4" />
                       </Button>
                     </div>
                     <div className="space-y-3">
                       {temporaryGoals.length === 0 ? (
-                        <p className="text-sm text-[#5A6B7F] py-4 text-center">No weekly goals yet. Add one to get started!</p>
+                        <div className="py-8 text-center">
+                          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                            <Calendar className="w-6 h-6 text-cyan-500" />
+                          </div>
+                          <p className="text-sm text-muted-foreground">No weekly goals yet. Add one to get started!</p>
+                        </div>
                       ) : (
                         temporaryGoals.map(goal => (
-                          <div key={goal.id} className="p-4 bg-[#12AFCB]/5 rounded-xl border border-[#12AFCB]/10">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1">
-                                <h4 className="font-medium text-[#0E1012] mb-1">{goal.title}</h4>
-                                {goal.description && (
-                                  <p className="text-sm text-[#5A6B7F]">{goal.description}</p>
-                                )}
-                                <div className="text-xs text-[#5A6B7F] mt-2">
-                                  {goal.time_scope === 'day' ? 'Today' : 'This Week'}
-                                </div>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => handleEditGoal(goal)}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => {
-                                  setGoalToDelete(goal);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </Button>
-                            </div>
-                            <div className="mt-2 h-1.5 bg-[#12AFCB]/10 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" 
-                                style={{ width: `${Math.random() * 30 + 50}%` }}
-                              />
-                            </div>
-                          </div>
+                          <WeeklyGoalCard
+                            key={goal.id}
+                            id={goal.id}
+                            title={goal.title}
+                            description={goal.description}
+                            timeScope={goal.time_scope}
+                            onEdit={() => handleEditGoal(goal)}
+                            onDelete={() => {
+                              setGoalToDelete(goal);
+                              setDeleteDialogOpen(true);
+                            }}
+                          />
                         ))
                       )}
                     </div>
                   </div>
 
                   {/* Upcoming Plans */}
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
+                  <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-[#12AFCB]" />
-                        <h3 className="text-lg font-semibold text-[#0E1012]">Upcoming Plans</h3>
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                          <MapPin className="w-4 h-4 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground">Upcoming Plans</h3>
                       </div>
                       <Button
                         onClick={() => handleAddGoal('plan')}
                         size="sm"
-                        className="bg-[#12AFCB] hover:bg-[#0E9CB5] text-white"
+                        className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/20"
                       >
                         <Plus className="w-4 h-4 mr-1" />
                         Add Plan
@@ -741,55 +711,29 @@ export default function ProfessionalPrioritiesSection() {
                     </div>
                     <div className="space-y-3">
                       {plans.length === 0 ? (
-                        <p className="text-sm text-[#5A6B7F] py-4 text-center">No plans yet. Add one to get started!</p>
+                        <div className="py-8 text-center">
+                          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                            <MapPin className="w-6 h-6 text-violet-500" />
+                          </div>
+                          <p className="text-sm text-muted-foreground">No plans yet. Add one to get started!</p>
+                        </div>
                       ) : (
                         plans.map(plan => (
-                          <div key={plan.id} className="p-4 bg-gradient-to-r from-purple-50 to-transparent rounded-xl border border-purple-100">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1">
-                                <h4 className="font-medium text-[#0E1012] mb-1">{plan.title}</h4>
-                                {plan.description && (
-                                  <p className="text-sm text-[#5A6B7F] mb-2">{plan.description}</p>
-                                )}
-                                <div className="flex flex-wrap gap-3 text-xs text-[#5A6B7F]">
-                                  {plan.location_name && (
-                                    <div className="flex items-center gap-1">
-                                      <MapPin className="w-3 h-3" />
-                                      {plan.location_name}
-                                    </div>
-                                  )}
-                                  {plan.start_date && (
-                                    <div className="flex items-center gap-1">
-                                      <Calendar className="w-3 h-3" />
-                                      {new Date(plan.start_date).toLocaleDateString()}
-                                      {plan.end_date && ` - ${new Date(plan.end_date).toLocaleDateString()}`}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => handleEditGoal(plan)}
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => {
-                                    setGoalToDelete(plan);
-                                    setDeleteDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
+                          <PlanCard
+                            key={plan.id}
+                            id={plan.id}
+                            title={plan.title}
+                            description={plan.description}
+                            locationName={plan.location_name}
+                            startDate={plan.start_date}
+                            endDate={plan.end_date}
+                            type={plan.type as 'plan_trip' | 'plan_event'}
+                            onEdit={() => handleEditGoal(plan)}
+                            onDelete={() => {
+                              setGoalToDelete(plan);
+                              setDeleteDialogOpen(true);
+                            }}
+                          />
                         ))
                       )}
                     </div>
@@ -797,10 +741,12 @@ export default function ProfessionalPrioritiesSection() {
                 </div>
 
                 {/* AI Recommendations */}
-                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-sm">
+                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-[#12AFCB]" />
-                    <h3 className="text-lg font-semibold text-[#0E1012]">AI Recommendations</h3>
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">AI Recommendations</h3>
                   </div>
                   <AISuggestionsPanel />
                 </div>
