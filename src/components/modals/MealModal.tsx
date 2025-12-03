@@ -285,54 +285,53 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
 
           {/* Search and Category Filter */}
           <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search foods..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory(null)}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    !selectedCategory 
-                      ? 'bg-[#12AFCB] text-white' 
-                      : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
-                  }`}
-                >
-                  All
-                </button>
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-                    className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                      selectedCategory === cat 
-                        ? 'bg-[#12AFCB] text-white' 
-                        : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search foods..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
               </div>
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => setShowManualEntry(!showManualEntry)}
                 className={`shrink-0 ${showManualEntry ? 'bg-accent text-accent-foreground' : ''}`}
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Custom
               </Button>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory(null)}
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                  !selectedCategory 
+                    ? 'bg-[#12AFCB] text-white' 
+                    : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+                }`}
+              >
+                All
+              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    selectedCategory === cat 
+                      ? 'bg-[#12AFCB] text-white' 
+                      : 'bg-[#12AFCB]/10 text-[#12AFCB] hover:bg-[#12AFCB]/20'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
 
