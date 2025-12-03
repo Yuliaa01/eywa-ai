@@ -46,8 +46,8 @@ export function RingProgress({
         />
       </svg>
       <span
-        className="absolute text-xs font-semibold"
-        style={{ color }}
+        className="absolute text-[10px] font-semibold"
+        style={{ color, left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
       >
         {Math.round(progress)}%
       </span>
