@@ -626,7 +626,7 @@ export default function ProfessionalPrioritiesSection() {
                     <Button
                       onClick={() => handleAddGoal('global')}
                       size="sm"
-                      className="bg-[#12AFCB] hover:bg-[#0e9ab3] text-white"
+                      className="bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] border-0 rounded-xl"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       Add Goal
@@ -676,7 +676,7 @@ export default function ProfessionalPrioritiesSection() {
                       <Button
                         onClick={() => handleAddGoal('temporary')}
                         size="icon"
-                        className="bg-[#12AFCB] hover:bg-[#0e9ab3] text-white h-8 w-8"
+                        className="bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] border-0 rounded-xl h-8 w-8"
                       >
                         <Plus className="w-4 h-4" />
                       </Button>
@@ -720,7 +720,7 @@ export default function ProfessionalPrioritiesSection() {
                       <Button
                         onClick={() => handleAddGoal('plan')}
                         size="sm"
-                        className="bg-[#12AFCB] hover:bg-[#0e9ab3] text-white"
+                        className="bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 text-[#12AFCB] border-0 rounded-xl"
                       >
                         <Plus className="w-4 h-4 mr-1" />
                         Add Plan
