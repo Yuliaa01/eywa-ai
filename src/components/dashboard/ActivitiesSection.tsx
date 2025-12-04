@@ -678,14 +678,14 @@ export default function ActivitiesSection() {
 
           {/* Custom Workout Mode */}
           {workoutMode === "custom" && (
-            <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="text-sm text-[#5A6B7F] mb-1.5 block">Workout Type</label>
                 <Select value={selectedWorkoutType} onValueChange={setSelectedWorkoutType}>
                   <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-50">
                     {workoutTypes.map((type) => (
                       <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
@@ -698,7 +698,7 @@ export default function ActivitiesSection() {
                   <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-50">
                     <SelectItem value="Beginner">Beginner</SelectItem>
                     <SelectItem value="Intermediate">Intermediate</SelectItem>
                     <SelectItem value="Advanced">Advanced</SelectItem>
@@ -711,7 +711,7 @@ export default function ActivitiesSection() {
                   <SelectTrigger className="bg-white/60 border-[#12AFCB]/20">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-50">
                     {durations.map((duration) => (
                       <SelectItem key={duration} value={duration}>{duration} min</SelectItem>
                     ))}
