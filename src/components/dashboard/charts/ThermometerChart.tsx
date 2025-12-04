@@ -23,14 +23,18 @@ export function ThermometerChart({
     <div className={`flex items-center gap-3 ${className}`}>
       {/* Horizontal thermometer bar */}
       <div className="flex-1 relative">
+        {/* Background gradient (faded) */}
         <div className="h-3 rounded-full bg-gradient-to-r from-blue-400 via-green-400 via-50% to-red-400 opacity-30" />
+        {/* Progress bar - same gradient, clipped */}
         <div 
-          className="absolute top-0 left-0 h-3 rounded-full transition-all duration-500"
-          style={{ 
-            width: `${percentage}%`,
-            background: `linear-gradient(90deg, #60A5FA 0%, #4ADE80 ${normalLow}%, #4ADE80 ${normalHigh}%, #F59E0B 80%, #EF4444 100%)`,
-          }}
-        />
+          className="absolute top-0 left-0 h-3 rounded-full overflow-hidden transition-all duration-500"
+          style={{ width: `${percentage}%` }}
+        >
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-blue-400 via-green-400 via-50% to-red-400"
+            style={{ width: `${100 / (percentage / 100)}%` }}
+          />
+        </div>
         {/* Current value indicator */}
         <div 
           className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md transition-all duration-500"
