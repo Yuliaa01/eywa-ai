@@ -112,7 +112,7 @@ export function MetricCard({
   return (
     <button
       onClick={onClick}
-      className="w-full bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left"
+      className="w-full min-h-[200px] bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left flex flex-col"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
