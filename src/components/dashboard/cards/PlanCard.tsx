@@ -38,7 +38,7 @@ export function PlanCard({
   };
 
   return (
-    <div className="group p-4 bg-card rounded-xl border-2 border-accent/40 hover:border-accent/60 hover:shadow-md transition-all duration-300">
+    <div className="group p-5 rounded-2xl bg-white/80 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all">
       <div className="flex items-start gap-4">
         {/* Date Badge */}
         <div className="flex-shrink-0">
