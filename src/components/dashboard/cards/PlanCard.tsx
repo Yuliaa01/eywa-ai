@@ -43,20 +43,20 @@ export function PlanCard({
         {/* Date Badge */}
         <div className="flex-shrink-0">
           {startDateObj ? (
-            <div className="w-14 h-14 rounded-xl bg-muted flex flex-col items-center justify-center text-foreground">
-              <span className="text-[10px] font-medium uppercase text-muted-foreground">
+            <div className="w-14 h-14 rounded-xl bg-[#12AFCB]/10 flex flex-col items-center justify-center">
+              <span className="text-[10px] font-medium uppercase text-[#12AFCB]">
                 {format(startDateObj, 'MMM')}
               </span>
-              <span className="text-xl font-bold leading-none">
+              <span className="text-xl font-bold leading-none text-[#12AFCB]">
                 {format(startDateObj, 'd')}
               </span>
             </div>
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+            <div className="w-14 h-14 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
               {isTrip ? (
-                <Plane className="w-6 h-6 text-muted-foreground" />
+                <Plane className="w-6 h-6 text-[#12AFCB]" />
               ) : (
-                <Calendar className="w-6 h-6 text-muted-foreground" />
+                <Calendar className="w-6 h-6 text-[#12AFCB]" />
               )}
             </div>
           )}
@@ -108,16 +108,16 @@ export function PlanCard({
           <div className="mt-3 flex flex-wrap items-center gap-3">
             {locationName && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <div className="w-5 h-5 rounded-md bg-muted flex items-center justify-center">
-                  <MapPin className="w-3 h-3 text-muted-foreground" />
+                <div className="w-5 h-5 rounded-md bg-[#12AFCB]/10 flex items-center justify-center">
+                  <MapPin className="w-3 h-3 text-[#12AFCB]" />
                 </div>
                 <span className="truncate max-w-[150px]">{locationName}</span>
               </div>
             )}
             {startDateObj && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <div className="w-5 h-5 rounded-md bg-muted flex items-center justify-center">
-                  <Calendar className="w-3 h-3 text-muted-foreground" />
+                <div className="w-5 h-5 rounded-md bg-[#12AFCB]/10 flex items-center justify-center">
+                  <Calendar className="w-3 h-3 text-[#12AFCB]" />
                 </div>
                 <span>
                   {format(startDateObj, 'MMM d')}

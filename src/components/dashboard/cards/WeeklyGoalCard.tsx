@@ -30,11 +30,11 @@ export function WeeklyGoalCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           {/* Icon Badge */}
-          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center flex-shrink-0">
             {isDaily ? (
-              <Clock className="w-5 h-5 text-muted-foreground" />
+              <Clock className="w-5 h-5 text-[#12AFCB]" />
             ) : (
-              <Calendar className="w-5 h-5 text-muted-foreground" />
+              <Calendar className="w-5 h-5 text-[#12AFCB]" />
             )}
           </div>
 
