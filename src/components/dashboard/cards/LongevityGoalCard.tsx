@@ -1,6 +1,6 @@
-import { Target, Edit, Trash2, Scale, Footprints, Moon, Apple, Heart, Dumbbell, Brain, Droplets } from "lucide-react";
+import { Target, Edit, Trash2, Scale, Footprints, Moon, Apple, Heart, Dumbbell, Brain, Droplets, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 interface LongevityGoalCardProps {
   id: string;
   title: string;
@@ -68,29 +68,30 @@ export function LongevityGoalCard({
           </div>
           
           {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-foreground truncate">{title}</h4>
-              {/* Edit/Delete buttons */}
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 hover:bg-muted"
-                  onClick={onEdit}
-                >
-                  <Edit className="w-3 h-3 text-muted-foreground" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 hover:bg-destructive/10"
-                  onClick={onDelete}
-                >
-                  <Trash2 className="w-3 h-3 text-destructive" />
-                </Button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h4 className="font-semibold text-foreground truncate">{title}</h4>
+                {/* Actions Menu */}
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
+                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={onEdit}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-            </div>
             
             {description && (
               <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{description}</p>
