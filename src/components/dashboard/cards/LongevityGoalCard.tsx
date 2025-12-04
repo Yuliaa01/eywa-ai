@@ -1,6 +1,5 @@
 import { Target, Edit, Trash2, Scale, Footprints, Moon, Apple, Heart, Dumbbell, Brain, Droplets } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RingProgress } from "../charts/RingProgress";
 
 interface LongevityGoalCardProps {
   id: string;
@@ -14,36 +13,36 @@ interface LongevityGoalCardProps {
   onDelete: () => void;
 }
 
-// Category detection for icons
+// Category detection for icons - muted colors
 function getCategoryConfig(title: string, targetMetric?: string | null) {
   const text = `${title} ${targetMetric || ''}`.toLowerCase();
   
   if (text.includes('weight') || text.includes('body') || text.includes('bmi') || text.includes('fat')) {
-    return { icon: Scale, color: '#3B82F6', bgColor: 'bg-blue-100 dark:bg-blue-900/40' };
+    return { icon: Scale, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('step') || text.includes('walk') || text.includes('activity') || text.includes('move')) {
-    return { icon: Footprints, color: '#22C55E', bgColor: 'bg-green-100 dark:bg-green-900/40' };
+    return { icon: Footprints, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('sleep') || text.includes('rest')) {
-    return { icon: Moon, color: '#8B5CF6', bgColor: 'bg-purple-100 dark:bg-purple-900/40' };
+    return { icon: Moon, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('nutrition') || text.includes('diet') || text.includes('calor') || text.includes('eat') || text.includes('food')) {
-    return { icon: Apple, color: '#F59E0B', bgColor: 'bg-amber-100 dark:bg-amber-900/40' };
+    return { icon: Apple, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('heart') || text.includes('cardio') || text.includes('bp') || text.includes('blood')) {
-    return { icon: Heart, color: '#EF4444', bgColor: 'bg-red-100 dark:bg-red-900/40' };
+    return { icon: Heart, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('workout') || text.includes('exercise') || text.includes('strength') || text.includes('muscle')) {
-    return { icon: Dumbbell, color: '#10B981', bgColor: 'bg-emerald-100 dark:bg-emerald-900/40' };
+    return { icon: Dumbbell, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('mental') || text.includes('stress') || text.includes('mind') || text.includes('meditat')) {
-    return { icon: Brain, color: '#EC4899', bgColor: 'bg-pink-100 dark:bg-pink-900/40' };
+    return { icon: Brain, color: 'hsl(var(--muted-foreground))' };
   }
   if (text.includes('water') || text.includes('hydrat')) {
-    return { icon: Droplets, color: '#06B6D4', bgColor: 'bg-cyan-100 dark:bg-cyan-900/40' };
+    return { icon: Droplets, color: 'hsl(var(--muted-foreground))' };
   }
   // Default
-  return { icon: Target, color: '#12AFCB', bgColor: 'bg-teal-100 dark:bg-teal-900/40' };
+  return { icon: Target, color: 'hsl(var(--muted-foreground))' };
 }
 
 export function LongevityGoalCard({
@@ -56,16 +55,16 @@ export function LongevityGoalCard({
   onEdit,
   onDelete,
 }: LongevityGoalCardProps) {
-  const { icon: CategoryIcon, color, bgColor } = getCategoryConfig(title, targetMetric);
+  const { icon: CategoryIcon, color } = getCategoryConfig(title, targetMetric);
 
   return (
-    <div className="group p-4 bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/20 rounded-xl border border-emerald-200/50 dark:border-emerald-800/30 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
+    <div className="group p-4 bg-card rounded-xl border border-border hover:border-accent/30 hover:shadow-md transition-all duration-300">
       <div className="flex items-center justify-between gap-4">
         {/* Left Side - Icon, Title, Target */}
         <div className="flex-1 min-w-0 flex items-start gap-3">
           {/* Category Icon */}
-          <div className={`flex-shrink-0 w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}>
-            <CategoryIcon className="w-5 h-5" style={{ color }} />
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+            <CategoryIcon className="w-5 h-5 text-muted-foreground" />
           </div>
           
           {/* Content */}
@@ -77,7 +76,7 @@ export function LongevityGoalCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                  className="h-6 w-6 p-0 hover:bg-muted"
                   onClick={onEdit}
                 >
                   <Edit className="w-3 h-3 text-muted-foreground" />
@@ -85,10 +84,10 @@ export function LongevityGoalCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                  className="h-6 w-6 p-0 hover:bg-destructive/10"
                   onClick={onDelete}
                 >
-                  <Trash2 className="w-3 h-3 text-red-500" />
+                  <Trash2 className="w-3 h-3 text-destructive" />
                 </Button>
               </div>
             </div>
@@ -100,7 +99,7 @@ export function LongevityGoalCard({
             {/* Target Display */}
             {targetValue && (
               <div className="mt-2">
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+                <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
                   Target: {targetValue.toLocaleString()} {units || targetMetric}
                 </span>
               </div>
@@ -117,7 +116,7 @@ export function LongevityGoalCard({
               cy={40}
               r={34}
               fill="none"
-              stroke="rgba(16, 185, 129, 0.15)"
+              stroke="hsl(var(--muted))"
               strokeWidth={6}
             />
             {/* Progress arc */}
@@ -126,23 +125,18 @@ export function LongevityGoalCard({
               cy={40}
               r={34}
               fill="none"
-              stroke="url(#emeraldGradient)"
+              stroke="hsl(var(--accent))"
               strokeWidth={6}
               strokeDasharray={34 * 2 * Math.PI}
               strokeDashoffset={34 * 2 * Math.PI * (1 - Math.min(progress, 100) / 100)}
               strokeLinecap="round"
               className="transition-all duration-500"
+              style={{ opacity: 0.7 }}
             />
-            <defs>
-              <linearGradient id="emeraldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#10B981" />
-                <stop offset="100%" stopColor="#12AFCB" />
-              </linearGradient>
-            </defs>
           </svg>
           {/* Percentage inside ring */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="text-xl font-bold text-accent">
               {Math.round(progress)}%
             </span>
           </div>

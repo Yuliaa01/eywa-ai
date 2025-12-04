@@ -26,15 +26,15 @@ export function WeeklyGoalCard({
   const adjustedDay = currentDay === 0 ? 6 : currentDay - 1; // Convert to Mon=0
   
   return (
-    <div className="group p-4 bg-gradient-to-br from-cyan-50 to-sky-50/50 dark:from-cyan-950/30 dark:to-sky-950/20 rounded-xl border-l-4 border-l-cyan-500 border border-cyan-200/50 dark:border-cyan-800/30 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300">
+    <div className="group p-4 bg-card rounded-xl border-l-2 border-l-accent/50 border border-border hover:border-accent/30 hover:shadow-md transition-all duration-300">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           {/* Icon Badge */}
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-sky-500 flex items-center justify-center shadow-lg shadow-cyan-500/30 flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
             {isDaily ? (
-              <Clock className="w-5 h-5 text-white" />
+              <Clock className="w-5 h-5 text-muted-foreground" />
             ) : (
-              <Calendar className="w-5 h-5 text-white" />
+              <Calendar className="w-5 h-5 text-muted-foreground" />
             )}
           </div>
 
@@ -42,11 +42,7 @@ export function WeeklyGoalCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-semibold text-foreground truncate">{title}</h4>
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                isDaily 
-                  ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300' 
-                  : 'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300'
-              }`}>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                 {isDaily ? 'Today' : 'This Week'}
               </span>
             </div>
@@ -61,7 +57,7 @@ export function WeeklyGoalCard({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 hover:bg-cyan-100 dark:hover:bg-cyan-900/30"
+            className="h-8 w-8 p-0 hover:bg-muted"
             onClick={onEdit}
           >
             <Edit className="w-4 h-4 text-muted-foreground" />
@@ -69,10 +65,10 @@ export function WeeklyGoalCard({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+            className="h-8 w-8 p-0 hover:bg-destructive/10"
             onClick={onDelete}
           >
-            <Trash2 className="w-4 h-4 text-red-500" />
+            <Trash2 className="w-4 h-4 text-destructive" />
           </Button>
         </div>
       </div>
@@ -85,8 +81,8 @@ export function WeeklyGoalCard({
               key={index}
               className={`w-6 h-6 rounded-full text-[10px] font-medium flex items-center justify-center transition-all ${
                 index <= adjustedDay
-                  ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30'
-                  : 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400'
+                  ? 'bg-accent/70 text-accent-foreground'
+                  : 'bg-muted text-muted-foreground'
               }`}
             >
               {day}
@@ -99,11 +95,11 @@ export function WeeklyGoalCard({
       <div className="mt-3">
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium text-cyan-600 dark:text-cyan-400">{Math.round(progress)}%</span>
+          <span className="font-medium text-accent">{Math.round(progress)}%</span>
         </div>
-        <div className="h-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-full overflow-hidden">
+        <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-sky-400 rounded-full transition-all duration-500"
+            className="h-full bg-accent/70 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
