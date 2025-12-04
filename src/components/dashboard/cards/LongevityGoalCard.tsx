@@ -13,36 +13,36 @@ interface LongevityGoalCardProps {
   onDelete: () => void;
 }
 
-// Category detection for icons - muted colors
+// Category detection for icons - using teal accent color
 function getCategoryConfig(title: string, targetMetric?: string | null) {
   const text = `${title} ${targetMetric || ''}`.toLowerCase();
   
   if (text.includes('weight') || text.includes('body') || text.includes('bmi') || text.includes('fat')) {
-    return { icon: Scale, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Scale };
   }
   if (text.includes('step') || text.includes('walk') || text.includes('activity') || text.includes('move')) {
-    return { icon: Footprints, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Footprints };
   }
   if (text.includes('sleep') || text.includes('rest')) {
-    return { icon: Moon, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Moon };
   }
   if (text.includes('nutrition') || text.includes('diet') || text.includes('calor') || text.includes('eat') || text.includes('food')) {
-    return { icon: Apple, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Apple };
   }
   if (text.includes('heart') || text.includes('cardio') || text.includes('bp') || text.includes('blood')) {
-    return { icon: Heart, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Heart };
   }
   if (text.includes('workout') || text.includes('exercise') || text.includes('strength') || text.includes('muscle')) {
-    return { icon: Dumbbell, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Dumbbell };
   }
   if (text.includes('mental') || text.includes('stress') || text.includes('mind') || text.includes('meditat')) {
-    return { icon: Brain, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Brain };
   }
   if (text.includes('water') || text.includes('hydrat')) {
-    return { icon: Droplets, color: 'hsl(var(--muted-foreground))' };
+    return { icon: Droplets };
   }
   // Default
-  return { icon: Target, color: 'hsl(var(--muted-foreground))' };
+  return { icon: Target };
 }
 
 export function LongevityGoalCard({
@@ -55,7 +55,7 @@ export function LongevityGoalCard({
   onEdit,
   onDelete,
 }: LongevityGoalCardProps) {
-  const { icon: CategoryIcon, color } = getCategoryConfig(title, targetMetric);
+  const { icon: CategoryIcon } = getCategoryConfig(title, targetMetric);
 
   return (
     <div className="group p-5 rounded-2xl bg-white/80 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all">
@@ -63,8 +63,8 @@ export function LongevityGoalCard({
         {/* Left Side - Icon, Title, Target */}
         <div className="flex-1 min-w-0 flex items-start gap-3">
           {/* Category Icon */}
-          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-            <CategoryIcon className="w-5 h-5 text-muted-foreground" />
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#12AFCB]/10 flex items-center justify-center">
+            <CategoryIcon className="w-5 h-5 text-[#12AFCB]" />
           </div>
           
           {/* Content */}
