@@ -20,7 +20,7 @@ export function RingProgress({
   const offset = circumference - (Math.min(progress, 100) / 100) * circumference;
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Background track */}
         <circle
@@ -46,8 +46,8 @@ export function RingProgress({
         />
       </svg>
       <span
-        className="absolute text-[10px] font-semibold"
-        style={{ color, left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
+        className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold"
+        style={{ color }}
       >
         {Math.round(progress)}%
       </span>
