@@ -616,9 +616,9 @@ export default function ProfessionalPrioritiesSection() {
                       Add Goal
                     </Button>
                   </div>
-                  <div className="space-y-3">
+                  <div className="flex gap-4 overflow-x-auto pb-2">
                     {globalGoals.length === 0 ? (
-                      <div className="py-8 text-center">
+                      <div className="py-8 text-center w-full">
                         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                           <Target className="w-6 h-6 text-emerald-500" />
                         </div>
@@ -626,20 +626,21 @@ export default function ProfessionalPrioritiesSection() {
                       </div>
                     ) : (
                       globalGoals.map(goal => (
-                        <LongevityGoalCard
-                          key={goal.id}
-                          id={goal.id}
-                          title={goal.title}
-                          description={goal.description}
-                          targetValue={goal.target_value}
-                          targetMetric={goal.target_metric}
-                          units={goal.units}
-                          onEdit={() => handleEditGoal(goal)}
-                          onDelete={() => {
-                            setGoalToDelete(goal);
-                            setDeleteDialogOpen(true);
-                          }}
-                        />
+                        <div key={goal.id} className="flex-shrink-0 min-w-[320px]">
+                          <LongevityGoalCard
+                            id={goal.id}
+                            title={goal.title}
+                            description={goal.description}
+                            targetValue={goal.target_value}
+                            targetMetric={goal.target_metric}
+                            units={goal.units}
+                            onEdit={() => handleEditGoal(goal)}
+                            onDelete={() => {
+                              setGoalToDelete(goal);
+                              setDeleteDialogOpen(true);
+                            }}
+                          />
+                        </div>
                       ))
                     )}
                   </div>
