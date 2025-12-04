@@ -512,15 +512,15 @@ View Progress
           {/* Chat Mode */}
           <div className="flex-1 mb-4 overflow-y-auto space-y-4 min-h-0">
             {messages.map((msg, idx) => <div key={idx} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
-                <div className={`inline-block rounded-2xl p-4 max-w-[80%] ${msg.role === 'user' ? 'bg-[#12AFCB] text-white' : 'bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] text-[#333333]'}`}>
+                <div className={`inline-block rounded-2xl overflow-hidden max-w-[80%] ${msg.role === 'user' ? 'bg-[#12AFCB] text-white' : 'bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] text-[#333333]'}`}>
                   {msg.imageUrl && (
                     <img 
                       src={msg.imageUrl} 
                       alt="Attached" 
-                      className="w-48 h-auto rounded-lg mb-2"
+                      className="w-48 h-auto"
                     />
                   )}
-                  <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-base leading-relaxed whitespace-pre-wrap p-4">{msg.content}</p>
                 </div>
               </div>)}
             {isLoading && <div className="text-center">
