@@ -618,15 +618,15 @@ export default function ProfessionalPrioritiesSection() {
                 <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                        <Target className="w-4 h-4 text-white" />
+                      <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center">
+                        <Target className="w-4 h-4 text-[#12AFCB]" />
                       </div>
                       <h3 className="text-lg font-semibold text-foreground">Longevity Goals</h3>
                     </div>
                     <Button
                       onClick={() => handleAddGoal('global')}
                       size="sm"
-                      className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20"
+                      className="bg-[#12AFCB] hover:bg-[#0e9ab3] text-white"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       Add Goal
@@ -635,8 +635,8 @@ export default function ProfessionalPrioritiesSection() {
                   <div className="flex gap-4 overflow-x-auto pb-2">
                     {globalGoals.length === 0 ? (
                       <div className="py-8 text-center w-full">
-                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                          <Target className="w-6 h-6 text-emerald-500" />
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#12AFCB]/10 flex items-center justify-center">
+                          <Target className="w-6 h-6 text-[#12AFCB]" />
                         </div>
                         <p className="text-sm text-muted-foreground">No longevity goals yet. Add one to get started!</p>
                       </div>
@@ -668,15 +668,15 @@ export default function ProfessionalPrioritiesSection() {
                   <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-sky-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                          <Calendar className="w-4 h-4 text-white" />
+                        <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center">
+                          <Calendar className="w-4 h-4 text-[#12AFCB]" />
                         </div>
                         <h3 className="text-lg font-semibold text-foreground">This Week</h3>
                       </div>
                       <Button
                         onClick={() => handleAddGoal('temporary')}
                         size="icon"
-                        className="bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-600 hover:to-sky-600 text-white h-8 w-8 shadow-lg shadow-cyan-500/20"
+                        className="bg-[#12AFCB] hover:bg-[#0e9ab3] text-white h-8 w-8"
                       >
                         <Plus className="w-4 h-4" />
                       </Button>
@@ -684,8 +684,8 @@ export default function ProfessionalPrioritiesSection() {
                     <div className="space-y-3">
                       {temporaryGoals.length === 0 ? (
                         <div className="py-8 text-center">
-                          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
-                            <Calendar className="w-6 h-6 text-cyan-500" />
+                          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#12AFCB]/10 flex items-center justify-center">
+                            <Calendar className="w-6 h-6 text-[#12AFCB]" />
                           </div>
                           <p className="text-sm text-muted-foreground">No weekly goals yet. Add one to get started!</p>
                         </div>
@@ -712,15 +712,15 @@ export default function ProfessionalPrioritiesSection() {
                   <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                          <MapPin className="w-4 h-4 text-white" />
+                        <div className="w-8 h-8 rounded-lg bg-[#12AFCB]/10 flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-[#12AFCB]" />
                         </div>
                         <h3 className="text-lg font-semibold text-foreground">Upcoming Plans</h3>
                       </div>
                       <Button
                         onClick={() => handleAddGoal('plan')}
                         size="sm"
-                        className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/20"
+                        className="bg-[#12AFCB] hover:bg-[#0e9ab3] text-white"
                       >
                         <Plus className="w-4 h-4 mr-1" />
                         Add Plan
@@ -729,8 +729,8 @@ export default function ProfessionalPrioritiesSection() {
                     <div className="space-y-3">
                       {plans.length === 0 ? (
                         <div className="py-8 text-center">
-                          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                            <MapPin className="w-6 h-6 text-violet-500" />
+                          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#12AFCB]/10 flex items-center justify-center">
+                            <MapPin className="w-6 h-6 text-[#12AFCB]" />
                           </div>
                           <p className="text-sm text-muted-foreground">No plans yet. Add one to get started!</p>
                         </div>

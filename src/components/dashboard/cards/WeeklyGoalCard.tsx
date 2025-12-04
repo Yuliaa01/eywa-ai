@@ -81,7 +81,7 @@ export function WeeklyGoalCard({
               key={index}
               className={`w-6 h-6 rounded-full text-[10px] font-medium flex items-center justify-center transition-all ${
                 index <= adjustedDay
-                  ? 'bg-accent/70 text-accent-foreground'
+                  ? 'bg-[#12AFCB]/70 text-white'
                   : 'bg-muted text-muted-foreground'
               }`}
             >
@@ -95,11 +95,11 @@ export function WeeklyGoalCard({
       <div className="mt-3">
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium text-accent">{Math.round(progress)}%</span>
+          <span className="font-medium text-[#12AFCB]">{Math.round(progress)}%</span>
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-accent/70 rounded-full transition-all duration-500"
+            className="h-full bg-[#12AFCB]/70 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>

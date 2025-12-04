@@ -71,7 +71,7 @@ export function PlanCard({
                 {daysUntil !== null && (
                   <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${
                     daysUntil <= 0
-                      ? 'bg-accent/20 text-accent'
+                      ? 'bg-[#12AFCB]/20 text-[#12AFCB]'
                       : daysUntil <= 7
                       ? 'bg-muted text-muted-foreground'
                       : 'bg-muted text-muted-foreground'

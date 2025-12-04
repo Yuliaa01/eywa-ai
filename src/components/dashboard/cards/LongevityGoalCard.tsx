@@ -125,7 +125,7 @@ export function LongevityGoalCard({
               cy={40}
               r={34}
               fill="none"
-              stroke="hsl(var(--accent))"
+              stroke="#12AFCB"
               strokeWidth={6}
               strokeDasharray={34 * 2 * Math.PI}
               strokeDashoffset={34 * 2 * Math.PI * (1 - Math.min(progress, 100) / 100)}
@@ -136,7 +136,7 @@ export function LongevityGoalCard({
           </svg>
           {/* Percentage inside ring */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xl font-bold text-accent">
+            <span className="text-xl font-bold text-[#12AFCB]">
               {Math.round(progress)}%
             </span>
           </div>
