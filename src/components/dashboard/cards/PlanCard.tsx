@@ -38,13 +38,13 @@ export function PlanCard({
   };
 
   return (
-    <div className="group p-4 bg-gradient-to-br from-violet-50 to-purple-50/50 dark:from-violet-950/30 dark:to-purple-950/20 rounded-xl border border-violet-200/50 dark:border-violet-800/30 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300">
+    <div className="group p-4 bg-card rounded-xl border border-border hover:border-accent/30 hover:shadow-md transition-all duration-300">
       <div className="flex items-start gap-4">
         {/* Date Badge */}
         <div className="flex-shrink-0">
           {startDateObj ? (
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex flex-col items-center justify-center shadow-lg shadow-violet-500/30 text-white">
-              <span className="text-[10px] font-medium uppercase opacity-80">
+            <div className="w-14 h-14 rounded-xl bg-muted flex flex-col items-center justify-center text-foreground">
+              <span className="text-[10px] font-medium uppercase text-muted-foreground">
                 {format(startDateObj, 'MMM')}
               </span>
               <span className="text-xl font-bold leading-none">
@@ -52,11 +52,11 @@ export function PlanCard({
               </span>
             </div>
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
               {isTrip ? (
-                <Plane className="w-6 h-6 text-white" />
+                <Plane className="w-6 h-6 text-muted-foreground" />
               ) : (
-                <Calendar className="w-6 h-6 text-white" />
+                <Calendar className="w-6 h-6 text-muted-foreground" />
               )}
             </div>
           )}
@@ -71,10 +71,10 @@ export function PlanCard({
                 {daysUntil !== null && (
                   <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${
                     daysUntil <= 0
-                      ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
+                      ? 'bg-accent/20 text-accent'
                       : daysUntil <= 7
-                      ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'
-                      : 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300'
+                      ? 'bg-muted text-muted-foreground'
+                      : 'bg-muted text-muted-foreground'
                   }`}>
                     {getCountdownText()}
                   </span>
@@ -88,7 +88,7 @@ export function PlanCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 hover:bg-violet-100 dark:hover:bg-violet-900/30"
+                className="h-8 w-8 p-0 hover:bg-muted"
                 onClick={onEdit}
               >
                 <Edit className="w-4 h-4 text-muted-foreground" />
@@ -96,10 +96,10 @@ export function PlanCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                className="h-8 w-8 p-0 hover:bg-destructive/10"
                 onClick={onDelete}
               >
-                <Trash2 className="w-4 h-4 text-red-500" />
+                <Trash2 className="w-4 h-4 text-destructive" />
               </Button>
             </div>
           </div>
@@ -108,16 +108,16 @@ export function PlanCard({
           <div className="mt-3 flex flex-wrap items-center gap-3">
             {locationName && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <div className="w-5 h-5 rounded-md bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
-                  <MapPin className="w-3 h-3 text-violet-600 dark:text-violet-400" />
+                <div className="w-5 h-5 rounded-md bg-muted flex items-center justify-center">
+                  <MapPin className="w-3 h-3 text-muted-foreground" />
                 </div>
                 <span className="truncate max-w-[150px]">{locationName}</span>
               </div>
             )}
             {startDateObj && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <div className="w-5 h-5 rounded-md bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
-                  <Calendar className="w-3 h-3 text-violet-600 dark:text-violet-400" />
+                <div className="w-5 h-5 rounded-md bg-muted flex items-center justify-center">
+                  <Calendar className="w-3 h-3 text-muted-foreground" />
                 </div>
                 <span>
                   {format(startDateObj, 'MMM d')}
