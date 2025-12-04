@@ -1830,6 +1830,10 @@ export type Database = {
         | "skeletal_muscle_mass"
         | "waist_circumference"
         | "visceral_fat"
+        | "body_water"
+        | "body_protein"
+        | "minerals"
+        | "metabolic_rate"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2125,6 +2129,10 @@ export const Constants = {
         "skeletal_muscle_mass",
         "waist_circumference",
         "visceral_fat",
+        "body_water",
+        "body_protein",
+        "minerals",
+        "metabolic_rate",
       ],
     },
   },

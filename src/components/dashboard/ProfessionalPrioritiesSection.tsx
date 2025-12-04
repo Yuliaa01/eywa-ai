@@ -70,6 +70,10 @@ export default function ProfessionalPrioritiesSection() {
     skeletalMuscle: string;
     waist: string;
     visceralFat: string;
+    bodyWater: string;
+    bodyProtein: string;
+    minerals: string;
+    metabolicRate: string;
   }>({
     weight: "--",
     height: "--",
@@ -78,6 +82,10 @@ export default function ProfessionalPrioritiesSection() {
     skeletalMuscle: "--",
     waist: "--",
     visceralFat: "--",
+    bodyWater: "--",
+    bodyProtein: "--",
+    minerals: "--",
+    metabolicRate: "--",
   });
 
   // Load priorities
@@ -113,6 +121,10 @@ export default function ProfessionalPrioritiesSection() {
         skeletalMuscle: "--",
         waist: "--",
         visceralFat: "--",
+        bodyWater: "--",
+        bodyProtein: "--",
+        minerals: "--",
+        metabolicRate: "--",
       };
 
       // Set profile data
@@ -133,6 +145,10 @@ export default function ProfessionalPrioritiesSection() {
       if (latestVitals.skeletal_muscle_mass) newData.skeletalMuscle = String(latestVitals.skeletal_muscle_mass);
       if (latestVitals.waist_circumference) newData.waist = String(latestVitals.waist_circumference);
       if (latestVitals.visceral_fat) newData.visceralFat = String(latestVitals.visceral_fat);
+      if (latestVitals.body_water) newData.bodyWater = String(latestVitals.body_water);
+      if (latestVitals.body_protein) newData.bodyProtein = String(latestVitals.body_protein);
+      if (latestVitals.minerals) newData.minerals = String(latestVitals.minerals);
+      if (latestVitals.metabolic_rate) newData.metabolicRate = String(latestVitals.metabolic_rate);
 
       setBodyMetricsData(newData);
     } catch (error) {
@@ -352,10 +368,10 @@ export default function ProfessionalPrioritiesSection() {
     { icon: <Target className="w-4 h-4" />, title: "Waist", value: bodyMetricsData.waist, unit: "cm", timestamp: bodyMetricsData.waist !== "--" ? "Last recorded" : "No data", trendData: generateTrendData(), hasData: bodyMetricsData.waist !== "--", badge: bodyMetricsData.waist === "--" ? "No data" : undefined, chartType: "trend" as ChartType, color: categoryColors.body.primary },
     { icon: <Activity className="w-4 h-4" />, title: "Temperature", value: bodyMetricsData.temperature, unit: "°C", timestamp: "Last recorded", trendData: generateTrendData(), hasData: bodyMetricsData.temperature !== "--", badge: bodyMetricsData.temperature === "--" ? "No data" : undefined, chartType: "thermometer" as ChartType, color: "#F59E0B" },
     { icon: <Flame className="w-4 h-4" />, title: "Visceral Fat", value: bodyMetricsData.visceralFat, unit: "level", timestamp: bodyMetricsData.visceralFat !== "--" ? "Last recorded" : "No data", trendData: generateTrendData(), hasData: bodyMetricsData.visceralFat !== "--", badge: bodyMetricsData.visceralFat === "--" ? "No data" : undefined, chartType: "gradient" as ChartType, color: "#EF4444", progress: 30 },
-    { icon: <Droplet className="w-4 h-4" />, title: "Body Water", value: "--", unit: "%", timestamp: "No data", trendData: generateTrendData(), hasData: false, badge: "No data", chartType: "ring" as ChartType, color: "#06B6D4" },
-    { icon: <Salad className="w-4 h-4" />, title: "Body Protein", value: "--", unit: "%", timestamp: "No data", trendData: generateTrendData(), hasData: false, badge: "No data", chartType: "trend" as ChartType, color: "#8B5CF6" },
-    { icon: <Scale className="w-4 h-4" />, title: "Minerals", value: "--", unit: "kg", timestamp: "No data", trendData: generateTrendData(), hasData: false, badge: "No data", chartType: "trend" as ChartType, color: categoryColors.body.primary },
-    { icon: <Flame className="w-4 h-4" />, title: "Metabolic Rate", value: "--", unit: "kcal/day", timestamp: "No data", trendData: generateTrendData(), hasData: false, badge: "No data", chartType: "sparkline" as ChartType, color: "#F59E0B" },
+    { icon: <Droplet className="w-4 h-4" />, title: "Body Water", value: bodyMetricsData.bodyWater, unit: "%", timestamp: bodyMetricsData.bodyWater !== "--" ? "Last recorded" : "No data", trendData: generateTrendData(), hasData: bodyMetricsData.bodyWater !== "--", badge: bodyMetricsData.bodyWater === "--" ? "No data" : undefined, chartType: "ring" as ChartType, color: "#06B6D4", progress: bodyMetricsData.bodyWater !== "--" ? parseFloat(bodyMetricsData.bodyWater) : 0 },
+    { icon: <Salad className="w-4 h-4" />, title: "Body Protein", value: bodyMetricsData.bodyProtein, unit: "%", timestamp: bodyMetricsData.bodyProtein !== "--" ? "Last recorded" : "No data", trendData: generateTrendData(), hasData: bodyMetricsData.bodyProtein !== "--", badge: bodyMetricsData.bodyProtein === "--" ? "No data" : undefined, chartType: "trend" as ChartType, color: "#8B5CF6" },
+    { icon: <Scale className="w-4 h-4" />, title: "Minerals", value: bodyMetricsData.minerals, unit: "kg", timestamp: bodyMetricsData.minerals !== "--" ? "Last recorded" : "No data", trendData: generateTrendData(), hasData: bodyMetricsData.minerals !== "--", badge: bodyMetricsData.minerals === "--" ? "No data" : undefined, chartType: "trend" as ChartType, color: categoryColors.body.primary },
+    { icon: <Flame className="w-4 h-4" />, title: "Metabolic Rate", value: bodyMetricsData.metabolicRate, unit: "kcal/day", timestamp: bodyMetricsData.metabolicRate !== "--" ? "Last recorded" : "No data", trendData: generateTrendData(), hasData: bodyMetricsData.metabolicRate !== "--", badge: bodyMetricsData.metabolicRate === "--" ? "No data" : undefined, chartType: "sparkline" as ChartType, color: "#F59E0B" },
   ];
 
   // Nutrition metrics
