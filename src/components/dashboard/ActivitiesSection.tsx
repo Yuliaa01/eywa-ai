@@ -1,4 +1,4 @@
-import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star, Pause, Square, Check } from "lucide-react";
+import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star, Pause, Square, Check, Flame } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import stravaLogo from "@/assets/logos/strava.png";
 import appleLogo from "@/assets/logos/apple.png";
@@ -537,24 +537,43 @@ export default function ActivitiesSection() {
     completed: 4,
   };
 
+  // Calorie estimation based on workout type and duration
+  const getCalorieEstimate = (workoutType: string, durationStr: string): number => {
+    const minutes = parseInt(durationStr.match(/\d+/)?.[0] || "30");
+    const caloriesPerMinute: Record<string, number> = {
+      "Walk": 4,
+      "Yoga": 3.5,
+      "Zone 2 Cardio": 8,
+      "HIIT": 12,
+      "Running": 10,
+      "Strength": 6,
+      "Cycling": 9,
+    };
+    const rate = caloriesPerMinute[workoutType] || 5;
+    return Math.round(rate * minutes);
+  };
+
   const aiSuggestions = [
     {
       type: "Walk",
       duration: "30 min",
       time: "Morning",
       benefit: "Boost energy & focus",
+      calories: getCalorieEstimate("Walk", "30 min"),
     },
     {
       type: "Yoga",
       duration: "20 min",
       time: "Evening",
       benefit: "Recovery & flexibility",
+      calories: getCalorieEstimate("Yoga", "20 min"),
     },
     {
       type: "Zone 2 Cardio",
       duration: "40 min",
       time: "Afternoon",
       benefit: "Build aerobic base",
+      calories: getCalorieEstimate("Zone 2 Cardio", "40 min"),
     },
   ];
 
@@ -648,9 +667,15 @@ export default function ActivitiesSection() {
                       <p className="text-sm text-[#5A6B7F]">{suggestion.benefit}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-sm text-[#5A6B7F]">
-                    <Clock className="w-4 h-4" />
-                    {suggestion.duration}
+                  <div className="flex items-center gap-4 text-sm text-[#5A6B7F]">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {suggestion.duration}
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-500">
+                      <Flame className="w-4 h-4" />
+                      <span className="font-medium">~{suggestion.calories} cal</span>
+                    </div>
                   </div>
                 </button>
               ))}
