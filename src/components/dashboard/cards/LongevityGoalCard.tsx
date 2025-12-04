@@ -58,7 +58,7 @@ export function LongevityGoalCard({
   const { icon: CategoryIcon, color } = getCategoryConfig(title, targetMetric);
 
   return (
-    <div className="group p-4 bg-card rounded-xl border border-border hover:border-accent/30 hover:shadow-md transition-all duration-300">
+    <div className="group p-4 bg-card rounded-xl border-2 border-accent/40 hover:border-accent/60 hover:shadow-md transition-all duration-300">
       <div className="flex items-center justify-between gap-4">
         {/* Left Side - Icon, Title, Target */}
         <div className="flex-1 min-w-0 flex items-start gap-3">
