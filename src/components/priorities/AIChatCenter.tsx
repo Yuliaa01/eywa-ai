@@ -512,16 +512,18 @@ View Progress
           {/* Chat Mode */}
           <div className="flex-1 mb-4 overflow-y-auto space-y-4 min-h-0">
             {messages.map((msg, idx) => <div key={idx} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
-                <div className={`inline-block rounded-2xl overflow-hidden max-w-[80%] ${msg.role === 'user' ? 'bg-[#12AFCB] text-white' : 'bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] text-[#333333]'}`}>
-                  {msg.imageUrl && (
-                    <img 
-                      src={msg.imageUrl} 
-                      alt="Attached" 
-                      className="w-48 h-auto"
-                    />
-                  )}
-                  <p className="text-base leading-relaxed whitespace-pre-wrap p-4">{msg.content}</p>
-                </div>
+                {msg.imageUrl && (
+                  <img 
+                    src={msg.imageUrl} 
+                    alt="Attached" 
+                    className="inline-block max-w-[80%] h-auto rounded-2xl mb-2"
+                  />
+                )}
+                {msg.content && msg.content !== "Please analyze this image." && (
+                  <div className={`inline-block rounded-2xl overflow-hidden max-w-[80%] ${msg.role === 'user' ? 'bg-[#12AFCB] text-white' : 'bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] text-[#333333]'}`}>
+                    <p className="text-base leading-relaxed whitespace-pre-wrap p-4">{msg.content}</p>
+                  </div>
+                )}
               </div>)}
             {isLoading && <div className="text-center">
                 <div className="inline-block rounded-2xl bg-gradient-to-br from-[#E8FAFD] to-[#C8FAFF] px-6 py-3">
