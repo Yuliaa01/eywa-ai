@@ -49,10 +49,10 @@ const defaultMetrics: BodyMetric[] = [
   { id: "waist", title: "Waist", defaultValue: "", unit: "cm", icon: <Target className="w-4 h-4" />, dbField: "waist_circumference", dbType: "vital" },
   { id: "temperature", title: "Temperature", defaultValue: "", unit: "°C", icon: <Activity className="w-4 h-4" />, dbField: "temp", dbType: "vital" },
   { id: "visceralFat", title: "Visceral Fat", defaultValue: "", unit: "level", icon: <Flame className="w-4 h-4" />, dbField: "visceral_fat", dbType: "vital" },
-  { id: "bodyWater", title: "Body Water", defaultValue: "", unit: "%", icon: <Droplet className="w-4 h-4" /> },
-  { id: "bodyProtein", title: "Body Protein", defaultValue: "", unit: "%", icon: <Salad className="w-4 h-4" /> },
-  { id: "minerals", title: "Minerals", defaultValue: "", unit: "kg", icon: <Scale className="w-4 h-4" /> },
-  { id: "metabolicRate", title: "Metabolic Rate", defaultValue: "", unit: "kcal/day", icon: <Flame className="w-4 h-4" /> },
+  { id: "bodyWater", title: "Body Water", defaultValue: "", unit: "%", icon: <Droplet className="w-4 h-4" />, dbField: "body_water", dbType: "vital" },
+  { id: "bodyProtein", title: "Body Protein", defaultValue: "", unit: "%", icon: <Salad className="w-4 h-4" />, dbField: "body_protein", dbType: "vital" },
+  { id: "minerals", title: "Minerals", defaultValue: "", unit: "kg", icon: <Scale className="w-4 h-4" />, dbField: "minerals", dbType: "vital" },
+  { id: "metabolicRate", title: "Metabolic Rate", defaultValue: "", unit: "kcal/day", icon: <Flame className="w-4 h-4" />, dbField: "metabolic_rate", dbType: "vital" },
 ];
 
 export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModalProps) {
@@ -106,6 +106,10 @@ export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModa
       if (latestVitals.skeletal_muscle_mass) initial.skeletalMuscle = String(latestVitals.skeletal_muscle_mass);
       if (latestVitals.waist_circumference) initial.waist = String(latestVitals.waist_circumference);
       if (latestVitals.visceral_fat) initial.visceralFat = String(latestVitals.visceral_fat);
+      if (latestVitals.body_water) initial.bodyWater = String(latestVitals.body_water);
+      if (latestVitals.body_protein) initial.bodyProtein = String(latestVitals.body_protein);
+      if (latestVitals.minerals) initial.minerals = String(latestVitals.minerals);
+      if (latestVitals.metabolic_rate) initial.metabolicRate = String(latestVitals.metabolic_rate);
 
       setMetrics(initial);
     } catch (error) {
@@ -211,6 +215,54 @@ export function BodyMetricsModal({ open, onOpenChange, onSave }: BodyMetricsModa
           recorded_at: now,
           source: 'manual',
           units: 'level',
+        });
+      }
+
+      // Save body water to vitals_stream
+      if (metrics.bodyWater) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'body_water',
+          value: parseFloat(metrics.bodyWater),
+          recorded_at: now,
+          source: 'manual',
+          units: '%',
+        });
+      }
+
+      // Save body protein to vitals_stream
+      if (metrics.bodyProtein) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'body_protein',
+          value: parseFloat(metrics.bodyProtein),
+          recorded_at: now,
+          source: 'manual',
+          units: '%',
+        });
+      }
+
+      // Save minerals to vitals_stream
+      if (metrics.minerals) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'minerals',
+          value: parseFloat(metrics.minerals),
+          recorded_at: now,
+          source: 'manual',
+          units: 'kg',
+        });
+      }
+
+      // Save metabolic rate to vitals_stream
+      if (metrics.metabolicRate) {
+        vitalsToInsert.push({
+          user_id: user.id,
+          metric: 'metabolic_rate',
+          value: parseFloat(metrics.metabolicRate),
+          recorded_at: now,
+          source: 'manual',
+          units: 'kcal/day',
         });
       }
 
