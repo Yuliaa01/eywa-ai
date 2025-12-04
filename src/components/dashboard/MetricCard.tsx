@@ -138,7 +138,7 @@ export function MetricCard({
           <h4 className="text-sm font-medium text-[#0E1012] flex items-center h-8">{title}</h4>
         </div>
         <div className="flex items-center gap-1">
-          {onTogglePin && category !== "pinned" && (
+          {onTogglePin && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
