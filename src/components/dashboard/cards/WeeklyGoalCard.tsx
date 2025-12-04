@@ -26,7 +26,7 @@ export function WeeklyGoalCard({
   const adjustedDay = currentDay === 0 ? 6 : currentDay - 1; // Convert to Mon=0
   
   return (
-    <div className="group p-4 bg-card rounded-xl border-2 border-accent/40 hover:border-accent/60 hover:shadow-md transition-all duration-300">
+    <div className="group p-5 rounded-2xl bg-white/80 border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.12)] transition-all">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           {/* Icon Badge */}
