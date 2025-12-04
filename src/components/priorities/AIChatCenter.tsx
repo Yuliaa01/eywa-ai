@@ -517,7 +517,7 @@ View Progress
                     <img 
                       src={msg.imageUrl} 
                       alt="Attached" 
-                      className="w-48 h-auto rounded-lg mb-2 border border-white/20"
+                      className="w-48 h-auto rounded-lg mb-2"
                     />
                   )}
                   <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
