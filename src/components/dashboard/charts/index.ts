@@ -4,6 +4,7 @@ export { HeartRateWave } from "./HeartRateWave";
 export { SleepBars } from "./SleepBars";
 export { GradientBar } from "./GradientBar";
 export { MiniDonutChart } from "./MiniDonutChart";
+export { ThermometerChart } from "./ThermometerChart";
 
 export const categoryColors = {
   activity: { primary: "#22C55E", secondary: "#86EFAC" },
@@ -18,5 +19,5 @@ export const categoryColors = {
   records: { primary: "#6366F1", secondary: "#A5B4FC" },
 } as const;
 
-export type ChartType = "sparkline" | "ring" | "wave" | "bars" | "gradient" | "donut" | "trend";
+export type ChartType = "sparkline" | "ring" | "wave" | "bars" | "gradient" | "donut" | "trend" | "thermometer";
 export type CategoryColorKey = keyof typeof categoryColors;

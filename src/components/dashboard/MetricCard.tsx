@@ -8,6 +8,7 @@ import {
   SleepBars,
   GradientBar,
   MiniDonutChart,
+  ThermometerChart,
   ChartType,
 } from "./charts";
 
@@ -100,6 +101,15 @@ export function MetricCard({
               strokeWidth={6}
             />
           </div>
+        );
+      case "thermometer":
+        const tempValue = parseFloat(String(value)) || 36.6;
+        return (
+          <ThermometerChart
+            value={tempValue}
+            color={color}
+            className="mt-2"
+          />
         );
       case "trend":
       default:
