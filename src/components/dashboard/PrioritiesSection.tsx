@@ -10,7 +10,8 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { SortableItem } from '@/components/ui/sortable-item';
-import { Target, Calendar, MapPin, Plus, TrendingUp, Heart, Activity, User, ArrowUpRight, ChevronRight } from "lucide-react";
+import { Target, Calendar, MapPin, Plus, TrendingUp, Heart, Activity, User, ArrowUpRight, ChevronRight, Brain, Moon, Apple, Dumbbell } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useBioAge } from "@/hooks/useBioAge";
 export default function PrioritiesSection() {
   const [goalModalOpen, setGoalModalOpen] = useState(false);
@@ -393,9 +394,78 @@ export default function PrioritiesSection() {
   const renderLongevityInsightsCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 flex-1 flex flex-col py-[20px]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Longevity Insights</h3>
-        <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
-          <Plus className="w-4 h-4 text-[#12AFCB]" />
-        </button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
+              <Plus className="w-4 h-4 text-[#12AFCB]" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-56 p-2">
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  setSelectedIndicator("bio-age");
+                  setIndicatorModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors text-left"
+              >
+                <User className="w-4 h-4 text-[#12AFCB]" />
+                <span className="text-sm text-foreground">Bio-Age Analysis</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedIndicator("health-score");
+                  setIndicatorModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors text-left"
+              >
+                <Heart className="w-4 h-4 text-[#12AFCB]" />
+                <span className="text-sm text-foreground">Health Score</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedIndicator("vitals");
+                  setIndicatorModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors text-left"
+              >
+                <Activity className="w-4 h-4 text-[#12AFCB]" />
+                <span className="text-sm text-foreground">Key Vitals</span>
+              </button>
+              <div className="border-t border-border my-1" />
+              <button
+                onClick={() => {
+                  setSelectedIndicator("vitals");
+                  setIndicatorModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors text-left"
+              >
+                <Moon className="w-4 h-4 text-[#12AFCB]" />
+                <span className="text-sm text-foreground">Sleep Insight</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedIndicator("vitals");
+                  setIndicatorModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors text-left"
+              >
+                <Dumbbell className="w-4 h-4 text-[#12AFCB]" />
+                <span className="text-sm text-foreground">Training Insight</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedIndicator("vitals");
+                  setIndicatorModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#12AFCB]/10 transition-colors text-left"
+              >
+                <Apple className="w-4 h-4 text-[#12AFCB]" />
+                <span className="text-sm text-foreground">Nutrition Insight</span>
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="grid grid-cols-3 gap-4 flex-1 content-start">
         {/* Bio-Age Column */}
