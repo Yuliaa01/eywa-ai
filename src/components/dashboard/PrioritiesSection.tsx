@@ -377,10 +377,9 @@ export default function PrioritiesSection() {
                     {plan.start_date && (() => {
                       const daysLeft = Math.ceil((new Date(plan.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                       return (
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-[#12AFCB]">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{daysLeft > 0 ? `${daysLeft} days left` : daysLeft === 0 ? 'Today!' : 'Past event'}</span>
-                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                          {daysLeft > 0 ? `${daysLeft} days left` : daysLeft === 0 ? 'Today!' : 'Past event'}
+                        </span>
                       );
                     })()}
                   </div>
