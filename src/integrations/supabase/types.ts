@@ -1062,6 +1062,38 @@ export type Database = {
         }
         Relationships: []
       }
+      supplement_logs: {
+        Row: {
+          created_at: string
+          id: string
+          supplement_id: string
+          taken_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          supplement_id: string
+          taken_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          supplement_id?: string
+          taken_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplement_logs_supplement_id_fkey"
+            columns: ["supplement_id"]
+            isOneToOne: false
+            referencedRelation: "supplements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplements: {
         Row: {
           created_at: string
