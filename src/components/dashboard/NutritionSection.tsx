@@ -1,4 +1,6 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill, Check } from "lucide-react";
+import { PillToggle } from "@/components/ui/pill-toggle";
+import { triggerPillConfetti } from "@/utils/confetti";
 import { MealModal } from "@/components/modals/MealModal";
 import { EditMealModal } from "@/components/modals/EditMealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
@@ -63,6 +65,7 @@ export default function NutritionSection() {
   const [calories, setCalories] = useState({ current: 0, target: 2000 });
   const [nutritionView, setNutritionView] = useState<'macros' | 'calories'>('macros');
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  const [takenSupplementIds, setTakenSupplementIds] = useState<Set<string>>(new Set());
 
   // Color palette for supplement pill containers
   const supplementColors = [
@@ -80,6 +83,7 @@ export default function NutritionSection() {
     fetchTodaysMeals();
     fetchSupplements();
     fetchNutritionGoals();
+    fetchTakenSupplements();
     const interval = setInterval(() => {
       fetchFastingWindow();
       fetchTodaysMeals();
@@ -401,6 +405,94 @@ export default function NutritionSection() {
     setEditingSupplement(null);
   };
 
+  const fetchTakenSupplements = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const { data, error } = await supabase
+        .from('supplement_logs')
+        .select('supplement_id')
+        .eq('user_id', user.id)
+        .gte('taken_at', today.toISOString())
+        .lt('taken_at', tomorrow.toISOString());
+
+      if (error) throw error;
+
+      const takenIds = new Set(data?.map(log => log.supplement_id) || []);
+      setTakenSupplementIds(takenIds);
+    } catch (error) {
+      console.error('Error fetching taken supplements:', error);
+    }
+  };
+
+  const handleTakeSupplement = async (supplementId: string, taken: boolean, event: React.MouseEvent) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (taken) {
+        // Log the supplement as taken
+        const { error } = await supabase
+          .from('supplement_logs')
+          .insert({
+            user_id: user.id,
+            supplement_id: supplementId,
+            taken_at: new Date().toISOString(),
+          });
+
+        if (error) throw error;
+
+        // Update local state
+        setTakenSupplementIds(prev => new Set([...prev, supplementId]));
+
+        // Trigger confetti from toggle position
+        const target = event.currentTarget as HTMLElement;
+        triggerPillConfetti(target);
+
+        toast({
+          title: "Nice! 💊",
+          description: "Supplement logged as taken.",
+        });
+      } else {
+        // Remove today's log for this supplement
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const { error } = await supabase
+          .from('supplement_logs')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('supplement_id', supplementId)
+          .gte('taken_at', today.toISOString())
+          .lt('taken_at', tomorrow.toISOString());
+
+        if (error) throw error;
+
+        // Update local state
+        setTakenSupplementIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(supplementId);
+          return newSet;
+        });
+      }
+    } catch (error) {
+      console.error('Error logging supplement:', error);
+      toast({
+        title: "Error",
+        description: "Failed to log supplement. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Nutrition Dashboard */}
@@ -670,24 +762,41 @@ export default function NutritionSection() {
                   {orderedSupplements.map((supplement, index) => {
                     const colorIndex = index % supplementColors.length;
                     const color = supplementColors[colorIndex];
+                    const isTaken = takenSupplementIds.has(supplement.id);
                     
                     return (
                       <SortableItem key={supplement.id} id={supplement.id} showHandle={false}>
-                        <div className="flex items-center gap-3 p-2 rounded-xl bg-white/80 border border-[#12AFCB]/10 group">
+                        <div className={`flex items-center gap-3 p-2 rounded-xl border transition-all duration-300 group ${
+                          isTaken 
+                            ? 'bg-emerald-50/80 border-emerald-200/50' 
+                            : 'bg-white/80 border-[#12AFCB]/10'
+                        }`}>
                           {/* Colorful pill-shaped container */}
-                          <div className={`flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r ${color} flex-shrink-0`}>
+                          <div className={`flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r ${color} flex-shrink-0 ${
+                            isTaken ? 'opacity-60' : ''
+                          }`}>
                             <Pill className="w-5 h-5 text-white/80 flex-shrink-0" />
                             <div>
-                              <h4 className="font-rounded font-semibold text-white text-sm">{supplement.name}</h4>
+                              <h4 className={`font-rounded font-semibold text-white text-sm ${isTaken ? 'line-through' : ''}`}>
+                                {supplement.name}
+                              </h4>
                               <p className="text-white/80 text-xs">{supplement.dosage} {supplement.units || ''}</p>
                             </div>
                           </div>
                           
-                          {/* Form label and actions */}
-                          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+                          {/* Toggle and actions */}
+                          <div className="ml-auto flex items-center gap-3 flex-shrink-0">
                             {supplement.form && (
-                              <span className="text-xs text-[#5A6B7F] capitalize">{supplement.form}</span>
+                              <span className="text-xs text-[#5A6B7F] capitalize hidden sm:inline">{supplement.form}</span>
                             )}
+                            <PillToggle
+                              checked={isTaken}
+                              onCheckedChange={(checked) => {
+                                const syntheticEvent = { currentTarget: document.activeElement } as React.MouseEvent;
+                                handleTakeSupplement(supplement.id, checked, syntheticEvent);
+                              }}
+                              gradientClass={color}
+                            />
                             <GoalActions 
                               onEdit={() => handleEditSupplement(supplement)}
                               onDelete={() => handleDeleteSupplementClick(supplement)}
