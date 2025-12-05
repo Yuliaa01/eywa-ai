@@ -345,8 +345,8 @@ export default function PrioritiesSection() {
       </div>
       <DndContext sensors={plansSensors} collisionDetection={closestCenter} onDragEnd={handlePlansDragEnd}>
         <SortableContext items={plansIds} strategy={plansSortingStrategy}>
-          <div className="space-y-2 overflow-y-auto pr-1 flex-1">
-            {plans.length === 0 ? <div className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 flex items-center justify-between">
+          <div className="flex flex-col gap-2 overflow-y-auto pr-1 flex-1">
+            {plans.length === 0 ? <div className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 flex items-center justify-between flex-1">
                 <div className="flex items-center gap-3 flex-1">
                   <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
                   <div>
@@ -355,9 +355,9 @@ export default function PrioritiesSection() {
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
-              </div> : orderedPlans.map(plan => <SortableItem key={plan.id} id={plan.id} showHandle={false}>
-                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 hover:bg-[#12AFCB]/20 transition-all cursor-pointer group">
-                    <div className="flex items-center gap-3 flex-1 min-w-0 mb-2">
+              </div> : orderedPlans.map((plan, index) => <SortableItem key={plan.id} id={plan.id} showHandle={false}>
+                  <div onClick={() => handleEdit(plan)} className={`rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-4 hover:bg-[#12AFCB]/20 transition-all cursor-pointer group ${orderedPlans.length === 1 ? 'flex-1 flex flex-col justify-between' : ''}`}>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <MapPin className="w-5 h-5 text-[#12AFCB] flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-[#0E1012] truncate">
@@ -377,7 +377,7 @@ export default function PrioritiesSection() {
                     {plan.start_date && (() => {
                       const daysLeft = Math.ceil((new Date(plan.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                       return (
-                        <span className="px-2.5 py-1 rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                        <span className={`px-2.5 py-1 rounded-full bg-muted text-xs font-medium text-muted-foreground ${orderedPlans.length === 1 ? 'self-start mt-2' : 'mt-2 inline-block'}`}>
                           {daysLeft > 0 ? `${daysLeft} days left` : daysLeft === 0 ? 'Today!' : 'Past event'}
                         </span>
                       );
