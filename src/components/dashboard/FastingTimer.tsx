@@ -1,14 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
-import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, Sun, Moon, X } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FastingCalendar } from "./FastingCalendar";
 import { MealModal } from "@/components/modals/MealModal";
 
+// Fasting metabolic stages with hour milestones
+const FASTING_STAGES = [
+  { hour: 0, label: "Fed", icon: "🍽️", color: "#94a3b8", description: "Digesting food, insulin elevated" },
+  { hour: 4, label: "Post-Absorptive", icon: "📉", color: "#f59e0b", description: "Blood sugar stabilizing" },
+  { hour: 12, label: "Ketones Begin", icon: "🔥", color: "#f97316", description: "Body starts producing ketones" },
+  { hour: 16, label: "Fat Burning", icon: "⚡", color: "#ef4444", description: "Peak fat oxidation zone" },
+  { hour: 18, label: "Autophagy", icon: "🧬", color: "#8b5cf6", description: "Cellular cleanup begins" },
+  { hour: 24, label: "Deep Ketosis", icon: "💫", color: "#6366f1", description: "Maximum metabolic benefits" },
+];
 interface FastingTimerProps {
   fastingWindow: {
     start: string;
@@ -89,6 +99,34 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   };
 
   const hoursRemaining = calculateHoursRemaining();
+  
+  // Calculate elapsed hours and current stage
+  const protocolHours = parseInt(fastingWindow?.type?.split(":")[0] || "16");
+  const elapsedHours = (currentProgress / 100) * protocolHours;
+  
+  // Get current metabolic stage
+  const getCurrentStage = () => {
+    for (let i = FASTING_STAGES.length - 1; i >= 0; i--) {
+      if (elapsedHours >= FASTING_STAGES[i].hour) {
+        return FASTING_STAGES[i];
+      }
+    }
+    return FASTING_STAGES[0];
+  };
+  
+  const currentStage = getCurrentStage();
+  
+  // Filter stages that are relevant to current protocol (only show stages within protocol duration)
+  const relevantStages = FASTING_STAGES.filter(stage => stage.hour <= protocolHours);
+  
+  // Calculate position on arc for a given hour
+  const getStagePosition = (hour: number) => {
+    const progress = Math.min((hour / protocolHours) * 100, 100);
+    const angle = (progress / 100) * Math.PI;
+    const cx = 140 + 115 * Math.cos(Math.PI - angle);
+    const cy = 135 - 115 * Math.sin(angle);
+    return { cx, cy };
+  };
 
   const handleStart = () => {
     setIsRunning(true);
@@ -317,81 +355,134 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         </div>
 
         {/* Semi-circular progress arc */}
-        <div className="relative flex items-center justify-center py-2 flex-shrink-0">
-          <svg width="280" height="150" viewBox="0 0 280 150" className="overflow-visible">
-            <defs>
-              {/* Gradient for progress arc */}
-              <linearGradient id="fastingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#FF6B35" />
-                <stop offset="33%" stopColor="#F72585" />
-                <stop offset="66%" stopColor="#7209B7" />
-                <stop offset="100%" stopColor="#4361EE" />
-              </linearGradient>
-            </defs>
-            
-            {/* Background arc (light gray track) */}
-            <path
-              d="M 25 135 A 115 115 0 0 1 255 135"
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth="10"
-              strokeLinecap="round"
-              opacity="0.2"
-            />
-            
-            {/* Full gradient arc at lower opacity (always visible) */}
-            <path
-              d="M 25 135 A 115 115 0 0 1 255 135"
-              fill="none"
-              stroke="url(#fastingGradient)"
-              strokeWidth="10"
-              strokeLinecap="round"
-              opacity="0.2"
-            />
-            
-            {/* Progress arc with gradient (full opacity, fills based on progress) */}
-            <path
-              d="M 25 135 A 115 115 0 0 1 255 135"
-              fill="none"
-              stroke="url(#fastingGradient)"
-              strokeWidth="10"
-              strokeLinecap="round"
-              strokeDasharray={`${(currentProgress / 100) * 361} 361`}
-              className="transition-all duration-500"
-            />
-            
-            {/* Progress indicator dot */}
-            {currentProgress > 0 && currentProgress < 100 && (
-              <circle
-                cx={25 + 230 * (currentProgress / 100)}
-                cy={135 - 115 * Math.sin((currentProgress / 100) * Math.PI)}
-                r="7"
-                fill="white"
-                className="drop-shadow-lg transition-all duration-500"
+        <TooltipProvider>
+          <div className="relative flex items-center justify-center py-2 flex-shrink-0">
+            <svg width="280" height="150" viewBox="0 0 280 150" className="overflow-visible">
+              <defs>
+                {/* Gradient for progress arc */}
+                <linearGradient id="fastingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FF6B35" />
+                  <stop offset="33%" stopColor="#F72585" />
+                  <stop offset="66%" stopColor="#7209B7" />
+                  <stop offset="100%" stopColor="#4361EE" />
+                </linearGradient>
+              </defs>
+              
+              {/* Background arc (light gray track) */}
+              <path
+                d="M 25 135 A 115 115 0 0 1 255 135"
+                fill="none"
+                stroke="hsl(var(--muted))"
+                strokeWidth="10"
+                strokeLinecap="round"
+                opacity="0.2"
               />
-            )}
-          </svg>
-          
-          {/* Sun icon on the left */}
-          <div className="absolute left-2 bottom-4">
-            <Sun className="w-5 h-5 text-orange-500" />
+              
+              {/* Full gradient arc at lower opacity (always visible) */}
+              <path
+                d="M 25 135 A 115 115 0 0 1 255 135"
+                fill="none"
+                stroke="url(#fastingGradient)"
+                strokeWidth="10"
+                strokeLinecap="round"
+                opacity="0.2"
+              />
+              
+              {/* Progress arc with gradient (full opacity, fills based on progress) */}
+              <path
+                d="M 25 135 A 115 115 0 0 1 255 135"
+                fill="none"
+                stroke="url(#fastingGradient)"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={`${(currentProgress / 100) * 361} 361`}
+                className="transition-all duration-500"
+              />
+              
+              {/* Progress indicator dot */}
+              {currentProgress > 0 && currentProgress < 100 && (
+                <circle
+                  cx={25 + 230 * (currentProgress / 100)}
+                  cy={135 - 115 * Math.sin((currentProgress / 100) * Math.PI)}
+                  r="7"
+                  fill="white"
+                  className="drop-shadow-lg transition-all duration-500"
+                />
+              )}
+            </svg>
+            
+            {/* Stage markers along the arc */}
+            {relevantStages.map((stage, index) => {
+              const pos = getStagePosition(stage.hour);
+              const isPassed = elapsedHours >= stage.hour;
+              const isCurrent = currentStage.hour === stage.hour;
+              
+              return (
+                <Tooltip key={stage.hour}>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`absolute flex flex-col items-center transition-all duration-300 cursor-pointer ${
+                        isPassed ? 'opacity-100' : 'opacity-40'
+                      } ${isCurrent ? 'scale-110' : ''}`}
+                      style={{
+                        left: pos.cx - 12,
+                        top: pos.cy - 28,
+                      }}
+                    >
+                      <span className="text-sm">{stage.icon}</span>
+                      <div
+                        className={`w-2 h-2 rounded-full mt-0.5 transition-all ${
+                          isCurrent ? 'ring-2 ring-offset-1 ring-offset-background' : ''
+                        }`}
+                        style={{ 
+                          backgroundColor: stage.color,
+                          boxShadow: isCurrent ? `0 0 8px ${stage.color}` : 'none'
+                        }}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[200px]">
+                    <p className="font-semibold">{stage.icon} {stage.label}</p>
+                    <p className="text-xs text-muted-foreground">{stage.hour}h mark</p>
+                    <p className="text-xs mt-1">{stage.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+            
+            {/* Current stage and hours remaining text centered in arc */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pt-2">
+              {currentProgress < 100 ? (
+                <>
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <span className="text-lg">{currentStage.icon}</span>
+                    <span 
+                      className="text-xs font-medium"
+                      style={{ color: currentStage.color }}
+                    >
+                      {currentStage.label}
+                    </span>
+                  </div>
+                  <p className="text-2xl font-rounded font-bold text-foreground">
+                    {hoursRemaining}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    hours remaining
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-2xl font-rounded font-bold text-foreground">
+                    Complete!
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    💫 Full benefits achieved
+                  </p>
+                </>
+              )}
+            </div>
           </div>
-          
-          {/* Moon icon on the right */}
-          <div className="absolute right-2 bottom-4">
-            <Moon className="w-5 h-5 text-blue-400" />
-          </div>
-          
-          {/* Hours remaining text centered in arc */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pt-2">
-            <p className="text-2xl font-rounded font-bold text-foreground">
-              {currentProgress < 100 ? hoursRemaining : "0"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {currentProgress < 100 ? "hours remaining" : "Complete! 🎉"}
-            </p>
-          </div>
-        </div>
+        </TooltipProvider>
 
         {/* Timer Controls */}
         <div className="flex gap-2 mt-auto">
