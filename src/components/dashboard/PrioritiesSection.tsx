@@ -374,11 +374,15 @@ export default function PrioritiesSection() {
                         </div>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-white/50 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] rounded-full transition-all duration-500" style={{
-                        width: `${Math.random() * 40 + 30}%`
-                      }} />
-                    </div>
+                    {plan.start_date && (() => {
+                      const daysLeft = Math.ceil((new Date(plan.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                      return (
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-[#12AFCB]">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>{daysLeft > 0 ? `${daysLeft} days left` : daysLeft === 0 ? 'Today!' : 'Past event'}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </SortableItem>)}
           </div>
