@@ -336,8 +336,8 @@ export default function PrioritiesSection() {
         <div className="w-1 h-1 rounded-full bg-[#D1D5DB]"></div>
       </div>
     </div>;
-  const renderPlansCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 p-6 h-[180px] overflow-hidden flex flex-col py-[20px]">
-      <div className="flex items-center justify-between mb-4">
+  const renderPlansCard = () => <div className="relative rounded-[32px] bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl border border-[#12AFCB]/20 px-6 pt-4 pb-6 h-[180px] overflow-hidden flex flex-col">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="font-rounded text-xl text-[#0E1012] font-semibold">Plans</h3>
         <button onClick={() => openModal('plan')} className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-all duration-200">
           <Plus className="w-4 h-4 text-[#12AFCB]" />
