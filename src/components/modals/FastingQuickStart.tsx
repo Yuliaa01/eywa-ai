@@ -36,14 +36,24 @@ export function FastingQuickStart({ open, onOpenChange, onSuccess }: FastingQuic
       const now = new Date().toISOString();
       const endTime = calculateEndTime(now, protocol);
 
-      const { error } = await supabase.from("fasting_windows").insert({
+      const { data, error } = await supabase.from("fasting_windows").insert({
         user_id: user.id,
         start_at: now,
         end_at: endTime,
         protocol,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Log the start action
+      if (data) {
+        await supabase.from("fasting_logs").insert({
+          user_id: user.id,
+          fasting_window_id: data.id,
+          action: "started",
+          details: { protocol, start_time: now },
+        });
+      }
 
       toast({
         title: "Fasting started",
@@ -71,14 +81,24 @@ export function FastingQuickStart({ open, onOpenChange, onSuccess }: FastingQuic
 
       const endTime = calculateEndTime(startTime, protocol);
 
-      const { error } = await supabase.from("fasting_windows").insert({
+      const { data, error } = await supabase.from("fasting_windows").insert({
         user_id: user.id,
         start_at: startTime,
         end_at: endTime,
         protocol,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Log the scheduled action
+      if (data) {
+        await supabase.from("fasting_logs").insert({
+          user_id: user.id,
+          fasting_window_id: data.id,
+          action: "scheduled",
+          details: { protocol, start_time: startTime },
+        });
+      }
 
       toast({
         title: "Fasting scheduled",

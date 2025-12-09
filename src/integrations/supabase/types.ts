@@ -399,29 +399,70 @@ export type Database = {
         }
         Relationships: []
       }
+      fasting_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          fasting_window_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          fasting_window_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          fasting_window_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fasting_logs_fasting_window_id_fkey"
+            columns: ["fasting_window_id"]
+            isOneToOne: false
+            referencedRelation: "fasting_windows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fasting_windows: {
         Row: {
+          actual_end_at: string | null
           created_at: string
           end_at: string | null
           id: string
+          is_paused: boolean | null
           notes: string | null
           protocol: string | null
           start_at: string
           user_id: string
         }
         Insert: {
+          actual_end_at?: string | null
           created_at?: string
           end_at?: string | null
           id?: string
+          is_paused?: boolean | null
           notes?: string | null
           protocol?: string | null
           start_at: string
           user_id: string
         }
         Update: {
+          actual_end_at?: string | null
           created_at?: string
           end_at?: string | null
           id?: string
+          is_paused?: boolean | null
           notes?: string | null
           protocol?: string | null
           start_at?: string
