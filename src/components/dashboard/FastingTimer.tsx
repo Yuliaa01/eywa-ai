@@ -129,11 +129,11 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     checkMilestones();
   }, [elapsedHours, hasActiveFast, activeFastId]);
 
-  // Sync state with props
+  // Sync state with props - active fast has startAt and id from DB query (actual_end_at IS NULL)
   useEffect(() => {
-    const isActive = !!fastingWindow.startAt && !fastingWindow.endAt;
+    const isActive = !!fastingWindow.startAt && !!fastingWindow.id;
     setHasActiveFast(isActive);
-    setIsRunning(isActive && !isPaused);
+    setIsRunning(isActive && !(fastingWindow.isPaused || false));
     if (fastingWindow.id) {
       setActiveFastId(fastingWindow.id);
     }
