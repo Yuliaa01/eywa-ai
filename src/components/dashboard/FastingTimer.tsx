@@ -319,7 +319,9 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       if (!user) return;
 
       if (activeFastId) {
-        logFastingAction(user.id, activeFastId, "discarded", { elapsed_hours: elapsedHours });
+        // Delete associated logs first (foreign key constraint)
+        await supabase.from("fasting_logs").delete().eq("fasting_window_id", activeFastId);
+        // Then delete the fasting window
         await supabase.from("fasting_windows").delete().eq("id", activeFastId).eq("user_id", user.id);
       }
 
