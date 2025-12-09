@@ -391,7 +391,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   const fireCount = Math.min(Math.floor(elapsedHours / 4), 5);
 
   return (
-    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] flex flex-col">
+    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
