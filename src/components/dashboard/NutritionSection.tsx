@@ -45,7 +45,16 @@ export default function NutritionSection() {
   const [recipeSelectorOpen, setRecipeSelectorOpen] = useState(false);
   const [mealToReplace, setMealToReplace] = useState<any>(null);
   const [goalsModalOpen, setGoalsModalOpen] = useState(false);
-  const [fastingWindow, setFastingWindow] = useState({
+  const [fastingWindow, setFastingWindow] = useState<{
+    start: string;
+    end: string;
+    progress: number;
+    type: string;
+    startAt?: string;
+    endAt?: string;
+    id?: string;
+    isPaused?: boolean;
+  }>({
     start: "20:00",
     end: "12:00",
     progress: 0,
@@ -209,34 +218,50 @@ export default function NutritionSection() {
     }
   };
 
-  // Extracted fetchFastingWindow to avoid duplication
+  // Extracted fetchFastingWindow - now queries for active fasts (actual_end_at IS NULL)
   const fetchFastingWindow = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Query for active fasts: where actual_end_at is null (user hasn't stopped yet)
       const { data, error } = await supabase
         .from("fasting_windows")
         .select("*")
         .eq("user_id", user.id)
-        .gte("end_at", new Date().toISOString())
+        .is("actual_end_at", null)
         .order("start_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
       if (data && !error) {
         const startTime = new Date(data.start_at);
-        const endTime = new Date(data.end_at);
+        const endTime = data.end_at ? new Date(data.end_at) : null;
         const now = new Date();
-        const totalDuration = endTime.getTime() - startTime.getTime();
+        
+        // Calculate elapsed time from start
         const elapsed = now.getTime() - startTime.getTime();
+        const protocolHours = parseInt(data.protocol?.split(":")[0] || "16");
+        const totalDuration = protocolHours * 60 * 60 * 1000;
         const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
 
         setFastingWindow({
           start: startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
-          end: endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
+          end: endTime ? endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }) : "--:--",
           progress,
           type: data.protocol || "16:8",
+          startAt: data.start_at,
+          endAt: data.end_at,
+          id: data.id,
+          isPaused: data.is_paused || false,
+        } as any);
+      } else {
+        // No active fast, reset to default
+        setFastingWindow({
+          start: "20:00",
+          end: "12:00",
+          progress: 0,
+          type: "16:8",
         });
       }
     } catch (error) {
