@@ -320,9 +320,28 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
 
       if (activeFastId) {
         // Delete associated logs first (foreign key constraint)
-        await supabase.from("fasting_logs").delete().eq("fasting_window_id", activeFastId);
+        const { error: logsError } = await supabase
+          .from("fasting_logs")
+          .delete()
+          .eq("fasting_window_id", activeFastId)
+          .eq("user_id", user.id);
+        
+        if (logsError) {
+          console.error("Error deleting fasting logs:", logsError);
+          throw logsError;
+        }
+
         // Then delete the fasting window
-        await supabase.from("fasting_windows").delete().eq("id", activeFastId).eq("user_id", user.id);
+        const { error: windowError } = await supabase
+          .from("fasting_windows")
+          .delete()
+          .eq("id", activeFastId)
+          .eq("user_id", user.id);
+        
+        if (windowError) {
+          console.error("Error deleting fasting window:", windowError);
+          throw windowError;
+        }
       }
 
       toast({ title: "Fasting discarded" });
@@ -334,7 +353,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       milestoneRef.current = -1;
       onRefresh?.();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error discarding fast", description: error.message, variant: "destructive" });
     }
   };
 
