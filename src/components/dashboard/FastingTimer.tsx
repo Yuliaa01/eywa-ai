@@ -77,19 +77,21 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   }, [fastingWindow.startAt]);
 
   // Update elapsed hours every second for smooth countdown
+  // Also recalculates when startAt changes (e.g., after manual time edit)
   useEffect(() => {
     const updateElapsed = () => {
       const hours = calculateElapsedHours();
       setElapsedHours(hours);
     };
     
+    // Immediate calculation when startAt changes
     updateElapsed();
     
     if (hasActiveFast && !isPaused) {
       const interval = setInterval(updateElapsed, 1000);
       return () => clearInterval(interval);
     }
-  }, [hasActiveFast, isPaused, calculateElapsedHours]);
+  }, [hasActiveFast, isPaused, calculateElapsedHours, fastingWindow.startAt]);
 
   // Check for milestone achievements
   useEffect(() => {
