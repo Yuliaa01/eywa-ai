@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Sparkles } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FastingCalendar } from "./FastingCalendar";
 import { MealModal } from "@/components/modals/MealModal";
+import { format } from "date-fns";
 
 // Fasting metabolic stages with hour milestones
 const FASTING_STAGES = [
@@ -18,8 +19,6 @@ const FASTING_STAGES = [
   { hour: 16, label: "Fat Burning", icon: "⚡", color: "#ef4444", description: "Peak fat oxidation zone" },
   { hour: 18, label: "Autophagy", icon: "🧬", color: "#8b5cf6", description: "Cellular cleanup begins" },
   { hour: 24, label: "Deep Ketosis", icon: "💫", color: "#6366f1", description: "Maximum metabolic benefits" },
-  { hour: 36, label: "Growth Hormone", icon: "🚀", color: "#06b6d4", description: "HGH peaks, enhanced repair" },
-  { hour: 48, label: "Immune Reset", icon: "🛡️", color: "#10b981", description: "Immune system regeneration" },
 ];
 
 interface FastingTimerProps {
@@ -28,8 +27,8 @@ interface FastingTimerProps {
     end: string;
     progress: number;
     type: string;
-    startAt?: string; // ISO timestamp
-    endAt?: string; // ISO timestamp
+    startAt?: string;
+    endAt?: string;
     id?: string;
     isPaused?: boolean;
   };
@@ -77,7 +76,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     return Math.max(0, (now.getTime() - startTime.getTime()) / (1000 * 60 * 60));
   }, [fastingWindow.startAt]);
 
-  // Update elapsed hours every minute
+  // Update elapsed hours every second for smooth countdown
   useEffect(() => {
     const updateElapsed = () => {
       const hours = calculateElapsedHours();
@@ -87,7 +86,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     updateElapsed();
     
     if (hasActiveFast && !isPaused) {
-      const interval = setInterval(updateElapsed, 60000);
+      const interval = setInterval(updateElapsed, 1000);
       return () => clearInterval(interval);
     }
   }, [hasActiveFast, isPaused, calculateElapsedHours]);
@@ -107,7 +106,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       if (currentMilestone > milestoneRef.current && milestoneRef.current !== -1) {
         const stage = FASTING_STAGES.find(s => s.hour === currentMilestone);
         if (stage) {
-          // Log milestone
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
             logFastingAction(user.id, activeFastId, "milestone_reached", {
@@ -117,7 +115,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             });
           }
 
-          // Show celebration toast
           toast({
             title: `${stage.icon} ${stage.label} Achieved!`,
             description: stage.description,
@@ -146,25 +143,22 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     setIsPaused(fastingWindow.isPaused || false);
   }, [fastingWindow]);
 
-  // Wrap onRefresh in useCallback
+  // Auto-update every minute
   const handleRefresh = useCallback(() => {
     onRefresh?.();
   }, [onRefresh]);
 
-  // Auto-update every minute
   useEffect(() => {
     if (!hasActiveFast || isPaused) return;
-
     const interval = setInterval(() => {
       handleRefresh();
     }, 60000);
-
     return () => clearInterval(interval);
   }, [hasActiveFast, isPaused, handleRefresh]);
 
   // Protocol hours and progress calculations
   const protocolHours = parseInt(fastingWindow?.type?.split(":")[0] || "16");
-  const progress = Math.min((elapsedHours / protocolHours) * 100, 100);
+  const progress = Math.min(elapsedHours / protocolHours, 1);
   const isExtendedFasting = elapsedHours > protocolHours;
   const bonusHours = Math.max(0, elapsedHours - protocolHours);
 
@@ -180,102 +174,65 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
 
   const currentStage = getCurrentStage();
 
-  // Get stages relevant to display (protocol hours + extended if applicable)
-  const getRelevantStages = () => {
-    const maxHour = isExtendedFasting ? Math.max(protocolHours, elapsedHours + 2) : protocolHours;
-    return FASTING_STAGES.filter(stage => stage.hour <= maxHour);
+  // Format time as HH:MM:SS countdown
+  const formatCountdown = (hours: number) => {
+    const totalSeconds = Math.max(0, Math.floor(hours * 3600));
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  const relevantStages = getRelevantStages();
-  const displayMaxHours = isExtendedFasting ? Math.max(protocolHours, Math.ceil(elapsedHours) + 2) : protocolHours;
+  // Circle dimensions
+  const size = 200;
+  const strokeWidth = 14;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progressOffset = circumference * (1 - progress);
 
-  // Calculate position on arc for a given hour - FIXED positioning
-  const getStagePosition = (hour: number) => {
-    const normalizedProgress = Math.min(hour / displayMaxHours, 1);
-    // Arc goes from left (π) to right (0), so we need to map progress accordingly
-    const angle = Math.PI * (1 - normalizedProgress);
-    const radius = 115;
-    const centerX = 140;
-    const centerY = 135;
-    const cx = centerX + radius * Math.cos(angle);
-    const cy = centerY - radius * Math.sin(angle);
-    return { cx, cy };
-  };
+  // Get stages to show on ring (only key milestones)
+  const visibleStages = FASTING_STAGES.filter(s => s.hour > 0 && s.hour <= Math.max(protocolHours, 24));
 
-  // Get progress indicator position
-  const getProgressPosition = () => {
-    const displayProgress = Math.min(elapsedHours / displayMaxHours, 1);
-    const angle = Math.PI * (1 - displayProgress);
-    const radius = 115;
-    const centerX = 140;
-    const centerY = 135;
+  // Calculate position on circle for a given stage
+  const getStagePosition = (stageHours: number) => {
+    const maxHours = Math.max(protocolHours, 24);
+    const progressRatio = stageHours / maxHours;
+    const angle = (progressRatio * 360 - 90) * (Math.PI / 180); // Start from top
+    const markerRadius = radius + 18; // Outside the ring
     return {
-      cx: centerX + radius * Math.cos(angle),
-      cy: centerY - radius * Math.sin(angle),
+      x: size / 2 + markerRadius * Math.cos(angle),
+      y: size / 2 + markerRadius * Math.sin(angle),
     };
   };
 
-  const progressPos = getProgressPosition();
-
+  // Event handlers
   const handleStart = async () => {
     setIsRunning(true);
     setIsPaused(false);
     onStartFasting();
-    
-    // Logging will happen after fast is created (in parent component)
   };
 
   const handlePause = async () => {
     setIsPaused(true);
-    
     const { data: { user } } = await supabase.auth.getUser();
     if (user && activeFastId) {
-      // Update database
-      await supabase
-        .from("fasting_windows")
-        .update({ is_paused: true })
-        .eq("id", activeFastId);
-      
-      // Log action
-      logFastingAction(user.id, activeFastId, "paused", {
-        elapsed_hours: elapsedHours,
-        current_stage: currentStage.label,
-      });
+      await supabase.from("fasting_windows").update({ is_paused: true }).eq("id", activeFastId);
+      logFastingAction(user.id, activeFastId, "paused", { elapsed_hours: elapsedHours });
     }
-    
-    toast({
-      title: "Fasting paused",
-      description: "You can resume anytime.",
-    });
+    toast({ title: "Fasting paused", description: "You can resume anytime." });
   };
 
   const handleResume = async () => {
     setIsPaused(false);
-    
     const { data: { user } } = await supabase.auth.getUser();
     if (user && activeFastId) {
-      // Update database
-      await supabase
-        .from("fasting_windows")
-        .update({ is_paused: false })
-        .eq("id", activeFastId);
-      
-      // Log action
-      logFastingAction(user.id, activeFastId, "resumed", {
-        elapsed_hours: elapsedHours,
-        current_stage: currentStage.label,
-      });
+      await supabase.from("fasting_windows").update({ is_paused: false }).eq("id", activeFastId);
+      logFastingAction(user.id, activeFastId, "resumed", { elapsed_hours: elapsedHours });
     }
-    
-    toast({
-      title: "Fasting resumed",
-      description: "Keep going!",
-    });
+    toast({ title: "Fasting resumed", description: "Keep going!" });
   };
 
-  const handleStop = () => {
-    setStopDialogOpen(true);
-  };
+  const handleStop = () => setStopDialogOpen(true);
 
   const handleSaveFast = async () => {
     try {
@@ -283,29 +240,21 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       if (!user) return;
 
       if (activeFastId) {
-        const { error } = await supabase
-          .from("fasting_windows")
-          .update({ 
-            actual_end_at: new Date().toISOString(),
-            is_paused: false,
-          })
+        await supabase.from("fasting_windows")
+          .update({ actual_end_at: new Date().toISOString(), is_paused: false })
           .eq("id", activeFastId)
           .eq("user_id", user.id);
-
-        if (error) throw error;
         
-        // Log action
         logFastingAction(user.id, activeFastId, "completed", {
           elapsed_hours: elapsedHours,
           protocol_hours: protocolHours,
-          extended_hours: bonusHours,
           final_stage: currentStage.label,
         });
       }
 
       toast({
         title: isExtendedFasting ? "Extended fast complete!" : "Fasting saved",
-        description: `You fasted for ${Math.floor(elapsedHours)}h ${Math.round((elapsedHours % 1) * 60)}m. ${isExtendedFasting ? `+${bonusHours.toFixed(1)}h bonus!` : ''}`,
+        description: `You fasted for ${formatCountdown(elapsedHours)}`,
       });
       
       setStopDialogOpen(false);
@@ -316,11 +265,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       milestoneRef.current = -1;
       onRefresh?.();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to save fasting session",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
@@ -335,25 +280,11 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       if (!user) return;
 
       if (activeFastId) {
-        // Log before deleting
-        logFastingAction(user.id, activeFastId, "discarded", {
-          elapsed_hours: elapsedHours,
-        });
-        
-        const { error } = await supabase
-          .from("fasting_windows")
-          .delete()
-          .eq("id", activeFastId)
-          .eq("user_id", user.id);
-
-        if (error) throw error;
+        logFastingAction(user.id, activeFastId, "discarded", { elapsed_hours: elapsedHours });
+        await supabase.from("fasting_windows").delete().eq("id", activeFastId).eq("user_id", user.id);
       }
 
-      toast({
-        title: "Fasting discarded",
-        description: "Your fasting session has been cancelled.",
-      });
-      
+      toast({ title: "Fasting discarded" });
       setStopDialogOpen(false);
       setIsRunning(false);
       setIsPaused(false);
@@ -362,16 +293,12 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       milestoneRef.current = -1;
       onRefresh?.();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to discard fasting session",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
   const handleUpdateStartTime = async () => {
-    if (!activeFastId || !newStartTime || !fastingWindow?.type) return;
+    if (!activeFastId || !newStartTime) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -380,68 +307,38 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       const newStart = new Date(newStartTime);
       const newEnd = new Date(newStart.getTime() + protocolHours * 60 * 60 * 1000);
 
-      const { error } = await supabase
-        .from("fasting_windows")
-        .update({
-          start_at: newStart.toISOString(),
-          end_at: newEnd.toISOString(),
-        })
+      await supabase.from("fasting_windows")
+        .update({ start_at: newStart.toISOString(), end_at: newEnd.toISOString() })
         .eq("id", activeFastId);
 
-      if (error) throw error;
-
-      // Log action
       logFastingAction(user.id, activeFastId, "start_time_updated", {
         new_start: newStart.toISOString(),
-        new_end: newEnd.toISOString(),
       });
 
-      toast({
-        title: "Start time updated",
-        description: "Your fasting window has been adjusted.",
-      });
-
+      toast({ title: "Start time updated" });
       setEditStartTimeOpen(false);
       onRefresh?.();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
-  // Format time display
-  const formatElapsedTime = () => {
-    const hours = Math.floor(elapsedHours);
-    const minutes = Math.round((elapsedHours % 1) * 60);
-    return `${hours}h ${minutes}m`;
-  };
-
-  const formatRemainingTime = () => {
-    const remaining = protocolHours - elapsedHours;
-    if (remaining <= 0) return null;
-    const hours = Math.floor(remaining);
-    const minutes = Math.round((remaining % 1) * 60);
-    return `${hours}h ${minutes}m`;
-  };
+  // Fire icons based on progress
+  const fireCount = Math.min(Math.floor(elapsedHours / 4), 5);
 
   return (
-    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[340px] flex flex-col">
-      <div className="flex items-center justify-between mb-6">
+    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full bg-accent-teal/10 text-accent-teal text-sm font-rounded font-medium">
+          <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-rounded font-medium">
             {fastingWindow?.type || "16:8"}
           </span>
           <Dialog>
             <DialogTrigger asChild>
-              <button 
-                className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
-                title="View fasting calendar"
-              >
-                <CalendarIcon className="w-4 h-4 text-[#12AFCB]" />
+              <button className="w-8 h-8 rounded-xl bg-accent/10 hover:bg-accent/20 flex items-center justify-center transition-colors">
+                <CalendarIcon className="w-4 h-4 text-accent" />
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -450,163 +347,91 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
           </Dialog>
           <button 
             onClick={onStartFasting}
-            className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 flex items-center justify-center transition-colors"
-            title="Start new fasting window"
+            className="w-8 h-8 rounded-xl bg-accent/10 hover:bg-accent/20 flex items-center justify-center transition-colors"
           >
-            <Plus className="w-4 h-4 text-[#12AFCB]" />
+            <Plus className="w-4 h-4 text-accent" />
           </button>
         </div>
       </div>
-      
-      <div className="space-y-2 flex-1 flex flex-col">
-        {/* Time displays above arc */}
-        <div className="flex items-center justify-between text-sm px-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            Start: {fastingWindow.start}
-            {hasActiveFast && (
-              <Dialog open={editStartTimeOpen} onOpenChange={setEditStartTimeOpen}>
-                <DialogTrigger asChild>
-                  <button className="ml-1 p-1 hover:bg-accent-teal/10 rounded">
-                    <Edit2 className="w-3 h-3 text-accent-teal" />
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Edit Start Time</DialogTitle>
-                    <DialogDescription>
-                      Adjust the start time if you forgot to press the button
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label>Start Time</Label>
-                      <Input
-                        type="datetime-local"
-                        value={newStartTime}
-                        onChange={(e) => setNewStartTime(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => setEditStartTimeOpen(false)}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleUpdateStartTime}
-                        className="flex-1 bg-gradient-to-r from-[#FF6B35] via-[#F7B801] to-[#12AFCB]"
-                      >
-                        Update
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            End: {fastingWindow.end}
-          </div>
-        </div>
 
-        {/* Semi-circular progress arc */}
-        <TooltipProvider>
-          <div className="relative flex items-center justify-center py-2 flex-shrink-0">
-            <svg width="280" height="150" viewBox="0 0 280 150" className="overflow-visible">
-              <defs>
-                {/* Gradient for progress arc */}
-                <linearGradient id="fastingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#FF6B35" />
-                  <stop offset="33%" stopColor="#F72585" />
-                  <stop offset="66%" stopColor="#7209B7" />
-                  <stop offset="100%" stopColor="#4361EE" />
-                </linearGradient>
-                {/* Extended fasting gradient */}
-                <linearGradient id="extendedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#4361EE" />
-                  <stop offset="50%" stopColor="#06b6d4" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-              
-              {/* Background arc (light gray track) */}
-              <path
-                d="M 25 135 A 115 115 0 0 1 255 135"
+      {/* Circular Progress Ring */}
+      <TooltipProvider>
+        <div className="flex justify-center mb-4">
+          <div className="relative">
+            <svg width={size} height={size} className="transform -rotate-90">
+              {/* Background ring */}
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
                 fill="none"
                 stroke="hsl(var(--muted))"
-                strokeWidth="10"
-                strokeLinecap="round"
-                opacity="0.2"
+                strokeWidth={strokeWidth}
+                opacity={0.3}
               />
               
-              {/* Full gradient arc at lower opacity (always visible) */}
-              <path
-                d="M 25 135 A 115 115 0 0 1 255 135"
+              {/* Progress ring */}
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
                 fill="none"
-                stroke={isExtendedFasting ? "url(#extendedGradient)" : "url(#fastingGradient)"}
-                strokeWidth="10"
+                stroke="url(#circleGradient)"
+                strokeWidth={strokeWidth}
+                strokeDasharray={circumference}
+                strokeDashoffset={hasActiveFast ? progressOffset : circumference}
                 strokeLinecap="round"
-                opacity="0.2"
+                className="transition-all duration-1000 ease-out"
               />
-              
-              {/* Progress arc with gradient */}
-              <path
-                d="M 25 135 A 115 115 0 0 1 255 135"
-                fill="none"
-                stroke={isExtendedFasting ? "url(#extendedGradient)" : "url(#fastingGradient)"}
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray={`${(Math.min(elapsedHours / displayMaxHours, 1)) * 361} 361`}
-                className="transition-all duration-500"
-              />
-              
+
+              {/* Gradient definition */}
+              <defs>
+                <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#22C55E" />
+                  <stop offset="50%" stopColor="#10B981" />
+                  <stop offset="100%" stopColor="#12AFCB" />
+                </linearGradient>
+              </defs>
+
               {/* Progress indicator dot */}
               {hasActiveFast && (
                 <circle
-                  cx={progressPos.cx}
-                  cy={progressPos.cy}
-                  r="7"
-                  fill="white"
-                  className="drop-shadow-lg transition-all duration-500"
+                  cx={size / 2 + radius * Math.cos((progress * 360 - 90) * Math.PI / 180)}
+                  cy={size / 2 + radius * Math.sin((progress * 360 - 90) * Math.PI / 180)}
+                  r={8}
+                  fill="#FFF8E7"
+                  stroke="#22C55E"
+                  strokeWidth={2}
+                  className="drop-shadow-lg"
                 />
               )}
             </svg>
-            
-            {/* Stage markers along the arc */}
-            {relevantStages.map((stage) => {
+
+            {/* Stage markers outside ring */}
+            {visibleStages.map((stage) => {
               const pos = getStagePosition(stage.hour);
-              const isPassed = elapsedHours >= stage.hour;
+              const isReached = elapsedHours >= stage.hour;
               const isCurrent = currentStage.hour === stage.hour;
               
               return (
                 <Tooltip key={stage.hour}>
                   <TooltipTrigger asChild>
                     <div
-                      className={`absolute flex flex-col items-center transition-all duration-300 cursor-pointer ${
-                        isPassed ? 'opacity-100' : 'opacity-40'
-                      } ${isCurrent ? 'scale-110' : ''}`}
+                      className={`absolute w-6 h-6 flex items-center justify-center rounded-full text-xs cursor-pointer transition-all ${
+                        isCurrent ? 'scale-125 animate-pulse' : ''
+                      }`}
                       style={{
-                        left: pos.cx - 12,
-                        top: pos.cy - 28,
+                        left: pos.x - 12,
+                        top: pos.y - 12,
+                        backgroundColor: isReached ? stage.color : 'hsl(var(--muted))',
+                        opacity: isReached ? 1 : 0.4,
+                        boxShadow: isCurrent ? `0 0 12px ${stage.color}` : 'none',
                       }}
                     >
-                      <span className="text-sm">{stage.icon}</span>
-                      <div
-                        className={`w-2 h-2 rounded-full mt-0.5 transition-all ${
-                          isCurrent ? 'ring-2 ring-offset-1 ring-offset-background' : ''
-                        }`}
-                        style={{ 
-                          backgroundColor: stage.color,
-                          boxShadow: isCurrent ? `0 0 8px ${stage.color}` : 'none'
-                        }}
-                      />
+                      <span className="text-[10px]">{stage.icon}</span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[200px]">
+                  <TooltipContent>
                     <p className="font-semibold">{stage.icon} {stage.label}</p>
                     <p className="text-xs text-muted-foreground">{stage.hour}h mark</p>
                     <p className="text-xs mt-1">{stage.description}</p>
@@ -614,153 +439,165 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                 </Tooltip>
               );
             })}
-            
-            {/* Current stage and time display centered in arc */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pt-2">
+
+            {/* Center content */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
               {hasActiveFast ? (
                 <>
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <span className="text-lg">{currentStage.icon}</span>
-                    <span 
-                      className="text-xs font-medium"
-                      style={{ color: currentStage.color }}
-                    >
-                      {currentStage.label}
-                    </span>
+                  <span className="text-4xl mb-1">{currentStage.icon}</span>
+                  <div className="text-3xl font-bold font-mono text-foreground tracking-tight">
+                    {formatCountdown(elapsedHours)}
                   </div>
-                  
-                  {isExtendedFasting ? (
-                    <>
-                      <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <Sparkles className="w-3 h-3 text-accent-teal" />
-                        <span className="text-xs text-accent-teal font-medium">Extended!</span>
-                      </div>
-                      <p className="text-2xl font-rounded font-bold text-foreground">
-                        {formatElapsedTime()}
-                      </p>
-                      <p className="text-xs text-accent-teal font-medium">
-                        +{bonusHours.toFixed(1)}h bonus
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-2xl font-rounded font-bold text-foreground">
-                        {formatRemainingTime() || formatElapsedTime()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatRemainingTime() ? 'remaining' : 'elapsed'}
-                      </p>
-                    </>
+                  <div className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: currentStage.color }}>
+                    {currentStage.label}
+                  </div>
+                  {isExtendedFasting && (
+                    <div className="text-xs text-accent font-medium mt-1 bg-accent/10 px-2 py-0.5 rounded-full">
+                      +{formatCountdown(bonusHours)} bonus
+                    </div>
+                  )}
+                  {isPaused && (
+                    <div className="text-xs text-amber-500 font-medium mt-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                      PAUSED
+                    </div>
                   )}
                 </>
               ) : (
                 <>
-                  <p className="text-2xl font-rounded font-bold text-foreground">
-                    Ready
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Start when ready
-                  </p>
+                  <span className="text-4xl mb-2">🍽️</span>
+                  <p className="text-lg font-semibold text-foreground">Ready</p>
+                  <p className="text-xs text-muted-foreground">Start when ready</p>
                 </>
               )}
             </div>
           </div>
-        </TooltipProvider>
+        </div>
+      </TooltipProvider>
 
-        {/* Timer Controls */}
-        <div className="flex gap-2 mt-auto">
-          {!isRunning && !hasActiveFast ? (
-            <Button
-              onClick={handleStart}
-              className="flex-1 bg-gradient-to-r from-[#FF6B35] via-[#F72585] to-[#4361EE] text-white hover:shadow-[0_4px_20px_rgba(255,107,53,0.4)] rounded-full h-12 font-semibold"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Start
-            </Button>
-          ) : hasActiveFast ? (
-            <>
-              {!isPaused ? (
-                <Button
-                  onClick={handlePause}
-                  variant="outline"
-                  className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10"
-                >
-                  <Pause className="w-4 h-4 mr-2" />
-                  Pause
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleResume}
-                  variant="outline"
-                  className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10"
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Resume
-                </Button>
-              )}
-              <Button
-                onClick={handleStop}
-                variant="outline"
-                className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive"
-              >
-                <Square className="w-4 h-4 mr-2" />
-                Stop
-              </Button>
-            </>
-          ) : null}
+      {/* Start and Goal times */}
+      <div className="flex justify-between items-center mb-4 px-2">
+        <div className="text-center">
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Started</div>
+          <button
+            onClick={() => {
+              if (hasActiveFast && fastingWindow.startAt) {
+                setNewStartTime(new Date(fastingWindow.startAt).toISOString().slice(0, 16));
+                setEditStartTimeOpen(true);
+              }
+            }}
+            className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-accent transition-colors"
+            disabled={!hasActiveFast}
+          >
+            {fastingWindow.startAt 
+              ? format(new Date(fastingWindow.startAt), "EEE, h:mm a")
+              : fastingWindow.start}
+            {hasActiveFast && <Edit2 className="w-3 h-3 text-muted-foreground" />}
+          </button>
         </div>
         
-        {/* Stop Confirmation Dialog */}
-        <Dialog open={stopDialogOpen} onOpenChange={setStopDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {isExtendedFasting ? "Complete Extended Fast" : "Complete Fasting Session"}
-              </DialogTitle>
-              <DialogDescription>
-                You've fasted for {formatElapsedTime()}.
-                {isExtendedFasting && ` That's +${bonusHours.toFixed(1)}h beyond your ${protocolHours}h goal!`}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col gap-3 py-4">
-              <Button
-                onClick={handleLogMeal}
-                className="w-full bg-gradient-to-r from-accent-teal to-accent-teal-alt"
-              >
-                <Utensils className="w-4 h-4 mr-2" />
-                Log Meal
-              </Button>
-              <Button
-                onClick={handleSaveFast}
-                variant="outline"
-                className="w-full"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Session
-              </Button>
-              <Button
-                onClick={handleDiscard}
-                variant="ghost"
-                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Discard
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Meal Modal */}
-        <MealModal
-          open={mealModalOpen}
-          onOpenChange={setMealModalOpen}
-          onSuccess={() => {
-            setMealModalOpen(false);
-            handleSaveFast();
-          }}
-          mealType="breakfast"
-        />
+        <div className="flex items-center gap-0.5">
+          {[...Array(fireCount)].map((_, i) => (
+            <Flame key={i} className="w-4 h-4 text-orange-500" />
+          ))}
+        </div>
+        
+        <div className="text-center">
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Goal</div>
+          <div className="text-sm font-medium text-foreground">
+            {fastingWindow.endAt 
+              ? format(new Date(fastingWindow.endAt), "EEE, h:mm a")
+              : fastingWindow.end}
+          </div>
+        </div>
       </div>
+
+      {/* Control buttons */}
+      <div className="flex gap-2 mt-auto">
+        {!isRunning && !hasActiveFast ? (
+          <Button
+            onClick={handleStart}
+            className="flex-1 bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg rounded-full h-11"
+          >
+            <Play className="w-4 h-4 mr-2" />
+            Start Fast
+          </Button>
+        ) : hasActiveFast ? (
+          <>
+            {!isPaused ? (
+              <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+                <Pause className="w-4 h-4 mr-2" />
+                Pause
+              </Button>
+            ) : (
+              <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+                <Play className="w-4 h-4 mr-2" />
+                Resume
+              </Button>
+            )}
+            <Button onClick={handleStop} variant="outline" className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive">
+              <Square className="w-4 h-4 mr-2" />
+              End Fast
+            </Button>
+          </>
+        ) : null}
+      </div>
+
+      {/* Stop Confirmation Dialog */}
+      <Dialog open={stopDialogOpen} onOpenChange={setStopDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isExtendedFasting ? "Complete Extended Fast" : "Complete Fasting Session"}</DialogTitle>
+            <DialogDescription>
+              You've fasted for {formatCountdown(elapsedHours)} and reached {currentStage.label}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-4">
+            <Button onClick={handleLogMeal} className="w-full bg-gradient-to-r from-green-500 to-accent text-white">
+              <Utensils className="w-4 h-4 mr-2" />
+              Log Meal & End Fast
+            </Button>
+            <Button onClick={handleSaveFast} variant="outline" className="w-full">
+              <Save className="w-4 h-4 mr-2" />
+              Save Without Logging Meal
+            </Button>
+            <Button onClick={handleDiscard} variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/10">
+              <X className="w-4 h-4 mr-2" />
+              Discard Fast
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Start Time Dialog */}
+      <Dialog open={editStartTimeOpen} onOpenChange={setEditStartTimeOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Start Time</DialogTitle>
+            <DialogDescription>Adjust if you forgot to press start</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Start Time</Label>
+              <Input type="datetime-local" value={newStartTime} onChange={(e) => setNewStartTime(e.target.value)} />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setEditStartTimeOpen(false)} variant="outline" className="flex-1">Cancel</Button>
+              <Button onClick={handleUpdateStartTime} className="flex-1">Update</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Meal Modal */}
+      <MealModal
+        open={mealModalOpen}
+        onOpenChange={setMealModalOpen}
+        onSuccess={() => {
+          setMealModalOpen(false);
+          handleSaveFast();
+        }}
+        mealType="breakfast"
+      />
     </div>
   );
 }
