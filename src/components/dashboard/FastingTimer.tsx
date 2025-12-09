@@ -205,11 +205,48 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     };
   };
 
-  // Event handlers
+  // Event handlers - Start fast immediately
   const handleStart = async () => {
-    setIsRunning(true);
-    setIsPaused(false);
-    onStartFasting();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Please sign in", description: "You need to be logged in to start fasting", variant: "destructive" });
+        return;
+      }
+
+      const protocol = fastingWindow?.type || "16:8";
+      const protocolH = parseInt(protocol.split(":")[0]) || 16;
+      const startAt = new Date();
+      const endAt = new Date(startAt.getTime() + protocolH * 60 * 60 * 1000);
+
+      const { data, error } = await supabase
+        .from("fasting_windows")
+        .insert({
+          user_id: user.id,
+          start_at: startAt.toISOString(),
+          end_at: endAt.toISOString(),
+          protocol: protocol,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Log the start action
+      if (data) {
+        await logFastingAction(user.id, data.id, "started", { protocol });
+      }
+
+      setIsRunning(true);
+      setIsPaused(false);
+      setHasActiveFast(true);
+      setActiveFastId(data?.id || null);
+      
+      toast({ title: "Fasting started!", description: `${protocol} fast begins now` });
+      onRefresh?.();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   const handlePause = async () => {
