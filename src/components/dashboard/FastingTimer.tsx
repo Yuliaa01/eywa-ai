@@ -344,13 +344,17 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         }
       }
 
-      toast({ title: "Fasting discarded" });
+      // Reset all state immediately
       setStopDialogOpen(false);
       setIsRunning(false);
       setIsPaused(false);
       setHasActiveFast(false);
       setActiveFastId(null);
+      setElapsedHours(0);
       milestoneRef.current = -1;
+      setLastMilestoneReached(-1);
+      
+      toast({ title: "Fasting discarded" });
       onRefresh?.();
     } catch (error: any) {
       toast({ title: "Error discarding fast", description: error.message, variant: "destructive" });
