@@ -742,16 +742,18 @@ export default function NutritionSection() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 items-end">
+      <div className="grid md:grid-cols-2 gap-6">
         {/* Fasting Tracker with Timer */}
-        <FastingTimer 
-          fastingWindow={fastingWindow} 
-          onStartFasting={() => setFastingModalOpen(true)}
-          onRefresh={handleFastingSuccess}
-        />
+        <div className="h-[480px]">
+          <FastingTimer 
+            fastingWindow={fastingWindow} 
+            onStartFasting={() => setFastingModalOpen(true)}
+            onRefresh={handleFastingSuccess}
+          />
+        </div>
 
         {/* Supplements */}
-        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-full flex flex-col">
+        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[480px] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
             <DropdownMenu>
