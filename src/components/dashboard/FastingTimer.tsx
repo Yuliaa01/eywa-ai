@@ -471,38 +471,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
               )}
             </svg>
 
-            {/* Stage markers outside ring */}
-            {visibleStages.map((stage) => {
-              const pos = getStagePosition(stage.hour);
-              const isReached = elapsedHours >= stage.hour;
-              const isCurrent = currentStage.hour === stage.hour;
-              
-              return (
-                <Tooltip key={stage.hour}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`absolute w-6 h-6 flex items-center justify-center rounded-full text-xs cursor-pointer transition-all ${
-                        isCurrent ? 'scale-125 animate-pulse' : ''
-                      }`}
-                      style={{
-                        left: pos.x - 12,
-                        top: pos.y - 12,
-                        backgroundColor: isReached ? stage.color : 'hsl(var(--muted))',
-                        opacity: isReached ? 1 : 0.4,
-                        boxShadow: isCurrent ? `0 0 12px ${stage.color}` : 'none',
-                      }}
-                    >
-                      <span className="text-[10px]">{stage.icon}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="font-semibold">{stage.icon} {stage.label}</p>
-                    <p className="text-xs text-muted-foreground">{stage.hour}h mark</p>
-                    <p className="text-xs mt-1">{stage.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
 
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
