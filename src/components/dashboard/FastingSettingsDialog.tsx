@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings, Check, Clock, Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { FastingTipsModal } from "./FastingTipsModal";
 
 interface FastingSettingsDialogProps {
   onRefresh?: () => void;
@@ -56,10 +57,50 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
   const [loading, setLoading] = useState(false);
   const [protocol, setProtocol] = useState("16:8");
   
+  // Tips modal state
+  const [showTipsModal, setShowTipsModal] = useState(false);
+  const [isFirstTimeFaster, setIsFirstTimeFaster] = useState(false);
+  
   // Advanced settings state
   const [customDateTime, setCustomDateTime] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 5]);
+
+  // Check if first-time faster when dialog opens
+  useEffect(() => {
+    const checkFirstTimeFaster = async () => {
+      const tipsShown = localStorage.getItem("fasting_tips_shown");
+      if (tipsShown) {
+        setIsFirstTimeFaster(false);
+        return;
+      }
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { count } = await supabase
+          .from("fasting_windows")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+
+        setIsFirstTimeFaster(count === 0);
+      } catch (error) {
+        console.error("Error checking fasting history:", error);
+      }
+    };
+
+    if (open) {
+      checkFirstTimeFaster();
+    }
+  }, [open]);
+
+  // Show tips modal when dialog opens for first-time fasters
+  useEffect(() => {
+    if (open && isFirstTimeFaster) {
+      setShowTipsModal(true);
+    }
+  }, [open, isFirstTimeFaster]);
 
   const calculateEndTime = (start: string, proto: string) => {
     const hours = parseInt(proto.split(":")[0]);
@@ -145,7 +186,16 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <>
+      <FastingTipsModal
+        open={showTipsModal}
+        onOpenChange={setShowTipsModal}
+        onConfirm={() => {
+          setShowTipsModal(false);
+          setIsFirstTimeFaster(false);
+        }}
+      />
+      <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="w-8 h-8 rounded-xl bg-accent/10 hover:bg-accent/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200">
           <Settings className="w-4 h-4 text-accent" />
@@ -306,5 +356,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
