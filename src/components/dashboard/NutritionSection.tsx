@@ -1,6 +1,6 @@
 import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill, Check, CheckCheck } from "lucide-react";
 import { PillToggle } from "@/components/ui/pill-toggle";
-import { triggerPillConfetti } from "@/utils/confetti";
+import { triggerPillConfetti, triggerConfetti } from "@/utils/confetti";
 import { MealModal } from "@/components/modals/MealModal";
 import { EditMealModal } from "@/components/modals/EditMealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
@@ -770,7 +770,7 @@ export default function NutritionSection() {
                     }
                     setTakenSupplementIds(new Set(activeSupplements.map(s => s.id)));
                     toast({ title: `Logged all ${notTaken.length} supplements!` });
-                    triggerPillConfetti({ currentTarget: document.body } as any);
+                    triggerConfetti();
                   }}
                   className="h-8 px-3 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 text-[#12AFCB] text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
                 >
