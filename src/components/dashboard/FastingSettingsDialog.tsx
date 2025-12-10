@@ -147,8 +147,8 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[60vh] px-6">
-          <div className="space-y-6 pb-4">
+        <ScrollArea className="max-h-[60vh]">
+          <div className="space-y-6 pb-4 px-6">
             {PROTOCOL_CATEGORIES.map((category) => (
               <div key={category.level} className="space-y-3">
                 <div className="flex items-center gap-2">
