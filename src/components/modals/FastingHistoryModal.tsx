@@ -298,7 +298,7 @@ export function FastingHistoryModal({ fastingWindow, onClose, onUpdate }: Fastin
                 Delete This Record
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Fasting Record?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -308,7 +308,11 @@ export function FastingHistoryModal({ fastingWindow, onClose, onUpdate }: Fastin
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={handleDelete}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
                   className="bg-destructive hover:bg-destructive/90"
                 >
                   Delete
