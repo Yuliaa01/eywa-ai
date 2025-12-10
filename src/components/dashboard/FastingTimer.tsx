@@ -70,6 +70,45 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   const [elapsedHours, setElapsedHours] = useState(0);
   const [lastMilestoneReached, setLastMilestoneReached] = useState<number>(-1);
   const milestoneRef = useRef<number>(-1);
+  
+  // Saved fasting preferences
+  const [savedPreferences, setSavedPreferences] = useState<{
+    protocol?: string;
+    preferred_start_time?: string;
+    schedule_days?: number[];
+  } | null>(null);
+
+  // Fetch user's saved fasting preferences
+  const fetchFastingPreferences = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("fasting_pref")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!error && data?.fasting_pref) {
+        setSavedPreferences(data.fasting_pref as typeof savedPreferences);
+      }
+    } catch (error) {
+      console.error("Error fetching fasting preferences:", error);
+    }
+  }, []);
+
+  // Fetch preferences on mount and when onRefresh changes
+  useEffect(() => {
+    fetchFastingPreferences();
+  }, [fetchFastingPreferences]);
+
+  // Expose refresh to parent - re-fetch when onRefresh is called
+  useEffect(() => {
+    if (onRefresh) {
+      fetchFastingPreferences();
+    }
+  }, [onRefresh, fetchFastingPreferences]);
 
   // Calculate elapsed hours from start time
   const calculateElapsedHours = useCallback(() => {
@@ -496,7 +535,17 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                     <Timer className="w-8 h-8 text-accent" />
                   </div>
                   <p className="text-lg font-semibold text-foreground">Ready to Fast</p>
-                  
+                  {savedPreferences?.preferred_start_time && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <Clock className="w-3 h-3 inline mr-1" />
+                      {format(new Date(savedPreferences.preferred_start_time), "MMM d, h:mm a")}
+                    </p>
+                  )}
+                  {savedPreferences?.protocol && (
+                    <p className="text-xs text-accent mt-1 font-medium">
+                      {savedPreferences.protocol} protocol
+                    </p>
+                  )}
                 </>
               )}
             </div>
