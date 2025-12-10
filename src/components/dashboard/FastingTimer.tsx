@@ -588,7 +588,7 @@ export default function FastingTimer({
           {[...Array(fireCount)].map((_, i) => <Flame key={i} className="w-4 h-4 text-orange-500" />)}
         </div>
         
-        <div className="text-center">
+        <div className="text-right">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Goal</div>
           <div className="text-sm font-medium text-foreground">
             {hasActiveFast && fastingWindow.endAt ? format(new Date(fastingWindow.endAt), "EEE, h:mm a") : savedPreferences?.preferred_start_time && savedPreferences?.protocol ? (() => {
