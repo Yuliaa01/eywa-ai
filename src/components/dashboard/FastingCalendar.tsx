@@ -5,38 +5,80 @@ import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, isSameDay, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { FastingHistoryModal } from "@/components/modals/FastingHistoryModal";
+
+interface FastingWindow {
+  id: string;
+  user_id: string;
+  start_at: string;
+  end_at: string | null;
+  actual_end_at: string | null;
+  protocol: string | null;
+  notes: string | null;
+  is_paused: boolean | null;
+}
 
 interface FastingCalendarProps {
   onClose?: () => void;
 }
 
 export function FastingCalendar({ onClose }: FastingCalendarProps) {
+  const [fastingRecords, setFastingRecords] = useState<FastingWindow[]>([]);
   const [completedDates, setCompletedDates] = useState<Date[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedFast, setSelectedFast] = useState<FastingWindow | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchCompletedFasts = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("fasting_windows")
+      .select("*")
+      .eq("user_id", user.id)
+      .not("actual_end_at", "is", null)
+      .order("actual_end_at", { ascending: false });
+
+    if (data && !error) {
+      setFastingRecords(data);
+      const completed = data.map(window => startOfDay(new Date(window.actual_end_at!)));
+      setCompletedDates(completed);
+    }
+  };
 
   useEffect(() => {
-    const fetchCompletedFasts = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("fasting_windows")
-        .select("*")
-        .eq("user_id", user.id)
-        .not("actual_end_at", "is", null)
-        .order("end_at", { ascending: false });
-
-      if (data && !error) {
-        const completed = data.map(window => startOfDay(new Date(window.actual_end_at)));
-        setCompletedDates(completed);
-      }
-    };
-
     fetchCompletedFasts();
   }, []);
 
   const isCompletedDate = (date: Date) => {
     return completedDates.some(completedDate => isSameDay(completedDate, date));
+  };
+
+  const getFastsForDate = (date: Date): FastingWindow[] => {
+    return fastingRecords.filter(record => 
+      record.actual_end_at && isSameDay(startOfDay(new Date(record.actual_end_at)), startOfDay(date))
+    );
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    const fastsOnDate = getFastsForDate(date);
+    if (fastsOnDate.length > 0) {
+      // If multiple fasts on same day, show the most recent one
+      setSelectedFast(fastsOnDate[0]);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedFast(null);
+  };
+
+  const handleUpdate = () => {
+    fetchCompletedFasts();
   };
 
   const modifiers = {
@@ -51,14 +93,14 @@ export function FastingCalendar({ onClose }: FastingCalendarProps) {
         </h3>
         <p className="text-sm text-muted-foreground flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-[#12AFCB]" />
-          Highlighted days show completed fasting goals
+          Tap a highlighted day to view or edit details
         </p>
       </div>
       
       <DayPicker
         mode="single"
         selected={selectedDate}
-        onSelect={setSelectedDate}
+        onSelect={(date) => date && handleDateClick(date)}
         modifiers={modifiers}
         showOutsideDays={true}
         className="p-3 rounded-xl border border-border"
@@ -79,7 +121,7 @@ export function FastingCalendar({ onClose }: FastingCalendarProps) {
           head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
           row: "flex w-full mt-2",
           cell: "h-9 w-9 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
-          day: cn(buttonVariants({ variant: "ghost" }), "h-9 w-9 p-0 font-normal aria-selected:opacity-100"),
+          day: cn(buttonVariants({ variant: "ghost" }), "h-9 w-9 p-0 font-normal aria-selected:opacity-100 cursor-pointer"),
           day_range_end: "day-range-end",
           day_selected: "bg-transparent text-foreground",
           day_today: "bg-muted/50 text-foreground rounded-full",
@@ -104,7 +146,7 @@ export function FastingCalendar({ onClose }: FastingCalendarProps) {
             const isCompleted = isCompletedDate(date);
             if (isCompleted) {
               return (
-                <div className="relative w-full h-full flex items-center justify-center">
+                <div className="relative w-full h-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
                   <div 
                     className="absolute inset-0 rounded-full"
                     style={{
@@ -124,13 +166,29 @@ export function FastingCalendar({ onClose }: FastingCalendarProps) {
         }}
       />
 
-      {selectedDate && isCompletedDate(selectedDate) && (
-        <div className="mt-4 p-4 rounded-xl bg-[#12AFCB]/10 border border-[#12AFCB]/20">
+      {selectedDate && isCompletedDate(selectedDate) && !isModalOpen && (
+        <div 
+          className="mt-4 p-4 rounded-xl bg-[#12AFCB]/10 border border-[#12AFCB]/20 cursor-pointer hover:bg-[#12AFCB]/15 transition-colors"
+          onClick={() => handleDateClick(selectedDate)}
+        >
           <p className="text-sm font-medium text-[#12AFCB]">
-            ✓ Fasting goal achieved on {format(selectedDate, "MMMM d, yyyy")}
+            ✓ Fasting goal achieved on {format(selectedDate, "MMMM d, yyyy")} — Tap to edit
           </p>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          {selectedFast && (
+            <FastingHistoryModal
+              fastingWindow={selectedFast}
+              onClose={handleModalClose}
+              onUpdate={handleUpdate}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
