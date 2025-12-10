@@ -68,11 +68,14 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const endTime = calculateEndTime(startTime, protocol);
+      // Convert local datetime to ISO string
+      const startDate = new Date(startTime);
+      const startIso = startDate.toISOString();
+      const endTime = calculateEndTime(startIso, protocol);
 
       const { data, error } = await supabase.from("fasting_windows").insert({
         user_id: user.id,
-        start_at: startTime,
+        start_at: startIso,
         end_at: endTime,
         protocol,
       }).select().single();
