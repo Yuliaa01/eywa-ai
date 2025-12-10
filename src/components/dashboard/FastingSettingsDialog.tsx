@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -50,26 +51,18 @@ const WEEKDAYS = [
   { short: "S", full: "Sunday" }
 ];
 
-const START_OPTIONS = [
-  { label: "Now", hours: 0 },
-  { label: "in 8h", hours: 8 },
-  { label: "in 16h", hours: 16 },
-  { label: "in 24h", hours: 24 }
-];
-
 export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [protocol, setProtocol] = useState("16:8");
   
-  // New state for advanced settings
-  const [startOption, setStartOption] = useState<"now" | "scheduled">("now");
-  const [scheduledHours, setScheduledHours] = useState(0);
-  const [showStartPicker, setShowStartPicker] = useState(false);
+  // Advanced settings state
+  const [customDateTime, setCustomDateTime] = useState("");
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [durationMode, setDurationMode] = useState<"constantly" | "days">("constantly");
   const [durationDays, setDurationDays] = useState(14);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 5]); // Tuesday, Wednesday, Thursday, Saturday (0-indexed)
+  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 5]);
 
   const calculateEndTime = (start: string, proto: string) => {
     const hours = parseInt(proto.split(":")[0]);
@@ -79,17 +72,22 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
   };
 
   const getStartTime = () => {
-    const now = new Date();
-    if (startOption === "now" || scheduledHours === 0) {
-      return now.toISOString();
+    if (customDateTime) {
+      return new Date(customDateTime).toISOString();
     }
-    now.setHours(now.getHours() + scheduledHours);
-    return now.toISOString();
+    return new Date().toISOString();
   };
 
-  const getStartLabel = () => {
-    if (startOption === "now" || scheduledHours === 0) return "Start now";
-    return `in ${scheduledHours}h`;
+  const getTimeLabel = () => {
+    if (!customDateTime) return "Set time";
+    const date = new Date(customDateTime);
+    return date.toLocaleString("en-US", { 
+      month: "short", 
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
   };
 
   const toggleDay = (index: number) => {
@@ -108,6 +106,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
 
       const startTime = getStartTime();
       const endTime = calculateEndTime(startTime, protocol);
+      const isScheduled = !!customDateTime && new Date(customDateTime) > new Date();
 
       const { data, error } = await supabase.from("fasting_windows").insert({
         user_id: user.id,
@@ -127,7 +126,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
         await supabase.from("fasting_logs").insert({
           user_id: user.id,
           fasting_window_id: data.id,
-          action: startOption === "now" && scheduledHours === 0 ? "started" : "scheduled",
+          action: isScheduled ? "scheduled" : "started",
           details: { 
             protocol, 
             start_time: startTime,
@@ -138,7 +137,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
         });
       }
 
-      const actionLabel = startOption === "now" && scheduledHours === 0 ? "started" : "scheduled";
+      const actionLabel = isScheduled ? "scheduled" : "started";
       toast({ 
         title: `Fasting ${actionLabel}`, 
         description: `Your ${protocol} fasting window has been ${actionLabel}.` 
@@ -227,37 +226,46 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
                   <Clock className="w-4 h-4 text-accent" />
                   <span>When do you want to start?</span>
                 </div>
-                <Popover open={showStartPicker} onOpenChange={setShowStartPicker}>
+                <Popover open={showTimePicker} onOpenChange={setShowTimePicker}>
                   <PopoverTrigger asChild>
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="h-8 px-3 rounded-full border-border hover:border-accent/50"
                     >
-                      {getStartLabel()}
+                      {getTimeLabel()}
                       <ChevronDown className="w-3 h-3 ml-1.5 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-48 p-2" align="end">
-                    <div className="space-y-1">
-                      {START_OPTIONS.map((option) => (
-                        <button
-                          key={option.label}
+                  <PopoverContent className="w-64 p-3 bg-background border border-border shadow-lg z-50" align="end">
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-foreground">Select start time</p>
+                      <Input
+                        type="datetime-local"
+                        value={customDateTime}
+                        onChange={(e) => setCustomDateTime(e.target.value)}
+                        className="w-full"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
                           onClick={() => {
-                            setStartOption(option.hours === 0 ? "now" : "scheduled");
-                            setScheduledHours(option.hours);
-                            setShowStartPicker(false);
+                            setCustomDateTime("");
+                            setShowTimePicker(false);
                           }}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                            (option.hours === 0 && startOption === "now" && scheduledHours === 0) ||
-                            (option.hours === scheduledHours && option.hours !== 0)
-                              ? "bg-accent/10 text-accent"
-                              : "hover:bg-muted"
-                          }`}
                         >
-                          {option.label}
-                        </button>
-                      ))}
+                          Clear
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-accent hover:bg-accent/90"
+                          onClick={() => setShowTimePicker(false)}
+                        >
+                          Done
+                        </Button>
+                      </div>
                     </div>
                   </PopoverContent>
                 </Popover>
@@ -280,7 +288,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
                       <ChevronDown className="w-3 h-3 ml-1.5 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-56 p-3" align="end">
+                  <PopoverContent className="w-56 p-3 bg-background border border-border shadow-lg z-50" align="end">
                     <div className="space-y-3">
                       <div className="flex gap-2">
                         <Button
@@ -363,7 +371,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
             disabled={loading}
             className="w-full bg-gradient-to-r from-accent to-[#19D0E4] hover:opacity-90 text-white"
           >
-            {loading ? "Starting..." : startOption === "now" && scheduledHours === 0 ? "Start Fasting Now" : "Schedule Fasting"}
+            {loading ? "Starting..." : customDateTime && new Date(customDateTime) > new Date() ? "Schedule Fasting" : "Start Fasting Now"}
           </Button>
         </div>
       </DialogContent>
