@@ -541,11 +541,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                       {format(new Date(savedPreferences.preferred_start_time), "MMM d, h:mm a")}
                     </p>
                   )}
-                  {savedPreferences?.protocol && (
-                    <p className="text-xs text-accent mt-1 font-medium">
-                      {savedPreferences.protocol} protocol
-                    </p>
-                  )}
                 </>
               )}
             </div>
