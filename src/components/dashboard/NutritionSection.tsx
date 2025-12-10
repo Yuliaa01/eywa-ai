@@ -778,6 +778,29 @@ export default function NutritionSection() {
                   Log All
                 </button>
               )}
+              {activeSupplements.length > 0 && activeSupplements.every(s => takenSupplementIds.has(s.id)) && (
+                <button
+                  onClick={async () => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const todayIso = today.toISOString();
+                    
+                    for (const supplement of activeSupplements) {
+                      await supabase
+                        .from('supplement_logs')
+                        .delete()
+                        .eq('supplement_id', supplement.id)
+                        .gte('taken_at', todayIso);
+                    }
+                    setTakenSupplementIds(new Set());
+                    toast({ title: `Reset all ${activeSupplements.length} supplement logs` });
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Unlog All
+                </button>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button 
