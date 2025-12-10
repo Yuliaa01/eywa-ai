@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Check, Clock, Calendar, ChevronDown, Plus, Minus } from "lucide-react";
+import { Settings, Check, Clock, Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -59,9 +59,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
   // Advanced settings state
   const [customDateTime, setCustomDateTime] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [durationMode, setDurationMode] = useState<"constantly" | "days">("constantly");
-  const [durationDays, setDurationDays] = useState(14);
-  const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 5]);
 
   const calculateEndTime = (start: string, proto: string) => {
@@ -114,8 +111,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
         end_at: endTime,
         protocol,
         notes: JSON.stringify({
-          duration_mode: durationMode,
-          duration_days: durationMode === "days" ? durationDays : null,
           schedule_days: selectedDays
         })
       }).select().single();
@@ -130,8 +125,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
           details: { 
             protocol, 
             start_time: startTime,
-            duration_mode: durationMode,
-            duration_days: durationMode === "days" ? durationDays : null,
             schedule_days: selectedDays
           },
         });
@@ -266,69 +259,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
                           Done
                         </Button>
                       </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* How many days? */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4 text-accent" />
-                  <span>How many days?</span>
-                </div>
-                <Popover open={showDurationPicker} onOpenChange={setShowDurationPicker}>
-                  <PopoverTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="h-8 px-3 rounded-full border-border hover:border-accent/50"
-                    >
-                      {durationMode === "constantly" ? "Constantly" : `${durationDays} days`}
-                      <ChevronDown className="w-3 h-3 ml-1.5 text-muted-foreground" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-56 p-3 bg-background border border-border shadow-lg z-50" align="end">
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <Button
-                          variant={durationMode === "constantly" ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setDurationMode("constantly")}
-                          className={`flex-1 text-xs ${durationMode === "constantly" ? "bg-accent hover:bg-accent/90" : ""}`}
-                        >
-                          Constantly
-                        </Button>
-                        <Button
-                          variant={durationMode === "days" ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setDurationMode("days")}
-                          className={`flex-1 text-xs ${durationMode === "days" ? "bg-accent hover:bg-accent/90" : ""}`}
-                        >
-                          Days amount
-                        </Button>
-                      </div>
-                      {durationMode === "days" && (
-                        <div className="flex items-center justify-center gap-4 pt-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => setDurationDays(Math.max(1, durationDays - 1))}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="text-lg font-semibold w-12 text-center">{durationDays}</span>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => setDurationDays(durationDays + 1)}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
                     </div>
                   </PopoverContent>
                 </Popover>
