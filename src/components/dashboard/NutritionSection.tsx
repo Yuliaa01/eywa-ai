@@ -759,7 +759,7 @@ export default function NutritionSection() {
             <div className="flex items-center gap-2">
               {activeSupplements.length > 0 && activeSupplements.some(s => !takenSupplementIds.has(s.id)) && (
                 <button
-                  onClick={async () => {
+                  onClick={async (e) => {
                     const notTaken = activeSupplements.filter(s => !takenSupplementIds.has(s.id));
                     for (const supplement of notTaken) {
                       await supabase.from('supplement_logs').insert({
@@ -770,7 +770,12 @@ export default function NutritionSection() {
                     }
                     setTakenSupplementIds(new Set(activeSupplements.map(s => s.id)));
                     toast({ title: `Logged all ${notTaken.length} supplements!` });
-                    triggerConfetti();
+                    
+                    // Fire confetti from button position
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = (rect.left + rect.width / 2) / window.innerWidth;
+                    const y = (rect.top + rect.height / 2) / window.innerHeight;
+                    triggerConfetti(x, y);
                   }}
                   className="h-8 px-3 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 text-[#12AFCB] text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
                 >
