@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Flame, Settings, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -15,15 +14,43 @@ import { MealModal } from "@/components/modals/MealModal";
 import { format } from "date-fns";
 
 // Fasting metabolic stages with hour milestones
-const FASTING_STAGES = [
-  { hour: 0, label: "Fed", icon: "🍽️", color: "#94a3b8", description: "Digesting food, insulin elevated" },
-  { hour: 4, label: "Post-Absorptive", icon: "📉", color: "#f59e0b", description: "Blood sugar stabilizing" },
-  { hour: 12, label: "Ketones Begin", icon: "🔥", color: "#f97316", description: "Body starts producing ketones" },
-  { hour: 16, label: "Fat Burning", icon: "⚡", color: "#ef4444", description: "Peak fat oxidation zone" },
-  { hour: 18, label: "Autophagy", icon: "🧬", color: "#8b5cf6", description: "Cellular cleanup begins" },
-  { hour: 24, label: "Deep Ketosis", icon: "💫", color: "#6366f1", description: "Maximum metabolic benefits" },
-];
-
+const FASTING_STAGES = [{
+  hour: 0,
+  label: "Fed",
+  icon: "🍽️",
+  color: "#94a3b8",
+  description: "Digesting food, insulin elevated"
+}, {
+  hour: 4,
+  label: "Post-Absorptive",
+  icon: "📉",
+  color: "#f59e0b",
+  description: "Blood sugar stabilizing"
+}, {
+  hour: 12,
+  label: "Ketones Begin",
+  icon: "🔥",
+  color: "#f97316",
+  description: "Body starts producing ketones"
+}, {
+  hour: 16,
+  label: "Fat Burning",
+  icon: "⚡",
+  color: "#ef4444",
+  description: "Peak fat oxidation zone"
+}, {
+  hour: 18,
+  label: "Autophagy",
+  icon: "🧬",
+  color: "#8b5cf6",
+  description: "Cellular cleanup begins"
+}, {
+  hour: 24,
+  label: "Deep Ketosis",
+  icon: "💫",
+  color: "#6366f1",
+  description: "Maximum metabolic benefits"
+}];
 interface FastingTimerProps {
   fastingWindow: {
     start: string;
@@ -40,25 +67,23 @@ interface FastingTimerProps {
 }
 
 // Helper to log fasting actions
-const logFastingAction = async (
-  userId: string,
-  fastingWindowId: string,
-  action: string,
-  details?: Record<string, any>
-) => {
+const logFastingAction = async (userId: string, fastingWindowId: string, action: string, details?: Record<string, any>) => {
   try {
     await supabase.from("fasting_logs").insert({
       user_id: userId,
       fasting_window_id: fastingWindowId,
       action,
-      details: details || null,
+      details: details || null
     });
   } catch (error) {
     console.error("Error logging fasting action:", error);
   }
 };
-
-export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh }: FastingTimerProps) {
+export default function FastingTimer({
+  fastingWindow,
+  onStartFasting,
+  onRefresh
+}: FastingTimerProps) {
   const [hasActiveFast, setHasActiveFast] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(fastingWindow.isPaused || false);
@@ -70,7 +95,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   const [elapsedHours, setElapsedHours] = useState(0);
   const [lastMilestoneReached, setLastMilestoneReached] = useState<number>(-1);
   const milestoneRef = useRef<number>(-1);
-  
+
   // Saved fasting preferences
   const [savedPreferences, setSavedPreferences] = useState<{
     protocol?: string;
@@ -81,15 +106,16 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   // Fetch user's saved fasting preferences
   const fetchFastingPreferences = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("fasting_pref")
-        .eq("user_id", user.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from("user_profiles").select("fasting_pref").eq("user_id", user.id).single();
       if (!error && data?.fasting_pref) {
         setSavedPreferences(data.fasting_pref as typeof savedPreferences);
       }
@@ -125,10 +151,9 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       const hours = calculateElapsedHours();
       setElapsedHours(hours);
     };
-    
+
     // Immediate calculation when startAt changes
     updateElapsed();
-    
     if (hasActiveFast && !isPaused) {
       const interval = setInterval(updateElapsed, 1000);
       return () => clearInterval(interval);
@@ -138,7 +163,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   // Check for milestone achievements
   useEffect(() => {
     if (!hasActiveFast || !activeFastId) return;
-
     const checkMilestones = async () => {
       const currentMilestone = FASTING_STAGES.reduce((prev, stage) => {
         if (elapsedHours >= stage.hour && stage.hour > prev) {
@@ -146,30 +170,30 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         }
         return prev;
       }, -1);
-
       if (currentMilestone > milestoneRef.current && milestoneRef.current !== -1) {
         const stage = FASTING_STAGES.find(s => s.hour === currentMilestone);
         if (stage) {
-          const { data: { user } } = await supabase.auth.getUser();
+          const {
+            data: {
+              user
+            }
+          } = await supabase.auth.getUser();
           if (user) {
             logFastingAction(user.id, activeFastId, "milestone_reached", {
               milestone: stage.label,
               hour: stage.hour,
-              elapsed_hours: elapsedHours,
+              elapsed_hours: elapsedHours
             });
           }
-
           toast({
             title: `${stage.icon} ${stage.label} Achieved!`,
-            description: stage.description,
+            description: stage.description
           });
         }
       }
-
       milestoneRef.current = currentMilestone;
       setLastMilestoneReached(currentMilestone);
     };
-
     checkMilestones();
   }, [elapsedHours, hasActiveFast, activeFastId]);
 
@@ -191,7 +215,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
   const handleRefresh = useCallback(() => {
     onRefresh?.();
   }, [onRefresh]);
-
   useEffect(() => {
     if (!hasActiveFast || isPaused) return;
     const interval = setInterval(() => {
@@ -215,14 +238,13 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     }
     return FASTING_STAGES[0];
   };
-
   const currentStage = getCurrentStage();
 
   // Format time as HH:MM:SS countdown
   const formatCountdown = (hours: number) => {
     const totalSeconds = Math.max(0, Math.floor(hours * 3600));
     const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
+    const m = Math.floor(totalSeconds % 3600 / 60);
     const s = totalSeconds % 60;
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
@@ -245,99 +267,128 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
     const markerRadius = radius + 18; // Outside the ring
     return {
       x: size / 2 + markerRadius * Math.cos(angle),
-      y: size / 2 + markerRadius * Math.sin(angle),
+      y: size / 2 + markerRadius * Math.sin(angle)
     };
   };
 
   // Event handlers - Start fast immediately
   const handleStart = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) {
-        toast({ title: "Please sign in", description: "You need to be logged in to start fasting", variant: "destructive" });
+        toast({
+          title: "Please sign in",
+          description: "You need to be logged in to start fasting",
+          variant: "destructive"
+        });
         return;
       }
-
       const protocol = fastingWindow?.type || "16:8";
       const protocolH = parseInt(protocol.split(":")[0]) || 16;
       const startAt = new Date();
       const endAt = new Date(startAt.getTime() + protocolH * 60 * 60 * 1000);
-
-      const { data, error } = await supabase
-        .from("fasting_windows")
-        .insert({
-          user_id: user.id,
-          start_at: startAt.toISOString(),
-          end_at: endAt.toISOString(),
-          protocol: protocol,
-        })
-        .select()
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from("fasting_windows").insert({
+        user_id: user.id,
+        start_at: startAt.toISOString(),
+        end_at: endAt.toISOString(),
+        protocol: protocol
+      }).select().single();
       if (error) throw error;
 
       // Log the start action
       if (data) {
-        await logFastingAction(user.id, data.id, "started", { protocol });
+        await logFastingAction(user.id, data.id, "started", {
+          protocol
+        });
       }
-
       setIsRunning(true);
       setIsPaused(false);
       setHasActiveFast(true);
       setActiveFastId(data?.id || null);
-      
-      toast({ title: "Fasting started!", description: `${protocol} fast begins now` });
+      toast({
+        title: "Fasting started!",
+        description: `${protocol} fast begins now`
+      });
       onRefresh?.();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
-
   const handlePause = async () => {
     setIsPaused(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (user && activeFastId) {
-      await supabase.from("fasting_windows").update({ is_paused: true }).eq("id", activeFastId);
-      logFastingAction(user.id, activeFastId, "paused", { elapsed_hours: elapsedHours });
+      await supabase.from("fasting_windows").update({
+        is_paused: true
+      }).eq("id", activeFastId);
+      logFastingAction(user.id, activeFastId, "paused", {
+        elapsed_hours: elapsedHours
+      });
     }
-    toast({ title: "Fasting paused", description: "You can resume anytime." });
+    toast({
+      title: "Fasting paused",
+      description: "You can resume anytime."
+    });
   };
-
   const handleResume = async () => {
     setIsPaused(false);
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (user && activeFastId) {
-      await supabase.from("fasting_windows").update({ is_paused: false }).eq("id", activeFastId);
-      logFastingAction(user.id, activeFastId, "resumed", { elapsed_hours: elapsedHours });
+      await supabase.from("fasting_windows").update({
+        is_paused: false
+      }).eq("id", activeFastId);
+      logFastingAction(user.id, activeFastId, "resumed", {
+        elapsed_hours: elapsedHours
+      });
     }
-    toast({ title: "Fasting resumed", description: "Keep going!" });
+    toast({
+      title: "Fasting resumed",
+      description: "Keep going!"
+    });
   };
-
   const handleStop = () => setStopDialogOpen(true);
-
   const handleSaveFast = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
       if (activeFastId) {
-        await supabase.from("fasting_windows")
-          .update({ actual_end_at: new Date().toISOString(), is_paused: false })
-          .eq("id", activeFastId)
-          .eq("user_id", user.id);
-        
+        await supabase.from("fasting_windows").update({
+          actual_end_at: new Date().toISOString(),
+          is_paused: false
+        }).eq("id", activeFastId).eq("user_id", user.id);
         logFastingAction(user.id, activeFastId, "completed", {
           elapsed_hours: elapsedHours,
           protocol_hours: protocolHours,
-          final_stage: currentStage.label,
+          final_stage: currentStage.label
         });
       }
-
       toast({
         title: isExtendedFasting ? "Extended fast complete!" : "Fasting saved",
-        description: `You fasted for ${formatCountdown(elapsedHours)}`,
+        description: `You fasted for ${formatCountdown(elapsedHours)}`
       });
-      
       setStopDialogOpen(false);
       setIsRunning(false);
       setIsPaused(false);
@@ -346,40 +397,39 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       milestoneRef.current = -1;
       onRefresh?.();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
-
   const handleLogMeal = () => {
     setStopDialogOpen(false);
     setMealModalOpen(true);
   };
-
   const handleDiscard = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
       if (activeFastId) {
         // Delete associated logs first (foreign key constraint)
-        const { error: logsError } = await supabase
-          .from("fasting_logs")
-          .delete()
-          .eq("fasting_window_id", activeFastId)
-          .eq("user_id", user.id);
-        
+        const {
+          error: logsError
+        } = await supabase.from("fasting_logs").delete().eq("fasting_window_id", activeFastId).eq("user_id", user.id);
         if (logsError) {
           console.error("Error deleting fasting logs:", logsError);
           throw logsError;
         }
 
         // Then delete the fasting window
-        const { error: windowError } = await supabase
-          .from("fasting_windows")
-          .delete()
-          .eq("id", activeFastId)
-          .eq("user_id", user.id);
-        
+        const {
+          error: windowError
+        } = await supabase.from("fasting_windows").delete().eq("id", activeFastId).eq("user_id", user.id);
         if (windowError) {
           console.error("Error deleting fasting window:", windowError);
           throw windowError;
@@ -395,45 +445,53 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       setElapsedHours(0);
       milestoneRef.current = -1;
       setLastMilestoneReached(-1);
-      
-      toast({ title: "Fasting discarded" });
+      toast({
+        title: "Fasting discarded"
+      });
       onRefresh?.();
     } catch (error: any) {
-      toast({ title: "Error discarding fast", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error discarding fast",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
-
   const handleUpdateStartTime = async () => {
     if (!activeFastId || !newStartTime) return;
-
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
       const newStart = new Date(newStartTime);
       const newEnd = new Date(newStart.getTime() + protocolHours * 60 * 60 * 1000);
-
-      await supabase.from("fasting_windows")
-        .update({ start_at: newStart.toISOString(), end_at: newEnd.toISOString() })
-        .eq("id", activeFastId);
-
+      await supabase.from("fasting_windows").update({
+        start_at: newStart.toISOString(),
+        end_at: newEnd.toISOString()
+      }).eq("id", activeFastId);
       logFastingAction(user.id, activeFastId, "start_time_updated", {
-        new_start: newStart.toISOString(),
+        new_start: newStart.toISOString()
       });
-
-      toast({ title: "Start time updated" });
+      toast({
+        title: "Start time updated"
+      });
       setEditStartTimeOpen(false);
       onRefresh?.();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
 
   // Fire icons based on progress
   const fireCount = Math.min(Math.floor(elapsedHours / 4), 5);
-
-  return (
-    <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] flex flex-col h-full">
+  return <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
@@ -461,29 +519,10 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
           <div className="relative">
             <svg width={size} height={size} className="transform -rotate-90">
               {/* Background ring */}
-              <circle
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke="hsl(var(--muted))"
-                strokeWidth={strokeWidth}
-                opacity={0.3}
-              />
+              <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeWidth} opacity={0.3} />
               
               {/* Progress ring */}
-              <circle
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke="url(#circleGradient)"
-                strokeWidth={strokeWidth}
-                strokeDasharray={circumference}
-                strokeDashoffset={hasActiveFast ? progressOffset : circumference}
-                strokeLinecap="round"
-                className="transition-all duration-1000 ease-out"
-              />
+              <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="url(#circleGradient)" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={hasActiveFast ? progressOffset : circumference} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
 
               {/* Gradient definition */}
               <defs>
@@ -495,54 +534,36 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
               </defs>
 
               {/* Progress indicator dot */}
-              {hasActiveFast && (
-                <circle
-                  cx={size / 2 + radius * Math.cos((progress * 360 - 90) * Math.PI / 180)}
-                  cy={size / 2 + radius * Math.sin((progress * 360 - 90) * Math.PI / 180)}
-                  r={8}
-                  fill="#FFF8E7"
-                  stroke="#22C55E"
-                  strokeWidth={2}
-                  className="drop-shadow-lg"
-                />
-              )}
+              {hasActiveFast && <circle cx={size / 2 + radius * Math.cos((progress * 360 - 90) * Math.PI / 180)} cy={size / 2 + radius * Math.sin((progress * 360 - 90) * Math.PI / 180)} r={8} fill="#FFF8E7" stroke="#22C55E" strokeWidth={2} className="drop-shadow-lg" />}
             </svg>
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              {hasActiveFast ? (
-                <>
+              {hasActiveFast ? <>
                   <span className="text-4xl mb-1">{currentStage.icon}</span>
                   <div className="text-3xl font-bold font-mono text-foreground tracking-tight">
                     {formatCountdown(elapsedHours)}
                   </div>
-                  <div className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: currentStage.color }}>
+                  <div className="text-xs font-semibold uppercase tracking-widest mt-1" style={{
+                color: currentStage.color
+              }}>
                     {currentStage.label}
                   </div>
-                  {isExtendedFasting && (
-                    <div className="text-xs text-accent font-medium mt-1 bg-accent/10 px-2 py-0.5 rounded-full">
+                  {isExtendedFasting && <div className="text-xs text-accent font-medium mt-1 bg-accent/10 px-2 py-0.5 rounded-full">
                       +{formatCountdown(bonusHours)} bonus
-                    </div>
-                  )}
-                  {isPaused && (
-                    <div className="text-xs text-amber-500 font-medium mt-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                    </div>}
+                  {isPaused && <div className="text-xs text-amber-500 font-medium mt-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
                       PAUSED
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
+                    </div>}
+                </> : <>
                   <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-3 animate-pulse">
                     <Timer className="w-8 h-8 text-accent" />
                   </div>
                   <p className="text-lg font-semibold text-foreground">Ready to Fast</p>
-                  {savedPreferences?.preferred_start_time && (
-                    <p className="text-xs text-muted-foreground mt-1">
+                  {savedPreferences?.preferred_start_time && <p className="text-xs text-muted-foreground mt-1">
                       <Clock className="w-3 h-3 inline mr-1" />
                       {format(new Date(savedPreferences.preferred_start_time), "MMM d, h:mm a")}
-                    </p>
-                  )}
-                </>
-              )}
+                    </p>}
+                </>}
             </div>
           </div>
         </div>
@@ -551,78 +572,53 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       {/* Start and Goal times */}
       <div className="flex justify-between items-center mb-3 px-2">
         <div className="text-center">
-          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Started</div>
-          <button
-            onClick={() => {
-              if (hasActiveFast && fastingWindow.startAt) {
-                setNewStartTime(new Date(fastingWindow.startAt).toISOString().slice(0, 16));
-                setEditStartTimeOpen(true);
-              }
-            }}
-            className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-accent transition-colors"
-            disabled={!hasActiveFast}
-          >
-            {hasActiveFast && fastingWindow.startAt 
-              ? format(new Date(fastingWindow.startAt), "EEE, h:mm a")
-              : savedPreferences?.preferred_start_time
-                ? format(new Date(savedPreferences.preferred_start_time), "EEE, h:mm a")
-                : "--:--"}
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Start fasting </div>
+          <button onClick={() => {
+          if (hasActiveFast && fastingWindow.startAt) {
+            setNewStartTime(new Date(fastingWindow.startAt).toISOString().slice(0, 16));
+            setEditStartTimeOpen(true);
+          }
+        }} className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-accent transition-colors" disabled={!hasActiveFast}>
+            {hasActiveFast && fastingWindow.startAt ? format(new Date(fastingWindow.startAt), "EEE, h:mm a") : savedPreferences?.preferred_start_time ? format(new Date(savedPreferences.preferred_start_time), "EEE, h:mm a") : "--:--"}
             {hasActiveFast && <Edit2 className="w-3 h-3 text-muted-foreground" />}
           </button>
         </div>
         
         <div className="flex items-center gap-0.5">
-          {[...Array(fireCount)].map((_, i) => (
-            <Flame key={i} className="w-4 h-4 text-orange-500" />
-          ))}
+          {[...Array(fireCount)].map((_, i) => <Flame key={i} className="w-4 h-4 text-orange-500" />)}
         </div>
         
         <div className="text-center">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Goal</div>
           <div className="text-sm font-medium text-foreground">
-            {hasActiveFast && fastingWindow.endAt 
-              ? format(new Date(fastingWindow.endAt), "EEE, h:mm a")
-              : savedPreferences?.preferred_start_time && savedPreferences?.protocol
-                ? (() => {
-                    const startTime = new Date(savedPreferences.preferred_start_time);
-                    const [fastingHours] = savedPreferences.protocol.split(':').map(Number);
-                    const goalTime = new Date(startTime.getTime() + fastingHours * 60 * 60 * 1000);
-                    return format(goalTime, "EEE, h:mm a");
-                  })()
-                : "--:--"}
+            {hasActiveFast && fastingWindow.endAt ? format(new Date(fastingWindow.endAt), "EEE, h:mm a") : savedPreferences?.preferred_start_time && savedPreferences?.protocol ? (() => {
+            const startTime = new Date(savedPreferences.preferred_start_time);
+            const [fastingHours] = savedPreferences.protocol.split(':').map(Number);
+            const goalTime = new Date(startTime.getTime() + fastingHours * 60 * 60 * 1000);
+            return format(goalTime, "EEE, h:mm a");
+          })() : "--:--"}
           </div>
         </div>
       </div>
 
       {/* Control buttons */}
       <div className="flex gap-2 mt-auto">
-        {!isRunning && !hasActiveFast ? (
-          <Button
-            onClick={handleStart}
-            className="flex-1 bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg rounded-full h-11"
-          >
+        {!isRunning && !hasActiveFast ? <Button onClick={handleStart} className="flex-1 bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg rounded-full h-11">
             <Play className="w-4 h-4 mr-2" />
             Start Fast
-          </Button>
-        ) : hasActiveFast ? (
-          <>
-            {!isPaused ? (
-              <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+          </Button> : hasActiveFast ? <>
+            {!isPaused ? <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
                 <Pause className="w-4 h-4 mr-2" />
                 Pause
-              </Button>
-            ) : (
-              <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+              </Button> : <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
                 <Play className="w-4 h-4 mr-2" />
                 Resume
-              </Button>
-            )}
+              </Button>}
             <Button onClick={handleStop} variant="outline" className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive">
               <Square className="w-4 h-4 mr-2" />
               End Fast
             </Button>
-          </>
-        ) : null}
+          </> : null}
       </div>
 
       {/* Stop Confirmation Dialog */}
@@ -661,7 +657,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Start Time</Label>
-              <Input type="datetime-local" value={newStartTime} onChange={(e) => setNewStartTime(e.target.value)} />
+              <Input type="datetime-local" value={newStartTime} onChange={e => setNewStartTime(e.target.value)} />
             </div>
             <div className="flex gap-2">
               <Button onClick={() => setEditStartTimeOpen(false)} variant="outline" className="flex-1">Cancel</Button>
@@ -672,15 +668,9 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       </Dialog>
 
       {/* Meal Modal */}
-      <MealModal
-        open={mealModalOpen}
-        onOpenChange={setMealModalOpen}
-        onSuccess={() => {
-          setMealModalOpen(false);
-          handleSaveFast();
-        }}
-        mealType="breakfast"
-      />
-    </div>
-  );
+      <MealModal open={mealModalOpen} onOpenChange={setMealModalOpen} onSuccess={() => {
+      setMealModalOpen(false);
+      handleSaveFast();
+    }} mealType="breakfast" />
+    </div>;
 }
