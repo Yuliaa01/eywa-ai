@@ -562,9 +562,11 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
             className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-accent transition-colors"
             disabled={!hasActiveFast}
           >
-            {fastingWindow.startAt 
+            {hasActiveFast && fastingWindow.startAt 
               ? format(new Date(fastingWindow.startAt), "EEE, h:mm a")
-              : fastingWindow.start}
+              : savedPreferences?.preferred_start_time
+                ? format(new Date(savedPreferences.preferred_start_time), "EEE, h:mm a")
+                : "--:--"}
             {hasActiveFast && <Edit2 className="w-3 h-3 text-muted-foreground" />}
           </button>
         </div>
@@ -578,9 +580,16 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         <div className="text-center">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Goal</div>
           <div className="text-sm font-medium text-foreground">
-            {fastingWindow.endAt 
+            {hasActiveFast && fastingWindow.endAt 
               ? format(new Date(fastingWindow.endAt), "EEE, h:mm a")
-              : fastingWindow.end}
+              : savedPreferences?.preferred_start_time && savedPreferences?.protocol
+                ? (() => {
+                    const startTime = new Date(savedPreferences.preferred_start_time);
+                    const [fastingHours] = savedPreferences.protocol.split(':').map(Number);
+                    const goalTime = new Date(startTime.getTime() + fastingHours * 60 * 60 * 1000);
+                    return format(goalTime, "EEE, h:mm a");
+                  })()
+                : "--:--"}
           </div>
         </div>
       </div>
