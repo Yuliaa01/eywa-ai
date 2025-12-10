@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Flame, Settings } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Flame, Settings, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -492,9 +492,11 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                 </>
               ) : (
                 <>
-                  <span className="text-4xl mb-2">🍽️</span>
-                  <p className="text-lg font-semibold text-foreground">Ready</p>
-                  <p className="text-xs text-muted-foreground">Start when ready</p>
+                  <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-3 animate-pulse">
+                    <Timer className="w-8 h-8 text-accent" />
+                  </div>
+                  <p className="text-lg font-semibold text-foreground">Ready to Fast</p>
+                  <p className="text-xs text-muted-foreground">Tap to begin</p>
                 </>
               )}
             </div>
