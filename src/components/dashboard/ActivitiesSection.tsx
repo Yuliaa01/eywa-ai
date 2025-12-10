@@ -1,4 +1,5 @@
 import { Activity, MapPin, Play, TrendingUp, Calendar, Zap, Clock, Plus, Dumbbell, Trash2, Sparkles, Search, ExternalLink, RefreshCw, Star, Pause, Square, Check, Flame } from "lucide-react";
+import { ActivitySummaryCard } from "./ActivitySummaryCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import stravaLogo from "@/assets/logos/strava.png";
 import appleLogo from "@/assets/logos/apple.png";
@@ -530,12 +531,6 @@ export default function ActivitiesSection() {
     thumbnail: "/placeholder.svg",
   };
 
-  const motivationPulse = {
-    energy: 85,
-    streak: 12,
-    weeklyGoal: 5,
-    completed: 4,
-  };
 
   // Calorie estimation based on workout type and duration
   const getCalorieEstimate = (workoutType: string, durationStr: string): number => {
@@ -932,38 +927,8 @@ export default function ActivitiesSection() {
         )}
       </div>
 
-      {/* Motivation Pulse */}
-      <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
-        <h3 className="font-rounded text-xl font-semibold text-[#0E1012] mb-6">
-          Motivation Pulse
-        </h3>
-        <div className="grid grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-[#12AFCB]/20 to-[#19D0E4]/10 flex items-center justify-center">
-              <span className="text-3xl font-bold bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] bg-clip-text text-transparent">
-                {motivationPulse.energy}
-              </span>
-            </div>
-            <p className="text-sm text-[#5A6B7F]">Energy Level</p>
-          </div>
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-[#12AFCB]/20 to-[#19D0E4]/10 flex items-center justify-center">
-              <span className="text-3xl font-bold bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] bg-clip-text text-transparent">
-                {motivationPulse.streak}
-              </span>
-            </div>
-            <p className="text-sm text-[#5A6B7F]">Day Streak</p>
-          </div>
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-[#12AFCB]/20 to-[#19D0E4]/10 flex items-center justify-center">
-              <span className="text-3xl font-bold bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] bg-clip-text text-transparent">
-                {motivationPulse.completed}/{motivationPulse.weeklyGoal}
-              </span>
-            </div>
-            <p className="text-sm text-[#5A6B7F]">This Week</p>
-          </div>
-        </div>
-      </div>
+      {/* Activity Summary */}
+      <ActivitySummaryCard />
 
 
       {/* Local Events */}
