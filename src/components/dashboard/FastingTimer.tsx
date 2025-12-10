@@ -420,7 +420,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
 
       {/* Circular Progress Ring */}
       <TooltipProvider>
-        <div className="flex justify-center mb-4">
+        <div className="flex-1 flex items-center justify-center">
           <div className="relative">
             <svg width={size} height={size} className="transform -rotate-90">
               {/* Background ring */}
@@ -507,7 +507,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
       </TooltipProvider>
 
       {/* Start and Goal times */}
-      <div className="flex justify-between items-center mb-4 px-2">
+      <div className="flex justify-between items-center mb-3 px-2">
         <div className="text-center">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Started</div>
           <button
