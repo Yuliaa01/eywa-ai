@@ -439,7 +439,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
         <h3 className="font-rounded text-xl font-semibold text-foreground">Fasting Window</h3>
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-rounded font-medium">
-            {fastingWindow?.type || "16:8"}
+            {hasActiveFast ? fastingWindow?.type : savedPreferences?.protocol || "16:8"}
           </span>
           <Dialog>
             <DialogTrigger asChild>
