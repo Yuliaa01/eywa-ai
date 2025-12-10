@@ -136,45 +136,28 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
     );
   };
 
-  const handleStart = async () => {
+  const handleSaveSettings = async () => {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const startTime = getStartTime();
-      const endTime = calculateEndTime(startTime, protocol);
-      const isScheduled = !!customDateTime && new Date(customDateTime) > new Date();
-
-      const { data, error } = await supabase.from("fasting_windows").insert({
-        user_id: user.id,
-        start_at: startTime,
-        end_at: endTime,
+      const fastingPref = {
         protocol,
-        notes: JSON.stringify({
-          schedule_days: selectedDays
-        })
-      }).select().single();
+        schedule_days: selectedDays,
+        preferred_start_time: customDateTime || null
+      };
+
+      const { error } = await supabase
+        .from("user_profiles")
+        .update({ fasting_pref: fastingPref })
+        .eq("user_id", user.id);
 
       if (error) throw error;
 
-      if (data) {
-        await supabase.from("fasting_logs").insert({
-          user_id: user.id,
-          fasting_window_id: data.id,
-          action: isScheduled ? "scheduled" : "started",
-          details: { 
-            protocol, 
-            start_time: startTime,
-            schedule_days: selectedDays
-          },
-        });
-      }
-
-      const actionLabel = isScheduled ? "scheduled" : "started";
       toast({ 
-        title: `Fasting ${actionLabel}`, 
-        description: `Your ${protocol} fasting window has been ${actionLabel}.` 
+        title: "Settings saved", 
+        description: `Your fasting preferences have been updated.` 
       });
       onRefresh?.();
       setOpen(false);
@@ -347,11 +330,11 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
 
         <div className="p-6 pt-4 border-t border-border">
           <Button
-            onClick={handleStart}
+            onClick={handleSaveSettings}
             disabled={loading}
             className="w-full bg-gradient-to-r from-accent to-[#19D0E4] hover:opacity-90 text-white"
           >
-            {loading ? "Starting..." : customDateTime && new Date(customDateTime) > new Date() ? "Schedule Fasting" : "Start Fasting Now"}
+            {loading ? "Saving..." : "Apply"}
           </Button>
         </div>
       </DialogContent>
