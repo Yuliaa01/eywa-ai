@@ -1,4 +1,4 @@
-import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill, Check } from "lucide-react";
+import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill, Check, CheckCheck } from "lucide-react";
 import { PillToggle } from "@/components/ui/pill-toggle";
 import { triggerPillConfetti } from "@/utils/confetti";
 import { MealModal } from "@/components/modals/MealModal";
@@ -756,25 +756,48 @@ export default function NutritionSection() {
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[400px] flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+            <div className="flex items-center gap-2">
+              {activeSupplements.length > 0 && activeSupplements.some(s => !takenSupplementIds.has(s.id)) && (
+                <button
+                  onClick={async () => {
+                    const notTaken = activeSupplements.filter(s => !takenSupplementIds.has(s.id));
+                    for (const supplement of notTaken) {
+                      await supabase.from('supplement_logs').insert({
+                        user_id: supplement.user_id,
+                        supplement_id: supplement.id,
+                        taken_at: new Date().toISOString()
+                      });
+                    }
+                    setTakenSupplementIds(new Set(activeSupplements.map(s => s.id)));
+                    toast({ title: `Logged all ${notTaken.length} supplements!` });
+                    triggerPillConfetti({ currentTarget: document.body } as any);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
                 >
-                  <Plus className="w-4 h-4 text-[#12AFCB]" />
+                  <CheckCheck className="w-3.5 h-3.5" />
+                  Log All
                 </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setSupplementModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add manually
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSupplementPhotoModalOpen(true)}>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Analyze photo
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button 
+                    className="w-8 h-8 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200"
+                  >
+                    <Plus className="w-4 h-4 text-[#12AFCB]" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setSupplementModalOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add manually
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSupplementPhotoModalOpen(true)}>
+                    <Camera className="w-4 h-4 mr-2" />
+                    Analyze photo
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto space-y-4">
             {activeSupplements.length === 0 ? (
