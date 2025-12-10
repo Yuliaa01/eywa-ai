@@ -496,7 +496,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                     <Timer className="w-8 h-8 text-accent" />
                   </div>
                   <p className="text-lg font-semibold text-foreground">Ready to Fast</p>
-                  <p className="text-xs text-muted-foreground">Tap to begin</p>
+                  
                 </>
               )}
             </div>
