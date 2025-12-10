@@ -59,48 +59,23 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
   
   // Tips modal state
   const [showTipsModal, setShowTipsModal] = useState(false);
-  const [isFirstTimeFaster, setIsFirstTimeFaster] = useState(false);
   
   // Advanced settings state
   const [customDateTime, setCustomDateTime] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 5]);
 
-  // Check if first-time faster when dialog opens
-  useEffect(() => {
-    const checkFirstTimeFaster = async () => {
-      const tipsShown = localStorage.getItem("fasting_tips_shown");
-      if (tipsShown) {
-        setIsFirstTimeFaster(false);
-        return;
-      }
+  // Beginner protocols that trigger tips
+  const BEGINNER_PROTOCOLS = ["12:12", "8:16"];
 
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { count } = await supabase
-          .from("fasting_windows")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id);
-
-        setIsFirstTimeFaster(count === 0);
-      } catch (error) {
-        console.error("Error checking fasting history:", error);
-      }
-    };
-
-    if (open) {
-      checkFirstTimeFaster();
-    }
-  }, [open]);
-
-  // Show tips modal when dialog opens for first-time fasters
-  useEffect(() => {
-    if (open && isFirstTimeFaster) {
+  const handleProtocolSelect = (selectedProtocol: string) => {
+    setProtocol(selectedProtocol);
+    
+    // Show tips modal when beginner protocol is selected
+    if (BEGINNER_PROTOCOLS.includes(selectedProtocol)) {
       setShowTipsModal(true);
     }
-  }, [open, isFirstTimeFaster]);
+  };
 
   const calculateEndTime = (start: string, proto: string) => {
     const hours = parseInt(proto.split(":")[0]);
@@ -175,7 +150,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
         onOpenChange={setShowTipsModal}
         onConfirm={() => {
           setShowTipsModal(false);
-          setIsFirstTimeFaster(false);
         }}
       />
       <Dialog open={open} onOpenChange={setOpen}>
@@ -213,7 +187,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
                   {category.protocols.map((proto) => (
                     <button
                       key={proto.value}
-                      onClick={() => setProtocol(proto.value)}
+                      onClick={() => handleProtocolSelect(proto.value)}
                       className={`relative p-4 rounded-2xl text-left transition-all duration-200 ${proto.color} ${
                         protocol === proto.value
                           ? "ring-2 ring-accent shadow-lg"
