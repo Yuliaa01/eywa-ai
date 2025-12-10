@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Settings, Check } from "lucide-react";
+import { Settings, Check, Clock, Calendar, ChevronDown, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -41,11 +40,36 @@ const PROTOCOL_CATEGORIES = [
   }
 ];
 
+const WEEKDAYS = [
+  { short: "M", full: "Monday" },
+  { short: "T", full: "Tuesday" },
+  { short: "W", full: "Wednesday" },
+  { short: "T", full: "Thursday" },
+  { short: "F", full: "Friday" },
+  { short: "S", full: "Saturday" },
+  { short: "S", full: "Sunday" }
+];
+
+const START_OPTIONS = [
+  { label: "Now", hours: 0 },
+  { label: "in 8h", hours: 8 },
+  { label: "in 16h", hours: 16 },
+  { label: "in 24h", hours: 24 }
+];
+
 export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [protocol, setProtocol] = useState("16:8");
-  const [startTime, setStartTime] = useState(new Date().toISOString().slice(0, 16));
+  
+  // New state for advanced settings
+  const [startOption, setStartOption] = useState<"now" | "scheduled">("now");
+  const [scheduledHours, setScheduledHours] = useState(0);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [durationMode, setDurationMode] = useState<"constantly" | "days">("constantly");
+  const [durationDays, setDurationDays] = useState(14);
+  const [showDurationPicker, setShowDurationPicker] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 5]); // Tuesday, Wednesday, Thursday, Saturday (0-indexed)
 
   const calculateEndTime = (start: string, proto: string) => {
     const hours = parseInt(proto.split(":")[0]);
@@ -54,58 +78,47 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
     return startDate.toISOString();
   };
 
-  const handleStartNow = async () => {
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const now = new Date().toISOString();
-      const endTime = calculateEndTime(now, protocol);
-
-      const { data, error } = await supabase.from("fasting_windows").insert({
-        user_id: user.id,
-        start_at: now,
-        end_at: endTime,
-        protocol,
-      }).select().single();
-
-      if (error) throw error;
-
-      if (data) {
-        await supabase.from("fasting_logs").insert({
-          user_id: user.id,
-          fasting_window_id: data.id,
-          action: "started",
-          details: { protocol, start_time: now },
-        });
-      }
-
-      toast({ title: "Fasting started", description: `Your ${protocol} fasting window has begun.` });
-      onRefresh?.();
-      setOpen(false);
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
+  const getStartTime = () => {
+    const now = new Date();
+    if (startOption === "now" || scheduledHours === 0) {
+      return now.toISOString();
     }
+    now.setHours(now.getHours() + scheduledHours);
+    return now.toISOString();
   };
 
-  const handleSchedule = async () => {
+  const getStartLabel = () => {
+    if (startOption === "now" || scheduledHours === 0) return "Start now";
+    return `in ${scheduledHours}h`;
+  };
+
+  const toggleDay = (index: number) => {
+    setSelectedDays(prev => 
+      prev.includes(index) 
+        ? prev.filter(d => d !== index)
+        : [...prev, index].sort()
+    );
+  };
+
+  const handleStart = async () => {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const startDate = new Date(startTime);
-      const startIso = startDate.toISOString();
-      const endTime = calculateEndTime(startIso, protocol);
+      const startTime = getStartTime();
+      const endTime = calculateEndTime(startTime, protocol);
 
       const { data, error } = await supabase.from("fasting_windows").insert({
         user_id: user.id,
-        start_at: startIso,
+        start_at: startTime,
         end_at: endTime,
         protocol,
+        notes: JSON.stringify({
+          duration_mode: durationMode,
+          duration_days: durationMode === "days" ? durationDays : null,
+          schedule_days: selectedDays
+        })
       }).select().single();
 
       if (error) throw error;
@@ -114,12 +127,22 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
         await supabase.from("fasting_logs").insert({
           user_id: user.id,
           fasting_window_id: data.id,
-          action: "scheduled",
-          details: { protocol, start_time: startTime },
+          action: startOption === "now" && scheduledHours === 0 ? "started" : "scheduled",
+          details: { 
+            protocol, 
+            start_time: startTime,
+            duration_mode: durationMode,
+            duration_days: durationMode === "days" ? durationDays : null,
+            schedule_days: selectedDays
+          },
         });
       }
 
-      toast({ title: "Fasting scheduled", description: `Your ${protocol} fasting window has been scheduled.` });
+      const actionLabel = startOption === "now" && scheduledHours === 0 ? "started" : "scheduled";
+      toast({ 
+        title: `Fasting ${actionLabel}`, 
+        description: `Your ${protocol} fasting window has been ${actionLabel}.` 
+      });
       onRefresh?.();
       setOpen(false);
     } catch (error: any) {
@@ -147,7 +170,7 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[60vh]">
+        <ScrollArea className="max-h-[55vh]">
           <div className="space-y-6 pb-4 px-6">
             {PROTOCOL_CATEGORIES.map((category) => (
               <div key={category.level} className="space-y-3">
@@ -193,43 +216,154 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
                 </div>
               </div>
             ))}
+
+            {/* Advanced Settings Section */}
+            <div className="space-y-4 pt-2">
+              <h3 className="font-semibold text-foreground">Schedule Settings</h3>
+              
+              {/* When do you want to start? */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4 text-accent" />
+                  <span>When do you want to start?</span>
+                </div>
+                <Popover open={showStartPicker} onOpenChange={setShowStartPicker}>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 px-3 rounded-full border-border hover:border-accent/50"
+                    >
+                      {getStartLabel()}
+                      <ChevronDown className="w-3 h-3 ml-1.5 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2" align="end">
+                    <div className="space-y-1">
+                      {START_OPTIONS.map((option) => (
+                        <button
+                          key={option.label}
+                          onClick={() => {
+                            setStartOption(option.hours === 0 ? "now" : "scheduled");
+                            setScheduledHours(option.hours);
+                            setShowStartPicker(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                            (option.hours === 0 && startOption === "now" && scheduledHours === 0) ||
+                            (option.hours === scheduledHours && option.hours !== 0)
+                              ? "bg-accent/10 text-accent"
+                              : "hover:bg-muted"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* How many days? */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  <span>How many days?</span>
+                </div>
+                <Popover open={showDurationPicker} onOpenChange={setShowDurationPicker}>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 px-3 rounded-full border-border hover:border-accent/50"
+                    >
+                      {durationMode === "constantly" ? "Constantly" : `${durationDays} days`}
+                      <ChevronDown className="w-3 h-3 ml-1.5 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-3" align="end">
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Button
+                          variant={durationMode === "constantly" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setDurationMode("constantly")}
+                          className={`flex-1 text-xs ${durationMode === "constantly" ? "bg-accent hover:bg-accent/90" : ""}`}
+                        >
+                          Constantly
+                        </Button>
+                        <Button
+                          variant={durationMode === "days" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setDurationMode("days")}
+                          className={`flex-1 text-xs ${durationMode === "days" ? "bg-accent hover:bg-accent/90" : ""}`}
+                        >
+                          Days amount
+                        </Button>
+                      </div>
+                      {durationMode === "days" && (
+                        <div className="flex items-center justify-center gap-4 pt-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setDurationDays(Math.max(1, durationDays - 1))}
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="text-lg font-semibold w-12 text-center">{durationDays}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setDurationDays(durationDays + 1)}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Weekly schedule */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  <span>Weekly schedule</span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  {WEEKDAYS.map((day, index) => (
+                    <button
+                      key={`${day.short}-${index}`}
+                      onClick={() => toggleDay(index)}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 ${
+                        selectedDays.includes(index)
+                          ? "bg-accent text-white shadow-md"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                      title={day.full}
+                    >
+                      {selectedDays.includes(index) ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        day.short
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </ScrollArea>
 
-        <div className="p-6 pt-2 space-y-4 border-t border-border">
+        <div className="p-6 pt-4 border-t border-border">
           <Button
-            onClick={handleStartNow}
+            onClick={handleStart}
             disabled={loading}
             className="w-full bg-gradient-to-r from-accent to-[#19D0E4] hover:opacity-90 text-white"
           >
-            {loading ? "Starting..." : "Start Fasting Now"}
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or schedule</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Start Time</Label>
-            <Input
-              type="datetime-local"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-            />
-          </div>
-
-          <Button
-            onClick={handleSchedule}
-            disabled={loading}
-            variant="outline"
-            className="w-full"
-          >
-            {loading ? "Scheduling..." : "Schedule Fasting"}
+            {loading ? "Starting..." : startOption === "now" && scheduledHours === 0 ? "Start Fasting Now" : "Schedule Fasting"}
           </Button>
         </div>
       </DialogContent>
