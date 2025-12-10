@@ -1,16 +1,45 @@
 import { useState } from "react";
-import { Settings } from "lucide-react";
+import { Settings, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 interface FastingSettingsDialogProps {
   onRefresh?: () => void;
 }
+
+const PROTOCOL_CATEGORIES = [
+  {
+    level: "Beginner",
+    description: "Easy start for getting into things",
+    badge: "Perfect for you",
+    protocols: [
+      { value: "12:12", fastHours: 12, eatHours: 12, color: "bg-emerald-100 dark:bg-emerald-900/30" },
+      { value: "8:16", fastHours: 8, eatHours: 16, color: "bg-purple-100 dark:bg-purple-900/30" }
+    ]
+  },
+  {
+    level: "Regular",
+    description: "Best for getting full health benefits",
+    protocols: [
+      { value: "16:8", fastHours: 16, eatHours: 8, color: "bg-amber-100 dark:bg-amber-900/30" },
+      { value: "14:10", fastHours: 14, eatHours: 10, color: "bg-purple-100 dark:bg-purple-900/30" }
+    ]
+  },
+  {
+    level: "Expert",
+    description: "For experienced fasters seeking maximum benefits",
+    protocols: [
+      { value: "18:6", fastHours: 18, eatHours: 6, color: "bg-amber-100 dark:bg-amber-900/30" },
+      { value: "20:4", fastHours: 20, eatHours: 4, color: "bg-rose-100 dark:bg-rose-900/30" }
+    ]
+  }
+];
 
 export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps) {
   const [open, setOpen] = useState(false);
@@ -68,7 +97,6 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Convert local datetime to ISO string
       const startDate = new Date(startTime);
       const startIso = startDate.toISOString();
       const endTime = calculateEndTime(startIso, protocol);
@@ -108,32 +136,67 @@ export function FastingSettingsDialog({ onRefresh }: FastingSettingsDialogProps)
           <Settings className="w-4 h-4 text-accent" />
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[480px] max-h-[85vh] p-0">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Settings className="w-5 h-5 text-accent" />
             Fasting Settings
           </DialogTitle>
           <DialogDescription>
-            Configure and start your fasting window
+            Choose your fasting protocol and start your journey
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-5 pt-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Fasting Protocol</Label>
-            <Select value={protocol} onValueChange={setProtocol}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="16:8">16:8 (16hr fast, 8hr eating)</SelectItem>
-                <SelectItem value="18:6">18:6 (18hr fast, 6hr eating)</SelectItem>
-                <SelectItem value="20:4">20:4 (20hr fast, 4hr eating)</SelectItem>
-                <SelectItem value="24:0">24:0 (24hr fast)</SelectItem>
-              </SelectContent>
-            </Select>
+        
+        <ScrollArea className="max-h-[60vh] px-6">
+          <div className="space-y-6 pb-4">
+            {PROTOCOL_CATEGORIES.map((category) => (
+              <div key={category.level} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground">{category.level}</h3>
+                  {category.badge && (
+                    <Badge variant="secondary" className="bg-accent/10 text-accent text-xs">
+                      {category.badge}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">{category.description}</p>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  {category.protocols.map((proto) => (
+                    <button
+                      key={proto.value}
+                      onClick={() => setProtocol(proto.value)}
+                      className={`relative p-4 rounded-2xl text-left transition-all duration-200 ${proto.color} ${
+                        protocol === proto.value
+                          ? "ring-2 ring-accent shadow-lg"
+                          : "hover:scale-[1.02] hover:shadow-md"
+                      }`}
+                    >
+                      {protocol === proto.value && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                      <div className="text-2xl font-bold text-foreground mb-2">{proto.value}</div>
+                      <ul className="space-y-1 text-sm text-muted-foreground">
+                        <li className="flex items-center gap-1.5">
+                          <span className="w-1 h-1 rounded-full bg-foreground/50" />
+                          {proto.fastHours} hour fast
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <span className="w-1 h-1 rounded-full bg-foreground/50" />
+                          {proto.eatHours} hour eating
+                        </li>
+                      </ul>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
+        </ScrollArea>
 
+        <div className="p-6 pt-2 space-y-4 border-t border-border">
           <Button
             onClick={handleStartNow}
             disabled={loading}
