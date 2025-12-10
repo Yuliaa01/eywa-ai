@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Flame, Settings, Timer, Target, History } from "lucide-react";
+import { Play, Pause, Square, Clock, Plus, Calendar as CalendarIcon, Edit2, Utensils, Save, X, Flame, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FastingCalendar } from "./FastingCalendar";
+import { FastingSettingsDialog } from "./FastingSettingsDialog";
 import { MealModal } from "@/components/modals/MealModal";
 import { format } from "date-fns";
 
@@ -410,56 +412,7 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
               <FastingCalendar />
             </DialogContent>
           </Dialog>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="w-8 h-8 rounded-xl bg-accent/10 hover:bg-accent/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 flex items-center justify-center transition-all duration-200">
-                <Settings className="w-4 h-4 text-accent" />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-accent" />
-                  Fasting Settings
-                </DialogTitle>
-                <DialogDescription>
-                  Manage your fasting preferences and view history
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-3 pt-4">
-                <button 
-                  onClick={onStartFasting}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-accent/5 hover:bg-accent/10 border border-accent/10 hover:border-accent/20 transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
-                    <Timer className="w-5 h-5 text-accent" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium text-foreground">New Fast</p>
-                    <p className="text-sm text-muted-foreground">Start a new fasting window</p>
-                  </div>
-                </button>
-                <button className="w-full flex items-center gap-4 p-4 rounded-xl bg-purple-500/5 hover:bg-purple-500/10 border border-purple-500/10 hover:border-purple-500/20 transition-all group">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 group-hover:bg-purple-500/20 flex items-center justify-center transition-colors">
-                    <Target className="w-5 h-5 text-purple-500" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium text-foreground">Change Protocol</p>
-                    <p className="text-sm text-muted-foreground">Switch fasting schedule (16:8, 18:6, etc.)</p>
-                  </div>
-                </button>
-                <button className="w-full flex items-center gap-4 p-4 rounded-xl bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/10 hover:border-amber-500/20 transition-all group">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 group-hover:bg-amber-500/20 flex items-center justify-center transition-colors">
-                    <History className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium text-foreground">Fasting History</p>
-                    <p className="text-sm text-muted-foreground">View past fasting logs and stats</p>
-                  </div>
-                </button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <FastingSettingsDialog onRefresh={onRefresh} />
         </div>
       </div>
 
@@ -515,8 +468,6 @@ export default function FastingTimer({ fastingWindow, onStartFasting, onRefresh 
                 />
               )}
             </svg>
-
-
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               {hasActiveFast ? (
