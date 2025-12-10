@@ -571,7 +571,7 @@ export default function FastingTimer({
 
       {/* Start and Goal times */}
       <div className="flex justify-between items-center mb-3 px-2">
-        <div className="text-center">
+        <div className="text-left">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Start fasting </div>
           <button onClick={() => {
           if (hasActiveFast && fastingWindow.startAt) {
