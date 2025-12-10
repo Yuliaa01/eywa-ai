@@ -772,9 +772,9 @@ export default function NutritionSection() {
                     toast({ title: `Logged all ${notTaken.length} supplements!` });
                     triggerPillConfetti({ currentTarget: document.body } as any);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+                  className="h-8 px-3 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 text-[#12AFCB] text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
                 >
-                  <CheckCheck className="w-3.5 h-3.5" />
+                  <CheckCheck className="w-4 h-4" />
                   Log All
                 </button>
               )}
@@ -795,9 +795,9 @@ export default function NutritionSection() {
                     setTakenSupplementIds(new Set());
                     toast({ title: `Reset all ${activeSupplements.length} supplement logs` });
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+                  className="h-8 px-3 rounded-xl bg-[#12AFCB]/10 hover:bg-[#12AFCB]/20 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] active:scale-95 text-[#12AFCB] text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
+                  <RefreshCw className="w-4 h-4" />
                   Unlog All
                 </button>
               )}
