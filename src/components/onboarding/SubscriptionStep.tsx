@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Sparkles, Users, Gift, Infinity } from "lucide-react";
+import { Check, Sparkles, Users, Infinity, X } from "lucide-react";
 
 interface Plan {
   id: string;
@@ -10,10 +10,18 @@ interface Plan {
   icon?: React.ComponentType<{ className?: string }>;
   badge?: string;
   popular?: boolean;
+  tier: 'free' | 'pro' | 'family';
 }
 
 interface SubscriptionStepProps {
   onNext: (planId: string) => void;
+}
+
+interface ComparisonFeature {
+  name: string;
+  free: boolean;
+  pro: boolean;
+  family: boolean;
 }
 
 export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
@@ -25,6 +33,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       name: 'Free Trial',
       price: 'Free',
       period: '1 month',
+      tier: 'free',
       features: ['Full AI analysis', 'All integrations', 'DoctorHub access', 'No credit card'],
     },
     {
@@ -34,6 +43,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       period: '/month',
       icon: Sparkles,
       popular: true,
+      tier: 'pro',
       features: ['1-month free trial', 'Unlimited AI insights', 'Priority support', 'Advanced analytics', 'Export reports'],
     },
     {
@@ -42,6 +52,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       price: '$99.99',
       period: '6 months',
       icon: Sparkles,
+      tier: 'pro',
       features: ['1-month free trial', 'All Pro features', '6 months access', 'Priority support', 'Save 17%'],
     },
     {
@@ -51,6 +62,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       period: '12 months',
       icon: Sparkles,
       badge: 'Best Value',
+      tier: 'pro',
       features: ['1-month free trial', 'All Pro features', '12 months access', 'Priority support', 'Save 21%'],
     },
     {
@@ -59,6 +71,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       price: '$289.99',
       period: 'one-time',
       icon: Infinity,
+      tier: 'pro',
       features: ['Pay once, use forever', 'All future features', 'Priority support', 'Best value'],
     },
   ];
@@ -70,6 +83,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       price: '$74.99',
       period: '/month',
       icon: Users,
+      tier: 'family',
       features: ['Up to 5 members', 'Shared insights', 'Family dashboard', 'All Pro features'],
     },
     {
@@ -78,6 +92,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       price: '$359.99',
       period: '6 months',
       icon: Users,
+      tier: 'family',
       features: ['Up to 5 members', 'All Family features', '6 months access', 'Save 20%'],
     },
     {
@@ -87,11 +102,39 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       period: '12 months',
       icon: Users,
       badge: 'Family Best Value',
+      tier: 'family',
       features: ['Up to 5 members', 'All Family features', '12 months access', 'Save 17%'],
     },
   ];
 
   const allPlans = [...proPlans, ...familyPlans];
+
+  const comparisonFeatures: ComparisonFeature[] = [
+    { name: 'Health metrics tracking', free: true, pro: true, family: true },
+    { name: 'Basic AI insights', free: true, pro: true, family: true },
+    { name: 'Device integrations', free: true, pro: true, family: true },
+    { name: 'Unlimited AI analysis', free: false, pro: true, family: true },
+    { name: 'DoctorHub access', free: false, pro: true, family: true },
+    { name: 'Advanced analytics', free: false, pro: true, family: true },
+    { name: 'Priority support', free: false, pro: true, family: true },
+    { name: 'Export reports', free: false, pro: true, family: true },
+    { name: 'Up to 5 family members', free: false, pro: false, family: true },
+    { name: 'Shared family insights', free: false, pro: false, family: true },
+    { name: 'Family dashboard', free: false, pro: false, family: true },
+  ];
+
+  const getSelectedTier = (): 'free' | 'pro' | 'family' => {
+    const plan = allPlans.find(p => p.id === selectedPlan);
+    return plan?.tier || 'pro';
+  };
+
+  const handleTierClick = (tier: 'free' | 'pro' | 'family') => {
+    if (tier === 'free') setSelectedPlan('trial');
+    else if (tier === 'pro') setSelectedPlan('pro');
+    else setSelectedPlan('family');
+  };
+
+  const selectedTier = getSelectedTier();
 
   return (
     <div className="space-y-8 animate-scale-in">
@@ -196,7 +239,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                   isSelected
                     ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB] shadow-[0_8px_32px_rgba(18,175,203,0.15)]'
                     : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80 hover:border-[#12AFCB]/20'
-                }`}
+              }`}
                 style={{ animationDelay: `${(idx + proPlans.length) * 50}ms` }}
               >
                 {plan.badge && (
@@ -243,6 +286,69 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* Feature Comparison Table */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
+          <span className="text-[0.875rem] font-medium text-[#5A6B7F]">Compare Features</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
+        </div>
+
+        <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 overflow-hidden">
+          {/* Table Header */}
+          <div className="grid grid-cols-4 border-b border-[#12AFCB]/10">
+            <div className="p-4 text-[0.875rem] font-medium text-[#5A6B7F]">
+              What you get
+            </div>
+            {(['free', 'pro', 'family'] as const).map((tier) => (
+              <button
+                key={tier}
+                onClick={() => handleTierClick(tier)}
+                className={`p-4 text-center transition-all ${
+                  selectedTier === tier
+                    ? 'bg-[#12AFCB]/10 border-b-2 border-[#12AFCB]'
+                    : 'hover:bg-[#12AFCB]/5'
+                }`}
+              >
+                <span className={`text-[0.875rem] font-semibold capitalize ${
+                  selectedTier === tier ? 'text-[#12AFCB]' : 'text-[#0E1012]'
+                }`}>
+                  {tier === 'free' ? 'Free' : tier === 'pro' ? 'Pro' : 'Family'}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Feature Rows */}
+          {comparisonFeatures.map((feature, idx) => (
+            <div
+              key={feature.name}
+              className={`grid grid-cols-4 ${
+                idx !== comparisonFeatures.length - 1 ? 'border-b border-[#12AFCB]/5' : ''
+              }`}
+            >
+              <div className="p-4 text-[0.875rem] text-[#5A6B7F]">
+                {feature.name}
+              </div>
+              {(['free', 'pro', 'family'] as const).map((tier) => (
+                <div
+                  key={tier}
+                  className={`p-4 flex items-center justify-center ${
+                    selectedTier === tier ? 'bg-[#12AFCB]/5' : ''
+                  }`}
+                >
+                  {feature[tier] ? (
+                    <Check className="w-5 h-5 text-[#12AFCB]" />
+                  ) : (
+                    <X className="w-5 h-5 text-[#5A6B7F]/30" />
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 
