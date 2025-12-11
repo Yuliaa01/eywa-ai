@@ -19,7 +19,7 @@ interface SubscriptionStepProps {
 export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
   const [selectedPlan, setSelectedPlan] = useState('pro');
 
-  const plans: Plan[] = [
+  const proPlans: Plan[] = [
     {
       id: 'trial',
       name: 'Free Trial',
@@ -35,6 +35,14 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       icon: Sparkles,
       popular: true,
       features: ['1-month free trial', 'Unlimited AI insights', 'Priority support', 'Advanced analytics', 'Export reports'],
+    },
+    {
+      id: 'pro6',
+      name: '6-Month Pro',
+      price: '$99.99',
+      period: '6 months',
+      icon: Sparkles,
+      features: ['1-month free trial', 'All Pro features', '6 months access', 'Priority support', 'Save 17%'],
     },
     {
       id: 'pro12',
@@ -53,6 +61,9 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       icon: Infinity,
       features: ['Pay once, use forever', 'All future features', 'Priority support', 'Best value'],
     },
+  ];
+
+  const familyPlans: Plan[] = [
     {
       id: 'family',
       name: 'Family',
@@ -80,6 +91,8 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
     },
   ];
 
+  const allPlans = [...proPlans, ...familyPlans];
+
   return (
     <div className="space-y-8 animate-scale-in">
       <div className="text-center space-y-4">
@@ -91,8 +104,9 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
         </p>
       </div>
 
+      {/* Pro Plans */}
       <div className="grid md:grid-cols-2 gap-4">
-        {plans.map((plan, idx) => {
+        {proPlans.map((plan, idx) => {
           const Icon = plan.icon;
           const isSelected = selectedPlan === plan.id;
           
@@ -158,12 +172,86 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
         })}
       </div>
 
+      {/* Family Plans Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#12AFCB]/10 border border-[#12AFCB]/20">
+            <Users className="w-4 h-4 text-[#12AFCB]" />
+            <span className="text-[0.875rem] font-medium text-[#12AFCB]">Family Plans</span>
+          </div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {familyPlans.map((plan, idx) => {
+            const Icon = plan.icon;
+            const isSelected = selectedPlan === plan.id;
+            
+            return (
+              <button
+                key={plan.id}
+                onClick={() => setSelectedPlan(plan.id)}
+                className={`relative rounded-3xl backdrop-blur-xl p-6 shadow-[0_4px_20px_rgba(18,175,203,0.06)] transition-all duration-standard text-left ${
+                  isSelected
+                    ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB] shadow-[0_8px_32px_rgba(18,175,203,0.15)]'
+                    : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80 hover:border-[#12AFCB]/20'
+                }`}
+                style={{ animationDelay: `${(idx + proPlans.length) * 50}ms` }}
+              >
+                {plan.badge && (
+                  <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/80 text-white text-[0.75rem] font-medium shadow-lg">
+                    {plan.badge}
+                  </div>
+                )}
+
+                <div className="flex items-start gap-4 mb-4">
+                  {Icon && (
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                      isSelected
+                        ? 'bg-gradient-to-br from-[#12AFCB] to-[#12AFCB]/80'
+                        : 'bg-white/60'
+                    }`}>
+                      <Icon className={`w-6 h-6 ${isSelected ? 'text-white' : 'text-[#5A6B7F]'}`} />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <h3 className="text-[1.125rem] font-semibold text-[#0E1012] mb-1">
+                      {plan.name}
+                    </h3>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[1.5rem] font-bold text-[#12AFCB]">
+                        {plan.price}
+                      </span>
+                      <span className="text-[0.875rem] text-[#5A6B7F]">
+                        {plan.period}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-[#12AFCB] flex-shrink-0 mt-0.5" />
+                      <span className="text-[0.875rem] text-[#5A6B7F]">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <button
           onClick={() => onNext(selectedPlan)}
           className="w-full h-14 rounded-3xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-rounded font-semibold text-[1.0625rem] shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-glow-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-standard"
         >
-          Continue with {plans.find(p => p.id === selectedPlan)?.name}
+          Continue with {allPlans.find(p => p.id === selectedPlan)?.name}
         </button>
 
         <div className="text-center space-y-2">
