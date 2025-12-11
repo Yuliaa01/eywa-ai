@@ -6,6 +6,7 @@ interface Plan {
   name: string;
   price: string;
   period: string;
+  perMonth?: string;
   features: string[];
   icon?: React.ComponentType<{ className?: string }>;
   badge?: string;
@@ -52,6 +53,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       name: '6-Month Pro',
       price: '$99.99',
       period: '6 months',
+      perMonth: '$16.67',
       icon: Sparkles,
       tier: 'pro',
       features: ['1-month free trial', 'All Pro features', '6 months access', 'Priority support', 'Save 17%'],
@@ -61,6 +63,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       name: '12-Month Pro',
       price: '$189.99',
       period: '12 months',
+      perMonth: '$15.83',
       icon: Sparkles,
       badge: 'Best Value',
       tier: 'pro',
@@ -92,6 +95,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       name: '6-Month Family',
       price: '$359.99',
       period: '6 months',
+      perMonth: '$60.00',
       icon: Users,
       tier: 'family',
       features: ['Up to 5 members', 'All Family features', '6 months access', 'Save 20%'],
@@ -101,6 +105,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       name: '12-Month Family',
       price: '$749.99',
       period: '12 months',
+      perMonth: '$62.50',
       icon: Users,
       badge: 'Family Best Value',
       tier: 'family',
@@ -201,6 +206,11 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                       {plan.period}
                     </span>
                   </div>
+                  {plan.perMonth && (
+                    <div className="text-[0.75rem] text-[#5A6B7F]">
+                      ({plan.perMonth}/month)
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -280,6 +290,11 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                         {plan.period}
                       </span>
                     </div>
+                    {plan.perMonth && (
+                      <div className="text-[0.75rem] text-[#5A6B7F]">
+                        ({plan.perMonth}/month)
+                      </div>
+                    )}
                   </div>
                 </div>
 
