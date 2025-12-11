@@ -247,8 +247,8 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
         </div>
 
-        <div className={`grid md:grid-cols-2 gap-4 overflow-hidden transition-all duration-300 ease-out ${
-          showOtherFamilyPlans ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+        <div className={`grid md:grid-cols-2 gap-4 pt-4 transition-all duration-300 ease-out ${
+          showOtherFamilyPlans ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
         }`}>
           {otherFamilyPlans.map((plan, idx) => {
             const Icon = plan.icon;
