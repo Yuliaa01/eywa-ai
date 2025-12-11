@@ -103,9 +103,9 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
     {
       id: 'family12',
       name: '12-Month Family',
-      price: '$749.99',
+      price: '$660',
       period: '12 months',
-      perMonth: '$62.50',
+      perMonth: '$55.00',
       icon: Users,
       badge: 'Family Best Value',
       tier: 'family',
