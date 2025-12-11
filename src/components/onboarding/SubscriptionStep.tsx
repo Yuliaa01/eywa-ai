@@ -109,7 +109,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       icon: Users,
       badge: 'Family Best Value',
       tier: 'family',
-      features: ['Up to 5 members', 'All Family features', '12 months access', 'Save 17%'],
+      features: ['Up to 5 members', 'All Family features', '12 months access', 'Save 27%'],
     },
   ];
 
