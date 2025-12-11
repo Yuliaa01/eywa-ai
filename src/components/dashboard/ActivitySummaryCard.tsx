@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Dumbbell, Flame, Target, Plus, Trophy } from "lucide-react";
+import { Dumbbell, Flame, Target, Plus, Trophy, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { RingProgress } from "./charts/RingProgress";
 import { useToast } from "@/hooks/use-toast";
 import { triggerConfetti } from "@/utils/confetti";
+import { ActivitySummaryDialog } from "./ActivitySummaryDialog";
 
 interface ActivityStats {
   completedThisWeek: number;
@@ -18,6 +19,7 @@ export function ActivitySummaryCard() {
     weeklyGoal: 5,
   });
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -192,14 +194,31 @@ export function ActivitySummaryCard() {
         <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">
           Activity Summary
         </h3>
-        <button
-          onClick={handleQuickLogWorkout}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 text-[#12AFCB] font-rounded font-medium text-sm hover:bg-[#12AFCB]/20 hover:scale-[1.02] transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          Log Workout
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="p-2 rounded-xl bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            title="Edit Summary"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleQuickLogWorkout}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12AFCB]/10 text-[#12AFCB] font-rounded font-medium text-sm hover:bg-[#12AFCB]/20 hover:scale-[1.02] transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            Log Workout
+          </button>
+        </div>
       </div>
+
+      <ActivitySummaryDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={fetchActivityStats}
+        currentGoal={stats.weeklyGoal}
+        currentStreak={stats.currentStreak}
+      />
 
       <div className="grid grid-cols-3 gap-6 mb-6">
         {/* Completed This Week */}
