@@ -330,7 +330,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                 idx !== comparisonFeatures.length - 1 ? 'border-b border-[#12AFCB]/5' : ''
               }`}
             >
-              <div className="p-4 text-[0.875rem] text-[#5A6B7F]">
+              <div className="p-4 text-[0.875rem] text-[#0E1012] font-medium">
                 {feature.name}
               </div>
               {(['free', 'pro', 'family'] as const).map((tier) => (
@@ -341,7 +341,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                   }`}
                 >
                   {feature[tier] ? (
-                    <Check className="w-5 h-5 text-[#12AFCB]" />
+                    <Check className="w-5 h-5 text-[#12AFCB] stroke-[3]" />
                   ) : (
                     <span />
                   )}
