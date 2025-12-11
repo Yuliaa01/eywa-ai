@@ -66,6 +66,12 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
     ));
   };
 
+  const allOptionalEnabled = consents.filter(c => !c.required).every(c => c.enabled);
+
+  const handleSelectAll = () => {
+    setConsents(prev => prev.map(c => ({ ...c, enabled: true })));
+  };
+
   const handleContinue = () => {
     const consentMap = consents.reduce((acc, c) => ({
       ...acc,
@@ -86,6 +92,16 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
         <p className="text-[1.0625rem] text-[#5A6B7F] max-w-md mx-auto leading-relaxed">
           Control what data Eywa AI can access
         </p>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleSelectAll}
+          disabled={allOptionalEnabled}
+          className="px-4 py-2 rounded-xl text-[0.875rem] font-medium text-[#12AFCB] hover:bg-[#12AFCB]/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Select All
+        </button>
       </div>
 
       <div className="space-y-4">
