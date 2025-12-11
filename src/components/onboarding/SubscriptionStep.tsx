@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Sparkles, Users, Infinity, X } from "lucide-react";
+import { Check, Sparkles, Users, Infinity } from "lucide-react";
 
 interface Plan {
   id: string;
@@ -343,7 +343,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                   {feature[tier] ? (
                     <Check className="w-5 h-5 text-[#12AFCB]" />
                   ) : (
-                    <X className="w-5 h-5 text-[#5A6B7F]/30" />
+                    <span />
                   )}
                 </div>
               ))}
