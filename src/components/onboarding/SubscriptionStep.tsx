@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Sparkles, Users, Infinity } from "lucide-react";
+import { Check, Sparkles, Users, Infinity, ChevronDown } from "lucide-react";
 
 interface Plan {
   id: string;
@@ -26,6 +26,7 @@ interface ComparisonFeature {
 
 export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
   const [selectedPlan, setSelectedPlan] = useState('pro');
+  const [showFamilyPlans, setShowFamilyPlans] = useState(false);
 
   const proPlans: Plan[] = [
     {
@@ -131,7 +132,10 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
   const handleTierClick = (tier: 'free' | 'pro' | 'family') => {
     if (tier === 'free') setSelectedPlan('trial');
     else if (tier === 'pro') setSelectedPlan('pro');
-    else setSelectedPlan('family');
+    else {
+      setSelectedPlan('family');
+      setShowFamilyPlans(true); // Auto-expand when family is selected from comparison
+    }
   };
 
   const selectedTier = getSelectedTier();
@@ -219,14 +223,20 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       <div className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#12AFCB]/10 border border-[#12AFCB]/20">
+          <button
+            onClick={() => setShowFamilyPlans(!showFamilyPlans)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#12AFCB]/10 border border-[#12AFCB]/20 hover:bg-[#12AFCB]/15 transition-all cursor-pointer"
+          >
             <Users className="w-4 h-4 text-[#12AFCB]" />
             <span className="text-[0.875rem] font-medium text-[#12AFCB]">Family Plans</span>
-          </div>
+            <ChevronDown className={`w-4 h-4 text-[#12AFCB] transition-transform duration-300 ${showFamilyPlans ? 'rotate-180' : ''}`} />
+          </button>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className={`grid md:grid-cols-2 gap-4 overflow-hidden transition-all duration-300 ease-out ${
+          showFamilyPlans ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}>
           {familyPlans.map((plan, idx) => {
             const Icon = plan.icon;
             const isSelected = selectedPlan === plan.id;
