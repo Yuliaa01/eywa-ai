@@ -27,9 +27,10 @@ interface ComparisonFeature {
 
 export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
   const [selectedPlan, setSelectedPlan] = useState('pro');
-  const [showFamilyPlans, setShowFamilyPlans] = useState(false);
+  const [showOtherFamilyPlans, setShowOtherFamilyPlans] = useState(false);
 
-  const proPlans: Plan[] = [
+  // Main plans grid (includes Pro plans + main Family monthly plan)
+  const mainPlans: Plan[] = [
     {
       id: 'trial',
       name: 'Free Trial',
@@ -78,9 +79,6 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       tier: 'pro',
       features: ['Pay once, use forever', 'All future features', 'Priority support', 'Best value'],
     },
-  ];
-
-  const familyPlans: Plan[] = [
     {
       id: 'family',
       name: 'Family',
@@ -90,6 +88,10 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
       tier: 'family',
       features: ['Up to 5 members', 'Shared insights', 'Family dashboard', 'All Pro features'],
     },
+  ];
+
+  // Extended family plans (shown in collapsible section)
+  const otherFamilyPlans: Plan[] = [
     {
       id: 'family6',
       name: '6-Month Family',
@@ -113,7 +115,9 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
     },
   ];
 
-  const allPlans = [...proPlans, ...familyPlans];
+  const allPlans = [...mainPlans, ...otherFamilyPlans];
+
+  
 
   const comparisonFeatures: ComparisonFeature[] = [
     { name: 'Health metrics tracking', free: true, pro: true, family: true },
@@ -139,7 +143,6 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
     else if (tier === 'pro') setSelectedPlan('pro');
     else {
       setSelectedPlan('family');
-      setShowFamilyPlans(true); // Auto-expand when family is selected from comparison
     }
   };
 
@@ -156,9 +159,9 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
         </p>
       </div>
 
-      {/* Pro Plans */}
+      {/* Main Plans Grid */}
       <div className="grid md:grid-cols-2 gap-4">
-        {proPlans.map((plan, idx) => {
+        {mainPlans.map((plan, idx) => {
           const Icon = plan.icon;
           const isSelected = selectedPlan === plan.id;
           
@@ -229,25 +232,25 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
         })}
       </div>
 
-      {/* Family Plans Section */}
+      {/* Other Family Plan Options Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
           <button
-            onClick={() => setShowFamilyPlans(!showFamilyPlans)}
+            onClick={() => setShowOtherFamilyPlans(!showOtherFamilyPlans)}
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#12AFCB]/10 border border-[#12AFCB]/20 hover:bg-[#12AFCB]/15 transition-all cursor-pointer"
           >
             <Users className="w-4 h-4 text-[#12AFCB]" />
-            <span className="text-[0.875rem] font-medium text-[#12AFCB]">Family Plans</span>
-            <ChevronDown className={`w-4 h-4 text-[#12AFCB] transition-transform duration-300 ${showFamilyPlans ? 'rotate-180' : ''}`} />
+            <span className="text-[0.875rem] font-medium text-[#12AFCB]">Other Family Plan Options</span>
+            <ChevronDown className={`w-4 h-4 text-[#12AFCB] transition-transform duration-300 ${showOtherFamilyPlans ? 'rotate-180' : ''}`} />
           </button>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#12AFCB]/30 to-transparent" />
         </div>
 
         <div className={`grid md:grid-cols-2 gap-4 overflow-hidden transition-all duration-300 ease-out ${
-          showFamilyPlans ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+          showOtherFamilyPlans ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
         }`}>
-          {familyPlans.map((plan, idx) => {
+          {otherFamilyPlans.map((plan, idx) => {
             const Icon = plan.icon;
             const isSelected = selectedPlan === plan.id;
             
@@ -260,7 +263,7 @@ export default function SubscriptionStep({ onNext }: SubscriptionStepProps) {
                     ? 'bg-gradient-to-br from-[#12AFCB]/10 to-[#12AFCB]/5 border-2 border-[#12AFCB] shadow-[0_8px_32px_rgba(18,175,203,0.15)]'
                     : 'bg-white/60 border border-[#12AFCB]/10 hover:bg-white/80 hover:border-[#12AFCB]/20'
               }`}
-                style={{ animationDelay: `${(idx + proPlans.length) * 50}ms` }}
+                style={{ animationDelay: `${(idx + mainPlans.length) * 50}ms` }}
               >
                 {plan.badge && (
                   <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/80 text-white text-[0.75rem] font-medium shadow-lg">
