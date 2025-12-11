@@ -13,9 +13,10 @@ interface Consent {
 
 interface ConsentsStepProps {
   onNext: (consents: Record<string, boolean>) => void;
+  initialConsents?: Record<string, boolean>;
 }
 
-export default function ConsentsStep({ onNext }: ConsentsStepProps) {
+export default function ConsentsStep({ onNext, initialConsents }: ConsentsStepProps) {
   const navigate = useNavigate();
   const [consents, setConsents] = useState<Consent[]>([
     {
@@ -24,7 +25,7 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
       description: 'Labs, EHR, wearables, and medical records',
       icon: Shield,
       required: true,
-      enabled: true,
+      enabled: initialConsents?.health_data ?? true,
     },
     {
       id: 'camera',
@@ -32,7 +33,7 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
       description: 'Scan lab reports and medical documents',
       icon: FileText,
       required: false,
-      enabled: false,
+      enabled: initialConsents?.camera ?? false,
     },
     {
       id: 'notifications',
@@ -40,7 +41,7 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
       description: 'Health reminders and alerts',
       icon: Bell,
       required: false,
-      enabled: true,
+      enabled: initialConsents?.notifications ?? true,
     },
     {
       id: 'location',
@@ -48,7 +49,7 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
       description: 'Find nearby clinics, cafés, and venues',
       icon: MapPin,
       required: false,
-      enabled: false,
+      enabled: initialConsents?.location ?? false,
     },
     {
       id: 'genetic',
@@ -56,7 +57,7 @@ export default function ConsentsStep({ onNext }: ConsentsStepProps) {
       description: 'DNA analysis and genomic insights',
       icon: Dna,
       required: false,
-      enabled: false,
+      enabled: initialConsents?.genetic ?? false,
     },
   ]);
 

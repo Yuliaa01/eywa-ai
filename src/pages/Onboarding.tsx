@@ -246,6 +246,7 @@ export default function Onboarding() {
       case 3:
         return (
           <ConsentsStep
+            initialConsents={onboardingData.consents}
             onNext={(consents) => {
               setOnboardingData({ ...onboardingData, consents });
               nextStep();
