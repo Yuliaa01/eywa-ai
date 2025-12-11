@@ -12,15 +12,13 @@ import GoalsStep from "@/components/onboarding/GoalsStep";
 import NutritionStep from "@/components/onboarding/NutritionStep";
 import LabsStep from "@/components/onboarding/LabsStep";
 import PreferencesStep from "@/components/onboarding/PreferencesStep";
-import SignupStep from "@/components/onboarding/SignupStep";
 import BriefingStep from "@/components/onboarding/BriefingStep";
 
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 10;
 
 // Step order:
 // 0: Welcome, 1: Connections, 2: Profile, 3: Consents, 4: Subscription,
-// 5: Goals, 6: Nutrition, 7: Labs, 8: Preferences, 9: Signup, 10: Briefing
-// Note: If user signs up from Auth.tsx, credentials are pre-populated and step 9 is auto-skipped
+// 5: Goals, 6: Nutrition, 7: Labs, 8: Preferences, 9: Briefing
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -212,11 +210,6 @@ export default function Onboarding() {
   };
 
   const renderStep = () => {
-    // If on signup step (9) and credentials already exist, skip to briefing
-    if (currentStep === 9 && onboardingData.credentials) {
-      return <BriefingStep onComplete={handleComplete} />;
-    }
-    
     switch (currentStep) {
       case 0:
         return <WelcomeStep onNext={nextStep} />;
@@ -233,7 +226,6 @@ export default function Onboarding() {
             profileData={onboardingData.profile}
             onNext={(data) => {
               if (data) {
-                // Store in local state
                 setOnboardingData({ 
                   ...onboardingData, 
                   profile: {
@@ -299,17 +291,6 @@ export default function Onboarding() {
           />
         );
       case 9:
-        return (
-          <SignupStep
-            initialData={onboardingData.credentials}
-            onNext={(credentials) => {
-              // Store credentials only briefly before account creation
-              setOnboardingData({ ...onboardingData, credentials });
-              nextStep();
-            }}
-          />
-        );
-      case 10:
         return <BriefingStep onComplete={handleComplete} />;
       default:
         return null;
