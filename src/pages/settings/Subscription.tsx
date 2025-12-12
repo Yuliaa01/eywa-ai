@@ -90,7 +90,7 @@ export default function Subscription() {
       name: "6-Month Pro",
       price: "$90",
       pricePerMonth: "$15",
-      period: "one-time",
+      period: "",
       icon: Sparkles,
       features: [
         "17% savings",
@@ -104,7 +104,7 @@ export default function Subscription() {
       name: "12-Month Pro",
       price: "$189.99",
       pricePerMonth: "$15.83",
-      period: "one-time",
+      period: "",
       icon: Sparkles,
       badge: "Best Value",
       features: [
@@ -148,7 +148,7 @@ export default function Subscription() {
       name: "6-Month Family",
       price: "$359.99",
       pricePerMonth: "$60",
-      period: "one-time",
+      period: "",
       icon: Users,
       features: [
         "Up to 5 members",
@@ -162,7 +162,7 @@ export default function Subscription() {
       name: "12-Month Family",
       price: "$660",
       pricePerMonth: "$55",
-      period: "one-time",
+      period: "",
       icon: Users,
       badge: "Best Value",
       features: [
