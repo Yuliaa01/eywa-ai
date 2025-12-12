@@ -57,7 +57,7 @@ export default function Subscription() {
     );
   }
 
-  const plans = [
+  const individualPlans = [
     {
       id: "trial",
       name: "Free Trial",
@@ -83,6 +83,19 @@ export default function Subscription() {
         "Priority support",
         "Advanced analytics",
         "Export reports",
+      ],
+    },
+    {
+      id: "pro6",
+      name: "6-Month Pro",
+      price: "$99.99",
+      period: "one-time",
+      icon: Sparkles,
+      features: [
+        "17% savings",
+        "6 months access",
+        "All Pro features",
+        "One-time payment",
       ],
     },
     {
@@ -112,6 +125,9 @@ export default function Subscription() {
         "Best value",
       ],
     },
+  ];
+
+  const familyPlans = [
     {
       id: "family",
       name: "Family",
@@ -141,18 +157,20 @@ export default function Subscription() {
     {
       id: "family12",
       name: "12-Month Family",
-      price: "$749.99",
+      price: "$660",
       period: "one-time",
       icon: Users,
-      badge: "Family Best Value",
+      badge: "Best Value",
       features: [
         "Up to 5 members",
         "All Family features",
         "12 months access",
-        "Save 17%",
+        "Save 27%",
       ],
     },
   ];
+
+  const allPlans = [...individualPlans, ...familyPlans];
 
   const giftPlans = [
     {
@@ -265,7 +283,7 @@ export default function Subscription() {
             Available Plans
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            {plans.map((plan) => {
+            {individualPlans.map((plan) => {
               const Icon = plan.icon;
               return (
                 <div
@@ -336,6 +354,76 @@ export default function Subscription() {
                     disabled={plan.current}
                   >
                     {plan.current ? "Current Plan" : "Select Plan"}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Family Plans */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center">
+              <Users className="w-5 h-5 text-accent-teal" />
+            </div>
+            <div>
+              <h3 className="font-rounded text-xl font-semibold text-foreground">
+                Family Plans
+              </h3>
+              <p className="text-sm text-muted-foreground">Share your wellness journey with your family</p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {familyPlans.map((plan) => {
+              const Icon = plan.icon;
+              return (
+                <div
+                  key={plan.id}
+                  className="relative rounded-3xl p-6 border bg-card/60 border-border hover:border-accent-teal/20 hover:shadow-[0_4px_20px_rgba(18,175,203,0.1)] transition-all"
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-accent-teal to-accent-teal-alt text-white text-xs font-rounded font-semibold shadow-lg">
+                      {plan.badge}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start gap-3 mb-4">
+                    {Icon && (
+                      <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center flex-shrink-0 transition-all">
+                        <Icon className="w-5 h-5 text-accent-teal" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-rounded text-lg font-bold text-foreground mb-1 truncate">
+                        {plan.name}
+                      </h4>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-rounded font-bold text-accent-teal">
+                          {plan.price}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {plan.period}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-6">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-accent-teal flex-shrink-0 mt-0.5" />
+                        <span className="text-xs text-muted-foreground leading-tight">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button
+                    onClick={() => handlePlanSelect(plan.id)}
+                    className="w-full h-10 text-sm transition-all hover:bg-[#12AFCB] hover:text-white hover:border-[#12AFCB]"
+                    variant="outline"
+                  >
+                    Select Plan
                   </Button>
                 </div>
               );
@@ -422,7 +510,7 @@ export default function Subscription() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="font-rounded text-2xl font-bold text-foreground">
-              {selectedPlan ? `Upgrade to ${plans.find(p => p.id === selectedPlan)?.name || giftPlans.find(p => p.id === selectedPlan)?.name}` : 'Upgrade Your Plan'}
+              {selectedPlan ? `Upgrade to ${allPlans.find(p => p.id === selectedPlan)?.name || giftPlans.find(p => p.id === selectedPlan)?.name}` : 'Upgrade Your Plan'}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
               Complete your payment to upgrade your subscription
@@ -434,20 +522,20 @@ export default function Subscription() {
               <div className="rounded-2xl bg-gradient-to-br from-accent-teal/10 to-accent-teal-alt/5 p-6 border border-accent-teal/20">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-rounded font-semibold text-foreground">
-                    {plans.find(p => p.id === selectedPlan)?.name || giftPlans.find(p => p.id === selectedPlan)?.name}
+                    {allPlans.find(p => p.id === selectedPlan)?.name || giftPlans.find(p => p.id === selectedPlan)?.name}
                   </h4>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-accent-teal">
-                      {plans.find(p => p.id === selectedPlan)?.price || giftPlans.find(p => p.id === selectedPlan)?.price}
+                      {allPlans.find(p => p.id === selectedPlan)?.price || giftPlans.find(p => p.id === selectedPlan)?.price}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {plans.find(p => p.id === selectedPlan)?.period || giftPlans.find(p => p.id === selectedPlan)?.period}
+                      {allPlans.find(p => p.id === selectedPlan)?.period || giftPlans.find(p => p.id === selectedPlan)?.period}
                     </div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  {(plans.find(p => p.id === selectedPlan)?.features || giftPlans.find(p => p.id === selectedPlan)?.features || []).map((feature, idx) => (
+                  {(allPlans.find(p => p.id === selectedPlan)?.features || giftPlans.find(p => p.id === selectedPlan)?.features || []).map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
                       <Check className="w-4 h-4 text-accent-teal flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-muted-foreground">{feature}</span>
