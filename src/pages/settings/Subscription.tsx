@@ -101,12 +101,12 @@ export default function Subscription() {
     {
       id: "pro12",
       name: "12-Month Pro",
-      price: "$189.99",
+      price: "$180",
       period: "",
       icon: Sparkles,
       badge: "Best Value",
       features: [
-        "$15.83/mo • 21% savings",
+        "$15/mo • 25% savings",
         "12 months access",
         "All Pro features",
         "One-time payment",
@@ -115,7 +115,7 @@ export default function Subscription() {
     {
       id: "lifetime",
       name: "Lifetime",
-      price: "$289.99",
+      price: "$289",
       period: "one-time",
       icon: Infinity,
       features: [
@@ -189,12 +189,12 @@ export default function Subscription() {
     {
       id: "gift12",
       name: "Gift 12 Months Pro",
-      price: "$189.99",
+      price: "$180",
       period: "one-time",
       icon: Gift,
       badge: "Best Value",
       features: [
-        "21% savings",
+        "$15/mo • 25% savings",
         "12 months access",
         "All Pro features",
         "Gift message",
@@ -203,7 +203,7 @@ export default function Subscription() {
     {
       id: "giftLifetime",
       name: "Gift Lifetime",
-      price: "$289.99",
+      price: "$289",
       period: "one-time",
       icon: Infinity,
       features: [
