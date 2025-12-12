@@ -89,11 +89,10 @@ export default function Subscription() {
       id: "pro6",
       name: "6-Month Pro",
       price: "$90",
-      pricePerMonth: "$15",
       period: "",
       icon: Sparkles,
       features: [
-        "17% savings",
+        "$15/mo • 17% savings",
         "6 months access",
         "All Pro features",
         "One-time payment",
@@ -103,12 +102,11 @@ export default function Subscription() {
       id: "pro12",
       name: "12-Month Pro",
       price: "$189.99",
-      pricePerMonth: "$15.83",
       period: "",
       icon: Sparkles,
       badge: "Best Value",
       features: [
-        "21% savings",
+        "$15.83/mo • 21% savings",
         "12 months access",
         "All Pro features",
         "One-time payment",
@@ -147,29 +145,27 @@ export default function Subscription() {
       id: "family6",
       name: "6-Month Family",
       price: "$359.99",
-      pricePerMonth: "$60",
       period: "",
       icon: Users,
       features: [
+        "$60/mo • Save 20%",
         "Up to 5 members",
         "All Family features",
         "6 months access",
-        "Save 20%",
       ],
     },
     {
       id: "family12",
       name: "12-Month Family",
       price: "$660",
-      pricePerMonth: "$55",
       period: "",
       icon: Users,
       badge: "Best Value",
       features: [
+        "$55/mo • Save 27%",
         "Up to 5 members",
         "All Family features",
         "12 months access",
-        "Save 27%",
       ],
     },
   ];
@@ -346,11 +342,6 @@ export default function Subscription() {
                           {plan.period}
                         </span>
                       </div>
-                      {plan.pricePerMonth && (
-                        <div className="text-xs text-muted-foreground mt-0.5">
-                          <span className="text-accent-teal font-semibold">{plan.pricePerMonth}</span>/mo
-                        </div>
-                      )}
                     </div>
                   </div>
                   
@@ -428,11 +419,6 @@ export default function Subscription() {
                           {plan.period}
                         </span>
                       </div>
-                      {plan.pricePerMonth && (
-                        <div className="text-xs text-muted-foreground mt-0.5">
-                          <span className="text-accent-teal font-semibold">{plan.pricePerMonth}</span>/mo
-                        </div>
-                      )}
                     </div>
                   </div>
                   
