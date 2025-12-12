@@ -89,6 +89,7 @@ export default function Subscription() {
       id: "pro6",
       name: "6-Month Pro",
       price: "$90",
+      pricePerMonth: "$15",
       period: "one-time",
       icon: Sparkles,
       features: [
@@ -102,6 +103,7 @@ export default function Subscription() {
       id: "pro12",
       name: "12-Month Pro",
       price: "$189.99",
+      pricePerMonth: "$15.83",
       period: "one-time",
       icon: Sparkles,
       badge: "Best Value",
@@ -145,6 +147,7 @@ export default function Subscription() {
       id: "family6",
       name: "6-Month Family",
       price: "$359.99",
+      pricePerMonth: "$60",
       period: "one-time",
       icon: Users,
       features: [
@@ -158,6 +161,7 @@ export default function Subscription() {
       id: "family12",
       name: "12-Month Family",
       price: "$660",
+      pricePerMonth: "$55",
       period: "one-time",
       icon: Users,
       badge: "Best Value",
@@ -342,6 +346,11 @@ export default function Subscription() {
                           {plan.period}
                         </span>
                       </div>
+                      {plan.pricePerMonth && (
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          <span className="text-accent-teal font-semibold">{plan.pricePerMonth}</span>/mo
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -419,6 +428,11 @@ export default function Subscription() {
                           {plan.period}
                         </span>
                       </div>
+                      {plan.pricePerMonth && (
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          <span className="text-accent-teal font-semibold">{plan.pricePerMonth}</span>/mo
+                        </div>
+                      )}
                     </div>
                   </div>
                   
