@@ -88,7 +88,7 @@ export default function Subscription() {
     {
       id: "pro6",
       name: "6-Month Pro",
-      price: "$99.99",
+      price: "$90",
       period: "one-time",
       icon: Sparkles,
       features: [
@@ -173,6 +173,19 @@ export default function Subscription() {
   const allPlans = [...individualPlans, ...familyPlans];
 
   const giftPlans = [
+    {
+      id: "gift6",
+      name: "Gift 6 Months Pro",
+      price: "$90",
+      period: "one-time",
+      icon: Gift,
+      features: [
+        "17% savings",
+        "6 months access",
+        "All Pro features",
+        "Gift message",
+      ],
+    },
     {
       id: "gift12",
       name: "Gift 12 Months Pro",
