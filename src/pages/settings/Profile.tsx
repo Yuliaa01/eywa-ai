@@ -64,6 +64,8 @@ export default function ProfileSettings() {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [editingFolder, setEditingFolder] = useState<{ id: string; name: string } | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<{ id: string; name: string } | null>(null);
+  const [editingFile, setEditingFile] = useState<{ id: string; name: string } | null>(null);
+  const [fileRenameModalOpen, setFileRenameModalOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -494,6 +496,34 @@ export default function ProfileSettings() {
     }
   };
 
+  const handleRenameFile = async (newName: string) => {
+    if (!editingFile) return;
+    
+    try {
+      const { error } = await supabase
+        .from('uploaded_files')
+        .update({ name: newName })
+        .eq('id', editingFile.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "File renamed",
+        description: "File name updated successfully.",
+      });
+      
+      setFileRenameModalOpen(false);
+      setEditingFile(null);
+      loadFiles();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -574,6 +604,16 @@ export default function ProfileSettings() {
                 Analyze again
               </Button>
             )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingFile({ id: file.id, name: file.name });
+                setFileRenameModalOpen(true);
+              }}
+              className="w-8 h-8 rounded-lg hover:bg-accent/10 flex items-center justify-center transition-colors"
+            >
+              <Pencil className="w-4 h-4 text-muted-foreground" />
+            </button>
             <button
               onClick={() => handleDeleteFile(file.id, file.storage_path)}
               className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
@@ -1311,6 +1351,20 @@ export default function ProfileSettings() {
         isLoading={isCreatingFolder}
         initialName={editingFolder?.name}
         mode={editingFolder ? 'edit' : 'create'}
+      />
+
+      {/* File Rename Modal */}
+      <FolderModal
+        open={fileRenameModalOpen}
+        onOpenChange={(open) => {
+          setFileRenameModalOpen(open);
+          if (!open) setEditingFile(null);
+        }}
+        onSubmit={handleRenameFile}
+        isLoading={false}
+        initialName={editingFile?.name}
+        mode="edit"
+        itemType="file"
       />
 
       {/* Delete Confirmation Dialog */}
