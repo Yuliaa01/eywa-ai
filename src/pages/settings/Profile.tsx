@@ -874,7 +874,7 @@ export default function ProfileSettings() {
                       }
                     }}
                     size="sm"
-                    className="rounded-xl"
+                    className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white"
                   >
                     Add
                   </Button>
@@ -952,7 +952,7 @@ export default function ProfileSettings() {
                       }
                     }}
                     size="sm"
-                    className="rounded-xl"
+                    className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white"
                   >
                     Add
                   </Button>
@@ -1030,7 +1030,7 @@ export default function ProfileSettings() {
                       }
                     }}
                     size="sm"
-                    className="rounded-xl"
+                    className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white"
                   >
                     Add
                   </Button>
