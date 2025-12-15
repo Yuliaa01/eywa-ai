@@ -18,6 +18,7 @@ interface FolderModalProps {
   isLoading?: boolean;
   initialName?: string;
   mode?: 'create' | 'edit';
+  itemType?: 'folder' | 'file';
 }
 
 export function FolderModal({ 
@@ -26,7 +27,8 @@ export function FolderModal({
   onSubmit, 
   isLoading,
   initialName = "",
-  mode = 'create'
+  mode = 'create',
+  itemType = 'folder'
 }: FolderModalProps) {
   const [folderName, setFolderName] = useState(initialName);
 
@@ -49,16 +51,20 @@ export function FolderModal({
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{mode === 'edit' ? 'Rename Folder' : 'Create New Folder'}</DialogTitle>
+            <DialogTitle>
+              {mode === 'edit' 
+                ? `Rename ${itemType === 'file' ? 'File' : 'Folder'}` 
+                : 'Create New Folder'}
+            </DialogTitle>
             <DialogDescription>
               {mode === 'edit' 
-                ? 'Enter a new name for your folder.'
+                ? `Enter a new name for your ${itemType}.`
                 : 'Enter a name for your new folder to organize your files.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="folder-name">Folder Name</Label>
+              <Label htmlFor="folder-name">{itemType === 'file' ? 'File Name' : 'Folder Name'}</Label>
               <Input
                 id="folder-name"
                 value={folderName}
