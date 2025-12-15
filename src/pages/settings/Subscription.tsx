@@ -213,19 +213,6 @@ export default function Subscription() {
         "Gift message",
       ],
     },
-    {
-      id: "giftFamily12",
-      name: "Gift 12-Month Family",
-      price: "$749.99",
-      period: "one-time",
-      icon: Users,
-      features: [
-        "Up to 5 members",
-        "All Family features",
-        "12 months access",
-        "Gift message",
-      ],
-    },
   ];
 
   return (
