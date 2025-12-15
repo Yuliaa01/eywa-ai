@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Utensils, AlertCircle, Sparkles, Plus, X } from "lucide-react";
+import { Utensils, AlertCircle, Sparkles, Plus, X, Heart } from "lucide-react";
 
 interface NutritionStepProps {
   onNext: (data: any) => void;
@@ -7,16 +7,24 @@ interface NutritionStepProps {
 
 export default function NutritionStep({ onNext }: NutritionStepProps) {
   const [diet, setDiet] = useState<string[]>([]);
+  const [religiousDiet, setReligiousDiet] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [macroMode, setMacroMode] = useState<'ai' | 'manual'>('ai');
   const [customDiet, setCustomDiet] = useState('');
+  const [customReligious, setCustomReligious] = useState('');
   const [customAllergy, setCustomAllergy] = useState('');
   const [showCustomDiet, setShowCustomDiet] = useState(false);
+  const [showCustomReligious, setShowCustomReligious] = useState(false);
   const [showCustomAllergy, setShowCustomAllergy] = useState(false);
 
   const dietOptions = [
     'Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian',
-    'Low-FODMAP', 'Gluten-Free', 'Dairy-Free', 'Halal', 'Kosher',
+    'Low-FODMAP', 'Gluten-Free', 'Dairy-Free',
+  ];
+
+  const religiousOptions = [
+    'Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian',
+    'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking',
   ];
 
   const allergyOptions = [
@@ -40,6 +48,14 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
     }
   };
 
+  const addCustomReligious = () => {
+    if (customReligious.trim() && !religiousDiet.includes(customReligious.trim())) {
+      setReligiousDiet([...religiousDiet, customReligious.trim()]);
+      setCustomReligious('');
+      setShowCustomReligious(false);
+    }
+  };
+
   const addCustomAllergy = () => {
     if (customAllergy.trim() && !allergies.includes(customAllergy.trim())) {
       setAllergies([...allergies, customAllergy.trim()]);
@@ -53,7 +69,7 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
   };
 
   const handleContinue = () => {
-    onNext({ diet, allergies, macroMode });
+    onNext({ diet, religiousDiet, allergies, macroMode });
   };
 
   return (
@@ -132,6 +148,80 @@ export default function NutritionStep({ onNext }: NutritionStepProps) {
               />
               <button
                 onClick={addCustomDiet}
+                className="h-10 px-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-medium hover:shadow-[0_4px_12px_rgba(18,175,203,0.3)] transition-all duration-standard flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Religious Food Preferences */}
+        <div>
+          <h3 className="text-[1.125rem] font-semibold text-[#0E1012] mb-4 flex items-center gap-2">
+            <Heart className="w-5 h-5 text-[#12AFCB]" />
+            Religious Food Preferences
+          </h3>
+          <div className="flex flex-wrap gap-3 mb-3">
+            {religiousOptions.map((option) => (
+              <button
+                key={option}
+                onClick={() => toggleSelection(option, religiousDiet, setReligiousDiet)}
+                className={`px-4 py-2 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                  religiousDiet.includes(option)
+                    ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                    : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+            <button
+              onClick={() => setShowCustomReligious(!showCustomReligious)}
+              className="px-4 py-2 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
+            >
+              Other...
+            </button>
+          </div>
+          
+          {/* Custom religious preferences */}
+          {religiousDiet.filter(d => !religiousOptions.includes(d)).length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {religiousDiet.filter(d => !religiousOptions.includes(d)).map((item) => (
+                <div
+                  key={item}
+                  className="px-3 py-1.5 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white text-[0.875rem] font-medium flex items-center gap-2 shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
+                >
+                  {item}
+                  <button
+                    onClick={() => removeCustomItem(item, religiousDiet, setReligiousDiet)}
+                    className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add custom religious input */}
+          {showCustomReligious && (
+            <div className="flex gap-2 mt-3">
+              <input
+                type="text"
+                value={customReligious}
+                onChange={(e) => setCustomReligious(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && customReligious.trim()) {
+                    addCustomReligious();
+                  }
+                }}
+                placeholder="Enter custom religious preference..."
+                className="flex-1 h-10 px-4 rounded-2xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 text-[#0E1012] placeholder:text-[#5A6B7F]/50 focus:outline-none focus:border-[#12AFCB]/30 focus:ring-2 focus:ring-[#12AFCB]/20 transition-all text-[0.9375rem]"
+              />
+              <button
+                onClick={addCustomReligious}
                 className="h-10 px-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white font-medium hover:shadow-[0_4px_12px_rgba(18,175,203,0.3)] transition-all duration-standard flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />

@@ -41,10 +41,13 @@ export default function ProfileSettings() {
   const [aiTone, setAiTone] = useState('friendly');
   const [preferredUnits, setPreferredUnits] = useState('metric');
   const [dietPreferences, setDietPreferences] = useState<string[]>([]);
+  const [religiousDiet, setReligiousDiet] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [showCustomDiet, setShowCustomDiet] = useState(false);
+  const [showCustomReligious, setShowCustomReligious] = useState(false);
   const [showCustomAllergy, setShowCustomAllergy] = useState(false);
   const [customDietInput, setCustomDietInput] = useState('');
+  const [customReligiousInput, setCustomReligiousInput] = useState('');
   const [customAllergyInput, setCustomAllergyInput] = useState('');
   const [macroMode, setMacroMode] = useState<'ai' | 'manual'>('ai');
   const [manualMacros, setManualMacros] = useState({
@@ -135,6 +138,7 @@ export default function ProfileSettings() {
         
         // Load nutrition data
         setDietPreferences(data.diet_preferences || []);
+        setReligiousDiet(data.religious_diet || []);
         setAllergies(data.allergies || []);
       }
     } catch (error) {
@@ -168,6 +172,7 @@ export default function ProfileSettings() {
           height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
           weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
           diet_preferences: dietPreferences,
+          religious_diet: religiousDiet,
           allergies: allergies,
           view_mode: viewMode,
           locale: preferences,
@@ -806,7 +811,7 @@ export default function ProfileSettings() {
             <div className="space-y-3">
               <Label>Diet Preferences</Label>
               <div className="flex flex-wrap gap-3">
-                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free', 'Halal', 'Kosher'].map((option) => (
+                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].map((option) => (
                   <button
                     key={option}
                     onClick={() => {
@@ -827,7 +832,7 @@ export default function ProfileSettings() {
                 ))}
                 
                 {/* Display custom diet preferences */}
-                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free', 'Halal', 'Kosher'].includes(d)).map((custom) => (
+                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].includes(d)).map((custom) => (
                   <button
                     key={custom}
                     onClick={() => setDietPreferences(dietPreferences.filter(d => d !== custom))}
@@ -866,6 +871,84 @@ export default function ProfileSettings() {
                         setDietPreferences([...dietPreferences, customDietInput.trim()]);
                         setCustomDietInput('');
                         setShowCustomDiet(false);
+                      }
+                    }}
+                    size="sm"
+                    className="rounded-xl"
+                  >
+                    Add
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Religious Food Preferences */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-[#12AFCB]" />
+                <Label>Religious Food Preferences</Label>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      if (religiousDiet.includes(option)) {
+                        setReligiousDiet(religiousDiet.filter(d => d !== option));
+                      } else {
+                        setReligiousDiet([...religiousDiet, option]);
+                      }
+                    }}
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                      religiousDiet.includes(option)
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+                
+                {/* Display custom religious preferences */}
+                {religiousDiet.filter(d => !['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].includes(d)).map((custom) => (
+                  <button
+                    key={custom}
+                    onClick={() => setReligiousDiet(religiousDiet.filter(d => d !== custom))}
+                    className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
+                  >
+                    {custom}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => setShowCustomReligious(!showCustomReligious)}
+                  className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
+                >
+                  Other...
+                </button>
+              </div>
+              
+              {showCustomReligious && (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter custom religious food preference"
+                    value={customReligiousInput}
+                    onChange={(e) => setCustomReligiousInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && customReligiousInput.trim()) {
+                        setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
+                        setCustomReligiousInput('');
+                        setShowCustomReligious(false);
+                      }
+                    }}
+                    className="rounded-xl"
+                  />
+                  <Button
+                    onClick={() => {
+                      if (customReligiousInput.trim()) {
+                        setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
+                        setCustomReligiousInput('');
+                        setShowCustomReligious(false);
                       }
                     }}
                     size="sm"
