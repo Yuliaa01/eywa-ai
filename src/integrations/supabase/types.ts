@@ -1856,6 +1856,7 @@ export type Database = {
         | "functional_integrative"
         | "biogerontology"
         | "internal_medicine"
+        | "pediatrics"
       feedback_period: "daily" | "weekly" | "monthly"
       health_issue_category:
         | "anxiety"
@@ -2151,6 +2152,7 @@ export const Constants = {
         "functional_integrative",
         "biogerontology",
         "internal_medicine",
+        "pediatrics",
       ],
       feedback_period: ["daily", "weekly", "monthly"],
       health_issue_category: [
