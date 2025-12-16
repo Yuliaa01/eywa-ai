@@ -35,13 +35,13 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
             <Eye className="w-5 h-5 text-[#12AFCB]" />
             View Mode
           </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {['Standard', 'Professional', 'Doctor View'].map((mode) => (
+          <div className="grid grid-cols-2 gap-3">
+            {['Standard', 'Professional'].map((mode) => (
               <button
                 key={mode}
-                onClick={() => setViewMode(mode.toLowerCase().replace(' ', '_'))}
+                onClick={() => setViewMode(mode.toLowerCase())}
                 className={`p-4 rounded-2xl font-medium text-[0.9375rem] transition-all ${
-                  viewMode === mode.toLowerCase().replace(' ', '_')
+                  viewMode === mode.toLowerCase()
                     ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
                     : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
                 }`}
