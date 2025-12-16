@@ -112,7 +112,7 @@ export default function WelcomeStep({
       </Dialog>
 
       <div className="space-y-8 animate-scale-in">
-      <div className="text-center space-y-6">
+      <div className="text-center space-y-6 py-[10px]">
         <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl bg-white/80 backdrop-blur-xl border border-[#12AFCB]/10 shadow-[0_4px_20px_rgba(18,175,203,0.08)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.15)] transition-all duration-300">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#12AFCB] to-[#12AFCB]/70 flex items-center justify-center">
             <Shield className="w-12 h-12 text-white" />
