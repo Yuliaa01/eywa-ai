@@ -97,6 +97,7 @@ export default function Auth() {
       console.log('🔵 Navigating to onboarding...');
       navigate('/onboarding', {
         state: {
+          fromAuth: true,
           credentials: {
             email: validatedData.email,
             password: validatedData.password

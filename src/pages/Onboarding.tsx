@@ -50,14 +50,17 @@ export default function Onboarding() {
   useEffect(() => {
     sessionStorage.setItem('onboardingData', JSON.stringify(onboardingData));
   }, [onboardingData]);
-
-  // Clear sessionStorage when starting onboarding fresh
+  // Clear sessionStorage when starting onboarding fresh (but preserve credentials)
   useEffect(() => {
-    if (currentStep === 0) {
-      sessionStorage.removeItem('onboardingData');
-      setOnboardingData({});
+    if (currentStep === 0 && !location.state?.fromAuth) {
+      // Only clear if not coming from auth page - preserve credentials
+      const currentCredentials = onboardingData?.credentials;
+      if (!currentCredentials) {
+        sessionStorage.removeItem('onboardingData');
+        setOnboardingData({});
+      }
     }
-  }, [currentStep]);
+  }, []);
 
   // Check authentication before allowing onboarding (unless credentials are pending)
   useEffect(() => {
@@ -211,7 +214,7 @@ export default function Onboarding() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <WelcomeStep onNext={nextStep} className="py-[24px]" />;
+        return <WelcomeStep onNext={nextStep} />;
       case 1:
         return <ConnectionsStep onNext={nextStep} onDataIngested={data => setOnboardingData({
           ...onboardingData,
