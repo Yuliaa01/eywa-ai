@@ -211,7 +211,7 @@ export default function Onboarding() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <WelcomeStep onNext={nextStep} />;
+        return <WelcomeStep onNext={nextStep} className="py-[24px]" />;
       case 1:
         return <ConnectionsStep onNext={nextStep} onDataIngested={data => setOnboardingData({
           ...onboardingData,
