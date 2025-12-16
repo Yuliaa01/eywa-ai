@@ -155,42 +155,6 @@ export default function BriefingStep({ onComplete, onboardingData }: BriefingSte
         </p>
       </div>
 
-      {/* Health Score */}
-      <div className="flex justify-center">
-        <div className="relative w-32 h-32">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="42"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="8"
-              className="text-gray-200"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="42"
-              fill="none"
-              stroke="url(#scoreGradient)"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={`${(healthScore / 100) * 264} 264`}
-            />
-            <defs>
-              <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#12AFCB" />
-                <stop offset="100%" stopColor="#10B981" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-bold text-[#0E1012]">{healthScore}</span>
-            <span className="text-xs text-[#5A6B7F]">Health Score</span>
-          </div>
-        </div>
-      </div>
 
       {/* Findings */}
       <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
