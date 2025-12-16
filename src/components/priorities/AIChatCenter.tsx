@@ -440,46 +440,43 @@ export function AIChatCenter() {
               </Button>
             </div>
           </div>
+          </div>
 
-          {/* Quick Actions */}
-          <div className="space-y-3 flex-shrink-0">
-            <p className="text-xs text-[#5A6B7F] font-medium uppercase tracking-wide">Quick Actions</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in" style={{
-            animationDelay: '150ms'
-          }}>
+          {/* Quick Actions + Input - Fixed at bottom */}
+          <div className="mt-auto pt-4 flex-shrink-0 space-y-3">
+            {/* Quick Actions */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {[
-                { icon: TrendingUp, title: "View Progress", color: "#22C55E", message: "Show me my overall health progress and trends" },
-                { icon: Moon, title: "Sleep Analysis", color: "#8B5CF6", message: "Give me a detailed sleep analysis and recommendations" },
-                { icon: Apple, title: "Nutrition Tips", color: "#F59E0B", message: "What nutrition tips do you have for me based on my health data?" },
-                { icon: Heart, title: "Stress Relief", color: "#EC4899", message: "Give me personalized stress relief techniques and recommendations" }
+                { icon: TrendingUp, title: "Progress", color: "#22C55E", message: "Show me my overall health progress and trends" },
+                { icon: Moon, title: "Sleep", color: "#8B5CF6", message: "Give me a detailed sleep analysis and recommendations" },
+                { icon: Apple, title: "Nutrition", color: "#F59E0B", message: "What nutrition tips do you have for me based on my health data?" },
+                { icon: Heart, title: "Stress", color: "#EC4899", message: "Give me personalized stress relief techniques and recommendations" }
               ].map((action) => (
                 <button 
                   key={action.title}
                   onClick={() => handleSendWithMessage(action.message)} 
-                  className="rounded-2xl bg-white/80 backdrop-blur-sm border border-[#12AFCB]/10 p-4 flex flex-col items-center gap-3 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] transition-all duration-200"
+                  className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-[#12AFCB]/10 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] transition-all duration-200"
                 >
                   <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    className="w-7 h-7 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: `${action.color}15` }}
                   >
-                    <action.icon className="w-6 h-6" style={{ color: action.color }} />
+                    <action.icon className="w-3.5 h-3.5" style={{ color: action.color }} />
                   </div>
-                  <span className="text-sm font-semibold text-[#0E1012]">{action.title}</span>
+                  <span className="text-xs font-semibold text-[#0E1012]">{action.title}</span>
                 </button>
               ))}
             </div>
-          </div>
-          </div>
 
-          {/* Chat Input at Very Bottom */}
-          <div className="mt-auto pt-6 flex-shrink-0 py-0">
             {/* Image Preview */}
-            {imagePreview && <div className="mb-3 relative inline-block">
+            {imagePreview && <div className="relative inline-block">
                 <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border-2 border-[#12AFCB]/20" />
                 <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center">
                   <X className="w-4 h-4" />
                 </button>
               </div>}
+            
+            {/* Input Row */}
             <div className="flex items-center gap-3">
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" capture className="hidden" />
               <button onClick={() => fileInputRef.current?.click()} disabled={isRecording} className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105" title="Take photo or choose from gallery">
@@ -507,8 +504,8 @@ export function AIChatCenter() {
               </button>
             </div>
 
-            {/* Activity Indicator below input */}
-            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#5A6B7F]">
+            {/* Activity Indicator */}
+            <div className="flex items-center justify-center gap-2 text-xs text-[#5A6B7F]">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Based on your last 14 days</span>
               <span className="text-[#12AFCB]/40">•</span>
