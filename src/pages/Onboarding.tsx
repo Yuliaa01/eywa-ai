@@ -167,6 +167,7 @@ export default function Onboarding() {
         diet_preferences: nutrition.diet || [],
         allergies: nutrition.allergies || [],
         locale: localeData,
+        view_mode: preferences.viewMode || 'standard',
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
       });
