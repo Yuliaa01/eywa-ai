@@ -301,7 +301,7 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-3xl mx-auto py-12 space-y-12">
+      <div className="max-w-3xl mx-auto py-4 space-y-8">
         {/* Back Button */}
         {currentStep > 1 && (
           <button
