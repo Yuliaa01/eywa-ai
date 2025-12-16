@@ -122,20 +122,21 @@ serve(async (req) => {
       ? contextParts.join('\n')
       : 'New user with minimal profile data';
 
-    const systemPrompt = `You are a health analysis AI for a longevity and wellness app. Based on the user's onboarding data, generate a personalized health briefing.
+    const systemPrompt = `You are a health analysis AI. Generate a CONCISE personalized health briefing.
 
-Analyze the available data and provide:
-1. 3-5 findings about their current health status (be encouraging but honest)
-2. 3-4 actionable recommendations tailored to their goals
-3. An estimated health score (60-95 range for most users)
-4. A brief personalized summary (1-2 sentences)
+CRITICAL: Keep all text SHORT.
+- Finding titles: max 5 words
+- Finding details: max 15 words (one short sentence)
+- Recommendations: max 10 words each
+- Summary: max 20 words (one sentence)
 
-Guidelines:
-- Be encouraging and supportive, not alarming
-- Focus on actionable insights
-- If data is limited, provide general wellness guidance based on stated goals
-- Never make definitive medical diagnoses
-- Relate findings to their specific goals when possible`;
+Provide:
+1. 3 findings about their health status
+2. 3 actionable recommendations
+3. Health score (60-95)
+4. Brief summary
+
+Be encouraging. Never diagnose. Focus on their goals.`;
 
     const userPrompt = `Generate a health briefing for this user:
 
