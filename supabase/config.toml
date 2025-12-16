@@ -20,3 +20,6 @@ verify_jwt = true
 
 [functions.ai-doctor-chat]
 verify_jwt = true
+
+[functions.generate-onboarding-briefing]
+verify_jwt = false
