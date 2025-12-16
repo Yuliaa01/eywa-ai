@@ -293,7 +293,7 @@ export default function Onboarding() {
           />
         );
       case 9:
-        return <BriefingStep onComplete={handleComplete} />;
+        return <BriefingStep onComplete={handleComplete} onboardingData={onboardingData} />;
       default:
         return null;
     }
