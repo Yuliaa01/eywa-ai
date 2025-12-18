@@ -9,6 +9,7 @@ import SpecialtiesTab from "@/components/doctorhub/SpecialtiesTab";
 import TestsOrdersTab from "@/components/doctorhub/TestsOrdersTab";
 import MessagesTab from "@/components/doctorhub/MessagesTab";
 import NotesTab from "@/components/doctorhub/NotesTab";
+import { VitaminsCatalogTab } from "@/components/doctorhub/VitaminsCatalogTab";
 import { FileUploadModal } from "@/components/modals/FileUploadModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -307,7 +308,7 @@ export default function DoctorHub() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="w-full grid grid-cols-4 bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-1.5 rounded-3xl h-auto">
+          <TabsList className="w-full grid grid-cols-5 bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-1.5 rounded-3xl h-auto">
             <TabsTrigger
               value="specialties"
               className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
@@ -318,7 +319,13 @@ export default function DoctorHub() {
               value="tests"
               className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
             >
-              Tests & Orders
+              Tests
+            </TabsTrigger>
+            <TabsTrigger
+              value="vitamins"
+              className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#12AFCB] data-[state=active]:to-[#12AFCB]/90 data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
+            >
+              Vitamins
             </TabsTrigger>
             <TabsTrigger
               value="messages"
@@ -340,6 +347,10 @@ export default function DoctorHub() {
 
           <TabsContent value="tests" className="animate-scale-in">
             <TestsOrdersTab />
+          </TabsContent>
+
+          <TabsContent value="vitamins" className="animate-scale-in">
+            <VitaminsCatalogTab />
           </TabsContent>
 
           <TabsContent value="messages" className="animate-scale-in">

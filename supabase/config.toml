@@ -23,3 +23,6 @@ verify_jwt = true
 
 [functions.generate-onboarding-briefing]
 verify_jwt = false
+
+[functions.recommend-vitamins]
+verify_jwt = true

@@ -1710,6 +1710,72 @@ export type Database = {
           },
         ]
       }
+      user_vitamin_orders: {
+        Row: {
+          bundle_id: string | null
+          created_at: string
+          dosage_selected: string | null
+          id: string
+          notes: string | null
+          quantity: number
+          shipping_address: Json | null
+          status: Database["public"]["Enums"]["vitamin_order_status"]
+          total_price: number
+          tracking_info: Json | null
+          unit_price: number
+          updated_at: string
+          user_id: string
+          vitamin_id: string | null
+        }
+        Insert: {
+          bundle_id?: string | null
+          created_at?: string
+          dosage_selected?: string | null
+          id?: string
+          notes?: string | null
+          quantity?: number
+          shipping_address?: Json | null
+          status?: Database["public"]["Enums"]["vitamin_order_status"]
+          total_price: number
+          tracking_info?: Json | null
+          unit_price: number
+          updated_at?: string
+          user_id: string
+          vitamin_id?: string | null
+        }
+        Update: {
+          bundle_id?: string | null
+          created_at?: string
+          dosage_selected?: string | null
+          id?: string
+          notes?: string | null
+          quantity?: number
+          shipping_address?: Json | null
+          status?: Database["public"]["Enums"]["vitamin_order_status"]
+          total_price?: number
+          tracking_info?: Json | null
+          unit_price?: number
+          updated_at?: string
+          user_id?: string
+          vitamin_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_vitamin_orders_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "vitamin_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_vitamin_orders_vitamin_id_fkey"
+            columns: ["vitamin_id"]
+            isOneToOne: false
+            referencedRelation: "vitamins_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vitals_stream: {
         Row: {
           created_at: string
@@ -1740,6 +1806,144 @@ export type Database = {
           units?: string | null
           user_id?: string
           value?: number
+        }
+        Relationships: []
+      }
+      vitamin_bundle_items: {
+        Row: {
+          bundle_id: string
+          created_at: string
+          dosage_selected: string | null
+          id: string
+          vitamin_id: string
+        }
+        Insert: {
+          bundle_id: string
+          created_at?: string
+          dosage_selected?: string | null
+          id?: string
+          vitamin_id: string
+        }
+        Update: {
+          bundle_id?: string
+          created_at?: string
+          dosage_selected?: string | null
+          id?: string
+          vitamin_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vitamin_bundle_items_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "vitamin_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vitamin_bundle_items_vitamin_id_fkey"
+            columns: ["vitamin_id"]
+            isOneToOne: false
+            referencedRelation: "vitamins_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vitamin_bundles: {
+        Row: {
+          base_price: number
+          category: string
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          is_active: boolean
+          name: string
+          priority_match_keywords: string[]
+          recommended_for: string[]
+          updated_at: string
+        }
+        Insert: {
+          base_price: number
+          category: string
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          priority_match_keywords?: string[]
+          recommended_for?: string[]
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          category?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority_match_keywords?: string[]
+          recommended_for?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      vitamins_catalog: {
+        Row: {
+          base_price: number
+          benefits: string[]
+          biomarker_targets: string[]
+          brand: string | null
+          category: Database["public"]["Enums"]["vitamin_category"]
+          created_at: string
+          description: string
+          display_order: number
+          dosage_options: Json
+          form: Database["public"]["Enums"]["vitamin_form"]
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          suggested_for: string[]
+          updated_at: string
+        }
+        Insert: {
+          base_price: number
+          benefits?: string[]
+          biomarker_targets?: string[]
+          brand?: string | null
+          category: Database["public"]["Enums"]["vitamin_category"]
+          created_at?: string
+          description: string
+          display_order?: number
+          dosage_options?: Json
+          form: Database["public"]["Enums"]["vitamin_form"]
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          suggested_for?: string[]
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          benefits?: string[]
+          biomarker_targets?: string[]
+          brand?: string | null
+          category?: Database["public"]["Enums"]["vitamin_category"]
+          created_at?: string
+          description?: string
+          display_order?: number
+          dosage_options?: Json
+          form?: Database["public"]["Enums"]["vitamin_form"]
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          suggested_for?: string[]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1967,6 +2171,27 @@ export type Database = {
         | "body_protein"
         | "minerals"
         | "metabolic_rate"
+      vitamin_category:
+        | "vitamins"
+        | "minerals"
+        | "amino_acids"
+        | "herbs"
+        | "probiotics"
+        | "omega_fatty_acids"
+        | "specialty"
+      vitamin_form:
+        | "capsule"
+        | "tablet"
+        | "softgel"
+        | "powder"
+        | "liquid"
+        | "gummy"
+      vitamin_order_status:
+        | "pending"
+        | "ordered"
+        | "shipped"
+        | "delivered"
+        | "canceled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2268,6 +2493,30 @@ export const Constants = {
         "body_protein",
         "minerals",
         "metabolic_rate",
+      ],
+      vitamin_category: [
+        "vitamins",
+        "minerals",
+        "amino_acids",
+        "herbs",
+        "probiotics",
+        "omega_fatty_acids",
+        "specialty",
+      ],
+      vitamin_form: [
+        "capsule",
+        "tablet",
+        "softgel",
+        "powder",
+        "liquid",
+        "gummy",
+      ],
+      vitamin_order_status: [
+        "pending",
+        "ordered",
+        "shipped",
+        "delivered",
+        "canceled",
       ],
     },
   },
