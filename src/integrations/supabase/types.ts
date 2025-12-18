@@ -825,6 +825,45 @@ export type Database = {
         }
         Relationships: []
       }
+      menstrual_cycles: {
+        Row: {
+          created_at: string
+          cycle_length: number | null
+          flow_intensity: string | null
+          id: string
+          notes: string | null
+          period_end_date: string | null
+          period_start_date: string
+          symptoms: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_length?: number | null
+          flow_intensity?: string | null
+          id?: string
+          notes?: string | null
+          period_end_date?: string | null
+          period_start_date: string
+          symptoms?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cycle_length?: number | null
+          flow_intensity?: string | null
+          id?: string
+          notes?: string | null
+          period_end_date?: string | null
+          period_start_date?: string
+          symptoms?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       nutrition_plans: {
         Row: {
           active_diets: string[] | null
@@ -1444,6 +1483,7 @@ export type Database = {
           biological_age_estimate: number | null
           chronic_conditions: string[] | null
           created_at: string
+          cycle_preferences: Json | null
           diet_preferences: string[] | null
           dob: string | null
           fasting_pref: Json | null
@@ -1469,6 +1509,7 @@ export type Database = {
           biological_age_estimate?: number | null
           chronic_conditions?: string[] | null
           created_at?: string
+          cycle_preferences?: Json | null
           diet_preferences?: string[] | null
           dob?: string | null
           fasting_pref?: Json | null
@@ -1494,6 +1535,7 @@ export type Database = {
           biological_age_estimate?: number | null
           chronic_conditions?: string[] | null
           created_at?: string
+          cycle_preferences?: Json | null
           diet_preferences?: string[] | null
           dob?: string | null
           fasting_pref?: Json | null

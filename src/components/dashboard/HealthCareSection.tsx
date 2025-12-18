@@ -9,6 +9,7 @@ import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useBioAge } from "@/hooks/useBioAge";
+import CycleTracker from "@/components/dashboard/CycleTracker";
 export default function HealthCareSection() {
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -1096,6 +1097,11 @@ export default function HealthCareSection() {
           </button>
         </div>
       </div>
+
+      {/* Women's Cycle Tracker - Show for female users */}
+      {(userProfile?.sex_at_birth === 'female' || displayUserProfile?.sex_at_birth === 'female') && (
+        <CycleTracker />
+      )}
 
       {/* Tip Cards */}
       <div className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)]">
