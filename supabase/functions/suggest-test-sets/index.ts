@@ -46,8 +46,9 @@ serve(async (req) => {
       }
     );
 
-    // Get authenticated user - with verify_jwt=true, this should work
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Extract the JWT token from the auth header and get the user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     
     if (userError) {
       console.error('Auth error:', userError);
