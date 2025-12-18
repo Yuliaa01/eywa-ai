@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Heart, Calendar, Droplet, Plus, Settings, TrendingUp } from "lucide-react";
+import { Heart, Calendar, Droplet, Plus, Settings, TrendingUp, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInDays, addDays } from "date-fns";
 import { CycleLogModal } from "@/components/modals/CycleLogModal";
+import { CycleHistoryModal } from "@/components/modals/CycleHistoryModal";
 
 interface CycleData {
   id: string;
@@ -37,6 +38,7 @@ export default function CycleTracker() {
   });
   const [loading, setLoading] = useState(true);
   const [logModalOpen, setLogModalOpen] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [editingCycle, setEditingCycle] = useState<CycleData | null>(null);
 
   useEffect(() => {
@@ -145,6 +147,12 @@ export default function CycleTracker() {
     setEditingCycle(null);
   };
 
+  const handleEditFromHistory = (cycle: CycleData) => {
+    setEditingCycle(cycle);
+    setHistoryModalOpen(false);
+    setLogModalOpen(true);
+  };
+
   const cycleInfo = getCurrentCycleInfo();
 
   if (loading) {
@@ -167,14 +175,27 @@ export default function CycleTracker() {
             </div>
             <h3 className="font-semibold text-foreground">Cycle Tracker</h3>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            onClick={handleLogPeriod}
+          <div className="flex items-center gap-1">
+            {cycles.length > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={() => setHistoryModalOpen(true)}
+                title="View History"
+              >
+                <History className="w-4 h-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={handleLogPeriod}
           >
-            <Plus className="w-4 h-4" />
-          </Button>
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {cycles.length === 0 ? (
@@ -298,6 +319,13 @@ export default function CycleTracker() {
         editingCycle={editingCycle}
         onSaved={handleCycleSaved}
         preferences={preferences}
+      />
+
+      <CycleHistoryModal
+        open={historyModalOpen}
+        onOpenChange={setHistoryModalOpen}
+        cycles={cycles}
+        onEditCycle={handleEditFromHistory}
       />
     </>
   );
