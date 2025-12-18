@@ -561,9 +561,9 @@ export default function PrioritiesSection() {
   };
   return <div className="max-w-[1400px] mx-auto space-y-6">
       {/* Grid layout with fixed AI Chat height */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full lg:items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full lg:items-stretch">
         {/* AI Chat Center - Column 1, Fixed height */}
-        <div className="lg:h-[760px] flex flex-col">
+        <div className="lg:min-h-[760px] flex flex-col h-full">
           <AIChatCenter />
         </div>
 
