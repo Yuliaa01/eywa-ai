@@ -561,14 +561,14 @@ export default function PrioritiesSection() {
   };
   return <div className="max-w-[1400px] mx-auto space-y-6">
       {/* Grid layout with fixed AI Chat height */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full lg:items-stretch">
-        {/* AI Chat Center - Column 1, Fixed height */}
-        <div className="lg:h-[760px] flex flex-col h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 w-full lg:h-[760px] lg:items-stretch">
+        {/* AI Chat Center - Column 1 */}
+        <div className="h-full flex flex-col">
           <AIChatCenter />
         </div>
 
         {/* Column 2 Cards - Draggable with side-by-side This Week and Plans */}
-        <div className="flex flex-col gap-4 lg:h-[760px]">
+        <div className="h-full flex flex-col gap-4">
           <DndContext sensors={cardSensors} collisionDetection={closestCenter} onDragEnd={handleCardDragEnd}>
             <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
               {orderedCards.map(cardType => <SortableItem key={cardType} id={cardType} showHandle={false}>
