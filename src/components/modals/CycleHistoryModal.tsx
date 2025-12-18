@@ -2,8 +2,9 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Activity } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, subMonths, addMonths } from "date-fns";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Activity, Sparkles } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isWithinInterval, subMonths, addMonths, addDays } from "date-fns";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CycleData {
   id: string;
@@ -42,6 +43,9 @@ const FLOW_INFO: Record<string, { label: string; color: string }> = {
   heavy: { label: "Heavy", color: "#BE185D" },
 };
 
+// Prediction types
+type DayType = "period" | "predicted_period" | "ovulation" | "fertile" | null;
+
 export function CycleHistoryModal({
   open,
   onOpenChange,
@@ -50,30 +54,100 @@ export function CycleHistoryModal({
 }: CycleHistoryModalProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // Get period days for the current month view
-  const periodDays = useMemo(() => {
+  // Calculate average cycle stats
+  const cycleStats = useMemo(() => {
+    const validCycles = cycles.filter((c) => c.cycle_length && c.cycle_length > 0);
+    const avgLength = validCycles.length > 0
+      ? Math.round(validCycles.reduce((sum, c) => sum + (c.cycle_length || 0), 0) / validCycles.length)
+      : 28; // Default to 28 days
+    
+    const periodLengths = cycles
+      .filter((c) => c.period_start_date && c.period_end_date)
+      .map((c) => {
+        const start = new Date(c.period_start_date);
+        const end = new Date(c.period_end_date!);
+        return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      });
+    
+    const avgPeriod = periodLengths.length > 0
+      ? Math.round(periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length)
+      : 5; // Default to 5 days
+
+    return { avgLength, avgPeriod, totalCycles: cycles.length };
+  }, [cycles]);
+
+  // Get all calendar day info including predictions
+  const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
-    const days: Map<string, { flow: string | null; cycle: CycleData }> = new Map();
+    const days: Map<string, { type: DayType; flow?: string | null; cycle?: CycleData; tooltip?: string }> = new Map();
 
+    // Add actual period days
     cycles.forEach((cycle) => {
       const start = new Date(cycle.period_start_date);
       const end = cycle.period_end_date ? new Date(cycle.period_end_date) : start;
       
-      // Get all days in this period
       const periodInterval = eachDayOfInterval({ start, end });
       periodInterval.forEach((day) => {
         if (isWithinInterval(day, { start: monthStart, end: monthEnd })) {
           days.set(format(day, "yyyy-MM-dd"), {
+            type: "period",
             flow: cycle.flow_intensity,
             cycle,
+            tooltip: `Period${cycle.flow_intensity ? ` (${FLOW_INFO[cycle.flow_intensity]?.label})` : ""}`,
           });
         }
       });
     });
 
+    // Calculate predictions based on last cycle
+    if (cycles.length > 0) {
+      const lastCycle = cycles[0];
+      const lastPeriodStart = new Date(lastCycle.period_start_date);
+      const avgCycleLength = cycleStats.avgLength;
+      const avgPeriodLength = cycleStats.avgPeriod;
+
+      // Generate predictions for next 3 cycles
+      for (let cycleNum = 1; cycleNum <= 3; cycleNum++) {
+        const predictedPeriodStart = addDays(lastPeriodStart, avgCycleLength * cycleNum);
+        const predictedPeriodEnd = addDays(predictedPeriodStart, avgPeriodLength - 1);
+        
+        // Ovulation typically occurs ~14 days before the next period
+        const ovulationDay = addDays(predictedPeriodStart, -14);
+        
+        // Fertile window is typically 5 days before ovulation + ovulation day
+        const fertileStart = addDays(ovulationDay, -5);
+        const fertileEnd = addDays(ovulationDay, 1);
+
+        // Add predicted period days
+        const predictedPeriodDays = eachDayOfInterval({ start: predictedPeriodStart, end: predictedPeriodEnd });
+        predictedPeriodDays.forEach((day) => {
+          const dateKey = format(day, "yyyy-MM-dd");
+          if (isWithinInterval(day, { start: monthStart, end: monthEnd }) && !days.has(dateKey)) {
+            days.set(dateKey, {
+              type: "predicted_period",
+              tooltip: "Predicted period",
+            });
+          }
+        });
+
+        // Add fertile window days
+        const fertileDays = eachDayOfInterval({ start: fertileStart, end: fertileEnd });
+        fertileDays.forEach((day) => {
+          const dateKey = format(day, "yyyy-MM-dd");
+          if (isWithinInterval(day, { start: monthStart, end: monthEnd }) && !days.has(dateKey)) {
+            const isOvulation = format(day, "yyyy-MM-dd") === format(ovulationDay, "yyyy-MM-dd");
+            days.set(dateKey, {
+              type: isOvulation ? "ovulation" : "fertile",
+              tooltip: isOvulation ? "Predicted ovulation" : "Fertile window",
+            });
+          }
+        });
+      }
+    }
+
     return days;
-  }, [cycles, currentMonth]);
+  }, [cycles, currentMonth, cycleStats]);
 
   // Calculate symptom patterns
   const symptomStats = useMemo(() => {
@@ -88,52 +162,73 @@ export function CycleHistoryModal({
       .slice(0, 6);
   }, [cycles]);
 
-  // Calculate average cycle stats
-  const cycleStats = useMemo(() => {
-    const validCycles = cycles.filter((c) => c.cycle_length && c.cycle_length > 0);
-    const avgLength = validCycles.length > 0
-      ? Math.round(validCycles.reduce((sum, c) => sum + (c.cycle_length || 0), 0) / validCycles.length)
-      : null;
-    
-    const periodLengths = cycles
-      .filter((c) => c.period_start_date && c.period_end_date)
-      .map((c) => {
-        const start = new Date(c.period_start_date);
-        const end = new Date(c.period_end_date!);
-        return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      });
-    
-    const avgPeriod = periodLengths.length > 0
-      ? Math.round(periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length)
-      : null;
-
-    return { avgLength, avgPeriod, totalCycles: cycles.length };
-  }, [cycles]);
-
   const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
   const getDayContent = (day: Date) => {
     const dateKey = format(day, "yyyy-MM-dd");
-    const periodInfo = periodDays.get(dateKey);
+    const dayInfo = calendarDays.get(dateKey);
     
-    if (periodInfo) {
-      const color = periodInfo.flow ? FLOW_INFO[periodInfo.flow]?.color : "#EC4899";
-      return (
+    if (!dayInfo) return null;
+
+    const getStyles = () => {
+      switch (dayInfo.type) {
+        case "period":
+          const color = dayInfo.flow ? FLOW_INFO[dayInfo.flow]?.color : "#EC4899";
+          return { backgroundColor: color, color: "white", border: "none" };
+        case "predicted_period":
+          return { 
+            backgroundColor: "transparent", 
+            border: "2px dashed #EC4899",
+            color: "#EC4899",
+          };
+        case "ovulation":
+          return { 
+            backgroundColor: "#F59E0B", 
+            color: "white",
+            border: "none",
+          };
+        case "fertile":
+          return { 
+            backgroundColor: "#FEF3C7", 
+            color: "#D97706",
+            border: "1px solid #FCD34D",
+          };
+        default:
+          return {};
+      }
+    };
+
+    const styles = getStyles();
+
+    const content = (
+      <div
+        className={`w-full h-full flex items-center justify-center ${dayInfo.type === "period" ? "cursor-pointer" : ""}`}
+        onClick={() => dayInfo.cycle && onEditCycle(dayInfo.cycle)}
+      >
         <div
-          className="w-full h-full flex items-center justify-center cursor-pointer"
-          onClick={() => onEditCycle(periodInfo.cycle)}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all"
+          style={styles}
         >
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
-            style={{ backgroundColor: color }}
-          >
-            {day.getDate()}
-          </div>
+          {dayInfo.type === "ovulation" ? "✨" : day.getDate()}
         </div>
+      </div>
+    );
+
+    if (dayInfo.tooltip) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">{dayInfo.tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     }
-    return null;
+
+    return content;
   };
 
   return (
@@ -161,7 +256,6 @@ export function CycleHistoryModal({
               variant="ghost" 
               size="icon" 
               onClick={handleNextMonth}
-              disabled={currentMonth >= new Date()}
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -185,21 +279,28 @@ export function CycleHistoryModal({
                   return <span>{date.getDate()}</span>;
                 },
               }}
-              disabled={(date) => date > new Date()}
+              disabled={() => false}
             />
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap gap-3 justify-center">
-            {Object.entries(FLOW_INFO).map(([key, { label, color }]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: color }}
-                />
-                <span className="text-xs text-muted-foreground">{label}</span>
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-pink-500" />
+              <span className="text-xs text-muted-foreground">Period</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full border-2 border-dashed border-pink-500" />
+              <span className="text-xs text-muted-foreground">Predicted</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-amber-500" />
+              <span className="text-xs text-muted-foreground">Ovulation</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-amber-100 border border-amber-300" />
+              <span className="text-xs text-muted-foreground">Fertile</span>
+            </div>
           </div>
 
           {/* Stats Section */}
