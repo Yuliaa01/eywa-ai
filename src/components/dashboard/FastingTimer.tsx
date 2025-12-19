@@ -558,7 +558,7 @@ export default function FastingTimer({
                 </> : <>
                   <Button onClick={handleStart} className="w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg flex flex-col items-center justify-center p-0">
                     <Play className="w-8 h-8 mb-1" />
-                    <span className="text-sm font-semibold">Start Fast</span>
+                    <span className="text-sm font-semibold text-center">Start</span>
                   </Button>
                 </>}
             </div>
@@ -599,8 +599,7 @@ export default function FastingTimer({
       </div>
 
       {/* Control buttons - only show when fasting is active */}
-      {hasActiveFast && (
-        <div className="flex gap-2 mt-auto">
+      {hasActiveFast && <div className="flex gap-2 mt-auto">
           {!isPaused ? <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
               <Pause className="w-4 h-4 mr-2" />
               Pause
@@ -612,8 +611,7 @@ export default function FastingTimer({
             <Square className="w-4 h-4 mr-2" />
             End Fast
           </Button>
-        </div>
-      )}
+        </div>}
 
       {/* Stop Confirmation Dialog */}
       <Dialog open={stopDialogOpen} onOpenChange={setStopDialogOpen}>
