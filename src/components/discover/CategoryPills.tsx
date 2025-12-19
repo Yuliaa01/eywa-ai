@@ -24,17 +24,6 @@ export function CategoryPills({
   return (
     <ScrollArea className={cn("w-full", className)}>
       <div className="flex gap-2 pb-2">
-        <button
-          onClick={() => onSelect(null)}
-          className={cn(
-            "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
-            selectedSlug === null
-              ? "bg-accent-teal text-white"
-              : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-          )}
-        >
-          For You
-        </button>
         {categories.map((category) => (
           <button
             key={category.id}
