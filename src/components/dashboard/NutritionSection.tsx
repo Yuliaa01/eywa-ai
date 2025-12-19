@@ -754,7 +754,7 @@ export default function NutritionSection() {
 
         {/* Supplements */}
         <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-[#12AFCB]/10 p-8 shadow-[0_4px_20px_rgba(18,175,203,0.06)] h-[380px] flex flex-col">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <h3 className="font-rounded text-xl font-semibold text-[#0E1012]">Supplements</h3>
             <div className="flex items-center gap-2">
               {activeSupplements.length > 0 && activeSupplements.some(s => !takenSupplementIds.has(s.id)) && (
