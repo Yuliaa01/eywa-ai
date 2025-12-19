@@ -4,6 +4,7 @@ import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from '
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -1262,31 +1263,24 @@ export default function ProfileSettings() {
 
             {/* Push Notifications */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-accent" />
-                <Label>Push Notifications</Label>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-accent" />
+                    <Label className="font-medium">Push Notifications</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Receive health reminders, AI insights, and alerts
+                  </p>
+                </div>
+                <div className={`transition-all duration-300 ${pushNotificationsEnabled ? 'drop-shadow-[0_0_8px_hsl(var(--accent)/0.4)]' : ''}`}>
+                  <Switch
+                    checked={pushNotificationsEnabled}
+                    onCheckedChange={setPushNotificationsEnabled}
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent/80 h-7 w-12"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'On', value: true },
-                  { label: 'Off', value: false }
-                ].map((option) => (
-                  <button
-                    key={String(option.value)}
-                    onClick={() => setPushNotificationsEnabled(option.value)}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                      pushNotificationsEnabled === option.value
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-[#5A6B7F] mt-2">
-                Receive health reminders, AI insights, and alerts
-              </p>
             </div>
           </div>
         </div>
