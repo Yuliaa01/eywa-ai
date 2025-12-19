@@ -105,16 +105,16 @@ export function EducationLibrary({
 
         {/* Content type filters */}
         <div className="flex gap-2">
-          <Button variant={contentFilter === null ? "default" : "outline"} size="sm" onClick={() => setContentFilter(null)}>
+          <Button variant="outline" size="sm" onClick={() => setContentFilter(null)} className={contentFilter === null ? "bg-accent-teal text-white border-accent-teal hover:bg-accent-teal/90" : "hover:border-accent-teal/50"}>
             All
           </Button>
-          <Button variant={contentFilter === "education" ? "default" : "outline"} size="sm" onClick={() => setContentFilter("education")}>
+          <Button variant="outline" size="sm" onClick={() => setContentFilter("education")} className={contentFilter === "education" ? "bg-accent-teal text-white border-accent-teal hover:bg-accent-teal/90" : "hover:border-accent-teal/50"}>
             Education
           </Button>
-          <Button variant={contentFilter === "tutorial" ? "default" : "outline"} size="sm" onClick={() => setContentFilter("tutorial")}>
+          <Button variant="outline" size="sm" onClick={() => setContentFilter("tutorial")} className={contentFilter === "tutorial" ? "bg-accent-teal text-white border-accent-teal hover:bg-accent-teal/90" : "hover:border-accent-teal/50"}>
             Tutorials
           </Button>
-          <Button variant={contentFilter === "reel" ? "default" : "outline"} size="sm" onClick={() => setContentFilter("reel")}>
+          <Button variant="outline" size="sm" onClick={() => setContentFilter("reel")} className={contentFilter === "reel" ? "bg-accent-teal text-white border-accent-teal hover:bg-accent-teal/90" : "hover:border-accent-teal/50"}>
             Reels
           </Button>
         </div>
