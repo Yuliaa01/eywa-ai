@@ -556,10 +556,17 @@ export default function FastingTimer({
                       PAUSED
                     </div>}
                 </> : <>
-                  <Button onClick={handleStart} className="w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg flex flex-col items-center justify-center p-0">
-                    <Play className="w-8 h-8 mb-1" />
-                    <span className="text-sm font-semibold text-center">Start</span>
-                  </Button>
+                  <div className="relative">
+                    {/* Outer glow ring */}
+                    <div className="absolute inset-0 w-32 h-32 rounded-full bg-gradient-to-r from-green-500/30 to-accent/30 blur-xl animate-pulse" />
+                    <Button 
+                      onClick={handleStart} 
+                      className="relative w-28 h-28 rounded-full bg-gradient-to-br from-green-400 via-green-500 to-accent text-white shadow-xl shadow-accent/40 hover:shadow-2xl hover:shadow-accent/50 hover:scale-105 transition-all duration-300 flex flex-col items-center justify-center p-0 border-2 border-white/20"
+                    >
+                      <Play className="w-10 h-10 mb-1 drop-shadow-lg" fill="currentColor" />
+                      <span className="text-base font-bold tracking-wide drop-shadow-md">Start</span>
+                    </Button>
+                  </div>
                 </>}
             </div>
           </div>
