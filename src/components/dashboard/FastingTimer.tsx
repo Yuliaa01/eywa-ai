@@ -64,6 +64,7 @@ interface FastingTimerProps {
   };
   onStartFasting: () => void;
   onRefresh?: () => void;
+  className?: string;
 }
 
 // Helper to log fasting actions
@@ -555,14 +556,10 @@ export default function FastingTimer({
                       PAUSED
                     </div>}
                 </> : <>
-                  <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-3 animate-pulse">
-                    <Timer className="w-8 h-8 text-accent" />
-                  </div>
-                  <p className="text-lg font-semibold text-foreground">Ready to Fast</p>
-                  {savedPreferences?.preferred_start_time && <p className="text-xs text-muted-foreground mt-1">
-                      <Clock className="w-3 h-3 inline mr-1" />
-                      {format(new Date(savedPreferences.preferred_start_time), "MMM d, h:mm a")}
-                    </p>}
+                  <Button onClick={handleStart} className="w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg flex flex-col items-center justify-center p-0">
+                    <Play className="w-8 h-8 mb-1" />
+                    <span className="text-sm font-semibold">Start Fast</span>
+                  </Button>
                 </>}
             </div>
           </div>
@@ -601,25 +598,22 @@ export default function FastingTimer({
         </div>
       </div>
 
-      {/* Control buttons */}
-      <div className="flex gap-2 mt-auto">
-        {!isRunning && !hasActiveFast ? <Button onClick={handleStart} className="flex-1 bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg rounded-full h-11 py-0">
-            <Play className="w-4 h-4 mr-2" />
-            Start Fast
-          </Button> : hasActiveFast ? <>
-            {!isPaused ? <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
-                <Pause className="w-4 h-4 mr-2" />
-                Pause
-              </Button> : <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
-                <Play className="w-4 h-4 mr-2" />
-                Resume
-              </Button>}
-            <Button onClick={handleStop} variant="outline" className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive">
-              <Square className="w-4 h-4 mr-2" />
-              End Fast
-            </Button>
-          </> : null}
-      </div>
+      {/* Control buttons - only show when fasting is active */}
+      {hasActiveFast && (
+        <div className="flex gap-2 mt-auto">
+          {!isPaused ? <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+              <Pause className="w-4 h-4 mr-2" />
+              Pause
+            </Button> : <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+              <Play className="w-4 h-4 mr-2" />
+              Resume
+            </Button>}
+          <Button onClick={handleStop} variant="outline" className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive">
+            <Square className="w-4 h-4 mr-2" />
+            End Fast
+          </Button>
+        </div>
+      )}
 
       {/* Stop Confirmation Dialog */}
       <Dialog open={stopDialogOpen} onOpenChange={setStopDialogOpen}>
