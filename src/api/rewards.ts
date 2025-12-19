@@ -248,23 +248,26 @@ export const awardReward = async (
 // Check and award applicable streak rewards
 export const checkAndAwardStreakRewards = async (
   userId: string,
-  streakType: string,
+  requirementType: string,
   currentCount: number
 ): Promise<UserReward[]> => {
   const awardedRewards: UserReward[] = [];
   
-  // Fetch all rewards for this streak type
+  // Fetch all rewards that match this exact requirement type
   const { data: rewards } = await supabase
     .from('rewards')
     .select('*')
     .eq('is_active', true)
-    .like('requirement_type', `%${streakType}%`);
+    .eq('requirement_type', requirementType);
 
   if (!rewards) return awardedRewards;
 
   for (const reward of rewards) {
     if (currentCount >= reward.requirement_value) {
-      const awarded = await awardReward(userId, reward.id, { streak_count: currentCount });
+      const awarded = await awardReward(userId, reward.id, { 
+        requirement_type: requirementType,
+        count: currentCount 
+      });
       if (awarded && awarded.rewards) {
         awardedRewards.push(awarded);
       }
