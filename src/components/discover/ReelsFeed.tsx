@@ -172,7 +172,7 @@ export function ReelsFeed({ videos, className }: ReelsFeedProps) {
       <VideoActions
         videoId={currentVideo.id}
         likesCount={currentVideo.likes_count}
-        className="absolute bottom-24 right-4"
+        className="absolute bottom-28 right-4"
       />
 
       {/* Navigation arrows */}
