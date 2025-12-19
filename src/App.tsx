@@ -24,6 +24,7 @@ import Subscription from "./pages/settings/Subscription";
 import Connections from "./pages/Connections";
 import LocalEvents from "./pages/LocalEvents";
 import NearbyRestaurants from "./pages/NearbyRestaurants";
+import Discover from "./pages/Discover";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
@@ -85,6 +86,10 @@ const AppContent = ({ session }: { session: Session | null }) => {
         <Route 
           path="/nearby-restaurants" 
           element={session ? <NearbyRestaurants /> : <Navigate to="/auth" />} 
+        />
+        <Route 
+          path="/discover" 
+          element={session ? <Discover /> : <Navigate to="/auth" />} 
         />
         <Route 
           path="/privacy-policy" 
