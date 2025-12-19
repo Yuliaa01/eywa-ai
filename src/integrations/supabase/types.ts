@@ -1710,6 +1710,53 @@ export type Database = {
           },
         ]
       }
+      user_video_interactions: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          liked: boolean
+          saved: boolean
+          shared: boolean
+          updated_at: string
+          user_id: string
+          video_id: string
+          watched_seconds: number
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          liked?: boolean
+          saved?: boolean
+          shared?: boolean
+          updated_at?: string
+          user_id: string
+          video_id: string
+          watched_seconds?: number
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          liked?: boolean
+          saved?: boolean
+          shared?: boolean
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+          watched_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_video_interactions_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "video_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_vitamin_orders: {
         Row: {
           bundle_id: string | null
@@ -1775,6 +1822,164 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      video_categories: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon_name: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      video_content: {
+        Row: {
+          category_id: string | null
+          content_type: Database["public"]["Enums"]["video_content_type"]
+          created_at: string
+          creator_avatar_url: string | null
+          creator_name: string
+          description: string | null
+          difficulty_level: string
+          duration_seconds: number
+          health_domains: string[]
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          is_premium: boolean
+          likes_count: number
+          saves_count: number
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+          views_count: number
+        }
+        Insert: {
+          category_id?: string | null
+          content_type?: Database["public"]["Enums"]["video_content_type"]
+          created_at?: string
+          creator_avatar_url?: string | null
+          creator_name: string
+          description?: string | null
+          difficulty_level?: string
+          duration_seconds?: number
+          health_domains?: string[]
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          is_premium?: boolean
+          likes_count?: number
+          saves_count?: number
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+          views_count?: number
+        }
+        Update: {
+          category_id?: string | null
+          content_type?: Database["public"]["Enums"]["video_content_type"]
+          created_at?: string
+          creator_avatar_url?: string | null
+          creator_name?: string
+          description?: string | null
+          difficulty_level?: string
+          duration_seconds?: number
+          health_domains?: string[]
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          is_premium?: boolean
+          likes_count?: number
+          saves_count?: number
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+          views_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_content_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "video_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          health_goal: string | null
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          thumbnail_url: string | null
+          updated_at: string
+          video_ids: string[]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          health_goal?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          video_ids?: string[]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          health_goal?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          video_ids?: string[]
+        }
+        Relationships: []
       }
       vitals_stream: {
         Row: {
@@ -2144,6 +2349,7 @@ export type Database = {
         | "preventive"
       user_status: "active" | "paused" | "deleted"
       venue_type: "cafe" | "restaurant" | "grocery" | "delivery"
+      video_content_type: "reel" | "education" | "tutorial"
       vital_metric:
         | "hr"
         | "hrv_rmssd"
@@ -2466,6 +2672,7 @@ export const Constants = {
       ],
       user_status: ["active", "paused", "deleted"],
       venue_type: ["cafe", "restaurant", "grocery", "delivery"],
+      video_content_type: ["reel", "education", "tutorial"],
       vital_metric: [
         "hr",
         "hrv_rmssd",
