@@ -12,6 +12,8 @@ import { FastingCalendar } from "./FastingCalendar";
 import { FastingSettingsDialog } from "./FastingSettingsDialog";
 import { MealModal } from "@/components/modals/MealModal";
 import { format } from "date-fns";
+import { updateStreak, checkAndAwardStreakRewards } from "@/api/rewards";
+import { triggerRewardConfetti } from "@/utils/confetti";
 
 // Fasting metabolic stages with hour milestones
 const FASTING_STAGES = [{
@@ -385,6 +387,49 @@ export default function FastingTimer({
           protocol_hours: protocolHours,
           final_stage: currentStage.label
         });
+
+        // Update fasting streak and check for rewards
+        const updatedStreak = await updateStreak(user.id, "fasting");
+        
+        // Get total completed fasts count
+        const { count } = await supabase
+          .from("fasting_windows")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .not("actual_end_at", "is", null);
+        
+        const allAwardedRewards: any[] = [];
+        
+        // Check for count-based rewards (fasting_count) - e.g., "First Fast"
+        if (count) {
+          const countRewards = await checkAndAwardStreakRewards(
+            user.id,
+            "fasting_count",
+            count
+          );
+          allAwardedRewards.push(...countRewards);
+        }
+        
+        // Check for streak-based rewards (fasting_streak)
+        if (updatedStreak) {
+          const streakRewards = await checkAndAwardStreakRewards(
+            user.id,
+            "fasting_streak",
+            updatedStreak.current_count
+          );
+          allAwardedRewards.push(...streakRewards);
+        }
+        
+        // Show celebration for any new rewards
+        if (allAwardedRewards.length > 0) {
+          triggerRewardConfetti();
+          allAwardedRewards.forEach(reward => {
+            toast({
+              title: `🎉 Badge Unlocked: ${reward.rewards?.name}`,
+              description: `+${reward.rewards?.xp_value} XP - ${reward.rewards?.description}`,
+            });
+          });
+        }
       }
       toast({
         title: isExtendedFasting ? "Extended fast complete!" : "Fasting saved",
