@@ -79,17 +79,17 @@ const DiscoverSection = () => {
       {/* View Toggle */}
       <div className="flex gap-2">
         <Button
-          variant={activeView === "reels" ? "default" : "outline"}
+          variant="outline"
           onClick={() => setActiveView("reels")}
-          className="rounded-full"
+          className={`rounded-full ${activeView === "reels" ? "bg-accent-teal text-white border-accent-teal hover:bg-accent-teal/90" : "hover:border-accent-teal/50"}`}
         >
           <Play className="w-4 h-4 mr-2" />
           Reels
         </Button>
         <Button
-          variant={activeView === "library" ? "default" : "outline"}
+          variant="outline"
           onClick={() => setActiveView("library")}
-          className="rounded-full"
+          className={`rounded-full ${activeView === "library" ? "bg-accent-teal text-white border-accent-teal hover:bg-accent-teal/90" : "hover:border-accent-teal/50"}`}
         >
           <BookOpen className="w-4 h-4 mr-2" />
           Education Library
