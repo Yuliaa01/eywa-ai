@@ -101,7 +101,6 @@ export function EducationLibrary({
             </button>}
         </div>
 
-        <CategoryPills categories={categories} selectedSlug={selectedCategory} onSelect={setSelectedCategory} />
 
         {/* Content type filters */}
         <div className="flex gap-2">
