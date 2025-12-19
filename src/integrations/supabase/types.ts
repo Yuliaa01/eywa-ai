@@ -1495,6 +1495,7 @@ export type Database = {
           locale: string | null
           medications: string[] | null
           onboarding_completed: boolean | null
+          push_notifications_enabled: boolean | null
           religious_diet: string[] | null
           sex_at_birth: Database["public"]["Enums"]["sex_at_birth"] | null
           sleep_schedule_notes: string | null
@@ -1521,6 +1522,7 @@ export type Database = {
           locale?: string | null
           medications?: string[] | null
           onboarding_completed?: boolean | null
+          push_notifications_enabled?: boolean | null
           religious_diet?: string[] | null
           sex_at_birth?: Database["public"]["Enums"]["sex_at_birth"] | null
           sleep_schedule_notes?: string | null
@@ -1547,6 +1549,7 @@ export type Database = {
           locale?: string | null
           medications?: string[] | null
           onboarding_completed?: boolean | null
+          push_notifications_enabled?: boolean | null
           religious_diet?: string[] | null
           sex_at_birth?: Database["public"]["Enums"]["sex_at_birth"] | null
           sleep_schedule_notes?: string | null
