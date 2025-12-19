@@ -98,7 +98,7 @@ export function VideoActions({
   };
 
   return (
-    <div className={cn("flex flex-col items-center gap-4", className)}>
+    <div className={cn("flex flex-col items-center gap-6", className)}>
       <button
         onClick={handleLike}
         className="flex flex-col items-center gap-1 group"
