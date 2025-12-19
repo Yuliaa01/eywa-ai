@@ -126,11 +126,37 @@ export function ReelsFeed({ videos, className }: ReelsFeedProps) {
         className="absolute inset-0"
       />
 
+      {/* Click zones for navigation */}
+      <div className="absolute inset-0 flex pointer-events-none">
+        {/* Left click zone - go previous */}
+        <button
+          onClick={goToPrev}
+          disabled={!hasPrev}
+          className={cn(
+            "w-1/3 h-full pointer-events-auto cursor-pointer transition-all",
+            hasPrev ? "hover:bg-white/5 active:bg-white/10" : "cursor-default"
+          )}
+          aria-label="Previous video"
+        />
+        {/* Center zone - no navigation */}
+        <div className="w-1/3 h-full" />
+        {/* Right click zone - go next */}
+        <button
+          onClick={goToNext}
+          disabled={!hasNext}
+          className={cn(
+            "w-1/3 h-full pointer-events-auto cursor-pointer transition-all",
+            hasNext ? "hover:bg-white/5 active:bg-white/10" : "cursor-default"
+          )}
+          aria-label="Next video"
+        />
+      </div>
+
       {/* Gradient overlay at bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
       {/* Video info overlay */}
-      <div className="absolute bottom-0 left-0 right-20 p-4 pb-8 text-white">
+      <div className="absolute bottom-0 left-0 right-20 p-4 pb-8 text-white pointer-events-none">
         <div className="flex items-center gap-2 mb-2">
           {currentVideo.creator_avatar_url ? (
             <img
@@ -174,30 +200,6 @@ export function ReelsFeed({ videos, className }: ReelsFeedProps) {
         likesCount={currentVideo.likes_count}
         className="absolute bottom-28 right-4"
       />
-
-      {/* Navigation arrows */}
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-        <button
-          onClick={goToPrev}
-          disabled={!hasPrev}
-          className={cn(
-            "w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all",
-            hasPrev ? "hover:bg-white/20 text-white" : "opacity-30 cursor-not-allowed text-white/50"
-          )}
-        >
-          <ChevronUp className="w-6 h-6" />
-        </button>
-        <button
-          onClick={goToNext}
-          disabled={!hasNext}
-          className={cn(
-            "w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all",
-            hasNext ? "hover:bg-white/20 text-white" : "opacity-30 cursor-not-allowed text-white/50"
-          )}
-        >
-          <ChevronDown className="w-6 h-6" />
-        </button>
-      </div>
 
       {/* Video counter */}
       <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 text-white text-sm">
