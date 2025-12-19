@@ -570,7 +570,7 @@ export default function FastingTimer({
       </TooltipProvider>
 
       {/* Start and Goal times */}
-      <div className="flex justify-between items-center mb-3 px-2">
+      <div className="flex justify-between items-center mb-3 px-0">
         <div className="text-left">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Start fasting </div>
           <button onClick={() => {
