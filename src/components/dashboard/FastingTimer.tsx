@@ -603,7 +603,7 @@ export default function FastingTimer({
 
       {/* Control buttons */}
       <div className="flex gap-2 mt-auto">
-        {!isRunning && !hasActiveFast ? <Button onClick={handleStart} className="flex-1 bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg rounded-full h-11">
+        {!isRunning && !hasActiveFast ? <Button onClick={handleStart} className="flex-1 bg-gradient-to-r from-green-500 to-accent text-white hover:shadow-lg rounded-full h-11 py-0">
             <Play className="w-4 h-4 mr-2" />
             Start Fast
           </Button> : hasActiveFast ? <>
