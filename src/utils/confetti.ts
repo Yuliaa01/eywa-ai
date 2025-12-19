@@ -41,3 +41,32 @@ export function triggerPillConfetti(element: HTMLElement | null) {
     disableForReducedMotion: true,
   });
 }
+
+export function triggerRewardConfetti() {
+  // Big celebratory burst for earning rewards
+  const duration = 2000;
+  const end = Date.now() + duration;
+
+  const frame = () => {
+    confetti({
+      particleCount: 3,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.7 },
+      colors: ['#FFD700', '#FFA500', '#12AFCB', '#10B981'],
+    });
+    confetti({
+      particleCount: 3,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.7 },
+      colors: ['#FFD700', '#FFA500', '#12AFCB', '#10B981'],
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  };
+
+  frame();
+}
