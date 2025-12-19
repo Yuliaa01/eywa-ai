@@ -73,15 +73,36 @@ export function AIChatCenter() {
     loadUserDataAndInsight();
   }, []);
 
-  // Request browser notification permission
+  // Request browser notification permission and check user preference
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().then(permission => {
-        setNotificationsEnabled(permission === 'granted');
-      });
-    } else if ('Notification' in window && Notification.permission === 'granted') {
-      setNotificationsEnabled(true);
-    }
+    const checkNotificationSettings = async () => {
+      // First check user's preference from database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('push_notifications_enabled')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      // If user has disabled notifications in settings, don't enable
+      if (profile?.push_notifications_enabled === false) {
+        setNotificationsEnabled(false);
+        return;
+      }
+
+      // Check browser permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          setNotificationsEnabled(permission === 'granted');
+        });
+      } else if ('Notification' in window && Notification.permission === 'granted') {
+        setNotificationsEnabled(true);
+      }
+    };
+
+    checkNotificationSettings();
   }, []);
 
   // Subscribe to new insights via Realtime

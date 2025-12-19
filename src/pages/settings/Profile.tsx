@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen, Pencil } from "lucide-react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen, Pencil, Bell } from "lucide-react";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useNavigate } from "react-router-dom";
@@ -39,6 +39,7 @@ export default function ProfileSettings() {
   });
   const [viewMode, setViewMode] = useState('standard');
   const [aiTone, setAiTone] = useState('friendly');
+  const [pushNotificationsEnabled, setPushNotificationsEnabled] = useState(true);
   const [preferredUnits, setPreferredUnits] = useState('metric');
   const [dietPreferences, setDietPreferences] = useState<string[]>([]);
   const [religiousDiet, setReligiousDiet] = useState<string[]>([]);
@@ -138,6 +139,9 @@ export default function ProfileSettings() {
           setPreferredUnits('metric');
         }
         
+        // Load push notifications preference
+        setPushNotificationsEnabled(data.push_notifications_enabled !== false);
+        
         // Load nutrition data
         setDietPreferences(data.diet_preferences || []);
         setReligiousDiet(data.religious_diet || []);
@@ -178,6 +182,7 @@ export default function ProfileSettings() {
           allergies: allergies,
           view_mode: viewMode,
           locale: preferences,
+          push_notifications_enabled: pushNotificationsEnabled,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
 
@@ -1253,6 +1258,35 @@ export default function ProfileSettings() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Push Notifications */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-accent" />
+                <Label>Push Notifications</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'On', value: true },
+                  { label: 'Off', value: false }
+                ].map((option) => (
+                  <button
+                    key={String(option.value)}
+                    onClick={() => setPushNotificationsEnabled(option.value)}
+                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
+                      pushNotificationsEnabled === option.value
+                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
+                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-[#5A6B7F] mt-2">
+                Receive health reminders, AI insights, and alerts
+              </p>
             </div>
           </div>
         </div>
