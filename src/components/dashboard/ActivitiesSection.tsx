@@ -23,6 +23,7 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
 import { SortableItem } from "@/components/ui/sortable-item";
+import { triggerWorkoutReward } from "@/hooks/useRewardTrigger";
 
 export default function ActivitiesSection() {
   const navigate = useNavigate();
@@ -474,6 +475,9 @@ export default function ActivitiesSection() {
         title: "Workout saved",
         description: `${currentWorkout.type} (${formatTime(workoutSeconds)}) has been saved.`,
       });
+
+      // Trigger reward check
+      await triggerWorkoutReward(user.id);
 
       setWorkoutActive(false);
       setWorkoutSeconds(0);

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { triggerWorkoutReward } from "@/hooks/useRewardTrigger";
 
 interface WorkoutModalProps {
   open: boolean;
@@ -47,6 +48,9 @@ export function WorkoutModal({ open, onOpenChange, onSuccess }: WorkoutModalProp
         title: "Workout added",
         description: "Your workout plan has been created.",
       });
+
+      // Trigger reward check
+      await triggerWorkoutReward(user.id);
 
       onSuccess?.();
       onOpenChange(false);
