@@ -806,7 +806,7 @@ export default function NutritionSection() {
                 const color = supplementColors[colorIndex];
                 const isTaken = takenSupplementIds.has(supplement.id);
                 return <SortableItem key={supplement.id} id={supplement.id} showHandle={false}>
-                        <div className={`flex items-center gap-3 p-2 rounded-xl border transition-all duration-300 group ${isTaken ? 'bg-emerald-50/80 border-emerald-200/50' : 'bg-white/80 border-[#12AFCB]/10'}`}>
+                        <div className={`flex items-center gap-3 p-2 rounded-2xl border transition-all duration-300 group ${isTaken ? 'bg-emerald-50/80 border-emerald-200/50' : 'bg-white/80 border-[#12AFCB]/10'}`}>
                           {/* Colorful pill-shaped container */}
                           <div className={`flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r ${color} flex-shrink-0 ${isTaken ? 'opacity-60' : ''}`}>
                             <Pill className="w-5 h-5 text-white/80 flex-shrink-0" />
