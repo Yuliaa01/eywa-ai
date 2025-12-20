@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Star, Trophy, Flame, Zap, ChevronRight, Moon, Utensils, Pill } from "lucide-react";
+import { Star, Trophy, Flame, Zap, ChevronRight, Moon, Utensils, Pill, Target, Check, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -81,6 +81,30 @@ export default function RewardsDropdown({ userId }: RewardsDropdownProps) {
     .sort((a, b) => b.current_count - a.current_count)
     .slice(0, 3);
 
+  // Define daily goals with achieved status
+  const dailyGoals = [
+    { 
+      id: 1, 
+      label: "Complete a fast", 
+      achieved: userStreaks.some(s => s.streak_type === "fasting" && s.current_count > 0),
+      icon: <Flame className="w-3.5 h-3.5" />
+    },
+    { 
+      id: 2, 
+      label: "Log a workout", 
+      achieved: userStreaks.some(s => s.streak_type === "workout" && s.current_count > 0),
+      icon: <Zap className="w-3.5 h-3.5" />
+    },
+    { 
+      id: 3, 
+      label: "Take supplements", 
+      achieved: userStreaks.some(s => s.streak_type === "supplements" && s.current_count > 0),
+      icon: <Pill className="w-3.5 h-3.5" />
+    },
+  ];
+  
+  const goalsCompleted = dailyGoals.filter(g => g.achieved).length;
+
   return (
     <>
       <DropdownMenu>
@@ -145,6 +169,41 @@ export default function RewardsDropdown({ userId }: RewardsDropdownProps) {
                   </div>
                 </div>
               )}
+
+              {/* Daily Goals */}
+              <div className="p-3 border-b border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5" />
+                    Daily Goals
+                  </p>
+                  <span className="text-xs font-semibold text-accent-teal">{goalsCompleted}/3</span>
+                </div>
+                <div className="space-y-1.5">
+                  {dailyGoals.map((goal) => (
+                    <div 
+                      key={goal.id} 
+                      className={`flex items-center gap-2 px-2.5 py-2 rounded-lg transition-colors ${
+                        goal.achieved 
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
+                          : "bg-muted/30 text-muted-foreground"
+                      }`}
+                    >
+                      <div className={`flex-shrink-0 ${goal.achieved ? "text-emerald-500" : "text-muted-foreground/50"}`}>
+                        {goal.icon}
+                      </div>
+                      <span className={`flex-1 text-sm ${goal.achieved ? "line-through opacity-70" : ""}`}>
+                        {goal.label}
+                      </span>
+                      {goal.achieved ? (
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      ) : (
+                        <Circle className="w-4 h-4 text-muted-foreground/30" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Recent Badges */}
               <div className="p-3">
