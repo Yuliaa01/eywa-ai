@@ -5,7 +5,7 @@ import { RingProgress } from "./charts/RingProgress";
 import { useToast } from "@/hooks/use-toast";
 import { triggerConfetti } from "@/utils/confetti";
 import { ActivitySummaryDialog } from "./ActivitySummaryDialog";
-
+import { triggerWorkoutReward } from "@/hooks/useRewardTrigger";
 interface ActivityStats {
   completedThisWeek: number;
   currentStreak: number;
@@ -147,6 +147,9 @@ export function ActivitySummaryCard() {
 
       triggerConfetti();
       fetchActivityStats();
+      
+      // Trigger reward check
+      await triggerWorkoutReward(user.id);
     } catch (error) {
       console.error("Error logging workout:", error);
       toast({

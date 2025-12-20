@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Sparkles } from "lucide-react";
+import { triggerWorkoutReward } from "@/hooks/useRewardTrigger";
 
 interface GenerateWorkoutDialogProps {
   open: boolean;
@@ -76,6 +77,9 @@ export function GenerateWorkoutDialog({ open, onOpenChange, onSuccess }: Generat
         title: "Workout generated!",
         description: "Your custom workout has been created.",
       });
+
+      // Trigger reward check
+      await triggerWorkoutReward(user.id);
 
       onSuccess?.();
       onOpenChange(false);

@@ -3,13 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { CartProvider } from "@/contexts/CartContext";
 import CoachOrb from "@/components/CoachOrb";
 import ChatDrawer from "@/components/ChatDrawer";
+import { triggerLoginReward } from "@/hooks/useRewardTrigger";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -113,16 +114,34 @@ const AppContent = ({ session }: { session: Session | null }) => {
 const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const loginRewardTriggered = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      
+      // Trigger login streak reward on app load (once per session)
+      if (session?.user && !loginRewardTriggered.current) {
+        loginRewardTriggered.current = true;
+        triggerLoginReward(session.user.id);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       try {
         setSession(session);
+        
+        // Trigger login reward when user signs in
+        if (_event === 'SIGNED_IN' && session?.user && !loginRewardTriggered.current) {
+          loginRewardTriggered.current = true;
+          triggerLoginReward(session.user.id);
+        }
+        
+        // Reset flag on sign out
+        if (_event === 'SIGNED_OUT') {
+          loginRewardTriggered.current = false;
+        }
       } catch (error) {
         console.error("Auth state change error:", error);
       }

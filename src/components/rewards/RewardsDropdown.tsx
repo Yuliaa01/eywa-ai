@@ -81,24 +81,26 @@ export default function RewardsDropdown({ userId }: RewardsDropdownProps) {
     .sort((a, b) => b.current_count - a.current_count)
     .slice(0, 3);
 
-  // Define daily goals with achieved status
+  // Define daily goals - check if activity happened TODAY by comparing dates
+  const today = new Date().toISOString().split('T')[0];
+  
   const dailyGoals = [
     { 
       id: 1, 
       label: "Complete a fast", 
-      achieved: userStreaks.some(s => s.streak_type === "fasting" && s.current_count > 0),
+      achieved: userStreaks.some(s => s.streak_type === "fasting" && s.last_activity_date === today),
       icon: <Flame className="w-3.5 h-3.5" />
     },
     { 
       id: 2, 
       label: "Log a workout", 
-      achieved: userStreaks.some(s => s.streak_type === "workout" && s.current_count > 0),
+      achieved: userStreaks.some(s => s.streak_type === "workout" && s.last_activity_date === today),
       icon: <Zap className="w-3.5 h-3.5" />
     },
     { 
       id: 3, 
       label: "Take supplements", 
-      achieved: userStreaks.some(s => s.streak_type === "supplements" && s.current_count > 0),
+      achieved: userStreaks.some(s => s.streak_type === "supplements" && s.last_activity_date === today),
       icon: <Pill className="w-3.5 h-3.5" />
     },
   ];

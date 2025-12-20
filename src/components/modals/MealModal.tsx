@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, X, Search } from "lucide-react";
 import { z } from "zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { triggerNutritionReward } from "@/hooks/useRewardTrigger";
 
 interface MealModalProps {
   open: boolean;
@@ -243,6 +244,9 @@ export function MealModal({ open, onOpenChange, onSuccess, mealType = 'breakfast
         title: "Meal logged",
         description: "Your meal has been recorded successfully.",
       });
+
+      // Trigger reward check
+      await triggerNutritionReward(user.id);
 
       onSuccess?.();
       onOpenChange(false);
