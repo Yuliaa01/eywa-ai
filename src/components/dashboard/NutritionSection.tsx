@@ -1,6 +1,6 @@
 import { Utensils, Droplet, Clock, MapPin, Plus, ChevronRight, Camera, FileText, Calendar, Trash2, Edit2, RefreshCw, Settings, Pill, Check, CheckCheck } from "lucide-react";
 import { PillToggle } from "@/components/ui/pill-toggle";
-import { triggerPillConfetti, triggerConfetti } from "@/utils/confetti";
+import { triggerPillConfetti, triggerConfetti, triggerRewardConfetti } from "@/utils/confetti";
 import { MealModal } from "@/components/modals/MealModal";
 import { EditMealModal } from "@/components/modals/EditMealModal";
 import { SupplementModal } from "@/components/modals/SupplementModal";
@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { GoalActions } from "@/components/priorities/GoalActions";
+import { updateStreak, checkAndAwardStreakRewards } from "@/api/rewards";
 import FastingTimer from "./FastingTimer";
 import RecipesSection from "./RecipesSection";
 import MealPlannerSection from "./MealPlannerSection";
@@ -486,11 +487,45 @@ export default function NutritionSection() {
         // Update local state
         setTakenSupplementIds(prev => new Set([...prev, supplementId]));
 
+        // Update supplements streak and award rewards
+        const updatedStreak = await updateStreak(user.id, "supplements");
+
+        const { count } = await supabase
+          .from("supplement_logs")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+
+        const allAwardedRewards: any[] = [];
+
+        if (count) {
+          const countRewards = await checkAndAwardStreakRewards(user.id, "supplement_count", count);
+          allAwardedRewards.push(...countRewards);
+        }
+
+        if (updatedStreak) {
+          const streakRewards = await checkAndAwardStreakRewards(
+            user.id,
+            "supplements_streak",
+            updatedStreak.current_count
+          );
+          allAwardedRewards.push(...streakRewards);
+        }
+
+        if (allAwardedRewards.length > 0) {
+          triggerRewardConfetti();
+          allAwardedRewards.forEach((reward) => {
+            toast({
+              title: `Badge unlocked: ${reward.rewards?.name}`,
+              description: `+${reward.rewards?.xp_value} XP — ${reward.rewards?.description}`
+            });
+          });
+        }
+
         // Trigger confetti from toggle position
         const target = event.currentTarget as HTMLElement;
         triggerPillConfetti(target);
         toast({
-          title: "Nice! 💊",
+          title: "Nice!",
           description: "Supplement logged as taken."
         });
       } else {
@@ -673,14 +708,53 @@ export default function NutritionSection() {
               const rect = e.currentTarget.getBoundingClientRect();
               const x = (rect.left + rect.width / 2) / window.innerWidth;
               const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) return;
+
               const notTaken = activeSupplements.filter(s => !takenSupplementIds.has(s.id));
               for (const supplement of notTaken) {
                 await supabase.from('supplement_logs').insert({
-                  user_id: supplement.user_id,
+                  user_id: user.id,
                   supplement_id: supplement.id,
                   taken_at: new Date().toISOString()
                 });
               }
+
+              // Award rewards after successful logging
+              const updatedStreak = await updateStreak(user.id, "supplements");
+
+              const { count } = await supabase
+                .from("supplement_logs")
+                .select("*", { count: "exact", head: true })
+                .eq("user_id", user.id);
+
+              const allAwardedRewards: any[] = [];
+
+              if (count) {
+                const countRewards = await checkAndAwardStreakRewards(user.id, "supplement_count", count);
+                allAwardedRewards.push(...countRewards);
+              }
+
+              if (updatedStreak) {
+                const streakRewards = await checkAndAwardStreakRewards(
+                  user.id,
+                  "supplements_streak",
+                  updatedStreak.current_count
+                );
+                allAwardedRewards.push(...streakRewards);
+              }
+
+              if (allAwardedRewards.length > 0) {
+                triggerRewardConfetti();
+                allAwardedRewards.forEach((reward) => {
+                  toast({
+                    title: `Badge unlocked: ${reward.rewards?.name}`,
+                    description: `+${reward.rewards?.xp_value} XP — ${reward.rewards?.description}`,
+                  });
+                });
+              }
+
               setTakenSupplementIds(new Set(activeSupplements.map(s => s.id)));
               toast({
                 title: `Logged all ${notTaken.length} supplements!`
