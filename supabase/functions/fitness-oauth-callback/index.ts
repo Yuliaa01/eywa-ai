@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { encode as base64Encode } from 'https://deno.land/std@0.208.0/encoding/base64.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,6 +11,39 @@ interface TokenResponse {
   refresh_token?: string;
   expires_in?: number;
   scope?: string;
+}
+
+// Encryption utility using AES-GCM
+async function encryptToken(plaintext: string): Promise<string> {
+  const encryptionKey = Deno.env.get('TOKEN_ENCRYPTION_KEY');
+  if (!encryptionKey) {
+    throw new Error('TOKEN_ENCRYPTION_KEY not configured');
+  }
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(encryptionKey.slice(0, 32).padEnd(32, '0'));
+  
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'AES-GCM' },
+    false,
+    ['encrypt']
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encryptedData = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encoder.encode(plaintext)
+  );
+
+  // Combine IV and encrypted data, then base64 encode
+  const combined = new Uint8Array(iv.length + new Uint8Array(encryptedData).length);
+  combined.set(iv);
+  combined.set(new Uint8Array(encryptedData), iv.length);
+  
+  return base64Encode(combined);
 }
 
 const exchangeCodeForToken = async (
@@ -161,16 +195,27 @@ Deno.serve(async (req) => {
       ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
       : null;
 
-    // Update connection with tokens
+    // Encrypt tokens before storing
+    console.log('Encrypting tokens before storage...');
+    const encryptedAccessToken = await encryptToken(tokenData.access_token);
+    const encryptedRefreshToken = tokenData.refresh_token 
+      ? await encryptToken(tokenData.refresh_token) 
+      : null;
+
+    // Update connection with encrypted tokens
     const { error: updateError } = await supabaseClient
       .from('fitness_app_connections')
       .update({
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
+        access_token: encryptedAccessToken,
+        refresh_token: encryptedRefreshToken,
         token_expires_at: expiresAt,
         scope: tokenData.scope,
         sync_status: 'connected',
-        metadata: { ...connection.metadata, last_token_refresh: new Date().toISOString() },
+        metadata: { 
+          ...connection.metadata, 
+          last_token_refresh: new Date().toISOString(),
+          tokens_encrypted: true 
+        },
       })
       .eq('id', connection.id);
 
