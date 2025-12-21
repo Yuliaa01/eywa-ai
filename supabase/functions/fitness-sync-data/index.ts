@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { decode as base64Decode } from 'https://deno.land/std@0.208.0/encoding/base64.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,6 +18,38 @@ interface Activity {
   calories?: number;
   average_heartrate?: number;
   max_heartrate?: number;
+}
+
+// Decryption utility using AES-GCM
+async function decryptToken(encryptedData: string): Promise<string> {
+  const encryptionKey = Deno.env.get('TOKEN_ENCRYPTION_KEY');
+  if (!encryptionKey) {
+    throw new Error('TOKEN_ENCRYPTION_KEY not configured');
+  }
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  const keyData = encoder.encode(encryptionKey.slice(0, 32).padEnd(32, '0'));
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  );
+
+  const combined = base64Decode(encryptedData);
+  const iv = combined.slice(0, 12);
+  const ciphertext = combined.slice(12);
+
+  const decryptedData = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    ciphertext
+  );
+
+  return decoder.decode(decryptedData);
 }
 
 const fetchStravaActivities = async (accessToken: string): Promise<Activity[]> => {
@@ -167,19 +200,26 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Decrypt the access token if it's encrypted
+    let accessToken = connection.access_token;
+    if (connection.metadata?.tokens_encrypted) {
+      console.log('Decrypting access token...');
+      accessToken = await decryptToken(connection.access_token);
+    }
+
     // Update sync status
     await supabaseClient
       .from('fitness_app_connections')
       .update({ sync_status: 'syncing' })
       .eq('id', connection.id);
 
-    // Sync activities
+    // Sync activities with decrypted token
     const activityCount = await syncActivities(
       supabaseClient,
       user.id,
       connection.id,
       appName,
-      connection.access_token
+      accessToken
     );
 
     // Update connection
