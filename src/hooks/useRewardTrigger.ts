@@ -45,6 +45,9 @@ export async function triggerRewardCheck(
         });
       }
     }
+
+    // Dispatch custom event for real-time UI updates
+    window.dispatchEvent(new CustomEvent('rewards-updated'));
   } catch (error) {
     console.error('Error triggering reward check:', error);
   }
