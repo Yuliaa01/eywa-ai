@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Star, Trophy, Flame, Zap, ChevronRight, Moon, Utensils, Pill, Target, Check, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
   type UserReward, 
   type UserStreak 
 } from "@/api/rewards";
+import { supabase } from "@/integrations/supabase/client";
 import RewardsModal from "./RewardsModal";
 
 interface RewardsDropdownProps {
@@ -30,24 +31,68 @@ export default function RewardsDropdown({ userId }: RewardsDropdownProps) {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const loadRewardsData = async () => {
-      setLoading(true);
-      const [rewards, streaks] = await Promise.all([
-        fetchUserRewards(userId),
-        fetchUserStreaks(userId)
-      ]);
-      
-      setUserRewards(rewards);
-      setUserStreaks(streaks);
-      setTotalXP(calculateTotalXP(rewards));
-      setLoading(false);
-    };
+  const loadRewardsData = useCallback(async () => {
+    if (!userId) return;
+    
+    const [rewards, streaks] = await Promise.all([
+      fetchUserRewards(userId),
+      fetchUserStreaks(userId)
+    ]);
+    
+    setUserRewards(rewards);
+    setUserStreaks(streaks);
+    setTotalXP(calculateTotalXP(rewards));
+    setLoading(false);
+  }, [userId]);
 
+  // Initial load
+  useEffect(() => {
     if (userId) {
+      setLoading(true);
       loadRewardsData();
     }
-  }, [userId]);
+  }, [userId, loadRewardsData]);
+
+  // Supabase Realtime subscriptions
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel('rewards-updates')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_rewards',
+        filter: `user_id=eq.${userId}`
+      }, () => {
+        loadRewardsData();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_streaks',
+        filter: `user_id=eq.${userId}`
+      }, () => {
+        loadRewardsData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, loadRewardsData]);
+
+  // Custom event listener as fallback
+  useEffect(() => {
+    const handleRewardsUpdated = () => {
+      loadRewardsData();
+    };
+
+    window.addEventListener('rewards-updated', handleRewardsUpdated);
+    return () => {
+      window.removeEventListener('rewards-updated', handleRewardsUpdated);
+    };
+  }, [loadRewardsData]);
 
   const recentRewards = userRewards.slice(0, 4);
   const currentLevel = getUserLevel(totalXP);
