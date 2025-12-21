@@ -2190,6 +2190,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_partner_safe_profile: {
+        Args: { _partner_id: string; _target_user_id: string }
+        Returns: {
+          first_name: string
+          locale: string
+          onboarding_completed: boolean
+          timezone: string
+          user_id: string
+        }[]
+      }
       has_partner_access: {
         Args: { _partner_id: string; _user_id: string }
         Returns: boolean
