@@ -1,5 +1,6 @@
 import { Gift, ChevronRight } from "lucide-react";
 import { type Reward, TIER_CONFIG } from "@/api/rewards";
+import RewardIcon from "./RewardIcon";
 
 interface NextRewardPreviewProps {
   reward: Reward;
@@ -31,7 +32,7 @@ export default function NextRewardPreview({
 
         <div className="flex items-center gap-4">
           <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tierConfig.color} flex items-center justify-center shadow-lg shrink-0`}>
-            <span className="text-2xl">{reward.icon}</span>
+            <RewardIcon icon={reward.icon} size="md" />
           </div>
 
           <div className="flex-1 min-w-0">

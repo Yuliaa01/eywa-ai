@@ -1,5 +1,6 @@
 import { Lock } from "lucide-react";
 import { type Reward, TIER_CONFIG } from "@/api/rewards";
+import RewardIcon from "./RewardIcon";
 
 interface BadgeCardProps {
   reward: Reward;
@@ -29,7 +30,7 @@ export default function BadgeCard({
         }`}
         title={reward.description}
       >
-        <span className={`text-xl ${!isEarned && 'grayscale'}`}>{reward.icon}</span>
+        <RewardIcon icon={reward.icon} size="sm" className={!isEarned ? 'grayscale' : ''} />
         <span className={`text-sm font-medium ${isEarned ? 'text-foreground' : 'text-muted-foreground'}`}>
           {reward.name}
         </span>
@@ -58,9 +59,7 @@ export default function BadgeCard({
             ? `bg-gradient-to-br ${tierConfig.color} shadow-lg` 
             : 'bg-muted'
         }`}>
-          <span className={`text-3xl ${!isEarned && 'grayscale opacity-50'}`}>
-            {reward.icon}
-          </span>
+          <RewardIcon icon={reward.icon} size="lg" className={!isEarned ? 'grayscale opacity-50' : ''} />
           {!isEarned && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-2xl">
               <Lock className="w-6 h-6 text-muted-foreground" />
