@@ -997,7 +997,7 @@ export default function ProfileSettings() {
                     </div>
                   </button>)}
               </div>
-              <p className="text-xs text-[#5A6B7F] mt-2">
+              <p className="text-xs text-[#98a0ae] mt-2">
                 Switch between Standard view (goals & AI chat) and Professional view (health metrics grid). Save changes to apply.
               </p>
             </div>
