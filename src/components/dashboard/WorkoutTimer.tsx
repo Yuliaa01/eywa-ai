@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Play, Pause, Square, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { triggerWorkoutReward } from "@/hooks/useRewardTrigger";
 
 const workoutTypes = [
   "HIIT",
@@ -45,10 +48,57 @@ export default function WorkoutTimer() {
     setIsRunning(false);
   };
 
-  const handleStop = () => {
-    setIsRunning(false);
-    setSeconds(0);
-    setSelectedType("");
+  const handleStop = async () => {
+    try {
+      setIsRunning(false);
+
+      // Only log if we actually have a session
+      if (!selectedType || seconds <= 0) {
+        setSeconds(0);
+        setSelectedType("");
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Please log in",
+          description: "You need to be logged in to log workouts",
+          variant: "destructive",
+        });
+        setSeconds(0);
+        setSelectedType("");
+        return;
+      }
+
+      const { error } = await supabase.from("workout_plans").insert({
+        user_id: user.id,
+        block_name: selectedType,
+        sessions: [{
+          duration: seconds,
+          completed_at: new Date().toISOString(),
+        }],
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Workout logged!",
+        description: `${selectedType} (${formatTime(seconds)}) saved to your activity.`,
+      });
+
+      await triggerWorkoutReward(user.id);
+    } catch (error) {
+      console.error("Error logging workout timer:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your workout",
+        variant: "destructive",
+      });
+    } finally {
+      setSeconds(0);
+      setSelectedType("");
+    }
   };
 
   return (
@@ -108,7 +158,7 @@ export default function WorkoutTimer() {
               <Button
                 onClick={handlePause}
                 variant="outline"
-                className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10"
+                className="flex-1 border-accent-teal/30 hover:bg-accent-teal/10 hover:text-foreground"
               >
                 <Pause className="w-5 h-5 mr-2" />
                 Pause
@@ -116,7 +166,7 @@ export default function WorkoutTimer() {
               <Button
                 onClick={handleStop}
                 variant="outline"
-                className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive"
+                className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive hover:text-destructive"
               >
                 <Square className="w-5 h-5 mr-2" />
                 Stop
