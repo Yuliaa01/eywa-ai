@@ -1,4 +1,4 @@
-import { Flame, Zap, Trophy, Star, Moon, Utensils, Pill, Calendar } from "lucide-react";
+import { Flame, Zap, Trophy, Star, Moon, Utensils, Pill, Calendar, CheckCircle2 } from "lucide-react";
 import { type UserStreak } from "@/api/rewards";
 
 interface StreakCardProps {
@@ -6,19 +6,64 @@ interface StreakCardProps {
   compact?: boolean;
 }
 
+const MILESTONES = [7, 14, 30];
+
 const STREAK_CONFIG: Record<string, { 
   icon: React.ComponentType<any>; 
   color: string; 
   bgColor: string;
   label: string;
+  description: string;
 }> = {
-  fasting: { icon: Flame, color: 'text-orange-500', bgColor: 'bg-orange-100 dark:bg-orange-900/30', label: 'Fasting' },
-  workout: { icon: Zap, color: 'text-yellow-500', bgColor: 'bg-yellow-100 dark:bg-yellow-900/30', label: 'Workout' },
-  nutrition: { icon: Utensils, color: 'text-green-500', bgColor: 'bg-green-100 dark:bg-green-900/30', label: 'Nutrition' },
-  supplements: { icon: Pill, color: 'text-purple-500', bgColor: 'bg-purple-100 dark:bg-purple-900/30', label: 'Supplements' },
-  sleep: { icon: Moon, color: 'text-blue-500', bgColor: 'bg-blue-100 dark:bg-blue-900/30', label: 'Sleep' },
-  login: { icon: Calendar, color: 'text-teal-500', bgColor: 'bg-teal-100 dark:bg-teal-900/30', label: 'Daily Login' },
-  goals: { icon: Trophy, color: 'text-accent-teal', bgColor: 'bg-accent-teal/10', label: 'Goals' },
+  fasting: { 
+    icon: Flame, 
+    color: 'text-orange-500', 
+    bgColor: 'bg-orange-100 dark:bg-orange-900/30', 
+    label: 'Fasting',
+    description: 'Days completing your fast'
+  },
+  workout: { 
+    icon: Zap, 
+    color: 'text-yellow-500', 
+    bgColor: 'bg-yellow-100 dark:bg-yellow-900/30', 
+    label: 'Workout',
+    description: 'Consecutive days exercising'
+  },
+  nutrition: { 
+    icon: Utensils, 
+    color: 'text-green-500', 
+    bgColor: 'bg-green-100 dark:bg-green-900/30', 
+    label: 'Nutrition',
+    description: 'Days logging your meals'
+  },
+  supplements: { 
+    icon: Pill, 
+    color: 'text-purple-500', 
+    bgColor: 'bg-purple-100 dark:bg-purple-900/30', 
+    label: 'Supplements',
+    description: 'Days taking your vitamins'
+  },
+  sleep: { 
+    icon: Moon, 
+    color: 'text-blue-500', 
+    bgColor: 'bg-blue-100 dark:bg-blue-900/30', 
+    label: 'Sleep',
+    description: 'Days hitting sleep goals'
+  },
+  login: { 
+    icon: Calendar, 
+    color: 'text-teal-500', 
+    bgColor: 'bg-teal-100 dark:bg-teal-900/30', 
+    label: 'Daily Login',
+    description: 'Days in a row logging in'
+  },
+  goals: { 
+    icon: Trophy, 
+    color: 'text-accent-teal', 
+    bgColor: 'bg-accent-teal/10', 
+    label: 'Goals',
+    description: 'Days achieving your goals'
+  },
 };
 
 export default function StreakCard({ streak, compact = false }: StreakCardProps) {
@@ -27,11 +72,17 @@ export default function StreakCard({ streak, compact = false }: StreakCardProps)
     color: 'text-yellow-500',
     bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
     label: streak.streak_type.charAt(0).toUpperCase() + streak.streak_type.slice(1),
+    description: 'Keep your streak going!',
   };
 
   const Icon = config.icon;
   const isHotStreak = streak.current_count >= 7;
   const isOnFire = streak.current_count >= 14;
+
+  // Calculate next milestone
+  const nextMilestone = MILESTONES.find(m => streak.current_count < m) || 30;
+  const daysToNext = nextMilestone - streak.current_count;
+  const progressPercent = Math.min((streak.current_count / 30) * 100, 100);
 
   if (compact) {
     return (
@@ -52,46 +103,103 @@ export default function StreakCard({ streak, compact = false }: StreakCardProps)
         </div>
       )}
       
-      <div className="flex items-center gap-3">
-        <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner`}>
+      {/* Header with icon, title, and description */}
+      <div className="flex items-start gap-3 mb-3">
+        <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner border border-white/20`}>
           <Icon className={`w-6 h-6 ${config.color}`} />
         </div>
         
-        <div className="flex-1">
-          <p className="text-sm text-muted-foreground font-medium">{config.label} Streak</p>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-foreground">{streak.current_count}</span>
-            <span className="text-sm text-muted-foreground">
-              {streak.current_count === 1 ? 'day' : 'days'}
-            </span>
-            {isHotStreak && !isOnFire && <span className="ml-1">🔥</span>}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-foreground">{config.label} Streak</p>
+            {streak.current_count > 0 && (
+              <span className="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400">
+                <CheckCircle2 className="w-3 h-3" />
+                Active
+              </span>
+            )}
           </div>
-        </div>
-
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Best</p>
-          <p className="text-lg font-semibold text-foreground">{streak.longest_streak}</p>
+          <p className="text-xs text-muted-foreground">{config.description}</p>
         </div>
       </div>
 
-      {/* Milestone indicators */}
-      <div className="mt-3 flex gap-1">
-        {[7, 14, 30].map((milestone) => (
+      {/* Current streak and record */}
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-bold text-foreground">{streak.current_count}</span>
+          <span className="text-sm text-muted-foreground">
+            {streak.current_count === 1 ? 'day' : 'days'}
+          </span>
+          {isHotStreak && !isOnFire && <span className="ml-1">🔥</span>}
+        </div>
+
+        <div className="flex items-center gap-1.5 text-sm">
+          <Trophy className="w-4 h-4 text-yellow-500" />
+          <span className="font-medium text-foreground">{streak.longest_streak}</span>
+          <span className="text-xs text-muted-foreground">record</span>
+        </div>
+      </div>
+
+      {/* Continuous progress bar with milestone markers */}
+      <div className="relative mb-2">
+        <div className="h-2.5 bg-muted/50 rounded-full overflow-hidden">
           <div 
-            key={milestone}
-            className={`flex-1 h-1.5 rounded-full transition-all ${
-              streak.current_count >= milestone 
-                ? 'bg-gradient-to-r from-accent-teal to-emerald-400' 
-                : 'bg-muted'
-            }`}
+            className="h-full bg-gradient-to-r from-accent-teal to-emerald-400 rounded-full transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
           />
+        </div>
+        
+        {/* Milestone dots */}
+        <div className="absolute inset-0 flex items-center">
+          {MILESTONES.map((milestone) => {
+            const position = (milestone / 30) * 100;
+            const isReached = streak.current_count >= milestone;
+            return (
+              <div 
+                key={milestone}
+                className={`absolute w-3 h-3 rounded-full border-2 transform -translate-x-1/2 transition-all ${
+                  isReached 
+                    ? 'bg-accent-teal border-white shadow-sm' 
+                    : 'bg-background border-muted-foreground/30'
+                }`}
+                style={{ left: `${position}%` }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Milestone labels */}
+      <div className="flex justify-between text-xs text-muted-foreground px-1 mb-3">
+        {MILESTONES.map((milestone) => (
+          <span 
+            key={milestone}
+            className={streak.current_count >= milestone ? 'text-accent-teal font-medium' : ''}
+          >
+            {milestone}d
+          </span>
         ))}
       </div>
-      <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-        <span>7d</span>
-        <span>14d</span>
-        <span>30d</span>
-      </div>
+
+      {/* Next milestone motivation */}
+      {streak.current_count < 30 && daysToNext > 0 && (
+        <div className="pt-2 border-t border-border/30">
+          <p className="text-xs text-center">
+            <span className="text-muted-foreground">🎯</span>
+            <span className="ml-1 font-medium text-foreground">{daysToNext} more {daysToNext === 1 ? 'day' : 'days'}</span>
+            <span className="text-muted-foreground"> to {nextMilestone}-day milestone!</span>
+          </p>
+        </div>
+      )}
+
+      {/* Streak completed celebration */}
+      {streak.current_count >= 30 && (
+        <div className="pt-2 border-t border-border/30">
+          <p className="text-xs text-center font-medium text-accent-teal">
+            🏆 30-day streak achieved! Keep going!
+          </p>
+        </div>
+      )}
     </div>
   );
 }
