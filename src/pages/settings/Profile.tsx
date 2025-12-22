@@ -14,20 +14,13 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FolderModal } from "@/components/modals/FolderModal";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 export default function ProfileSettings() {
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState({
@@ -36,7 +29,7 @@ export default function ProfileSettings() {
     dob: "",
     sex_at_birth: "",
     height_cm: "",
-    weight_kg: "",
+    weight_kg: ""
   });
   const [viewMode, setViewMode] = useState('standard');
   const [aiTone, setAiTone] = useState('friendly');
@@ -64,19 +57,24 @@ export default function ProfileSettings() {
   const [folderModalOpen, setFolderModalOpen] = useState(false);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
-  const [editingFolder, setEditingFolder] = useState<{ id: string; name: string } | null>(null);
-  const [deletingFolder, setDeletingFolder] = useState<{ id: string; name: string } | null>(null);
-  const [editingFile, setEditingFile] = useState<{ id: string; name: string } | null>(null);
+  const [editingFolder, setEditingFolder] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [deletingFolder, setDeletingFolder] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [editingFile, setEditingFile] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [fileRenameModalOpen, setFileRenameModalOpen] = useState(false);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
-
+  const sensors = useSensors(useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8
+    }
+  }));
   const toggleFolder = (folderId: string) => {
     setExpandedFolders(prev => {
       const newSet = new Set(prev);
@@ -88,26 +86,24 @@ export default function ProfileSettings() {
       return newSet;
     });
   };
-
   useEffect(() => {
     loadProfile();
     loadFiles();
     loadFolders();
   }, []);
-
   const loadProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
       if (user?.email) setEmail(user.email);
-
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from("user_profiles").select("*").eq("user_id", user.id).single();
       if (error && error.code !== "PGRST116") throw error;
       if (data) {
         setProfile({
@@ -116,12 +112,12 @@ export default function ProfileSettings() {
           dob: data.dob || "",
           sex_at_birth: data.sex_at_birth || "",
           height_cm: data.height_cm?.toString() || "",
-          weight_kg: data.weight_kg?.toString() || "",
+          weight_kg: data.weight_kg?.toString() || ""
         });
-        
+
         // Load view mode from database column
         setViewMode(data.view_mode || 'standard');
-        
+
         // Load AI tone, macro mode from locale field (stored as JSON)
         try {
           const preferences = data.locale ? JSON.parse(data.locale) : {};
@@ -139,10 +135,10 @@ export default function ProfileSettings() {
           setMacroMode('ai');
           setPreferredUnits('metric');
         }
-        
+
         // Load push notifications preference
         setPushNotificationsEnabled(data.push_notifications_enabled !== false);
-        
+
         // Load nutrition data
         setDietPreferences(data.diet_preferences || []);
         setReligiousDiet(data.religious_diet || []);
@@ -152,131 +148,134 @@ export default function ProfileSettings() {
       console.error("Error loading profile:", error);
     }
   };
-
   const handleSave = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Store AI tone, macro mode, and manual macros in locale field as JSON
-      const preferences = JSON.stringify({ 
-        aiTone, 
+      const preferences = JSON.stringify({
+        aiTone,
         macroMode,
         preferredUnits,
         manualMacros: macroMode === 'manual' ? manualMacros : undefined
       });
-      
-      const { error } = await supabase
-        .from("user_profiles")
-        .upsert({
-          id: user.id,
-          user_id: user.id,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          dob: profile.dob || null,
-          sex_at_birth: profile.sex_at_birth as any || null,
-          height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
-          weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
-          diet_preferences: dietPreferences,
-          religious_diet: religiousDiet,
-          allergies: allergies,
-          view_mode: viewMode,
-          locale: preferences,
-          push_notifications_enabled: pushNotificationsEnabled,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
-
+      const {
+        error
+      } = await supabase.from("user_profiles").upsert({
+        id: user.id,
+        user_id: user.id,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        dob: profile.dob || null,
+        sex_at_birth: profile.sex_at_birth as any || null,
+        height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
+        weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
+        diet_preferences: dietPreferences,
+        religious_diet: religiousDiet,
+        allergies: allergies,
+        view_mode: viewMode,
+        locale: preferences,
+        push_notifications_enabled: pushNotificationsEnabled,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id'
+      });
       if (error) throw error;
-
       toast({
         title: "Profile updated",
-        description: "Your changes have been saved successfully.",
+        description: "Your changes have been saved successfully."
       });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to save profile changes.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const loadFiles = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
-      const { data, error } = await supabase
-        .from('uploaded_files')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('uploaded_files').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
       setUploadedFiles(data || []);
     } catch (error) {
       console.error("Error loading files:", error);
     }
   };
-
   const loadFolders = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
-      const { data, error } = await supabase
-        .from('file_folders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('file_folders').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
       setFolders(data || []);
     } catch (error) {
       console.error("Error loading folders:", error);
     }
   };
-
   const handleCreateFolder = async (folderName: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
       setIsCreatingFolder(true);
-      
       if (editingFolder) {
         // Update existing folder
-        const { error } = await supabase
-          .from('file_folders')
-          .update({ name: folderName })
-          .eq('id', editingFolder.id);
-
+        const {
+          error
+        } = await supabase.from('file_folders').update({
+          name: folderName
+        }).eq('id', editingFolder.id);
         if (error) throw error;
-
         toast({
           title: "Folder renamed",
-          description: "Folder name updated successfully.",
+          description: "Folder name updated successfully."
         });
       } else {
         // Create new folder
-        const { error } = await supabase
-          .from('file_folders')
-          .insert({
-            user_id: user.id,
-            name: folderName,
-          });
-
+        const {
+          error
+        } = await supabase.from('file_folders').insert({
+          user_id: user.id,
+          name: folderName
+        });
         if (error) throw error;
-
         toast({
           title: "Folder created",
-          description: "New folder created successfully.",
+          description: "New folder created successfully."
         });
       }
-      
       setFolderModalOpen(false);
       setEditingFolder(null);
       loadFolders();
@@ -284,29 +283,23 @@ export default function ProfileSettings() {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsCreatingFolder(false);
     }
   };
-
   const confirmDeleteFolder = async () => {
     if (!deletingFolder) return;
-
     try {
-      const { error } = await supabase
-        .from('file_folders')
-        .delete()
-        .eq('id', deletingFolder.id);
-
+      const {
+        error
+      } = await supabase.from('file_folders').delete().eq('id', deletingFolder.id);
       if (error) throw error;
-
       toast({
         title: "Folder deleted",
-        description: "Folder removed successfully.",
+        description: "Folder removed successfully."
       });
-      
       setDeletingFolder(null);
       loadFolders();
       loadFiles();
@@ -314,158 +307,148 @@ export default function ProfileSettings() {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    
+    const {
+      active,
+      over
+    } = event;
     if (!over) return;
-    
     const fileId = active.id as string;
     const folderId = over.id as string;
-    
     try {
-      const { error } = await supabase
-        .from('uploaded_files')
-        .update({ folder_id: folderId })
-        .eq('id', fileId);
-
+      const {
+        error
+      } = await supabase.from('uploaded_files').update({
+        folder_id: folderId
+      }).eq('id', fileId);
       if (error) throw error;
-
       toast({
         title: "File moved",
-        description: "File moved to folder successfully.",
+        description: "File moved to folder successfully."
       });
-      
       loadFiles();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const getFilesInFolder = (folderId: string) => {
     return uploadedFiles.filter(file => file.folder_id === folderId);
   };
-
   const getFilesWithoutFolder = () => {
     return uploadedFiles.filter(file => !file.folder_id);
   };
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setUploading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
       for (const file of Array.from(files)) {
         const fileName = `${Date.now()}-${file.name}`;
         const filePath = `${user.id}/${fileName}`;
 
         // Upload to storage
-        const { error: uploadError } = await supabase.storage
-          .from('user-files')
-          .upload(filePath, file);
-
+        const {
+          error: uploadError
+        } = await supabase.storage.from('user-files').upload(filePath, file);
         if (uploadError) throw uploadError;
 
         // Create uploaded_files record
-        const { data: fileRecord, error: recordError } = await supabase
-          .from('uploaded_files')
-          .insert({
-            user_id: user.id,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            storage_path: filePath,
-            status: 'pending',
-          })
-          .select()
-          .single();
-
+        const {
+          data: fileRecord,
+          error: recordError
+        } = await supabase.from('uploaded_files').insert({
+          user_id: user.id,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          storage_path: filePath,
+          status: 'pending'
+        }).select().single();
         if (recordError) throw recordError;
 
         // Trigger analysis in background
         supabase.functions.invoke('analyze-health-file', {
-          body: { fileId: fileRecord.id, filePath, fileName: file.name }
+          body: {
+            fileId: fileRecord.id,
+            filePath,
+            fileName: file.name
+          }
         }).then(() => {
           loadFiles();
         });
       }
-
       toast({
         title: "Files uploaded",
-        description: `${files.length} file(s) uploaded and queued for analysis.`,
+        description: `${files.length} file(s) uploaded and queued for analysis.`
       });
-
       loadFiles();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setUploading(false);
     }
   };
-
   const handleDeleteFile = async (fileId: string, storagePath: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('user-files')
-        .remove([storagePath]);
-
+      const {
+        error: storageError
+      } = await supabase.storage.from('user-files').remove([storagePath]);
       if (storageError) throw storageError;
 
       // Delete from database
-      const { error: dbError } = await supabase
-        .from('uploaded_files')
-        .delete()
-        .eq('id', fileId);
-
+      const {
+        error: dbError
+      } = await supabase.from('uploaded_files').delete().eq('id', fileId);
       if (dbError) throw dbError;
 
       // Delete related lab results
-      await supabase
-        .from('lab_results')
-        .delete()
-        .contains('provenance', { file_id: fileId });
-
+      await supabase.from('lab_results').delete().contains('provenance', {
+        file_id: fileId
+      });
       toast({
         title: "File deleted",
-        description: "File and related data removed successfully.",
+        description: "File and related data removed successfully."
       });
-
       loadFiles();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const getFileUrl = async (storagePath: string) => {
     try {
-      const { data } = await supabase.storage
-        .from('user-files')
-        .createSignedUrl(storagePath, 3600);
-
+      const {
+        data
+      } = await supabase.storage.from('user-files').createSignedUrl(storagePath, 3600);
       if (data?.signedUrl) {
         window.open(data.signedUrl, '_blank');
       }
@@ -473,51 +456,48 @@ export default function ProfileSettings() {
       console.error("Error opening file:", error);
     }
   };
-
   const handleReanalyze = async (fileId: string, filePath: string, fileName: string) => {
     try {
-      await supabase
-        .from('uploaded_files')
-        .update({ status: 'pending', error_message: null })
-        .eq('id', fileId);
-
-      const { error } = await supabase.functions.invoke('analyze-health-file', {
-        body: { fileId, filePath, fileName }
+      await supabase.from('uploaded_files').update({
+        status: 'pending',
+        error_message: null
+      }).eq('id', fileId);
+      const {
+        error
+      } = await supabase.functions.invoke('analyze-health-file', {
+        body: {
+          fileId,
+          filePath,
+          fileName
+        }
       });
-
       if (error) throw error;
-
       toast({
         title: "Analysis started",
-        description: "File is being re-analyzed.",
+        description: "File is being re-analyzed."
       });
-
       loadFiles();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleRenameFile = async (newName: string) => {
     if (!editingFile) return;
-    
     try {
-      const { error } = await supabase
-        .from('uploaded_files')
-        .update({ name: newName })
-        .eq('id', editingFile.id);
-
+      const {
+        error
+      } = await supabase.from('uploaded_files').update({
+        name: newName
+      }).eq('id', editingFile.id);
       if (error) throw error;
-
       toast({
         title: "File renamed",
-        description: "File name updated successfully.",
+        description: "File name updated successfully."
       });
-      
       setFileRenameModalOpen(false);
       setEditingFile(null);
       loadFiles();
@@ -525,11 +505,10 @@ export default function ProfileSettings() {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -544,49 +523,39 @@ export default function ProfileSettings() {
         return null;
     }
   };
-
   const isImageFile = (fileName: string) => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     const ext = fileName.split('.').pop()?.toLowerCase();
     return ext ? imageExtensions.includes(ext) : false;
   };
-
-  const DraggableFile = ({ file }: { file: any }) => {
-    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-      id: file.id,
+  const DraggableFile = ({
+    file
+  }: {
+    file: any;
+  }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      isDragging
+    } = useDraggable({
+      id: file.id
     });
-
     const style = transform ? {
       transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      opacity: isDragging ? 0.5 : 1,
+      opacity: isDragging ? 0.5 : 1
     } : undefined;
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors"
-      >
+    return <div ref={setNodeRef} style={style} className="p-4 rounded-xl bg-accent/5 border border-border hover:border-accent/30 transition-colors">
         <div className="flex items-center gap-3">
-          <div 
-            {...listeners} 
-            {...attributes}
-            className="cursor-grab active:cursor-grabbing"
-          >
+          <div {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing">
             <GripVertical className="w-5 h-5 text-muted-foreground" />
           </div>
           <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-            {isImageFile(file.name) ? (
-              <FileImage className="w-5 h-5 text-accent" />
-            ) : (
-              <File className="w-5 h-5 text-accent" />
-            )}
+            {isImageFile(file.name) ? <FileImage className="w-5 h-5 text-accent" /> : <File className="w-5 h-5 text-accent" />}
           </div>
           <div className="flex-1 min-w-0">
-            <button
-              onClick={() => getFileUrl(file.storage_path)}
-              className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors"
-            >
+            <button onClick={() => getFileUrl(file.storage_path)} className="text-sm font-medium truncate block w-full text-left hover:text-accent transition-colors">
               {file.name}
             </button>
             <div className="flex items-center gap-2 mt-1">
@@ -595,73 +564,48 @@ export default function ProfileSettings() {
               </p>
               {getStatusBadge(file.status)}
             </div>
-            {file.error_message && (
-              <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>
-            )}
+            {file.error_message && <p className="text-xs text-amber-500 mt-1">{file.error_message}</p>}
           </div>
           <div className="flex gap-2 flex-shrink-0">
-            {file.status === 'error' && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleReanalyze(file.id, file.storage_path, file.name)}
-                className="rounded-lg"
-              >
+            {file.status === 'error' && <Button size="sm" variant="outline" onClick={() => handleReanalyze(file.id, file.storage_path, file.name)} className="rounded-lg">
                 Analyze again
-              </Button>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditingFile({ id: file.id, name: file.name });
-                setFileRenameModalOpen(true);
-              }}
-              className="w-8 h-8 rounded-lg hover:bg-accent/10 flex items-center justify-center transition-colors"
-            >
+              </Button>}
+            <button onClick={e => {
+            e.stopPropagation();
+            setEditingFile({
+              id: file.id,
+              name: file.name
+            });
+            setFileRenameModalOpen(true);
+          }} className="w-8 h-8 rounded-lg hover:bg-accent/10 flex items-center justify-center transition-colors">
               <Pencil className="w-4 h-4 text-muted-foreground" />
             </button>
-            <button
-              onClick={() => handleDeleteFile(file.id, file.storage_path)}
-              className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors"
-            >
+            <button onClick={() => handleDeleteFile(file.id, file.storage_path)} className="w-8 h-8 rounded-lg hover:bg-destructive/10 flex items-center justify-center transition-colors">
               <X className="w-4 h-4 text-destructive" />
             </button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   };
-
-  const DroppableFolder = ({ folder }: { folder: any }) => {
-    const { setNodeRef, isOver } = useDroppable({
-      id: folder.id,
+  const DroppableFolder = ({
+    folder
+  }: {
+    folder: any;
+  }) => {
+    const {
+      setNodeRef,
+      isOver
+    } = useDroppable({
+      id: folder.id
     });
-
     const filesInFolder = getFilesInFolder(folder.id);
     const isExpanded = expandedFolders.has(folder.id);
-
-    return (
-      <div ref={setNodeRef}>
-        <div
-          className={`p-4 rounded-xl border transition-all cursor-pointer ${
-            isOver 
-              ? 'bg-accent/20 border-accent' 
-              : 'bg-accent/5 border-border hover:border-accent/30'
-          }`}
-          onClick={() => toggleFolder(folder.id)}
-        >
+    return <div ref={setNodeRef}>
+        <div className={`p-4 rounded-xl border transition-all cursor-pointer ${isOver ? 'bg-accent/20 border-accent' : 'bg-accent/5 border-border hover:border-accent/30'}`} onClick={() => toggleFolder(folder.id)}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              )}
-              {isExpanded ? (
-                <FolderOpen className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-              ) : (
-                <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-              )}
+              {isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+              {isExpanded ? <FolderOpen className="w-5 h-5 text-yellow-600 flex-shrink-0" /> : <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />}
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{folder.name}</div>
                 <div className="text-sm text-muted-foreground">
@@ -670,27 +614,23 @@ export default function ProfileSettings() {
               </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingFolder({ id: folder.id, name: folder.name });
-                  setFolderModalOpen(true);
-                }}
-                className="hover:bg-accent/10 flex-shrink-0"
-              >
+              <Button variant="ghost" size="sm" onClick={e => {
+              e.stopPropagation();
+              setEditingFolder({
+                id: folder.id,
+                name: folder.name
+              });
+              setFolderModalOpen(true);
+            }} className="hover:bg-accent/10 flex-shrink-0">
                 <Pencil className="w-4 h-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDeletingFolder({ id: folder.id, name: folder.name });
-                }}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-              >
+              <Button variant="ghost" size="sm" onClick={e => {
+              e.stopPropagation();
+              setDeletingFolder({
+                id: folder.id,
+                name: folder.name
+              });
+            }} className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0">
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
@@ -698,34 +638,22 @@ export default function ProfileSettings() {
         </div>
         
         {/* Files inside folder */}
-        {isExpanded && filesInFolder.length > 0 && (
-          <div className="ml-8 mt-2 space-y-2">
-            {filesInFolder.map((file: any) => (
-              <DraggableFile key={file.id} file={file} />
-            ))}
-          </div>
-        )}
+        {isExpanded && filesInFolder.length > 0 && <div className="ml-8 mt-2 space-y-2">
+            {filesInFolder.map((file: any) => <DraggableFile key={file.id} file={file} />)}
+          </div>}
         
-        {isExpanded && filesInFolder.length === 0 && (
-          <div className="ml-8 mt-2 p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground text-center">
+        {isExpanded && filesInFolder.length === 0 && <div className="ml-8 mt-2 p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground text-center">
             Empty folder - drag files here
-          </div>
-        )}
-      </div>
-    );
+          </div>}
+      </div>;
   };
-
-  return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+  return <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border z-10">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-xl hover:bg-accent/10 flex items-center justify-center transition-colors"
-            >
+            <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl hover:bg-accent/10 flex items-center justify-center transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-2xl font-rounded font-bold">Profile Settings</h1>
@@ -745,21 +673,17 @@ export default function ProfileSettings() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  value={profile.first_name}
-                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                  className="rounded-xl"
-                />
+                <Input id="firstName" value={profile.first_name} onChange={e => setProfile({
+                  ...profile,
+                  first_name: e.target.value
+                })} className="rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  value={profile.last_name}
-                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                  className="rounded-xl"
-                />
+                <Input id="lastName" value={profile.last_name} onChange={e => setProfile({
+                  ...profile,
+                  last_name: e.target.value
+                })} className="rounded-xl" />
               </div>
             </div>
             <div className="space-y-2">
@@ -767,13 +691,7 @@ export default function ProfileSettings() {
                 <Mail className="w-4 h-4" />
                 Email
               </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                disabled
-                className="rounded-xl bg-muted/50 text-muted-foreground cursor-not-allowed"
-              />
+              <Input id="email" type="email" value={email} disabled className="rounded-xl bg-muted/50 text-muted-foreground cursor-not-allowed" />
             </div>
           </div>
         </div>
@@ -787,22 +705,17 @@ export default function ProfileSettings() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="dob">Date of Birth</Label>
-              <Input
-                id="dob"
-                type="date"
-                value={profile.dob}
-                onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
-                className="rounded-xl"
-              />
+              <Input id="dob" type="date" value={profile.dob} onChange={e => setProfile({
+                ...profile,
+                dob: e.target.value
+              })} className="rounded-xl" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="sex">Sex at Birth</Label>
-              <select
-                id="sex"
-                value={profile.sex_at_birth}
-                onChange={(e) => setProfile({ ...profile, sex_at_birth: e.target.value })}
-                className="w-full px-4 py-2 rounded-xl border border-input bg-background"
-              >
+              <select id="sex" value={profile.sex_at_birth} onChange={e => setProfile({
+                ...profile,
+                sex_at_birth: e.target.value
+              })} className="w-full px-4 py-2 rounded-xl border border-input bg-background">
                 <option value="">Select...</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -810,12 +723,7 @@ export default function ProfileSettings() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="units">Preferred Units</Label>
-              <select
-                id="units"
-                value={preferredUnits}
-                onChange={(e) => setPreferredUnits(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl border border-input bg-background"
-              >
+              <select id="units" value={preferredUnits} onChange={e => setPreferredUnits(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-input bg-background">
                 <option value="metric">Metric (cm, kg)</option>
                 <option value="imperial">Imperial (inches, lbs)</option>
               </select>
@@ -823,23 +731,17 @@ export default function ProfileSettings() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="height">Height ({preferredUnits === 'metric' ? 'cm' : 'inches'})</Label>
-                <Input
-                  id="height"
-                  type="number"
-                  value={profile.height_cm}
-                  onChange={(e) => setProfile({ ...profile, height_cm: e.target.value })}
-                  className="rounded-xl"
-                />
+                <Input id="height" type="number" value={profile.height_cm} onChange={e => setProfile({
+                  ...profile,
+                  height_cm: e.target.value
+                })} className="rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight ({preferredUnits === 'metric' ? 'kg' : 'lbs'})</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  value={profile.weight_kg}
-                  onChange={(e) => setProfile({ ...profile, weight_kg: e.target.value })}
-                  className="rounded-xl"
-                />
+                <Input id="weight" type="number" value={profile.weight_kg} onChange={e => setProfile({
+                  ...profile,
+                  weight_kg: e.target.value
+                })} className="rounded-xl" />
               </div>
             </div>
           </div>
@@ -857,75 +759,44 @@ export default function ProfileSettings() {
             <div className="space-y-3">
               <Label>Diet Preferences</Label>
               <div className="flex flex-wrap gap-3">
-                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      if (dietPreferences.includes(option)) {
-                        setDietPreferences(dietPreferences.filter(d => d !== option));
-                      } else {
-                        setDietPreferences([...dietPreferences, option]);
-                      }
-                    }}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                      dietPreferences.includes(option)
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
+                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].map(option => <button key={option} onClick={() => {
+                  if (dietPreferences.includes(option)) {
+                    setDietPreferences(dietPreferences.filter(d => d !== option));
+                  } else {
+                    setDietPreferences([...dietPreferences, option]);
+                  }
+                }} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${dietPreferences.includes(option) ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                     {option}
-                  </button>
-                ))}
+                  </button>)}
                 
                 {/* Display custom diet preferences */}
-                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].includes(d)).map((custom) => (
-                  <button
-                    key={custom}
-                    onClick={() => setDietPreferences(dietPreferences.filter(d => d !== custom))}
-                    className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
-                  >
+                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].includes(d)).map(custom => <button key={custom} onClick={() => setDietPreferences(dietPreferences.filter(d => d !== custom))} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
                     {custom}
-                  </button>
-                ))}
+                  </button>)}
                 
-                <button
-                  onClick={() => setShowCustomDiet(!showCustomDiet)}
-                  className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
-                >
+                <button onClick={() => setShowCustomDiet(!showCustomDiet)} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20">
                   Other...
                 </button>
               </div>
               
-              {showCustomDiet && (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter custom diet preference"
-                    value={customDietInput}
-                    onChange={(e) => setCustomDietInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && customDietInput.trim()) {
-                        setDietPreferences([...dietPreferences, customDietInput.trim()]);
-                        setCustomDietInput('');
-                        setShowCustomDiet(false);
-                      }
-                    }}
-                    className="rounded-xl"
-                  />
-                  <Button
-                    onClick={() => {
-                      if (customDietInput.trim()) {
-                        setDietPreferences([...dietPreferences, customDietInput.trim()]);
-                        setCustomDietInput('');
-                        setShowCustomDiet(false);
-                      }
-                    }}
-                    size="sm"
-                    className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white"
-                  >
+              {showCustomDiet && <div className="flex gap-2">
+                  <Input placeholder="Enter custom diet preference" value={customDietInput} onChange={e => setCustomDietInput(e.target.value)} onKeyPress={e => {
+                  if (e.key === 'Enter' && customDietInput.trim()) {
+                    setDietPreferences([...dietPreferences, customDietInput.trim()]);
+                    setCustomDietInput('');
+                    setShowCustomDiet(false);
+                  }
+                }} className="rounded-xl" />
+                  <Button onClick={() => {
+                  if (customDietInput.trim()) {
+                    setDietPreferences([...dietPreferences, customDietInput.trim()]);
+                    setCustomDietInput('');
+                    setShowCustomDiet(false);
+                  }
+                }} size="sm" className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white">
                     Add
                   </Button>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Religious Food Preferences */}
@@ -935,75 +806,44 @@ export default function ProfileSettings() {
                 <Label>Religious Food Preferences</Label>
               </div>
               <div className="flex flex-wrap gap-3">
-                {['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      if (religiousDiet.includes(option)) {
-                        setReligiousDiet(religiousDiet.filter(d => d !== option));
-                      } else {
-                        setReligiousDiet([...religiousDiet, option]);
-                      }
-                    }}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                      religiousDiet.includes(option)
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
+                {['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].map(option => <button key={option} onClick={() => {
+                  if (religiousDiet.includes(option)) {
+                    setReligiousDiet(religiousDiet.filter(d => d !== option));
+                  } else {
+                    setReligiousDiet([...religiousDiet, option]);
+                  }
+                }} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${religiousDiet.includes(option) ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                     {option}
-                  </button>
-                ))}
+                  </button>)}
                 
                 {/* Display custom religious preferences */}
-                {religiousDiet.filter(d => !['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].includes(d)).map((custom) => (
-                  <button
-                    key={custom}
-                    onClick={() => setReligiousDiet(religiousDiet.filter(d => d !== custom))}
-                    className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
-                  >
+                {religiousDiet.filter(d => !['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].includes(d)).map(custom => <button key={custom} onClick={() => setReligiousDiet(religiousDiet.filter(d => d !== custom))} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
                     {custom}
-                  </button>
-                ))}
+                  </button>)}
                 
-                <button
-                  onClick={() => setShowCustomReligious(!showCustomReligious)}
-                  className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
-                >
+                <button onClick={() => setShowCustomReligious(!showCustomReligious)} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20">
                   Other...
                 </button>
               </div>
               
-              {showCustomReligious && (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter custom religious food preference"
-                    value={customReligiousInput}
-                    onChange={(e) => setCustomReligiousInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && customReligiousInput.trim()) {
-                        setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
-                        setCustomReligiousInput('');
-                        setShowCustomReligious(false);
-                      }
-                    }}
-                    className="rounded-xl"
-                  />
-                  <Button
-                    onClick={() => {
-                      if (customReligiousInput.trim()) {
-                        setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
-                        setCustomReligiousInput('');
-                        setShowCustomReligious(false);
-                      }
-                    }}
-                    size="sm"
-                    className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white"
-                  >
+              {showCustomReligious && <div className="flex gap-2">
+                  <Input placeholder="Enter custom religious food preference" value={customReligiousInput} onChange={e => setCustomReligiousInput(e.target.value)} onKeyPress={e => {
+                  if (e.key === 'Enter' && customReligiousInput.trim()) {
+                    setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
+                    setCustomReligiousInput('');
+                    setShowCustomReligious(false);
+                  }
+                }} className="rounded-xl" />
+                  <Button onClick={() => {
+                  if (customReligiousInput.trim()) {
+                    setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
+                    setCustomReligiousInput('');
+                    setShowCustomReligious(false);
+                  }
+                }} size="sm" className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white">
                     Add
                   </Button>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Allergies & Intolerances */}
@@ -1013,157 +853,94 @@ export default function ProfileSettings() {
                 <Label>Allergies & Intolerances</Label>
               </div>
               <div className="flex flex-wrap gap-3">
-                {['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      if (allergies.includes(option)) {
-                        setAllergies(allergies.filter(a => a !== option));
-                      } else {
-                        setAllergies([...allergies, option]);
-                      }
-                    }}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                      allergies.includes(option)
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
+                {['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].map(option => <button key={option} onClick={() => {
+                  if (allergies.includes(option)) {
+                    setAllergies(allergies.filter(a => a !== option));
+                  } else {
+                    setAllergies([...allergies, option]);
+                  }
+                }} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${allergies.includes(option) ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                     {option}
-                  </button>
-                ))}
+                  </button>)}
                 
                 {/* Display custom allergies */}
-                {allergies.filter(a => !['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].includes(a)).map((custom) => (
-                  <button
-                    key={custom}
-                    onClick={() => setAllergies(allergies.filter(a => a !== custom))}
-                    className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]"
-                  >
+                {allergies.filter(a => !['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].includes(a)).map(custom => <button key={custom} onClick={() => setAllergies(allergies.filter(a => a !== custom))} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
                     {custom}
-                  </button>
-                ))}
+                  </button>)}
                 
-                <button
-                  onClick={() => setShowCustomAllergy(!showCustomAllergy)}
-                  className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20"
-                >
+                <button onClick={() => setShowCustomAllergy(!showCustomAllergy)} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20">
                   Other...
                 </button>
               </div>
               
-              {showCustomAllergy && (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter custom allergy/intolerance"
-                    value={customAllergyInput}
-                    onChange={(e) => setCustomAllergyInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && customAllergyInput.trim()) {
-                        setAllergies([...allergies, customAllergyInput.trim()]);
-                        setCustomAllergyInput('');
-                        setShowCustomAllergy(false);
-                      }
-                    }}
-                    className="rounded-xl"
-                  />
-                  <Button
-                    onClick={() => {
-                      if (customAllergyInput.trim()) {
-                        setAllergies([...allergies, customAllergyInput.trim()]);
-                        setCustomAllergyInput('');
-                        setShowCustomAllergy(false);
-                      }
-                    }}
-                    size="sm"
-                    className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white"
-                  >
+              {showCustomAllergy && <div className="flex gap-2">
+                  <Input placeholder="Enter custom allergy/intolerance" value={customAllergyInput} onChange={e => setCustomAllergyInput(e.target.value)} onKeyPress={e => {
+                  if (e.key === 'Enter' && customAllergyInput.trim()) {
+                    setAllergies([...allergies, customAllergyInput.trim()]);
+                    setCustomAllergyInput('');
+                    setShowCustomAllergy(false);
+                  }
+                }} className="rounded-xl" />
+                  <Button onClick={() => {
+                  if (customAllergyInput.trim()) {
+                    setAllergies([...allergies, customAllergyInput.trim()]);
+                    setCustomAllergyInput('');
+                    setShowCustomAllergy(false);
+                  }
+                }} size="sm" className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white">
                     Add
                   </Button>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Macro Targets */}
             <div className="space-y-3">
               <Label>Macro Targets</Label>
               <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setMacroMode('ai')}
-                  className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${
-                    macroMode === 'ai'
-                      ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                      : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                  }`}
-                >
+                <button onClick={() => setMacroMode('ai')} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${macroMode === 'ai' ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                   <Sparkles className="w-4 h-4" />
                   AI Auto
                 </button>
 
-                <button
-                  onClick={() => setMacroMode('manual')}
-                  className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${
-                    macroMode === 'manual'
-                      ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                      : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                  }`}
-                >
+                <button onClick={() => setMacroMode('manual')} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${macroMode === 'manual' ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                   <Utensils className="w-4 h-4" />
                   Manual
                 </button>
               </div>
               
               {/* Manual Macro Inputs */}
-              {macroMode === 'manual' && (
-                <div className="mt-4 space-y-3 p-4 rounded-2xl bg-white/60 border border-[#12AFCB]/10">
+              {macroMode === 'manual' && <div className="mt-4 space-y-3 p-4 rounded-2xl bg-white/60 border border-[#12AFCB]/10">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label htmlFor="calories">Calories (kcal)</Label>
-                      <Input
-                        id="calories"
-                        type="number"
-                        placeholder="2000"
-                        value={manualMacros.calories}
-                        onChange={(e) => setManualMacros({ ...manualMacros, calories: e.target.value })}
-                        className="rounded-xl"
-                      />
+                      <Input id="calories" type="number" placeholder="2000" value={manualMacros.calories} onChange={e => setManualMacros({
+                      ...manualMacros,
+                      calories: e.target.value
+                    })} className="rounded-xl" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="protein">Protein (g)</Label>
-                      <Input
-                        id="protein"
-                        type="number"
-                        placeholder="150"
-                        value={manualMacros.protein}
-                        onChange={(e) => setManualMacros({ ...manualMacros, protein: e.target.value })}
-                        className="rounded-xl"
-                      />
+                      <Input id="protein" type="number" placeholder="150" value={manualMacros.protein} onChange={e => setManualMacros({
+                      ...manualMacros,
+                      protein: e.target.value
+                    })} className="rounded-xl" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="carbs">Carbs (g)</Label>
-                      <Input
-                        id="carbs"
-                        type="number"
-                        placeholder="200"
-                        value={manualMacros.carbs}
-                        onChange={(e) => setManualMacros({ ...manualMacros, carbs: e.target.value })}
-                        className="rounded-xl"
-                      />
+                      <Input id="carbs" type="number" placeholder="200" value={manualMacros.carbs} onChange={e => setManualMacros({
+                      ...manualMacros,
+                      carbs: e.target.value
+                    })} className="rounded-xl" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="fats">Fats (g)</Label>
-                      <Input
-                        id="fats"
-                        type="number"
-                        placeholder="70"
-                        value={manualMacros.fats}
-                        onChange={(e) => setManualMacros({ ...manualMacros, fats: e.target.value })}
-                        className="rounded-xl"
-                      />
+                      <Input id="fats" type="number" placeholder="70" value={manualMacros.fats} onChange={e => setManualMacros({
+                      ...manualMacros,
+                      fats: e.target.value
+                    })} className="rounded-xl" />
                     </div>
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
           </div>
         </div>
@@ -1183,23 +960,18 @@ export default function ProfileSettings() {
                 <Label>Theme</Label>
               </div>
               <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: 'Light', value: 'light' },
-                  { label: 'Dark', value: 'dark' },
-                  { label: 'System', value: 'system' }
-                ].map((themeOption) => (
-                  <button
-                    key={themeOption.value}
-                    onClick={() => setTheme(themeOption.value as any)}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                      theme === themeOption.value
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
+                {[{
+                  label: 'Light',
+                  value: 'light'
+                }, {
+                  label: 'Dark',
+                  value: 'dark'
+                }, {
+                  label: 'System',
+                  value: 'system'
+                }].map(themeOption => <button key={themeOption.value} onClick={() => setTheme(themeOption.value as any)} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${theme === themeOption.value ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                     {themeOption.label}
-                  </button>
-                ))}
+                  </button>)}
               </div>
             </div>
 
@@ -1210,25 +982,20 @@ export default function ProfileSettings() {
                 <Label>View Mode</Label>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'Standard', value: 'standard', description: 'Goal-focused cards with AI chat' },
-                  { label: 'Professional', value: 'professional', description: 'Apple Health-style metrics grid' }
-                ].map((mode) => (
-                  <button
-                    key={mode.value}
-                    onClick={() => setViewMode(mode.value)}
-                    className={`py-3 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard text-left ${
-                      viewMode === mode.value
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
+                {[{
+                  label: 'Standard',
+                  value: 'standard',
+                  description: 'Goal-focused cards with AI chat'
+                }, {
+                  label: 'Professional',
+                  value: 'professional',
+                  description: 'Apple Health-style metrics grid'
+                }].map(mode => <button key={mode.value} onClick={() => setViewMode(mode.value)} className={`py-3 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard text-left ${viewMode === mode.value ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                     <div className="font-semibold">{mode.label}</div>
                     <div className={`text-xs mt-1 ${viewMode === mode.value ? 'text-white/80' : 'text-[#5A6B7F]'}`}>
                       {mode.description}
                     </div>
-                  </button>
-                ))}
+                  </button>)}
               </div>
               <p className="text-xs text-[#5A6B7F] mt-2">
                 Switch between Standard view (goals & AI chat) and Professional view (health metrics grid). Save changes to apply.
@@ -1242,22 +1009,15 @@ export default function ProfileSettings() {
                 <Label>AI Tone</Label>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'Friendly', value: 'friendly' },
-                  { label: 'Clinical', value: 'clinical' }
-                ].map((tone) => (
-                  <button
-                    key={tone.value}
-                    onClick={() => setAiTone(tone.value)}
-                    className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${
-                      aiTone === tone.value
-                        ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]'
-                        : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'
-                    }`}
-                  >
+                {[{
+                  label: 'Friendly',
+                  value: 'friendly'
+                }, {
+                  label: 'Clinical',
+                  value: 'clinical'
+                }].map(tone => <button key={tone.value} onClick={() => setAiTone(tone.value)} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${aiTone === tone.value ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
                     {tone.label}
-                  </button>
-                ))}
+                  </button>)}
               </div>
             </div>
 
@@ -1269,16 +1029,12 @@ export default function ProfileSettings() {
                     <Bell className="w-4 h-4 text-accent" />
                     <Label className="font-medium">Push Notifications</Label>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs mt-1 text-[#98a0ae]">
                     Receive health reminders, AI insights, and alerts
                   </p>
                 </div>
                 <div className={`transition-all duration-300 ${pushNotificationsEnabled ? 'drop-shadow-[0_0_8px_hsl(var(--accent)/0.4)]' : ''}`}>
-                  <Switch
-                    checked={pushNotificationsEnabled}
-                    onCheckedChange={setPushNotificationsEnabled}
-                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent/80 h-7 w-12"
-                  />
+                  <Switch checked={pushNotificationsEnabled} onCheckedChange={setPushNotificationsEnabled} className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent/80 h-7 w-12" />
                 </div>
               </div>
             </div>
@@ -1293,110 +1049,59 @@ export default function ProfileSettings() {
               Uploaded Files
             </div>
             <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setFolderModalOpen(true)}
-                className="rounded-xl"
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => setFolderModalOpen(true)} className="rounded-xl">
                 <FolderPlus className="w-4 h-4 mr-2" />
                 New Folder
               </Button>
               <label htmlFor="file-upload">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={uploading}
-                  className="rounded-xl cursor-pointer"
-                  onClick={() => document.getElementById('file-upload')?.click()}
-                >
+                <Button type="button" variant="outline" size="sm" disabled={uploading} className="rounded-xl cursor-pointer" onClick={() => document.getElementById('file-upload')?.click()}>
                   <Upload className="w-4 h-4 mr-2" />
                   {uploading ? "Uploading..." : "Upload Files"}
                 </Button>
-                <input
-                  id="file-upload"
-                  type="file"
-                  multiple
-                  accept="image/*,.pdf"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+                <input id="file-upload" type="file" multiple accept="image/*,.pdf" onChange={handleFileUpload} className="hidden" />
               </label>
             </div>
           </div>
 
-          {uploadedFiles.length === 0 && folders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+          {uploadedFiles.length === 0 && folders.length === 0 ? <div className="text-center py-8 text-muted-foreground">
               <Upload className="w-12 h-12 mx-auto mb-2 opacity-20" />
               <p className="text-sm">No files or folders yet</p>
-            </div>
-          ) : (
-            <ScrollArea className="h-[280px] pr-4">
+            </div> : <ScrollArea className="h-[280px] pr-4">
               <div className="space-y-3">
                 {/* Folders */}
-                {folders.map((folder: any) => (
-                  <DroppableFolder key={folder.id} folder={folder} />
-                ))}
+                {folders.map((folder: any) => <DroppableFolder key={folder.id} folder={folder} />)}
 
                 {/* Files without folder */}
-                {getFilesWithoutFolder().map((file: any) => (
-                  <DraggableFile key={file.id} file={file} />
-                ))}
+                {getFilesWithoutFolder().map((file: any) => <DraggableFile key={file.id} file={file} />)}
               </div>
-            </ScrollArea>
-          )}
+            </ScrollArea>}
         </div>
 
         {/* Save Button */}
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => navigate(-1)}
-            className="flex-1 rounded-xl"
-          >
+          <Button variant="outline" onClick={() => navigate(-1)} className="flex-1 rounded-xl">
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={loading}
-            className="flex-1 rounded-xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_6px_16px_rgba(18,175,203,0.4)] transition-all"
-          >
+          <Button onClick={handleSave} disabled={loading} className="flex-1 rounded-xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_6px_16px_rgba(18,175,203,0.4)] transition-all">
             {loading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
       {/* Folder Modal */}
-      <FolderModal
-        open={folderModalOpen}
-        onOpenChange={(open) => {
-          setFolderModalOpen(open);
-          if (!open) setEditingFolder(null);
-        }}
-        onSubmit={handleCreateFolder}
-        isLoading={isCreatingFolder}
-        initialName={editingFolder?.name}
-        mode={editingFolder ? 'edit' : 'create'}
-      />
+      <FolderModal open={folderModalOpen} onOpenChange={open => {
+        setFolderModalOpen(open);
+        if (!open) setEditingFolder(null);
+      }} onSubmit={handleCreateFolder} isLoading={isCreatingFolder} initialName={editingFolder?.name} mode={editingFolder ? 'edit' : 'create'} />
 
       {/* File Rename Modal */}
-      <FolderModal
-        open={fileRenameModalOpen}
-        onOpenChange={(open) => {
-          setFileRenameModalOpen(open);
-          if (!open) setEditingFile(null);
-        }}
-        onSubmit={handleRenameFile}
-        isLoading={false}
-        initialName={editingFile?.name}
-        mode="edit"
-        itemType="file"
-      />
+      <FolderModal open={fileRenameModalOpen} onOpenChange={open => {
+        setFileRenameModalOpen(open);
+        if (!open) setEditingFile(null);
+      }} onSubmit={handleRenameFile} isLoading={false} initialName={editingFile?.name} mode="edit" itemType="file" />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deletingFolder} onOpenChange={(open) => !open && setDeletingFolder(null)}>
+      <AlertDialog open={!!deletingFolder} onOpenChange={open => !open && setDeletingFolder(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Folder</AlertDialogTitle>
@@ -1407,16 +1112,12 @@ export default function ProfileSettings() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeleteFolder}
-              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={confirmDeleteFolder} className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-    </DndContext>
-  );
+    </DndContext>;
 }
