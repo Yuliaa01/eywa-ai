@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PrioritiesSection from "@/components/dashboard/PrioritiesSection";
 import ProfessionalPrioritiesSection from "@/components/dashboard/ProfessionalPrioritiesSection";
 import NutritionSection from "@/components/dashboard/NutritionSection";
@@ -47,7 +47,7 @@ export default function Dashboard() {
     const loadUserData = async (userId: string) => {
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('first_name, last_name, view_mode')
+        .select('first_name, last_name, view_mode, avatar_url')
         .eq('user_id', userId)
         .maybeSingle();
       
@@ -174,6 +174,9 @@ export default function Dashboard() {
                 <DropdownMenuTrigger asChild>
                   <button className="w-10 h-10 rounded-full overflow-hidden hover:shadow-[0_0_20px_rgba(18,175,203,0.3)] hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none">
                     <Avatar className="w-10 h-10">
+                      {userProfile?.avatar_url && (
+                        <AvatarImage src={userProfile.avatar_url} alt="Profile" />
+                      )}
                       <AvatarFallback className="bg-gradient-to-br from-accent-teal/20 to-accent-teal-alt/10 backdrop-blur-xl border border-accent-teal/20 text-accent-teal">
                         <User className="w-5 h-5" />
                       </AvatarFallback>
