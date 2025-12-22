@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen, Pencil, Bell } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { User, Heart, Lock, ArrowLeft, Upload, File, X, FileImage, Loader2, CheckCircle, AlertCircle, Eye, MessageSquare, Palette, Utensils, Sparkles, Mail, FolderPlus, Folder, Trash2, GripVertical, ChevronDown, ChevronRight, FolderOpen, Pencil, Bell, Camera } from "lucide-react";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useNavigate } from "react-router-dom";
@@ -54,6 +54,9 @@ export default function ProfileSettings() {
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [folders, setFolders] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [folderModalOpen, setFolderModalOpen] = useState(false);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
@@ -139,6 +142,11 @@ export default function ProfileSettings() {
         // Load push notifications preference
         setPushNotificationsEnabled(data.push_notifications_enabled !== false);
 
+        // Load avatar URL
+        if (data.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+
         // Load nutrition data
         setDietPreferences(data.diet_preferences || []);
         setReligiousDiet(data.religious_diet || []);
@@ -201,6 +209,101 @@ export default function ProfileSettings() {
       setLoading(false);
     }
   };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('user-files')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-files')
+        .getPublicUrl(filePath);
+
+      // Update profile with avatar URL
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+
+      // Award profile_photo reward
+      const { data: existingReward } = await supabase
+        .from('user_rewards')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('reward_id', (await supabase.from('rewards').select('id').eq('requirement_type', 'profile_photo').single()).data?.id)
+        .single();
+
+      if (!existingReward) {
+        const { data: reward } = await supabase
+          .from('rewards')
+          .select('id')
+          .eq('requirement_type', 'profile_photo')
+          .single();
+
+        if (reward) {
+          await supabase.from('user_rewards').insert({
+            user_id: user.id,
+            reward_id: reward.id,
+            trigger_data: { uploaded_at: new Date().toISOString() }
+          });
+        }
+      }
+
+      toast({
+        title: "Photo uploaded",
+        description: "Your profile photo has been updated."
+      });
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload profile photo.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const loadFiles = async () => {
     try {
       const {
@@ -670,6 +773,41 @@ export default function ProfileSettings() {
             Account
           </div>
           <div className="space-y-4">
+            {/* Profile Photo */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#12AFCB] to-[#12AFCB]/70 flex items-center justify-center overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-white" />
+                  )}
+                </div>
+                <button
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#12AFCB] hover:bg-[#12AFCB]/90 flex items-center justify-center text-white shadow-lg transition-colors disabled:opacity-50"
+                >
+                  {uploadingPhoto ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                </button>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">Profile Photo</p>
+                <p className="text-sm text-muted-foreground">Click the camera icon to upload</p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
