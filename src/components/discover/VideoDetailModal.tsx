@@ -49,11 +49,11 @@ export function VideoDetailModal({ video, open, onClose }: VideoDetailModalProps
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-border">
+      <DialogContent className="max-w-6xl p-0 overflow-hidden bg-background border-border">
 
-        <div className="grid md:grid-cols-[1fr,300px]">
+        <div className="grid md:grid-cols-[1fr,320px]">
           {/* Video player */}
-          <div className="relative aspect-video md:aspect-auto md:h-[500px] bg-black">
+          <div className="relative aspect-video md:aspect-auto md:h-[560px] bg-black">
             <VideoPlayer
               src={video.video_url}
               poster={video.thumbnail_url || undefined}
