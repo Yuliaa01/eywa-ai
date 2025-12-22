@@ -50,15 +50,6 @@ export function VideoDetailModal({ video, open, onClose }: VideoDetailModalProps
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-border">
-        {/* Close button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          className="absolute right-2 top-2 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full"
-        >
-          <X className="w-5 h-5" />
-        </Button>
 
         <div className="grid md:grid-cols-[1fr,300px]">
           {/* Video player */}
