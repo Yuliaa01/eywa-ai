@@ -126,8 +126,9 @@ export default function RewardsDropdown({ userId }: RewardsDropdownProps) {
     .sort((a, b) => b.current_count - a.current_count)
     .slice(0, 3);
 
-  // Define daily goals - check if activity happened TODAY by comparing dates
-  const today = new Date().toISOString().split('T')[0];
+  // Define daily goals - check if activity happened TODAY using local date
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   
   const dailyGoals = [
     { 
