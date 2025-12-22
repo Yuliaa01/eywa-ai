@@ -5,11 +5,19 @@ import { toast } from "@/hooks/use-toast";
 import { AudioRecorder, blobToBase64 } from "@/utils/audioRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import eywaAvatar from "@/assets/eywa-avatar.png";
+import { QuickActionCard } from "./QuickActionCard";
+
 interface Message {
   role: "user" | "assistant";
   content: string;
   imageUrl?: string;
 }
+
+interface QuickActionData {
+  progress: number;
+  subtitle: string;
+}
+
 export function AIChatCenter() {
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,6 +30,13 @@ export function AIChatCenter() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
+  const [quickActionsData, setQuickActionsData] = useState<Record<string, QuickActionData>>({
+    progress: { progress: 0, subtitle: "Loading..." },
+    sleep: { progress: 0, subtitle: "Loading..." },
+    nutrition: { progress: 0, subtitle: "Loading..." },
+    stress: { progress: 0, subtitle: "Loading..." },
+  });
+  const [actionsLoading, setActionsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,6 +86,129 @@ export function AIChatCenter() {
       }
     };
     loadUserDataAndInsight();
+  }, []);
+
+  // Fetch quick actions health data
+  useEffect(() => {
+    const fetchQuickActionsData = async () => {
+      try {
+        setActionsLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const userId = session.user.id;
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Fetch all data in parallel
+        const [activitiesRes, sleepRes, mealsRes, hrvRes, streaksRes] = await Promise.all([
+          // Weekly fitness activities
+          supabase
+            .from('synced_fitness_activities')
+            .select('id')
+            .eq('user_id', userId)
+            .gte('start_time', startOfWeek.toISOString()),
+          
+          // Last night's sleep (vitals_stream with sleep_duration metric - in minutes)
+          supabase
+            .from('vitals_stream')
+            .select('value')
+            .eq('user_id', userId)
+            .eq('metric', 'sleep_duration')
+            .gte('recorded_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
+            .order('recorded_at', { ascending: false })
+            .limit(1),
+          
+          // Today's meals
+          supabase
+            .from('meals')
+            .select('id')
+            .eq('user_id', userId)
+            .gte('timestamp', today.toISOString()),
+          
+          // Latest HRV reading
+          supabase
+            .from('vitals_stream')
+            .select('value')
+            .eq('user_id', userId)
+            .eq('metric', 'hrv_rmssd')
+            .order('recorded_at', { ascending: false })
+            .limit(1),
+          
+          // User streaks for workout goal
+          supabase
+            .from('user_streaks')
+            .select('current_count')
+            .eq('user_id', userId)
+            .eq('streak_type', 'workout')
+            .maybeSingle()
+        ]);
+
+        // Calculate progress for each card
+        const WEEKLY_WORKOUT_GOAL = 5;
+        const SLEEP_TARGET_HOURS = 8;
+        const MEALS_PER_DAY = 4;
+        const HRV_OPTIMAL_MIN = 50;
+        const HRV_OPTIMAL_MAX = 100;
+
+        // Progress card: Weekly workouts
+        const workoutsCompleted = activitiesRes.data?.length || 0;
+        const progressPercent = Math.min((workoutsCompleted / WEEKLY_WORKOUT_GOAL) * 100, 100);
+
+        // Sleep card: Last night's sleep (value is in minutes, convert to hours)
+        const sleepMinutes = sleepRes.data?.[0]?.value || 0;
+        const sleepHours = sleepMinutes / 60;
+        const sleepPercent = Math.min((sleepHours / SLEEP_TARGET_HOURS) * 100, 100);
+
+        // Nutrition card: Today's meals
+        const mealsLogged = mealsRes.data?.length || 0;
+        const nutritionPercent = Math.min((mealsLogged / MEALS_PER_DAY) * 100, 100);
+
+        // Stress card: HRV score (normalized)
+        const hrvValue = hrvRes.data?.[0]?.value || 0;
+        const stressPercent = hrvValue > 0 
+          ? Math.min(Math.max(((hrvValue - HRV_OPTIMAL_MIN) / (HRV_OPTIMAL_MAX - HRV_OPTIMAL_MIN)) * 100, 0), 100)
+          : 0;
+
+        setQuickActionsData({
+          progress: {
+            progress: progressPercent,
+            subtitle: workoutsCompleted > 0 
+              ? `${workoutsCompleted}/${WEEKLY_WORKOUT_GOAL} workouts`
+              : "Start tracking"
+          },
+          sleep: {
+            progress: sleepPercent,
+            subtitle: sleepHours > 0 
+              ? `${sleepHours.toFixed(1)}h / ${SLEEP_TARGET_HOURS}h goal`
+              : "No sleep data"
+          },
+          nutrition: {
+            progress: nutritionPercent,
+            subtitle: mealsLogged > 0 
+              ? `${mealsLogged}/${MEALS_PER_DAY} meals logged`
+              : "Log your meals"
+          },
+          stress: {
+            progress: stressPercent,
+            subtitle: hrvValue > 0 
+              ? `${Math.round(hrvValue)} HRV - ${stressPercent >= 60 ? "Good" : stressPercent >= 30 ? "Fair" : "Low"}`
+              : "No HRV data"
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching quick actions data:', error);
+      } finally {
+        setActionsLoading(false);
+      }
+    };
+
+    fetchQuickActionsData();
   }, []);
 
   // Request browser notification permission and check user preference
@@ -468,24 +606,21 @@ export function AIChatCenter() {
             {/* Quick Actions */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { icon: TrendingUp, title: "View Progress", color: "#22C55E", message: "Show me my overall health progress and trends" },
-                { icon: Moon, title: "Sleep Analysis", color: "#8B5CF6", message: "Give me a detailed sleep analysis and recommendations" },
-                { icon: Apple, title: "Nutrition Tips", color: "#F59E0B", message: "What nutrition tips do you have for me based on my health data?" },
-                { icon: Heart, title: "Stress Relief", color: "#EC4899", message: "Give me personalized stress relief techniques and recommendations" }
+                { icon: TrendingUp, title: "View Progress", color: "#22C55E", message: "Show me my overall health progress and trends", key: "progress" },
+                { icon: Moon, title: "Sleep Analysis", color: "#8B5CF6", message: "Give me a detailed sleep analysis and recommendations", key: "sleep" },
+                { icon: Apple, title: "Nutrition Tips", color: "#F59E0B", message: "What nutrition tips do you have for me based on my health data?", key: "nutrition" },
+                { icon: Heart, title: "Stress Relief", color: "#EC4899", message: "Give me personalized stress relief techniques and recommendations", key: "stress" }
               ].map((action) => (
-                <button 
+                <QuickActionCard
                   key={action.title}
-                  onClick={() => handleSendWithMessage(action.message)} 
-                  className="rounded-2xl bg-white/80 backdrop-blur-sm border border-[#12AFCB]/10 p-4 flex flex-col items-center gap-3 hover:border-[#12AFCB]/30 hover:shadow-[0_4px_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] transition-all duration-200"
-                >
-                  <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: `${action.color}15` }}
-                  >
-                    <action.icon className="w-6 h-6" style={{ color: action.color }} />
-                  </div>
-                  <span className="text-sm font-semibold text-[#0E1012]">{action.title}</span>
-                </button>
+                  icon={action.icon}
+                  title={action.title}
+                  color={action.color}
+                  progress={quickActionsData[action.key]?.progress || 0}
+                  subtitle={quickActionsData[action.key]?.subtitle}
+                  onClick={() => handleSendWithMessage(action.message)}
+                  isLoading={actionsLoading}
+                />
               ))}
             </div>
 

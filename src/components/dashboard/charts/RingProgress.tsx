@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 interface RingProgressProps {
   progress: number; // 0-100
   color: string;
@@ -5,6 +7,8 @@ interface RingProgressProps {
   size?: number;
   strokeWidth?: number;
   className?: string;
+  children?: ReactNode;
+  showPercentage?: boolean;
 }
 
 export function RingProgress({
@@ -14,6 +18,8 @@ export function RingProgress({
   size = 40,
   strokeWidth = 4,
   className = "",
+  children,
+  showPercentage = true,
 }: RingProgressProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -45,12 +51,18 @@ export function RingProgress({
           className="transition-all duration-500"
         />
       </svg>
-      <span
-        className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold"
-        style={{ color }}
-      >
-        {Math.round(progress)}%
-      </span>
+      {children ? (
+        <div className="absolute inset-0 flex items-center justify-center">
+          {children}
+        </div>
+      ) : showPercentage ? (
+        <span
+          className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold"
+          style={{ color }}
+        >
+          {Math.round(progress)}%
+        </span>
+      ) : null}
     </div>
   );
 }
