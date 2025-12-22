@@ -1029,7 +1029,7 @@ export default function ProfileSettings() {
                     <Bell className="w-4 h-4 text-accent" />
                     <Label className="font-medium">Push Notifications</Label>
                   </div>
-                  <p className="text-xs mt-1 text-[#98a0ae]">
+                  <p className="text-xs mt-1 text-[#848d9f]">
                     Receive health reminders, AI insights, and alerts
                   </p>
                 </div>
