@@ -652,14 +652,14 @@ export default function FastingTimer({
 
       {/* Control buttons - only show when fasting is active */}
       {hasActiveFast && <div className="flex gap-2 mt-auto">
-          {!isPaused ? <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+          {!isPaused ? <Button onClick={handlePause} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10 hover:text-foreground">
               <Pause className="w-4 h-4 mr-2" />
               Pause
-            </Button> : <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10">
+            </Button> : <Button onClick={handleResume} variant="outline" className="flex-1 border-accent/30 hover:bg-accent/10 hover:text-foreground">
               <Play className="w-4 h-4 mr-2" />
               Resume
             </Button>}
-          <Button onClick={handleStop} variant="outline" className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive">
+          <Button onClick={handleStop} variant="outline" className="flex-1 border-destructive/30 hover:bg-destructive/10 text-destructive hover:text-destructive">
             <Square className="w-4 h-4 mr-2" />
             End Fast
           </Button>
