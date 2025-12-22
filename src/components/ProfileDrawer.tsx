@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { User, Lock, Heart, Link as LinkIcon, CreditCard, Shield, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { User, Lock, Heart, Link as LinkIcon, CreditCard, Shield, X, Camera, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { awardReward, fetchAllRewards } from "@/api/rewards";
 
 interface ProfileDrawerProps {
   open: boolean;
@@ -18,6 +20,9 @@ interface ProfileDrawerProps {
 export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
   const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState({
     first_name: "",
     last_name: "",
@@ -54,9 +59,94 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
           height_cm: data.height_cm?.toString() || "",
           weight_kg: data.weight_kg?.toString() || "",
         });
+        setAvatarUrl(data.avatar_url || null);
       }
     } catch (error) {
       console.error("Error loading profile:", error);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('user-files')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('user-files')
+        .getPublicUrl(fileName);
+
+      const publicUrl = urlData.publicUrl;
+
+      // Update profile with avatar URL
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .upsert({
+          id: user.id,
+          user_id: user.id,
+          avatar_url: publicUrl,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+
+      // Check and award the profile photo reward
+      const allRewards = await fetchAllRewards();
+      const profilePhotoReward = allRewards.find(r => r.requirement_type === 'profile_photo');
+      if (profilePhotoReward) {
+        await awardReward(user.id, profilePhotoReward.id);
+      }
+
+      toast({
+        title: "Photo uploaded",
+        description: "Your profile photo has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload profile photo.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -120,6 +210,42 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
               Account
             </div>
             <div className="space-y-4">
+              {/* Profile Photo */}
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Avatar className="w-20 h-20 border-2 border-border">
+                    <AvatarImage src={avatarUrl || undefined} alt="Profile photo" />
+                    <AvatarFallback className="text-lg">
+                      {profile.first_name?.[0]?.toUpperCase() || profile.last_name?.[0]?.toUpperCase() || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {uploadingPhoto ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Camera className="w-4 h-4" />
+                    )}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Profile Photo</p>
+                  <p className="text-xs text-muted-foreground">
+                    Click the camera icon to upload a photo
+                  </p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
