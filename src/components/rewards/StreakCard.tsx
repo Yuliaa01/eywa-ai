@@ -17,50 +17,50 @@ const STREAK_CONFIG: Record<string, {
 }> = {
   fasting: { 
     icon: Flame, 
-    color: 'text-orange-500', 
-    bgColor: 'bg-orange-100 dark:bg-orange-900/30', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Fasting',
     description: 'Days completing your fast'
   },
   workout: { 
     icon: Zap, 
-    color: 'text-yellow-500', 
-    bgColor: 'bg-yellow-100 dark:bg-yellow-900/30', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Workout',
     description: 'Consecutive days exercising'
   },
   nutrition: { 
     icon: Utensils, 
-    color: 'text-green-500', 
-    bgColor: 'bg-green-100 dark:bg-green-900/30', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Nutrition',
     description: 'Days logging your meals'
   },
   supplements: { 
     icon: Pill, 
-    color: 'text-purple-500', 
-    bgColor: 'bg-purple-100 dark:bg-purple-900/30', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Supplements',
     description: 'Days taking your vitamins'
   },
   sleep: { 
     icon: Moon, 
-    color: 'text-blue-500', 
-    bgColor: 'bg-blue-100 dark:bg-blue-900/30', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Sleep',
     description: 'Days hitting sleep goals'
   },
   login: { 
     icon: Calendar, 
-    color: 'text-teal-500', 
-    bgColor: 'bg-teal-100 dark:bg-teal-900/30', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Daily Login',
     description: 'Days in a row logging in'
   },
   goals: { 
     icon: Trophy, 
-    color: 'text-accent-teal', 
-    bgColor: 'bg-accent-teal/10', 
+    color: 'text-slate-600 dark:text-slate-300', 
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50', 
     label: 'Goals',
     description: 'Days achieving your goals'
   },
@@ -69,8 +69,8 @@ const STREAK_CONFIG: Record<string, {
 export default function StreakCard({ streak, compact = false }: StreakCardProps) {
   const config = STREAK_CONFIG[streak.streak_type] || {
     icon: Star,
-    color: 'text-yellow-500',
-    bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
+    color: 'text-slate-600 dark:text-slate-300',
+    bgColor: 'bg-slate-50 dark:bg-slate-800/50',
     label: streak.streak_type.charAt(0).toUpperCase() + streak.streak_type.slice(1),
     description: 'Keep your streak going!',
   };
@@ -105,7 +105,7 @@ export default function StreakCard({ streak, compact = false }: StreakCardProps)
       
       {/* Header with icon, title, and description */}
       <div className="flex items-start gap-3 mb-3">
-        <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner border border-white/20`}>
+        <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center shadow-inner border border-white/20">
           <Icon className={`w-6 h-6 ${config.color}`} />
         </div>
         
