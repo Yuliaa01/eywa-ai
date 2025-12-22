@@ -352,7 +352,7 @@ export const getRewardsByCategory = (rewards: Reward[]): Record<string, Reward[]
 
 // Tier colors and icons
 export const TIER_CONFIG = {
-  bronze: { color: 'from-amber-600 to-amber-800', textColor: 'text-amber-600', bgColor: 'bg-amber-100' },
+  bronze: { color: 'from-blue-400 to-blue-600', textColor: 'text-blue-600', bgColor: 'bg-blue-100' },
   silver: { color: 'from-slate-400 to-slate-600', textColor: 'text-slate-500', bgColor: 'bg-slate-100' },
   gold: { color: 'from-yellow-400 to-yellow-600', textColor: 'text-yellow-600', bgColor: 'bg-yellow-100' },
   platinum: { color: 'from-purple-400 to-purple-600', textColor: 'text-purple-600', bgColor: 'bg-purple-100' },
