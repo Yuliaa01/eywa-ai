@@ -1480,6 +1480,7 @@ export type Database = {
       user_profiles: {
         Row: {
           allergies: string[] | null
+          avatar_url: string | null
           biological_age_estimate: number | null
           chronic_conditions: string[] | null
           created_at: string
@@ -1507,6 +1508,7 @@ export type Database = {
         }
         Insert: {
           allergies?: string[] | null
+          avatar_url?: string | null
           biological_age_estimate?: number | null
           chronic_conditions?: string[] | null
           created_at?: string
@@ -1534,6 +1536,7 @@ export type Database = {
         }
         Update: {
           allergies?: string[] | null
+          avatar_url?: string | null
           biological_age_estimate?: number | null
           chronic_conditions?: string[] | null
           created_at?: string
