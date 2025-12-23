@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/priorities/DeleteConfirmDialog";
 import { GoalActions } from "@/components/priorities/GoalActions";
 import { updateStreak, checkAndAwardStreakRewards } from "@/api/rewards";
+import { triggerNutritionReward } from "@/hooks/useRewardTrigger";
 import FastingTimer from "./FastingTimer";
 import RecipesSection from "./RecipesSection";
 import MealPlannerSection from "./MealPlannerSection";
@@ -389,6 +390,17 @@ export default function NutritionSection() {
         notes: recipe.description
       }).eq('id', mealToReplace.id);
       if (error) throw error;
+
+      // Trigger reward check (covers cases where users "log" meals via recipe replacement)
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
+      if (user) {
+        await triggerNutritionReward(user.id);
+      }
+
       toast({
         title: "Meal updated",
         description: "Your meal has been replaced with the selected recipe."
