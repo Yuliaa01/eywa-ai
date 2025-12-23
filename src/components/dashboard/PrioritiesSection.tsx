@@ -356,31 +356,31 @@ export default function PrioritiesSection() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-[#5A6B7F] flex-shrink-0" />
               </div> : orderedPlans.slice(0, 2).map((plan, index) => <SortableItem key={plan.id} id={plan.id} showHandle={false}>
-                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-3 hover:bg-[#12AFCB]/20 transition-all cursor-pointer group">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <MapPin className="w-4 h-4 text-[#12AFCB] flex-shrink-0" />
+                  <div onClick={() => handleEdit(plan)} className="rounded-2xl bg-[#12AFCB]/10 backdrop-blur-sm border border-[#12AFCB]/20 p-2.5 hover:bg-[#12AFCB]/20 transition-all cursor-pointer group">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-[#12AFCB] flex-shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-[#0E1012] truncate">
                           {plan.title}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-[#5A6B7F]">
-                          {plan.location_name && <span>{plan.location_name}</span>}
+                        <div className="flex items-center gap-1.5 text-[10px] text-[#5A6B7F] mt-0.5">
+                          {plan.location_name && <span className="truncate">{plan.location_name}</span>}
                           {plan.location_name && plan.start_date && <span>•</span>}
-                          {plan.start_date && <span>{new Date(plan.start_date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}</span>}
+                          {plan.start_date && <span className="whitespace-nowrap">{new Date(plan.start_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}</span>}
                         </div>
+                        {plan.start_date && (() => {
+                          const daysLeft = Math.ceil((new Date(plan.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                          return (
+                            <span className="inline-block mt-1 px-1.5 py-0.5 rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
+                              {daysLeft > 0 ? `${daysLeft} days left` : daysLeft === 0 ? 'Today!' : 'Past'}
+                            </span>
+                          );
+                        })()}
                       </div>
-                      {plan.start_date && (() => {
-                        const daysLeft = Math.ceil((new Date(plan.start_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                        return (
-                          <span className="px-2 py-0.5 rounded-full bg-muted text-xs font-medium text-muted-foreground whitespace-nowrap">
-                            {daysLeft > 0 ? `${daysLeft} days left` : daysLeft === 0 ? 'Today!' : 'Past'}
-                          </span>
-                        );
-                      })()}
                     </div>
                   </div>
                 </SortableItem>)}
