@@ -10,6 +10,7 @@ import fitbitLogo from "@/assets/logos/fitbit.png";
 import { WorkoutModal } from "@/components/modals/WorkoutModal";
 import { SaveWorkoutDialog } from "@/components/modals/SaveWorkoutDialog";
 import { GenerateWorkoutDialog } from "@/components/modals/GenerateWorkoutDialog";
+import { LogWorkoutDialog } from "@/components/modals/LogWorkoutDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ export default function ActivitiesSection() {
   const [workoutModalOpen, setWorkoutModalOpen] = useState(false);
   const [generateWorkoutOpen, setGenerateWorkoutOpen] = useState(false);
   const [saveWorkoutDialogOpen, setSaveWorkoutDialogOpen] = useState(false);
+  const [logWorkoutDialogOpen, setLogWorkoutDialogOpen] = useState(false);
   const [workoutActive, setWorkoutActive] = useState(false);
   const [workoutSeconds, setWorkoutSeconds] = useState(0);
   const [workouts, setWorkouts] = useState<any[]>([]);
@@ -768,15 +770,13 @@ export default function ActivitiesSection() {
               <Play className="w-6 h-6" />
               Start Workout
             </button>
-            {workoutMode === "ai" && (
-              <button 
-                onClick={handleLogManualWorkout}
-                className="py-4 px-6 rounded-2xl bg-white/80 border border-[#12AFCB]/30 text-[#12AFCB] font-rounded font-semibold text-lg hover:bg-white hover:border-[#12AFCB]/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-              >
-                <Check className="w-5 h-5" />
-                Log Workout
-              </button>
-            )}
+            <button 
+              onClick={() => setLogWorkoutDialogOpen(true)}
+              className="py-4 px-6 rounded-2xl bg-white/80 border border-[#12AFCB]/30 text-[#12AFCB] font-rounded font-semibold text-lg hover:bg-white hover:border-[#12AFCB]/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <Check className="w-5 h-5" />
+              Log Workout
+            </button>
           </div>
         ) : !workoutActive && workoutSeconds > 0 ? (
           <>
@@ -1032,6 +1032,10 @@ export default function ActivitiesSection() {
         onSave={handleSaveWorkout}
         onDiscard={handleDiscardWorkout}
         duration={formatTime(workoutSeconds)}
+      />
+      <LogWorkoutDialog
+        open={logWorkoutDialogOpen}
+        onOpenChange={setLogWorkoutDialogOpen}
       />
     </div>
   );
