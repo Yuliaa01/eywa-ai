@@ -501,6 +501,44 @@ export default function ActivitiesSection() {
     });
   };
 
+  const handleLogManualWorkout = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const selectedSuggestion = aiSuggestions[selectedAISuggestion];
+      const durationMinutes = parseInt(selectedSuggestion.duration);
+      const durationSeconds = durationMinutes * 60;
+
+      const { error } = await supabase.from("workout_plans").insert([{
+        user_id: user.id,
+        block_name: selectedSuggestion.type,
+        sessions: [{
+          duration: durationSeconds,
+          completed_at: new Date().toISOString(),
+          calories: selectedSuggestion.calories,
+          benefit: selectedSuggestion.benefit,
+        }],
+      }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Workout logged",
+        description: `${selectedSuggestion.type} (${selectedSuggestion.duration}) has been logged.`,
+      });
+
+      // Trigger reward check
+      await triggerWorkoutReward(user.id);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const workoutTypes = [
     "Upper Body Strength",
     "Lower Body Strength", 
@@ -722,16 +760,24 @@ export default function ActivitiesSection() {
         </div>
 
         {!workoutActive && workoutSeconds === 0 ? (
-          <>
-
+          <div className="flex gap-3">
             <button 
               onClick={handleStartWorkout}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white font-rounded font-semibold text-lg shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-[#12AFCB] to-[#19D0E4] text-white font-rounded font-semibold text-lg shadow-[0_4px_20px_rgba(18,175,203,0.3)] hover:shadow-[0_8px_32px_rgba(18,175,203,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               <Play className="w-6 h-6" />
               Start Workout
             </button>
-          </>
+            {workoutMode === "ai" && (
+              <button 
+                onClick={handleLogManualWorkout}
+                className="py-4 px-6 rounded-2xl bg-white/80 border border-[#12AFCB]/30 text-[#12AFCB] font-rounded font-semibold text-lg hover:bg-white hover:border-[#12AFCB]/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <Check className="w-5 h-5" />
+                Log Workout
+              </button>
+            )}
+          </div>
         ) : !workoutActive && workoutSeconds > 0 ? (
           <>
             <div className="py-8 text-center mb-6">
