@@ -215,13 +215,17 @@ export const awardReward = async (
   // Check if already earned
   const { data: existing } = await supabase
     .from('user_rewards')
-    .select('*')
+    .select(`
+      *,
+      rewards (*)
+    `)
     .eq('user_id', userId)
     .eq('reward_id', rewardId)
-    .single();
+    .maybeSingle();
 
   if (existing) {
-    return existing; // Already has this reward
+    console.log('Reward already earned:', existing.rewards?.name);
+    return null; // Already has this reward, return null to prevent re-celebration
   }
 
   const { data, error } = await supabase
@@ -242,6 +246,7 @@ export const awardReward = async (
     return null;
   }
 
+  console.log('New reward earned:', data?.rewards?.name);
   return data;
 };
 
