@@ -139,12 +139,17 @@ export const updateStreak = async (
   const today = new Date().toISOString().split('T')[0];
   
   // Check if streak exists
-  const { data: existingStreak } = await supabase
+  const { data: existingStreak, error: existingStreakError } = await supabase
     .from('user_streaks')
     .select('*')
     .eq('user_id', userId)
     .eq('streak_type', streakType)
-    .single();
+    .maybeSingle();
+
+  if (existingStreakError) {
+    // Using maybeSingle avoids the common "no rows" error, so any error here is unexpected.
+    console.error('Error fetching streak:', existingStreakError);
+  }
 
   if (existingStreak) {
     const lastDate = existingStreak.last_activity_date;
