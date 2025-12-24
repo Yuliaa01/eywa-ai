@@ -1,4 +1,4 @@
-import { Brain, X, Send } from "lucide-react";
+import { Brain, Send } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -182,22 +182,14 @@ export default function ChatDrawer({ open, onClose, initialMessage }: ChatDrawer
         <div className="flex flex-col h-full">
           {/* Header */}
           <SheetHeader className="p-6 border-b border-border bg-gradient-to-r from-accent-teal/10 to-accent-teal-alt/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center animate-glow-pulse">
-                  <Brain className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-rounded font-semibold text-foreground">AI Health Coach</h3>
-                  <p className="text-xs text-muted-foreground">Powered by Eywa AI</p>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-teal to-accent-teal-alt flex items-center justify-center animate-glow-pulse">
+                <Brain className="w-5 h-5 text-white" />
               </div>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-lg hover:bg-accent-teal/10 flex items-center justify-center transition-colors"
-              >
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
+              <div>
+                <h3 className="font-rounded font-semibold text-foreground">AI Health Coach</h3>
+                <p className="text-xs text-muted-foreground">Powered by Eywa AI</p>
+              </div>
             </div>
           </SheetHeader>
 
