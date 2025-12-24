@@ -901,7 +901,7 @@ export default function ProfileSettings() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Nutrition & Sensitivities</p>
           <div className="rounded-2xl bg-card border border-border overflow-hidden">
             {/* Diet Preferences */}
-            <div className="px-4 py-4 border-b border-border/50">
+            <div className="px-4 py-4">
               <Label className="text-sm font-normal mb-3 block">Diet Preferences</Label>
               <div className="flex flex-wrap gap-2">
                 {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].map(option => (
@@ -970,9 +970,10 @@ export default function ProfileSettings() {
                 </div>
               )}
             </div>
+            <div className="mx-4 border-t border-border/50" />
 
             {/* Religious Food Preferences */}
-            <div className="px-4 py-4 border-b border-border/50">
+            <div className="px-4 py-4">
               <Label className="text-sm font-normal mb-3 block">Religious Food Preferences</Label>
               <div className="flex flex-wrap gap-2">
                 {['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].map(option => (
@@ -1041,9 +1042,10 @@ export default function ProfileSettings() {
                 </div>
               )}
             </div>
+            <div className="mx-4 border-t border-border/50" />
 
             {/* Allergies */}
-            <div className="px-4 py-4 border-b border-border/50">
+            <div className="px-4 py-4">
               <div className="flex items-center gap-2 mb-3">
                 <AlertCircle className="w-4 h-4 text-destructive" />
                 <Label className="text-sm font-normal">Allergies & Intolerances</Label>
@@ -1115,6 +1117,7 @@ export default function ProfileSettings() {
                 </div>
               )}
             </div>
+            <div className="mx-4 border-t border-border/50" />
 
             {/* Macro Targets */}
             <div className="px-4 py-4">
