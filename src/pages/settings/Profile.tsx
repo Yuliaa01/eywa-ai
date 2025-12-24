@@ -759,484 +759,625 @@ export default function ProfileSettings() {
             <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl hover:bg-accent/10 flex items-center justify-center transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-2xl font-rounded font-bold">Profile Settings</h1>
+            <h1 className="text-2xl font-rounded font-bold">Settings</h1>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
-        {/* Account Section */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
-            <User className="w-4 h-4" />
-            Account
+      <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+        
+        {/* Profile Photo - Standalone */}
+        <div className="flex flex-col items-center gap-3 py-4">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-10 h-10 text-white" />
+              )}
+            </div>
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              disabled={uploadingPhoto}
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-accent hover:bg-accent/90 flex items-center justify-center text-white shadow-lg transition-colors disabled:opacity-50"
+            >
+              {uploadingPhoto ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+            </button>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
           </div>
-          <div className="space-y-4">
-            {/* Profile Photo */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#12AFCB] to-[#12AFCB]/70 flex items-center justify-center overflow-hidden">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-8 h-8 text-white" />
-                  )}
-                </div>
-                <button
-                  onClick={() => photoInputRef.current?.click()}
-                  disabled={uploadingPhoto}
-                  className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#12AFCB] hover:bg-[#12AFCB]/90 flex items-center justify-center text-white shadow-lg transition-colors disabled:opacity-50"
-                >
-                  {uploadingPhoto ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Camera className="w-4 h-4" />
-                  )}
-                </button>
-                <input
-                  ref={photoInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Profile Photo</p>
-                <p className="text-sm text-muted-foreground">Click the camera icon to upload</p>
-              </div>
-            </div>
+          <div className="text-center">
+            <p className="font-medium text-foreground">{profile.first_name} {profile.last_name}</p>
+            <p className="text-sm text-muted-foreground">{email}</p>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" value={profile.first_name} onChange={e => setProfile({
-                  ...profile,
-                  first_name: e.target.value
-                })} className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" value={profile.last_name} onChange={e => setProfile({
-                  ...profile,
-                  last_name: e.target.value
-                })} className="rounded-xl" />
-              </div>
+        {/* ACCOUNT Section */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Account</p>
+          <div className="rounded-2xl bg-card border border-border overflow-hidden">
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <Label htmlFor="firstName" className="text-sm font-normal">First Name</Label>
+              <Input 
+                id="firstName" 
+                value={profile.first_name} 
+                onChange={e => setProfile({ ...profile, first_name: e.target.value })} 
+                className="max-w-[180px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
+              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                Email
-              </Label>
-              <Input id="email" type="email" value={email} disabled className="rounded-xl bg-muted/50 text-muted-foreground cursor-not-allowed" />
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <Label htmlFor="lastName" className="text-sm font-normal">Last Name</Label>
+              <Input 
+                id="lastName" 
+                value={profile.last_name} 
+                onChange={e => setProfile({ ...profile, last_name: e.target.value })} 
+                className="max-w-[180px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
+              />
+            </div>
+            <div className="px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                <Label htmlFor="email" className="text-sm font-normal">Email</Label>
+              </div>
+              <span className="text-sm text-muted-foreground">{email}</span>
             </div>
           </div>
         </div>
 
-        {/* Medical Basics */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
-            <Heart className="w-4 h-4" />
-            Medical Basics
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="dob">Date of Birth</Label>
-              <Input id="dob" type="date" value={profile.dob} onChange={e => setProfile({
-                ...profile,
-                dob: e.target.value
-              })} className="rounded-xl" />
+        {/* MEDICAL BASICS Section */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Medical Basics</p>
+          <div className="rounded-2xl bg-card border border-border overflow-hidden">
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <Label htmlFor="dob" className="text-sm font-normal">Date of Birth</Label>
+              <Input 
+                id="dob" 
+                type="date" 
+                value={profile.dob} 
+                onChange={e => setProfile({ ...profile, dob: e.target.value })} 
+                className="max-w-[160px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
+              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sex">Sex at Birth</Label>
-              <select id="sex" value={profile.sex_at_birth} onChange={e => setProfile({
-                ...profile,
-                sex_at_birth: e.target.value
-              })} className="w-full px-4 py-2 rounded-xl border border-input bg-background">
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <Label htmlFor="sex" className="text-sm font-normal">Sex at Birth</Label>
+              <select 
+                id="sex" 
+                value={profile.sex_at_birth} 
+                onChange={e => setProfile({ ...profile, sex_at_birth: e.target.value })} 
+                className="px-3 py-1.5 rounded-lg border-0 bg-muted/30 text-sm text-right focus:ring-1 focus:ring-accent"
+              >
                 <option value="">Select...</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="units">Preferred Units</Label>
-              <select id="units" value={preferredUnits} onChange={e => setPreferredUnits(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-input bg-background">
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <Label htmlFor="units" className="text-sm font-normal">Preferred Units</Label>
+              <select 
+                id="units" 
+                value={preferredUnits} 
+                onChange={e => setPreferredUnits(e.target.value)} 
+                className="px-3 py-1.5 rounded-lg border-0 bg-muted/30 text-sm text-right focus:ring-1 focus:ring-accent"
+              >
                 <option value="metric">Metric (cm, kg)</option>
-                <option value="imperial">Imperial (inches, lbs)</option>
+                <option value="imperial">Imperial (in, lbs)</option>
               </select>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="height">Height ({preferredUnits === 'metric' ? 'cm' : 'inches'})</Label>
-                <Input id="height" type="number" value={profile.height_cm} onChange={e => setProfile({
-                  ...profile,
-                  height_cm: e.target.value
-                })} className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weight">Weight ({preferredUnits === 'metric' ? 'kg' : 'lbs'})</Label>
-                <Input id="weight" type="number" value={profile.weight_kg} onChange={e => setProfile({
-                  ...profile,
-                  weight_kg: e.target.value
-                })} className="rounded-xl" />
-              </div>
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <Label htmlFor="height" className="text-sm font-normal">Height ({preferredUnits === 'metric' ? 'cm' : 'in'})</Label>
+              <Input 
+                id="height" 
+                type="number" 
+                value={profile.height_cm} 
+                onChange={e => setProfile({ ...profile, height_cm: e.target.value })} 
+                className="max-w-[100px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
+              />
+            </div>
+            <div className="px-4 py-3 flex items-center justify-between">
+              <Label htmlFor="weight" className="text-sm font-normal">Weight ({preferredUnits === 'metric' ? 'kg' : 'lbs'})</Label>
+              <Input 
+                id="weight" 
+                type="number" 
+                value={profile.weight_kg} 
+                onChange={e => setProfile({ ...profile, weight_kg: e.target.value })} 
+                className="max-w-[100px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
+              />
             </div>
           </div>
         </div>
 
-        {/* Nutrition & Sensitivities */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-6">
-          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
-            <Utensils className="w-4 h-4" />
-            Nutrition & Sensitivities
-          </div>
-          
-          <div className="space-y-6">
+        {/* NUTRITION Section */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Nutrition & Sensitivities</p>
+          <div className="rounded-2xl bg-card border border-border overflow-hidden">
             {/* Diet Preferences */}
-            <div className="space-y-3">
-              <Label>Diet Preferences</Label>
-              <div className="flex flex-wrap gap-3">
-                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].map(option => <button key={option} onClick={() => {
-                  if (dietPreferences.includes(option)) {
-                    setDietPreferences(dietPreferences.filter(d => d !== option));
-                  } else {
-                    setDietPreferences([...dietPreferences, option]);
-                  }
-                }} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${dietPreferences.includes(option) ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+            <div className="px-4 py-4 border-b border-border/50">
+              <Label className="text-sm font-normal mb-3 block">Diet Preferences</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].map(option => (
+                  <button 
+                    key={option} 
+                    onClick={() => {
+                      if (dietPreferences.includes(option)) {
+                        setDietPreferences(dietPreferences.filter(d => d !== option));
+                      } else {
+                        setDietPreferences([...dietPreferences, option]);
+                      }
+                    }} 
+                    className={`py-1.5 px-3 rounded-full text-sm font-medium transition-all ${
+                      dietPreferences.includes(option) 
+                        ? 'bg-accent text-white' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
                     {option}
-                  </button>)}
-                
-                {/* Display custom diet preferences */}
-                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].includes(d)).map(custom => <button key={custom} onClick={() => setDietPreferences(dietPreferences.filter(d => d !== custom))} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
+                  </button>
+                ))}
+                {dietPreferences.filter(d => !['Vegan', 'Vegetarian', 'Keto', 'Mediterranean', 'Pescatarian', 'Low-FODMAP', 'Gluten-Free', 'Dairy-Free'].includes(d)).map(custom => (
+                  <button 
+                    key={custom} 
+                    onClick={() => setDietPreferences(dietPreferences.filter(d => d !== custom))} 
+                    className="py-1.5 px-3 rounded-full text-sm font-medium bg-accent text-white"
+                  >
                     {custom}
-                  </button>)}
-                
-                <button onClick={() => setShowCustomDiet(!showCustomDiet)} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20">
+                  </button>
+                ))}
+                <button 
+                  onClick={() => setShowCustomDiet(!showCustomDiet)} 
+                  className="py-1.5 px-3 rounded-full text-sm font-medium bg-muted/50 text-muted-foreground hover:bg-muted"
+                >
                   Other...
                 </button>
               </div>
-              
-              {showCustomDiet && <div className="flex gap-2">
-                  <Input placeholder="Enter custom diet preference" value={customDietInput} onChange={e => setCustomDietInput(e.target.value)} onKeyPress={e => {
-                  if (e.key === 'Enter' && customDietInput.trim()) {
-                    setDietPreferences([...dietPreferences, customDietInput.trim()]);
-                    setCustomDietInput('');
-                    setShowCustomDiet(false);
-                  }
-                }} className="rounded-xl" />
-                  <Button onClick={() => {
-                  if (customDietInput.trim()) {
-                    setDietPreferences([...dietPreferences, customDietInput.trim()]);
-                    setCustomDietInput('');
-                    setShowCustomDiet(false);
-                  }
-                }} size="sm" className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white">
+              {showCustomDiet && (
+                <div className="flex gap-2 mt-3">
+                  <Input 
+                    placeholder="Enter custom diet" 
+                    value={customDietInput} 
+                    onChange={e => setCustomDietInput(e.target.value)} 
+                    onKeyPress={e => {
+                      if (e.key === 'Enter' && customDietInput.trim()) {
+                        setDietPreferences([...dietPreferences, customDietInput.trim()]);
+                        setCustomDietInput('');
+                        setShowCustomDiet(false);
+                      }
+                    }} 
+                    className="rounded-lg" 
+                  />
+                  <Button 
+                    onClick={() => {
+                      if (customDietInput.trim()) {
+                        setDietPreferences([...dietPreferences, customDietInput.trim()]);
+                        setCustomDietInput('');
+                        setShowCustomDiet(false);
+                      }
+                    }} 
+                    size="sm" 
+                    className="rounded-lg bg-accent hover:bg-accent/90 text-white"
+                  >
                     Add
                   </Button>
-                </div>}
+                </div>
+              )}
             </div>
 
             {/* Religious Food Preferences */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-[#12AFCB]" />
-                <Label>Religious Food Preferences</Label>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].map(option => <button key={option} onClick={() => {
-                  if (religiousDiet.includes(option)) {
-                    setReligiousDiet(religiousDiet.filter(d => d !== option));
-                  } else {
-                    setReligiousDiet([...religiousDiet, option]);
-                  }
-                }} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${religiousDiet.includes(option) ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+            <div className="px-4 py-4 border-b border-border/50">
+              <Label className="text-sm font-normal mb-3 block">Religious Food Preferences</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].map(option => (
+                  <button 
+                    key={option} 
+                    onClick={() => {
+                      if (religiousDiet.includes(option)) {
+                        setReligiousDiet(religiousDiet.filter(d => d !== option));
+                      } else {
+                        setReligiousDiet([...religiousDiet, option]);
+                      }
+                    }} 
+                    className={`py-1.5 px-3 rounded-full text-sm font-medium transition-all ${
+                      religiousDiet.includes(option) 
+                        ? 'bg-accent text-white' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
                     {option}
-                  </button>)}
-                
-                {/* Display custom religious preferences */}
-                {religiousDiet.filter(d => !['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].includes(d)).map(custom => <button key={custom} onClick={() => setReligiousDiet(religiousDiet.filter(d => d !== custom))} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
+                  </button>
+                ))}
+                {religiousDiet.filter(d => !['Halal', 'Kosher', 'Hindu Vegetarian', 'Jain', 'Buddhist Vegetarian', 'Sattvic', 'No Pork', 'No Beef', 'No Alcohol in Cooking'].includes(d)).map(custom => (
+                  <button 
+                    key={custom} 
+                    onClick={() => setReligiousDiet(religiousDiet.filter(d => d !== custom))} 
+                    className="py-1.5 px-3 rounded-full text-sm font-medium bg-accent text-white"
+                  >
                     {custom}
-                  </button>)}
-                
-                <button onClick={() => setShowCustomReligious(!showCustomReligious)} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20">
+                  </button>
+                ))}
+                <button 
+                  onClick={() => setShowCustomReligious(!showCustomReligious)} 
+                  className="py-1.5 px-3 rounded-full text-sm font-medium bg-muted/50 text-muted-foreground hover:bg-muted"
+                >
                   Other...
                 </button>
               </div>
-              
-              {showCustomReligious && <div className="flex gap-2">
-                  <Input placeholder="Enter custom religious food preference" value={customReligiousInput} onChange={e => setCustomReligiousInput(e.target.value)} onKeyPress={e => {
-                  if (e.key === 'Enter' && customReligiousInput.trim()) {
-                    setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
-                    setCustomReligiousInput('');
-                    setShowCustomReligious(false);
-                  }
-                }} className="rounded-xl" />
-                  <Button onClick={() => {
-                  if (customReligiousInput.trim()) {
-                    setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
-                    setCustomReligiousInput('');
-                    setShowCustomReligious(false);
-                  }
-                }} size="sm" className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white">
+              {showCustomReligious && (
+                <div className="flex gap-2 mt-3">
+                  <Input 
+                    placeholder="Enter preference" 
+                    value={customReligiousInput} 
+                    onChange={e => setCustomReligiousInput(e.target.value)} 
+                    onKeyPress={e => {
+                      if (e.key === 'Enter' && customReligiousInput.trim()) {
+                        setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
+                        setCustomReligiousInput('');
+                        setShowCustomReligious(false);
+                      }
+                    }} 
+                    className="rounded-lg" 
+                  />
+                  <Button 
+                    onClick={() => {
+                      if (customReligiousInput.trim()) {
+                        setReligiousDiet([...religiousDiet, customReligiousInput.trim()]);
+                        setCustomReligiousInput('');
+                        setShowCustomReligious(false);
+                      }
+                    }} 
+                    size="sm" 
+                    className="rounded-lg bg-accent hover:bg-accent/90 text-white"
+                  >
                     Add
                   </Button>
-                </div>}
+                </div>
+              )}
             </div>
 
-            {/* Allergies & Intolerances */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                <Label>Allergies & Intolerances</Label>
+            {/* Allergies */}
+            <div className="px-4 py-4 border-b border-border/50">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertCircle className="w-4 h-4 text-destructive" />
+                <Label className="text-sm font-normal">Allergies & Intolerances</Label>
               </div>
-              <div className="flex flex-wrap gap-3">
-                {['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].map(option => <button key={option} onClick={() => {
-                  if (allergies.includes(option)) {
-                    setAllergies(allergies.filter(a => a !== option));
-                  } else {
-                    setAllergies([...allergies, option]);
-                  }
-                }} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${allergies.includes(option) ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+              <div className="flex flex-wrap gap-2">
+                {['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].map(option => (
+                  <button 
+                    key={option} 
+                    onClick={() => {
+                      if (allergies.includes(option)) {
+                        setAllergies(allergies.filter(a => a !== option));
+                      } else {
+                        setAllergies([...allergies, option]);
+                      }
+                    }} 
+                    className={`py-1.5 px-3 rounded-full text-sm font-medium transition-all ${
+                      allergies.includes(option) 
+                        ? 'bg-accent text-white' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
                     {option}
-                  </button>)}
-                
-                {/* Display custom allergies */}
-                {allergies.filter(a => !['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].includes(a)).map(custom => <button key={custom} onClick={() => setAllergies(allergies.filter(a => a !== custom))} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]">
+                  </button>
+                ))}
+                {allergies.filter(a => !['Peanuts', 'Tree Nuts', 'Shellfish', 'Dairy/Lactose', 'Gluten', 'Soy', 'Sesame', 'Eggs'].includes(a)).map(custom => (
+                  <button 
+                    key={custom} 
+                    onClick={() => setAllergies(allergies.filter(a => a !== custom))} 
+                    className="py-1.5 px-3 rounded-full text-sm font-medium bg-accent text-white"
+                  >
                     {custom}
-                  </button>)}
-                
-                <button onClick={() => setShowCustomAllergy(!showCustomAllergy)} className="py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20">
+                  </button>
+                ))}
+                <button 
+                  onClick={() => setShowCustomAllergy(!showCustomAllergy)} 
+                  className="py-1.5 px-3 rounded-full text-sm font-medium bg-muted/50 text-muted-foreground hover:bg-muted"
+                >
                   Other...
                 </button>
               </div>
-              
-              {showCustomAllergy && <div className="flex gap-2">
-                  <Input placeholder="Enter custom allergy/intolerance" value={customAllergyInput} onChange={e => setCustomAllergyInput(e.target.value)} onKeyPress={e => {
-                  if (e.key === 'Enter' && customAllergyInput.trim()) {
-                    setAllergies([...allergies, customAllergyInput.trim()]);
-                    setCustomAllergyInput('');
-                    setShowCustomAllergy(false);
-                  }
-                }} className="rounded-xl" />
-                  <Button onClick={() => {
-                  if (customAllergyInput.trim()) {
-                    setAllergies([...allergies, customAllergyInput.trim()]);
-                    setCustomAllergyInput('');
-                    setShowCustomAllergy(false);
-                  }
-                }} size="sm" className="rounded-xl bg-[#12AFCB] hover:bg-[#12AFCB]/90 text-white">
+              {showCustomAllergy && (
+                <div className="flex gap-2 mt-3">
+                  <Input 
+                    placeholder="Enter allergy" 
+                    value={customAllergyInput} 
+                    onChange={e => setCustomAllergyInput(e.target.value)} 
+                    onKeyPress={e => {
+                      if (e.key === 'Enter' && customAllergyInput.trim()) {
+                        setAllergies([...allergies, customAllergyInput.trim()]);
+                        setCustomAllergyInput('');
+                        setShowCustomAllergy(false);
+                      }
+                    }} 
+                    className="rounded-lg" 
+                  />
+                  <Button 
+                    onClick={() => {
+                      if (customAllergyInput.trim()) {
+                        setAllergies([...allergies, customAllergyInput.trim()]);
+                        setCustomAllergyInput('');
+                        setShowCustomAllergy(false);
+                      }
+                    }} 
+                    size="sm" 
+                    className="rounded-lg bg-accent hover:bg-accent/90 text-white"
+                  >
                     Add
                   </Button>
-                </div>}
+                </div>
+              )}
             </div>
 
             {/* Macro Targets */}
-            <div className="space-y-3">
-              <Label>Macro Targets</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setMacroMode('ai')} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${macroMode === 'ai' ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+            <div className="px-4 py-4">
+              <Label className="text-sm font-normal mb-3 block">Macro Targets</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => setMacroMode('ai')} 
+                  className={`py-2 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    macroMode === 'ai' 
+                      ? 'bg-accent text-white' 
+                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                  }`}
+                >
                   <Sparkles className="w-4 h-4" />
                   AI Auto
                 </button>
-
-                <button onClick={() => setMacroMode('manual')} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard flex items-center justify-center gap-2 ${macroMode === 'manual' ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+                <button 
+                  onClick={() => setMacroMode('manual')} 
+                  className={`py-2 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    macroMode === 'manual' 
+                      ? 'bg-accent text-white' 
+                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                  }`}
+                >
                   <Utensils className="w-4 h-4" />
                   Manual
                 </button>
               </div>
-              
-              {/* Manual Macro Inputs */}
-              {macroMode === 'manual' && <div className="mt-4 space-y-3 p-4 rounded-2xl bg-white/60 border border-[#12AFCB]/10">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="calories">Calories (kcal)</Label>
-                      <Input id="calories" type="number" placeholder="2000" value={manualMacros.calories} onChange={e => setManualMacros({
-                      ...manualMacros,
-                      calories: e.target.value
-                    })} className="rounded-xl" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="protein">Protein (g)</Label>
-                      <Input id="protein" type="number" placeholder="150" value={manualMacros.protein} onChange={e => setManualMacros({
-                      ...manualMacros,
-                      protein: e.target.value
-                    })} className="rounded-xl" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="carbs">Carbs (g)</Label>
-                      <Input id="carbs" type="number" placeholder="200" value={manualMacros.carbs} onChange={e => setManualMacros({
-                      ...manualMacros,
-                      carbs: e.target.value
-                    })} className="rounded-xl" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="fats">Fats (g)</Label>
-                      <Input id="fats" type="number" placeholder="70" value={manualMacros.fats} onChange={e => setManualMacros({
-                      ...manualMacros,
-                      fats: e.target.value
-                    })} className="rounded-xl" />
-                    </div>
+              {macroMode === 'manual' && (
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="calories" className="text-xs text-muted-foreground">Calories (kcal)</Label>
+                    <Input 
+                      id="calories" 
+                      type="number" 
+                      placeholder="2000" 
+                      value={manualMacros.calories} 
+                      onChange={e => setManualMacros({ ...manualMacros, calories: e.target.value })} 
+                      className="rounded-lg" 
+                    />
                   </div>
-                </div>}
+                  <div className="space-y-1">
+                    <Label htmlFor="protein" className="text-xs text-muted-foreground">Protein (g)</Label>
+                    <Input 
+                      id="protein" 
+                      type="number" 
+                      placeholder="150" 
+                      value={manualMacros.protein} 
+                      onChange={e => setManualMacros({ ...manualMacros, protein: e.target.value })} 
+                      className="rounded-lg" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="carbs" className="text-xs text-muted-foreground">Carbs (g)</Label>
+                    <Input 
+                      id="carbs" 
+                      type="number" 
+                      placeholder="200" 
+                      value={manualMacros.carbs} 
+                      onChange={e => setManualMacros({ ...manualMacros, carbs: e.target.value })} 
+                      className="rounded-lg" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="fats" className="text-xs text-muted-foreground">Fats (g)</Label>
+                    <Input 
+                      id="fats" 
+                      type="number" 
+                      placeholder="70" 
+                      value={manualMacros.fats} 
+                      onChange={e => setManualMacros({ ...manualMacros, fats: e.target.value })} 
+                      className="rounded-lg" 
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Preferences */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-6">
-          <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
-            <Lock className="w-4 h-4" />
-            Preferences
-          </div>
-          
-          <div className="space-y-6">
+        {/* PREFERENCES Section */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Preferences</p>
+          <div className="rounded-2xl bg-card border border-border overflow-hidden">
             {/* Theme */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Palette className="w-4 h-4 text-accent" />
-                <Label>Theme</Label>
+            <div className="px-4 py-4 border-b border-border/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Palette className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-sm font-normal">Theme</Label>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {[{
-                  label: 'Light',
-                  value: 'light'
-                }, {
-                  label: 'Dark',
-                  value: 'dark'
-                }, {
-                  label: 'System',
-                  value: 'system'
-                }].map(themeOption => <button key={themeOption.value} onClick={() => setTheme(themeOption.value as any)} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${theme === themeOption.value ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+              <div className="grid grid-cols-3 gap-2">
+                {[{ label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }, { label: 'System', value: 'system' }].map(themeOption => (
+                  <button 
+                    key={themeOption.value} 
+                    onClick={() => setTheme(themeOption.value as any)} 
+                    className={`py-2 px-3 rounded-xl text-sm font-medium transition-all ${
+                      theme === themeOption.value 
+                        ? 'bg-accent text-white' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
                     {themeOption.label}
-                  </button>)}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* View Mode */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-accent" />
-                <Label>View Mode</Label>
+            <div className="px-4 py-4 border-b border-border/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Eye className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-sm font-normal">View Mode</Label>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[{
-                  label: 'Standard',
-                  value: 'standard',
-                  description: 'Goal-focused cards with AI chat'
-                }, {
-                  label: 'Professional',
-                  value: 'professional',
-                  description: 'Apple Health-style metrics grid'
-                }].map(mode => <button key={mode.value} onClick={() => setViewMode(mode.value)} className={`py-3 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard text-left ${viewMode === mode.value ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
-                    <div className="font-semibold">{mode.label}</div>
-                    <div className={`text-xs mt-1 ${viewMode === mode.value ? 'text-white/80' : 'text-[#5A6B7F]'}`}>
-                      {mode.description}
+              <div className="grid grid-cols-2 gap-2">
+                {[{ label: 'Standard', value: 'standard', desc: 'Goal-focused with AI chat' }, { label: 'Professional', value: 'professional', desc: 'Health metrics grid' }].map(mode => (
+                  <button 
+                    key={mode.value} 
+                    onClick={() => setViewMode(mode.value)} 
+                    className={`py-3 px-3 rounded-xl text-sm font-medium transition-all text-left ${
+                      viewMode === mode.value 
+                        ? 'bg-accent text-white' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <div className="font-medium">{mode.label}</div>
+                    <div className={`text-xs mt-0.5 ${viewMode === mode.value ? 'text-white/70' : 'text-muted-foreground'}`}>
+                      {mode.desc}
                     </div>
-                  </button>)}
+                  </button>
+                ))}
               </div>
-              <p className="text-xs text-[#98a0ae] mt-2">
-                Switch between Standard view (goals & AI chat) and Professional view (health metrics grid). Save changes to apply.
-              </p>
             </div>
 
             {/* AI Tone */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-accent" />
-                <Label>AI Tone</Label>
+            <div className="px-4 py-4 border-b border-border/50">
+              <div className="flex items-center gap-2 mb-3">
+                <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-sm font-normal">AI Tone</Label>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[{
-                  label: 'Friendly',
-                  value: 'friendly'
-                }, {
-                  label: 'Clinical',
-                  value: 'clinical'
-                }].map(tone => <button key={tone.value} onClick={() => setAiTone(tone.value)} className={`py-2 px-4 rounded-2xl font-medium text-[0.9375rem] transition-all duration-standard ${aiTone === tone.value ? 'bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)]' : 'bg-white/60 border border-[#12AFCB]/10 text-[#5A6B7F] hover:bg-white/80 hover:border-[#12AFCB]/20'}`}>
+              <div className="grid grid-cols-2 gap-2">
+                {[{ label: 'Friendly', value: 'friendly' }, { label: 'Clinical', value: 'clinical' }].map(tone => (
+                  <button 
+                    key={tone.value} 
+                    onClick={() => setAiTone(tone.value)} 
+                    className={`py-2 px-3 rounded-xl text-sm font-medium transition-all ${
+                      aiTone === tone.value 
+                        ? 'bg-accent text-white' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
                     {tone.label}
-                  </button>)}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Push Notifications */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-accent" />
-                    <Label className="font-medium">Push Notifications</Label>
-                  </div>
-                  <p className="text-xs mt-1 text-[#98a0ae]">
-                    Receive health reminders, AI insights, and alerts
-                  </p>
-                </div>
-                <div className={`transition-all duration-300 ${pushNotificationsEnabled ? 'drop-shadow-[0_0_8px_hsl(var(--accent)/0.4)]' : ''}`}>
-                  <Switch checked={pushNotificationsEnabled} onCheckedChange={setPushNotificationsEnabled} className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent/80 h-7 w-12" />
+            <div className="px-4 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <Label className="text-sm font-normal">Push Notifications</Label>
+                  <p className="text-xs text-muted-foreground">Health reminders & alerts</p>
                 </div>
               </div>
+              <Switch 
+                checked={pushNotificationsEnabled} 
+                onCheckedChange={setPushNotificationsEnabled} 
+                className="data-[state=checked]:bg-accent" 
+              />
             </div>
           </div>
         </div>
 
-        {/* Uploaded Files */}
-        <div className="rounded-3xl bg-card border border-border p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-rounded font-semibold text-muted-foreground">
-              <File className="w-4 h-4" />
-              Uploaded Files
-            </div>
+        {/* UPLOADED FILES Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Uploaded Files</p>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setFolderModalOpen(true)} className="rounded-xl">
-                <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setFolderModalOpen(true)} 
+                className="rounded-lg text-xs h-7 px-2"
+              >
+                <FolderPlus className="w-3.5 h-3.5 mr-1" />
+                Folder
               </Button>
               <label htmlFor="file-upload">
-                <Button type="button" variant="outline" size="sm" disabled={uploading} className="rounded-xl cursor-pointer" onClick={() => document.getElementById('file-upload')?.click()}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  {uploading ? "Uploading..." : "Upload Files"}
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  disabled={uploading} 
+                  className="rounded-lg text-xs h-7 px-2 cursor-pointer" 
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <Upload className="w-3.5 h-3.5 mr-1" />
+                  {uploading ? "..." : "Upload"}
                 </Button>
                 <input id="file-upload" type="file" multiple accept="image/*,.pdf" onChange={handleFileUpload} className="hidden" />
               </label>
             </div>
           </div>
-
-          {uploadedFiles.length === 0 && folders.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-              <Upload className="w-12 h-12 mx-auto mb-2 opacity-20" />
-              <p className="text-sm">No files or folders yet</p>
-            </div> : <ScrollArea className="h-[280px] pr-4">
-              <div className="space-y-3">
-                {/* Folders */}
-                {folders.map((folder: any) => <DroppableFolder key={folder.id} folder={folder} />)}
-
-                {/* Files without folder */}
-                {getFilesWithoutFolder().map((file: any) => <DraggableFile key={file.id} file={file} />)}
+          <div className="rounded-2xl bg-card border border-border overflow-hidden">
+            {uploadedFiles.length === 0 && folders.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Upload className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                <p className="text-sm">No files or folders yet</p>
               </div>
-            </ScrollArea>}
+            ) : (
+              <ScrollArea className="h-[240px]">
+                <div className="divide-y divide-border/50">
+                  {folders.map((folder: any) => <DroppableFolder key={folder.id} folder={folder} />)}
+                  {getFilesWithoutFolder().map((file: any) => <DraggableFile key={file.id} file={file} />)}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
         </div>
 
         {/* Save Button */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-4">
           <Button variant="outline" onClick={() => navigate(-1)} className="flex-1 rounded-xl">
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={loading} className="flex-1 rounded-xl bg-gradient-to-r from-[#12AFCB] to-[#12AFCB]/90 text-white shadow-[0_4px_12px_rgba(18,175,203,0.3)] hover:shadow-[0_6px_16px_rgba(18,175,203,0.4)] transition-all">
+          <Button 
+            onClick={handleSave} 
+            disabled={loading} 
+            className="flex-1 rounded-xl bg-accent hover:bg-accent/90 text-white"
+          >
             {loading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
       {/* Folder Modal */}
-      <FolderModal open={folderModalOpen} onOpenChange={open => {
-        setFolderModalOpen(open);
-        if (!open) setEditingFolder(null);
-      }} onSubmit={handleCreateFolder} isLoading={isCreatingFolder} initialName={editingFolder?.name} mode={editingFolder ? 'edit' : 'create'} />
+      <FolderModal 
+        open={folderModalOpen} 
+        onOpenChange={open => {
+          setFolderModalOpen(open);
+          if (!open) setEditingFolder(null);
+        }} 
+        onSubmit={handleCreateFolder} 
+        isLoading={isCreatingFolder} 
+        initialName={editingFolder?.name} 
+        mode={editingFolder ? 'edit' : 'create'} 
+      />
 
       {/* File Rename Modal */}
-      <FolderModal open={fileRenameModalOpen} onOpenChange={open => {
-        setFileRenameModalOpen(open);
-        if (!open) setEditingFile(null);
-      }} onSubmit={handleRenameFile} isLoading={false} initialName={editingFile?.name} mode="edit" itemType="file" />
+      <FolderModal 
+        open={fileRenameModalOpen} 
+        onOpenChange={open => {
+          setFileRenameModalOpen(open);
+          if (!open) setEditingFile(null);
+        }} 
+        onSubmit={handleRenameFile} 
+        isLoading={false} 
+        initialName={editingFile?.name} 
+        mode="edit" 
+        itemType="file" 
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deletingFolder} onOpenChange={open => !open && setDeletingFolder(null)}>
