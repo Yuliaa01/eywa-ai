@@ -47,9 +47,39 @@ serve(async (req) => {
   }
 
   try {
-    const { doctorId, messages, userId } = await req.json();
+    // SECURITY: Extract user ID from authenticated JWT token, not request body
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Supabase client with service role for data access
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify the JWT and extract the authenticated user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
-    console.log('AI Doctor Chat request:', { doctorId, messageCount: messages?.length, userId });
+    if (authError || !user) {
+      console.error('Auth verification failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use the authenticated user's ID - NEVER trust userId from request body
+    const authenticatedUserId = user.id;
+    
+    const { doctorId, messages } = await req.json();
+    
+    console.log('AI Doctor Chat request:', { doctorId, messageCount: messages?.length, userId: authenticatedUserId });
 
     if (!doctorId || !messages) {
       return new Response(
@@ -57,11 +87,6 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Fetch doctor information
     const { data: doctor, error: doctorError } = await supabase
@@ -83,14 +108,14 @@ serve(async (req) => {
     let userDataContext = '';
 
     // For Primary Care / Family Physician, fetch comprehensive user health data
-    if (isPrimaryCare && userId) {
+    if (isPrimaryCare) {
       console.log('Fetching comprehensive user data for Family Physician consultation');
       
       const thirtyDaysAgo = getTimeWindowDate(30).toISOString();
       const ninetyDaysAgo = getTimeWindowDate(90).toISOString();
       const oneYearAgo = getTimeWindowDate(365).toISOString();
       
-      // Fetch all data in parallel for efficiency
+      // Fetch all data in parallel for efficiency using authenticated user ID
       const [
         profileResult,
         labResultsResult,
@@ -109,35 +134,35 @@ serve(async (req) => {
         feedbackResult
       ] = await Promise.all([
         // User profile
-        supabase.from('user_profiles').select('*').eq('user_id', userId).maybeSingle(),
+        supabase.from('user_profiles').select('*').eq('user_id', authenticatedUserId).maybeSingle(),
         // Lab results (last 30)
-        supabase.from('lab_results').select('*').eq('user_id', userId).order('reported_at', { ascending: false }).limit(30),
+        supabase.from('lab_results').select('*').eq('user_id', authenticatedUserId).order('reported_at', { ascending: false }).limit(30),
         // Vitals (last 90 days)
-        supabase.from('vitals_stream').select('*').eq('user_id', userId).gte('recorded_at', ninetyDaysAgo).order('recorded_at', { ascending: false }),
+        supabase.from('vitals_stream').select('*').eq('user_id', authenticatedUserId).gte('recorded_at', ninetyDaysAgo).order('recorded_at', { ascending: false }),
         // Active health issues
-        supabase.from('health_issues').select('*').eq('user_id', userId).is('resolved_at', null).order('created_at', { ascending: false }),
+        supabase.from('health_issues').select('*').eq('user_id', authenticatedUserId).is('resolved_at', null).order('created_at', { ascending: false }),
         // Current priorities/goals
-        supabase.from('priorities').select('*').eq('user_id', userId).is('deleted_at', null).order('created_at', { ascending: false }).limit(10),
+        supabase.from('priorities').select('*').eq('user_id', authenticatedUserId).is('deleted_at', null).order('created_at', { ascending: false }).limit(10),
         // Recent AI insights
-        supabase.from('ai_insights').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(10),
+        supabase.from('ai_insights').select('*').eq('user_id', authenticatedUserId).order('created_at', { ascending: false }).limit(10),
         // Supplements (active)
-        supabase.from('supplements').select('*').eq('user_id', userId).is('deleted_at', null),
+        supabase.from('supplements').select('*').eq('user_id', authenticatedUserId).is('deleted_at', null),
         // Recent meals (last 7 days)
-        supabase.from('meals').select('*').eq('user_id', userId).gte('timestamp', getTimeWindowDate(7).toISOString()).order('timestamp', { ascending: false }),
+        supabase.from('meals').select('*').eq('user_id', authenticatedUserId).gte('timestamp', getTimeWindowDate(7).toISOString()).order('timestamp', { ascending: false }),
         // Nutrition plan
-        supabase.from('nutrition_plans').select('*').eq('user_id', userId).maybeSingle(),
+        supabase.from('nutrition_plans').select('*').eq('user_id', authenticatedUserId).maybeSingle(),
         // Fasting windows (last 30 days)
-        supabase.from('fasting_windows').select('*').eq('user_id', userId).gte('start_at', thirtyDaysAgo).order('start_at', { ascending: false }),
+        supabase.from('fasting_windows').select('*').eq('user_id', authenticatedUserId).gte('start_at', thirtyDaysAgo).order('start_at', { ascending: false }),
         // Fitness activities (last 30 days)
-        supabase.from('synced_fitness_activities').select('*').eq('user_id', userId).gte('start_time', thirtyDaysAgo).order('start_time', { ascending: false }),
+        supabase.from('synced_fitness_activities').select('*').eq('user_id', authenticatedUserId).gte('start_time', thirtyDaysAgo).order('start_time', { ascending: false }),
         // Workout plans
-        supabase.from('workout_plans').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
+        supabase.from('workout_plans').select('*').eq('user_id', authenticatedUserId).order('created_at', { ascending: false }).limit(5),
         // Biomarker scores
-        supabase.from('biomarker_scores').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
+        supabase.from('biomarker_scores').select('*').eq('user_id', authenticatedUserId).order('created_at', { ascending: false }).limit(20),
         // User streaks
-        supabase.from('user_streaks').select('*').eq('user_id', userId),
+        supabase.from('user_streaks').select('*').eq('user_id', authenticatedUserId),
         // AI feedback unified (latest)
-        supabase.from('ai_feedback_unified').select('*').eq('user_id', userId).order('generated_at', { ascending: false }).limit(1)
+        supabase.from('ai_feedback_unified').select('*').eq('user_id', authenticatedUserId).order('generated_at', { ascending: false }).limit(1)
       ]);
 
       const profile = profileResult.data;
