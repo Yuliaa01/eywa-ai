@@ -806,7 +806,7 @@ export default function ProfileSettings() {
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Account</p>
           <div className="rounded-2xl bg-card border border-border overflow-hidden">
-            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+            <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="firstName" className="text-sm font-normal">First Name</Label>
               <Input 
                 id="firstName" 
@@ -815,7 +815,8 @@ export default function ProfileSettings() {
                 className="max-w-[180px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
               />
             </div>
-            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+            <div className="mx-4 border-t border-border/50" />
+            <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="lastName" className="text-sm font-normal">Last Name</Label>
               <Input 
                 id="lastName" 
@@ -824,6 +825,7 @@ export default function ProfileSettings() {
                 className="max-w-[180px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
               />
             </div>
+            <div className="mx-4 border-t border-border/50" />
             <div className="px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-muted-foreground" />
@@ -838,7 +840,7 @@ export default function ProfileSettings() {
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Medical Basics</p>
           <div className="rounded-2xl bg-card border border-border overflow-hidden">
-            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+            <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="dob" className="text-sm font-normal">Date of Birth</Label>
               <Input 
                 id="dob" 
@@ -848,7 +850,8 @@ export default function ProfileSettings() {
                 className="max-w-[160px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
               />
             </div>
-            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+            <div className="mx-4 border-t border-border/50" />
+            <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="sex" className="text-sm font-normal">Sex at Birth</Label>
               <select 
                 id="sex" 
@@ -861,7 +864,8 @@ export default function ProfileSettings() {
                 <option value="female">Female</option>
               </select>
             </div>
-            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+            <div className="mx-4 border-t border-border/50" />
+            <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="units" className="text-sm font-normal">Preferred Units</Label>
               <select 
                 id="units" 
@@ -873,7 +877,8 @@ export default function ProfileSettings() {
                 <option value="imperial">Imperial (in, lbs)</option>
               </select>
             </div>
-            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+            <div className="mx-4 border-t border-border/50" />
+            <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="height" className="text-sm font-normal">Height ({preferredUnits === 'metric' ? 'cm' : 'in'})</Label>
               <Input 
                 id="height" 
@@ -883,6 +888,7 @@ export default function ProfileSettings() {
                 className="max-w-[100px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
               />
             </div>
+            <div className="mx-4 border-t border-border/50" />
             <div className="px-4 py-3 flex items-center justify-between">
               <Label htmlFor="weight" className="text-sm font-normal">Weight ({preferredUnits === 'metric' ? 'kg' : 'lbs'})</Label>
               <Input 
@@ -1203,7 +1209,7 @@ export default function ProfileSettings() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4">Preferences</p>
           <div className="rounded-2xl bg-card border border-border overflow-hidden">
             {/* Theme */}
-            <div className="px-4 py-4 border-b border-border/50">
+            <div className="px-4 py-4">
               <div className="flex items-center gap-2 mb-3">
                 <Palette className="w-4 h-4 text-muted-foreground" />
                 <Label className="text-sm font-normal">Theme</Label>
@@ -1224,9 +1230,10 @@ export default function ProfileSettings() {
                 ))}
               </div>
             </div>
+            <div className="mx-4 border-t border-border/50" />
 
             {/* View Mode */}
-            <div className="px-4 py-4 border-b border-border/50">
+            <div className="px-4 py-4">
               <div className="flex items-center gap-2 mb-3">
                 <Eye className="w-4 h-4 text-muted-foreground" />
                 <Label className="text-sm font-normal">View Mode</Label>
@@ -1250,9 +1257,10 @@ export default function ProfileSettings() {
                 ))}
               </div>
             </div>
+            <div className="mx-4 border-t border-border/50" />
 
             {/* AI Tone */}
-            <div className="px-4 py-4 border-b border-border/50">
+            <div className="px-4 py-4">
               <div className="flex items-center gap-2 mb-3">
                 <MessageSquare className="w-4 h-4 text-muted-foreground" />
                 <Label className="text-sm font-normal">AI Tone</Label>
@@ -1273,6 +1281,7 @@ export default function ProfileSettings() {
                 ))}
               </div>
             </div>
+            <div className="mx-4 border-t border-border/50" />
 
             {/* Push Notifications */}
             <div className="px-4 py-4 flex items-center justify-between">
