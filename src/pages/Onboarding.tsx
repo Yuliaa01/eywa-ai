@@ -13,6 +13,7 @@ import NutritionStep from "@/components/onboarding/NutritionStep";
 import LabsStep from "@/components/onboarding/LabsStep";
 import PreferencesStep from "@/components/onboarding/PreferencesStep";
 import BriefingStep from "@/components/onboarding/BriefingStep";
+import { writeSecureProfile } from "@/utils/secureProfile";
 const TOTAL_STEPS = 10;
 
 // Step order:
@@ -159,22 +160,26 @@ export default function Onboarding() {
         preferredUnits: onboardingData.profile?.preferred_units || 'metric'
       });
 
-      // Save all onboarding data
+      // Save all onboarding data using secure profile write for encrypted sensitive fields
       const profileData = onboardingData.profile || {};
       const {
         preferred_units,
         ...profileWithoutPreferredUnits
       } = profileData;
-      await supabase.from('user_profiles').upsert({
-        user_id: user.id,
+      
+      const { success, error: writeError } = await writeSecureProfile({
         ...profileWithoutPreferredUnits,
         diet_preferences: nutrition.diet || [],
         allergies: nutrition.allergies || [],
         locale: localeData,
         view_mode: preferences.viewMode || 'standard',
-        onboarding_completed: true,
-        updated_at: new Date().toISOString()
+        onboarding_completed: true
       });
+      
+      if (!success) {
+        console.error("Secure profile write failed:", writeError);
+        throw new Error(writeError || 'Failed to save profile');
+      }
       if (onboardingData.consents) {
         for (const [key, enabled] of Object.entries(onboardingData.consents)) {
           if (enabled) {
