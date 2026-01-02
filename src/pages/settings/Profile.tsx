@@ -242,16 +242,16 @@ export default function ProfileSettings() {
       const fileExt = file.name.split('.').pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
 
-      // Upload to storage
+      // Upload to user-avatars bucket (separate public bucket for avatars only)
       const { error: uploadError } = await supabase.storage
-        .from('user-files')
+        .from('user-avatars')
         .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
+      // Get public URL from the avatars bucket
       const { data: { publicUrl } } = supabase.storage
-        .from('user-files')
+        .from('user-avatars')
         .getPublicUrl(filePath);
 
       // Update profile with avatar URL
