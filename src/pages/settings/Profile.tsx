@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FolderModal } from "@/components/modals/FolderModal";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { readSecureProfile, writeSecureProfile } from "@/utils/secureProfile";
 export default function ProfileSettings() {
   const navigate = useNavigate();
   const {
@@ -103,27 +104,47 @@ export default function ProfileSettings() {
       } = await supabase.auth.getUser();
       if (!user) return;
       if (user?.email) setEmail(user.email);
-      const {
-        data,
-        error
-      } = await supabase.from("user_profiles").select("*").eq("user_id", user.id).single();
-      if (error && error.code !== "PGRST116") throw error;
+      
+      // Use secure profile read for decrypted sensitive fields
+      const { profile: secureData, error: secureError } = await readSecureProfile();
+      
+      if (secureError) {
+        console.error("Error loading secure profile:", secureError);
+        // Fallback to direct read for non-sensitive fields only
+        const { data, error } = await supabase.from("user_profiles").select("first_name, last_name, dob, sex_at_birth, height_cm, weight_kg, view_mode, locale, push_notifications_enabled, avatar_url").eq("user_id", user.id).single();
+        if (error && error.code !== "PGRST116") throw error;
+        if (data) {
+          setProfile({
+            first_name: data.first_name || "",
+            last_name: data.last_name || "",
+            dob: data.dob || "",
+            sex_at_birth: data.sex_at_birth || "",
+            height_cm: data.height_cm?.toString() || "",
+            weight_kg: data.weight_kg?.toString() || ""
+          });
+          setViewMode(data.view_mode || 'standard');
+          if (data.avatar_url) setAvatarUrl(data.avatar_url);
+        }
+        return;
+      }
+
+      const data = secureData as Record<string, unknown>;
       if (data) {
         setProfile({
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
-          dob: data.dob || "",
-          sex_at_birth: data.sex_at_birth || "",
+          first_name: (data.first_name as string) || "",
+          last_name: (data.last_name as string) || "",
+          dob: (data.dob as string) || "",
+          sex_at_birth: (data.sex_at_birth as string) || "",
           height_cm: data.height_cm?.toString() || "",
           weight_kg: data.weight_kg?.toString() || ""
         });
 
         // Load view mode from database column
-        setViewMode(data.view_mode || 'standard');
+        setViewMode((data.view_mode as string) || 'standard');
 
         // Load AI tone, macro mode from locale field (stored as JSON)
         try {
-          const preferences = data.locale ? JSON.parse(data.locale) : {};
+          const preferences = data.locale ? JSON.parse(data.locale as string) : {};
           setAiTone(preferences.aiTone || 'friendly');
           setMacroMode(preferences.macroMode || 'ai');
           setPreferredUnits(preferences.preferredUnits || 'metric');
@@ -144,13 +165,13 @@ export default function ProfileSettings() {
 
         // Load avatar URL
         if (data.avatar_url) {
-          setAvatarUrl(data.avatar_url);
+          setAvatarUrl(data.avatar_url as string);
         }
 
-        // Load nutrition data
-        setDietPreferences(data.diet_preferences || []);
-        setReligiousDiet(data.religious_diet || []);
-        setAllergies(data.allergies || []);
+        // Load nutrition data (decrypted by secure-profile-read)
+        setDietPreferences((data.diet_preferences as string[]) || []);
+        setReligiousDiet((data.religious_diet as string[]) || []);
+        setAllergies((data.allergies as string[]) || []);
       }
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -173,15 +194,13 @@ export default function ProfileSettings() {
         preferredUnits,
         manualMacros: macroMode === 'manual' ? manualMacros : undefined
       });
-      const {
-        error
-      } = await supabase.from("user_profiles").upsert({
-        id: user.id,
-        user_id: user.id,
+      
+      // Use secure profile write for encrypted storage of sensitive fields
+      const { success, error: writeError } = await writeSecureProfile({
         first_name: profile.first_name,
         last_name: profile.last_name,
         dob: profile.dob || null,
-        sex_at_birth: profile.sex_at_birth as any || null,
+        sex_at_birth: profile.sex_at_birth || null,
         height_cm: profile.height_cm ? parseFloat(profile.height_cm) : null,
         weight_kg: profile.weight_kg ? parseFloat(profile.weight_kg) : null,
         diet_preferences: dietPreferences,
@@ -189,17 +208,17 @@ export default function ProfileSettings() {
         allergies: allergies,
         view_mode: viewMode,
         locale: preferences,
-        push_notifications_enabled: pushNotificationsEnabled,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'
+        push_notifications_enabled: pushNotificationsEnabled
       });
-      if (error) throw error;
+      
+      if (!success) throw new Error(writeError || 'Failed to save profile');
+      
       toast({
         title: "Profile updated",
-        description: "Your changes have been saved successfully."
+        description: "Your changes have been saved securely."
       });
     } catch (error) {
+      console.error("Profile save error:", error);
       toast({
         title: "Error",
         description: "Failed to save profile changes.",

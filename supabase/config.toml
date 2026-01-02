@@ -29,3 +29,9 @@ verify_jwt = true
 
 [functions.recommend-videos]
 verify_jwt = true
+
+[functions.secure-profile-read]
+verify_jwt = true
+
+[functions.secure-profile-write]
+verify_jwt = true
