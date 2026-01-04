@@ -304,7 +304,7 @@ export default function CycleTracker() {
             <Button
               onClick={handleLogPeriod}
               variant="outline"
-              className="w-full border-pink-500/30 text-pink-500 hover:bg-pink-500/10"
+              className="w-full border-pink-500/30 text-pink-500 hover:bg-pink-500/10 hover:text-pink-500"
             >
               <Droplet className="w-4 h-4 mr-2" />
               {cycleInfo.isOnPeriod ? "Update Period" : "Log Period Start"}
