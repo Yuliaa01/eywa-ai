@@ -805,7 +805,7 @@ export default function ProfileSettings() {
           </div>
           <div className="text-center">
             <p className="font-medium text-foreground">{profile.first_name} {profile.last_name}</p>
-            <p className="text-sm text-muted-foreground">{email}</p>
+            <p className="text-sm text-muted-foreground py-[5px]">{email}</p>
           </div>
         </div>
 
