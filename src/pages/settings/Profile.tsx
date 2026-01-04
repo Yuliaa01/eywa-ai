@@ -828,14 +828,6 @@ export default function ProfileSettings() {
                 last_name: e.target.value
               })} className="max-w-[180px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" />
             </div>
-            <div className="mx-4 border-t border-border/50" />
-            <div className="px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                <Label htmlFor="email" className="text-sm font-normal">Email</Label>
-              </div>
-              <span className="text-sm text-muted-foreground">{email}</span>
-            </div>
           </div>
         </div>
 
