@@ -140,11 +140,11 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-		backgroundImage: {
-			glass: 'linear-gradient(135deg, hsla(0, 0%, 100%, 0.08) 0%, hsla(0, 0%, 100%, 0.04) 100%)',
-			'ultra-thin': 'linear-gradient(135deg, hsla(0, 0%, 100%, 0.05) 0%, hsla(0, 0%, 100%, 0.02) 100%)',
-			'gradient-radial': 'radial-gradient(circle, var(--tw-gradient-stops))'
-		},
+  		backgroundImage: {
+  			glass: 'linear-gradient(135deg, hsla(0, 0%, 100%, 0.08) 0%, hsla(0, 0%, 100%, 0.04) 100%)',
+  			'ultra-thin': 'linear-gradient(135deg, hsla(0, 0%, 100%, 0.05) 0%, hsla(0, 0%, 100%, 0.02) 100%)',
+  			'gradient-radial': 'radial-gradient(circle, var(--tw-gradient-stops))'
+  		},
   		boxShadow: {
   			glass: '0 8px 32px rgba(0, 0, 0, 0.12)',
   			'glow-teal': '0 0 40px hsla(189, 77%, 44%, 0.3)'
