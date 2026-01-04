@@ -791,10 +791,18 @@ export default function ProfileSettings() {
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center overflow-hidden">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <User className="w-10 h-10 text-white" />
-              )}
+                <img 
+                  src={avatarUrl} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // If image fails to load, hide it to show fallback
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : null}
+              {/* Always show fallback icon behind the image */}
+              <User className={`w-10 h-10 text-white absolute ${avatarUrl ? 'opacity-0' : ''}`} />
             </div>
             <button
               onClick={() => photoInputRef.current?.click()}
