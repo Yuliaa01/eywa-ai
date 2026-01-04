@@ -874,7 +874,7 @@ export default function ProfileSettings() {
                 type="date" 
                 value={profile.dob} 
                 onChange={e => setProfile({ ...profile, dob: e.target.value })} 
-                className="max-w-[160px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1" 
+                className="max-w-[160px] rounded-lg border-0 bg-muted/30 text-right focus-visible:ring-1 [&::-webkit-calendar-picker-indicator]:ml-auto" 
               />
             </div>
             <div className="mx-4 border-t border-border/50" />
