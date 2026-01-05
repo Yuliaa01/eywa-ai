@@ -44,25 +44,26 @@ async function decryptField(encryptedData: string): Promise<string> {
 // Decrypt sensitive fields from profile
 async function decryptSensitiveFields(profile: Record<string, unknown>): Promise<Record<string, unknown>> {
   const decryptedProfile = { ...profile };
-  
-  // Check if profile has encrypted fields marker
-  const metadata = profile.metadata as Record<string, unknown> | undefined;
-  if (!metadata?.fields_encrypted) {
-    // Fields not encrypted yet, return as-is
-    return decryptedProfile;
-  }
 
   for (const field of ENCRYPTED_FIELDS) {
     const value = profile[field];
-    if (value && typeof value === 'string') {
-      try {
+
+    try {
+      // New format: ciphertext stored as single-element string[]
+      if (Array.isArray(value) && value.length === 1 && typeof value[0] === 'string') {
+        const decryptedJson = await decryptField(value[0]);
+        decryptedProfile[field] = JSON.parse(decryptedJson);
+        continue;
+      }
+
+      // Legacy format: ciphertext stored directly as string
+      if (typeof value === 'string' && value.length > 0) {
         const decryptedJson = await decryptField(value);
         decryptedProfile[field] = JSON.parse(decryptedJson);
-      } catch (err) {
-        console.error(`Failed to decrypt field ${field}:`, err);
-        // Return empty array if decryption fails
-        decryptedProfile[field] = [];
       }
+    } catch (err) {
+      // If it's not actually encrypted (or decryption fails), leave as-is
+      console.error(`Failed to decrypt field ${field}:`, err);
     }
   }
 
