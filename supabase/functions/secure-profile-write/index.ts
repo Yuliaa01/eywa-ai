@@ -56,14 +56,19 @@ async function encryptSensitiveFields(updates: Record<string, unknown>): Promise
   const encryptedUpdates = { ...updates };
 
   for (const field of ENCRYPTED_FIELDS) {
-    if (field in updates) {
-      const value = updates[field];
-      if (value !== null && value !== undefined) {
-        // Serialize array/object to JSON, then encrypt
-        const jsonValue = JSON.stringify(value);
-        encryptedUpdates[field] = await encryptField(jsonValue);
-      }
-    }
+    if (!(field in updates)) continue;
+
+    const value = updates[field];
+
+    // Keep null/undefined as-is
+    if (value === null || value === undefined) continue;
+
+    // Serialize array/object to JSON, then encrypt
+    const jsonValue = JSON.stringify(value);
+    const cipherText = await encryptField(jsonValue);
+
+    // These columns are string[] in the database; store ciphertext as a single-element array
+    encryptedUpdates[field] = [cipherText];
   }
 
   return encryptedUpdates;
