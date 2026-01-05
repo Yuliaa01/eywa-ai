@@ -54,7 +54,6 @@ async function encryptField(plaintext: string): Promise<string> {
 // Encrypt sensitive fields before storage
 async function encryptSensitiveFields(updates: Record<string, unknown>): Promise<Record<string, unknown>> {
   const encryptedUpdates = { ...updates };
-  let hasEncryptedFields = false;
 
   for (const field of ENCRYPTED_FIELDS) {
     if (field in updates) {
@@ -63,19 +62,8 @@ async function encryptSensitiveFields(updates: Record<string, unknown>): Promise
         // Serialize array/object to JSON, then encrypt
         const jsonValue = JSON.stringify(value);
         encryptedUpdates[field] = await encryptField(jsonValue);
-        hasEncryptedFields = true;
       }
     }
-  }
-
-  // Add metadata marker if we encrypted any fields
-  if (hasEncryptedFields) {
-    const existingMetadata = (updates.metadata as Record<string, unknown>) || {};
-    encryptedUpdates.metadata = {
-      ...existingMetadata,
-      fields_encrypted: true,
-      encrypted_at: new Date().toISOString()
-    };
   }
 
   return encryptedUpdates;
@@ -83,7 +71,7 @@ async function encryptSensitiveFields(updates: Record<string, unknown>): Promise
 
 // Validate that only allowed fields are being updated
 function validateFields(updates: Record<string, unknown>): void {
-  const allowedFields = new Set([...ENCRYPTED_FIELDS, ...ALLOWED_PLAIN_FIELDS, 'updated_at', 'metadata']);
+  const allowedFields = new Set([...ENCRYPTED_FIELDS, ...ALLOWED_PLAIN_FIELDS, 'updated_at']);
   
   for (const field of Object.keys(updates)) {
     if (!allowedFields.has(field) && field !== 'user_id' && field !== 'id') {
