@@ -225,8 +225,8 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div 
-        className={`flex-1 w-full ${activeTab !== 'priorities' ? 'overflow-y-auto custom-scrollbar' : ''}`}
-        style={activeTab !== 'priorities' ? { height: 'calc(100vh - 180px)' } : undefined}
+        className="flex-1 w-full overflow-y-auto custom-scrollbar"
+        style={{ height: 'calc(100vh - 180px)' }}
       >
         <div className="max-w-7xl mx-auto px-6 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
