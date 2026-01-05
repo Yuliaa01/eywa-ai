@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { HealthCategorySidebar } from "./HealthCategorySidebar";
 import { MetricCard } from "./MetricCard";
 import { categoryColors, ChartType } from "./charts";
@@ -42,11 +42,16 @@ import {
   Trash2,
   Sparkles,
   Pencil,
+  ArrowUp,
 } from "lucide-react";
 
 export default function ProfessionalPrioritiesSection() {
   const [activeCategory, setActiveCategory] = useState("pinned");
   const { isPinned, togglePin } = usePinnedMetrics();
+  
+  // Scroll state
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Goals & Plans state
   const [globalGoals, setGlobalGoals] = useState<Priority[]>([]);
@@ -93,6 +98,20 @@ export default function ProfessionalPrioritiesSection() {
     loadPriorities();
     loadBodyMetrics();
   }, []);
+
+  // Scroll detection for scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const loadBodyMetrics = async () => {
     try {
@@ -838,6 +857,18 @@ export default function ProfessionalPrioritiesSection() {
           loadBodyMetrics();
         }}
       />
+
+      {/* Scroll to Top Button */}
+      <Button
+        onClick={scrollToTop}
+        className={`fixed bottom-6 right-6 z-50 rounded-full w-12 h-12 shadow-lg bg-[#12AFCB] hover:bg-[#0E9DB8] text-white transition-all duration-300 ${
+          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+        size="icon"
+        aria-label="Scroll to top"
+      >
+        <ArrowUp className="w-5 h-5" />
+      </Button>
     </>
   );
 }
