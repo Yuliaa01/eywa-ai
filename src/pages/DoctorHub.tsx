@@ -274,7 +274,7 @@ export default function DoctorHub() {
             variant="ghost"
             size="sm"
             onClick={handleNewImport}
-            className="rounded-xl hover:bg-[#12AFCB]/10"
+            className="rounded-xl hover:bg-[#12AFCB]/10 text-foreground hover:text-foreground"
           >
             <FileUp className="w-4 h-4 mr-2" />
             Import
@@ -284,7 +284,7 @@ export default function DoctorHub() {
             size="sm"
             onClick={handleExportPDF}
             disabled={isExporting}
-            className="rounded-xl hover:bg-[#12AFCB]/10 disabled:opacity-50"
+            className="rounded-xl hover:bg-[#12AFCB]/10 disabled:opacity-50 text-foreground hover:text-foreground"
           >
             <FileDown className="w-4 h-4 mr-2" />
             {isExporting ? "Generating..." : "Export PDF"}
