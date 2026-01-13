@@ -157,7 +157,7 @@ export default function Subscription() {
     {
       id: "family12",
       name: "12-Month Family",
-      price: "$660",
+      price: "$599.99",
       period: "",
       icon: Users,
       badge: "Best Value",
