@@ -189,7 +189,7 @@ export default function Subscription() {
     {
       id: "gift12",
       name: "Gift 12 Months Pro",
-      price: "$180",
+      price: "$179.99",
       period: "one-time",
       icon: Gift,
       badge: "Best Value",
