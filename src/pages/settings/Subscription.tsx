@@ -88,7 +88,7 @@ export default function Subscription() {
     {
       id: "pro6",
       name: "6-Month Pro",
-      price: "$90",
+      price: "$89.99",
       period: "",
       icon: Sparkles,
       features: [
