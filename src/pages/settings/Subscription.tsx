@@ -101,7 +101,7 @@ export default function Subscription() {
     {
       id: "pro12",
       name: "12-Month Pro",
-      price: "$180",
+      price: "$179.99",
       period: "",
       icon: Sparkles,
       badge: "Best Value",
