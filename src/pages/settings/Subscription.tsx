@@ -176,7 +176,7 @@ export default function Subscription() {
     {
       id: "gift6",
       name: "Gift 6 Months Pro",
-      price: "$90",
+      price: "$89.99",
       period: "one-time",
       icon: Gift,
       features: [
