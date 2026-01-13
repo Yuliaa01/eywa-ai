@@ -115,7 +115,7 @@ export default function Subscription() {
     {
       id: "lifetime",
       name: "Lifetime",
-      price: "$289",
+      price: "$489.99",
       period: "one-time",
       icon: Infinity,
       features: [
