@@ -203,7 +203,7 @@ export default function Subscription() {
     {
       id: "giftLifetime",
       name: "Gift Lifetime",
-      price: "$289",
+      price: "$489.99",
       period: "one-time",
       icon: Infinity,
       features: [
