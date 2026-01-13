@@ -144,7 +144,7 @@ export default function Subscription() {
     {
       id: "family6",
       name: "6-Month Family",
-      price: "$360",
+      price: "$359.99",
       period: "",
       icon: Users,
       features: [
