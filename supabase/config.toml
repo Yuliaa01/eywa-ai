@@ -1,37 +1,46 @@
 project_id = "xdzoyhzvjnumjgedwsbq"
 
 [functions.unify-feedback]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-coach]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-health-file]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-recipes]
-verify_jwt = true
+verify_jwt = false
 
 [functions.suggest-test-sets]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-bio-age]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-doctor-chat]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-onboarding-briefing]
 verify_jwt = false
 
 [functions.recommend-vitamins]
-verify_jwt = true
+verify_jwt = false
 
 [functions.recommend-videos]
-verify_jwt = true
+verify_jwt = false
 
 [functions.secure-profile-read]
-verify_jwt = true
+verify_jwt = false
 
 [functions.secure-profile-write]
-verify_jwt = true
+verify_jwt = false
+
+[functions.analyze-health-indicator]
+verify_jwt = false
+
+[functions.analyze-supplement-photo]
+verify_jwt = false
+
+[functions.voice-to-text]
+verify_jwt = false
