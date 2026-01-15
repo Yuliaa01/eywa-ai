@@ -1,10 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Input validation schema - limit image size to ~5MB base64
+const supplementPhotoSchema = z.object({
+  image: z.string().min(1).max(7_000_000, "Image data too large (max ~5MB)"),
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -38,11 +44,18 @@ serve(async (req) => {
       );
     }
 
-    const { image } = await req.json();
+    // Validate input
+    const rawBody = await req.json();
+    const parseResult = supplementPhotoSchema.safeParse(rawBody);
     
-    if (!image) {
-      throw new Error("No image provided");
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parseResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { image } = parseResult.data;
 
     console.log('Analyzing supplement photo for user:', data.user.id);
 

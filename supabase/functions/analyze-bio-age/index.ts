@@ -1,11 +1,18 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const bioAgeSchema = z.object({
+  biologicalAge: z.number().min(0).max(150),
+  chronologicalAge: z.number().min(0).max(150),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -39,16 +46,18 @@ serve(async (req) => {
       );
     }
 
-    const { biologicalAge, chronologicalAge } = await req.json();
+    // Validate input
+    const rawBody = await req.json();
+    const parseResult = bioAgeSchema.safeParse(rawBody);
     
-    console.log('Analyzing bio-age for user:', data.user.id, { biologicalAge, chronologicalAge });
-
-    if (!biologicalAge || !chronologicalAge) {
+    if (!parseResult.success) {
       return new Response(
-        JSON.stringify({ error: 'Missing required parameters' }),
+        JSON.stringify({ error: 'Invalid input', details: parseResult.error.errors }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { biologicalAge, chronologicalAge } = parseResult.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {

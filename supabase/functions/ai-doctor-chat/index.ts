@@ -1,11 +1,23 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const messageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string().max(10000),
+});
+
+const doctorChatSchema = z.object({
+  doctorId: z.string().uuid(),
+  messages: z.array(messageSchema).min(1).max(50),
+});
 
 // Helper to calculate age from DOB
 function calculateAge(dob: string | null): number | null {
@@ -77,16 +89,20 @@ serve(async (req) => {
     // Use the authenticated user's ID - NEVER trust userId from request body
     const authenticatedUserId = user.id;
     
-    const { doctorId, messages } = await req.json();
+    // Validate input
+    const rawBody = await req.json();
+    const parseResult = doctorChatSchema.safeParse(rawBody);
     
-    console.log('AI Doctor Chat request:', { doctorId, messageCount: messages?.length, userId: authenticatedUserId });
-
-    if (!doctorId || !messages) {
+    if (!parseResult.success) {
       return new Response(
-        JSON.stringify({ error: 'Missing required parameters' }),
+        JSON.stringify({ error: 'Invalid input', details: parseResult.error.errors }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { doctorId, messages } = parseResult.data;
+    
+    console.log('AI Doctor Chat request:', { doctorId, messageCount: messages?.length, userId: authenticatedUserId });
 
     // Fetch doctor information
     const { data: doctor, error: doctorError } = await supabase

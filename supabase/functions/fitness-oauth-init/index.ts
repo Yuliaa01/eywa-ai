@@ -1,9 +1,15 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const oauthInitSchema = z.object({
+  appName: z.enum(['strava', 'fitbit', 'garmin', 'nike']),
+});
 
 interface OAuthConfig {
   authUrl: string;
@@ -69,11 +75,18 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { appName } = await req.json();
-
-    if (!appName) {
-      throw new Error('App name is required');
+    // Validate input
+    const rawBody = await req.json();
+    const parseResult = oauthInitSchema.safeParse(rawBody);
+    
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parseResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { appName } = parseResult.data;
 
     // Set redirect URI to the callback edge function
     const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fitness-oauth-callback`;
