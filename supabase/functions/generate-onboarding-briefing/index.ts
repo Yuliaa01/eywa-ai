@@ -1,10 +1,38 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const profileSchema = z.object({
+  firstName: z.string().max(100).optional(),
+  lastName: z.string().max(100).optional(),
+  dob: z.string().max(20).optional(),
+  sex: z.string().max(20).optional(),
+  height: z.number().min(50).max(300).optional(),
+  weight: z.number().min(20).max(500).optional(),
+}).optional();
+
+const nutritionSchema = z.object({
+  diet: z.array(z.string().max(50)).max(20).optional(),
+  allergies: z.array(z.string().max(50)).max(20).optional(),
+  macroMode: z.string().max(50).optional(),
+}).optional();
+
+const onboardingDataSchema = z.object({
+  profile: profileSchema,
+  goals: z.array(z.string().max(100)).max(20).optional(),
+  nutrition: nutritionSchema,
+  connections: z.array(z.unknown()).max(50).optional(),
+});
+
+const requestSchema = z.object({
+  onboardingData: onboardingDataSchema,
+});
 
 interface OnboardingData {
   profile?: {
@@ -98,7 +126,18 @@ serve(async (req) => {
       );
     }
 
-    const { onboardingData } = await req.json() as { onboardingData: OnboardingData };
+    // Validate input
+    const rawBody = await req.json();
+    const parseResult = requestSchema.safeParse(rawBody);
+    
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parseResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { onboardingData } = parseResult.data as { onboardingData: OnboardingData };
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {

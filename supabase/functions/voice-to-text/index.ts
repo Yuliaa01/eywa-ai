@@ -1,11 +1,17 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
+
+// Input validation schema - limit audio size to ~10MB base64
+const voiceToTextSchema = z.object({
+  audio: z.string().min(1).max(14_000_000, "Audio data too large (max ~10MB)"),
+});
 
 // Process base64 in chunks to prevent memory issues
 function processBase64Chunks(base64String: string, chunkSize = 32768) {
@@ -69,11 +75,18 @@ serve(async (req) => {
       );
     }
 
-    const { audio } = await req.json()
+    // Validate input
+    const rawBody = await req.json();
+    const parseResult = voiceToTextSchema.safeParse(rawBody);
     
-    if (!audio) {
-      throw new Error('No audio data provided')
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parseResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { audio } = parseResult.data;
 
     console.log('Processing audio transcription request for user:', data.user.id);
 

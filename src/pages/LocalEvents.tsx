@@ -19,7 +19,7 @@ import { EventDetailModal } from "@/components/modals/EventDetailModal";
 export default function LocalEvents() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [mapboxToken, setMapboxToken] = useState('pk.eyJ1IjoieXVsaWEtIiwiYSI6ImNtaG56bDQ5eTA2N3Mya3B5MWQwdWJqZGkifQ.6R4LNHZdElnG_PQyz6Jk7w');
+  const [mapboxToken, setMapboxToken] = useState(import.meta.env.VITE_MAPBOX_TOKEN || '');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [userPreferences, setUserPreferences] = useState<{
     diet: string[];
