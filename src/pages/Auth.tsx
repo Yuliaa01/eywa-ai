@@ -270,7 +270,7 @@ export default function Auth() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 bg-white/10 backdrop-blur-xl border-white/20 hover:bg-white/20 hover:border-accentTeal/40 hover:shadow-[0_0_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] font-medium rounded-2xl transition-all duration-200"
+                  className="w-full h-12 bg-white/10 backdrop-blur-xl border-white/20 hover:bg-white/20 hover:border-accentTeal/40 hover:shadow-[0_0_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] hover:text-foreground font-medium rounded-2xl transition-all duration-200"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
                 >
@@ -339,7 +339,7 @@ export default function Auth() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 bg-white/10 backdrop-blur-xl border-white/20 hover:bg-white/20 hover:border-accentTeal/40 hover:shadow-[0_0_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] font-medium rounded-2xl transition-all duration-200"
+                  className="w-full h-12 bg-white/10 backdrop-blur-xl border-white/20 hover:bg-white/20 hover:border-accentTeal/40 hover:shadow-[0_0_20px_rgba(18,175,203,0.15)] hover:scale-[1.02] hover:text-foreground font-medium rounded-2xl transition-all duration-200"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
                 >
