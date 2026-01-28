@@ -202,7 +202,7 @@ export default function Auth() {
             <Activity className="w-6 h-6 text-accentTeal" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">EYWA AI</h1>
+            <h1 className="text-xl font-semibold text-accent">EYWA AI</h1>
             <p className="text-sm text-muted-foreground/80">Your Health & Longevity Hub</p>
           </div>
         </div>
