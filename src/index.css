@@ -27,7 +27,7 @@
     --card-foreground: 220 40% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 40% 10%;
-    --primary: 189 77% 44%;
+    --primary: 186 77% 44%;
     --primary-foreground: 0 0% 100%;
     --secondary: 160 70% 50%;
     --secondary-foreground: 0 0% 100%;
@@ -79,7 +79,7 @@
     --card-foreground: 220 15% 95%;
     --popover: 220 35% 12%;
     --popover-foreground: 220 15% 95%;
-    --primary: 220 85% 60%;
+    --primary: 186 77% 50%;
     --primary-foreground: 0 0% 100%;
     --secondary: 160 70% 55%;
     --secondary-foreground: 0 0% 100%;
@@ -143,9 +143,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 40% 10%;
 
-    --primary: 220 85% 55%;
+    --primary: 186 77% 44%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 220 85% 65%;
+    --primary-glow: 186 77% 54%;
 
     --secondary: 160 70% 50%;
     --secondary-foreground: 0 0% 100%;
@@ -206,9 +206,9 @@ All colors MUST be HSL.
     --popover: 220 35% 12%;
     --popover-foreground: 220 15% 95%;
 
-    --primary: 220 85% 60%;
+    --primary: 186 77% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 220 85% 70%;
+    --primary-glow: 186 77% 60%;
 
     --secondary: 160 70% 55%;
     --secondary-foreground: 0 0% 100%;
