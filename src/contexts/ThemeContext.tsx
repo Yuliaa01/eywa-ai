@@ -29,7 +29,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.classList.remove("light", "dark");
     root.classList.add(resolvedTheme);
     setActualTheme(resolvedTheme);
-    localStorage.setItem("eywa-theme", theme);
+    localStorage.setItem("inlive-theme", theme);
 
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

@@ -136,7 +136,7 @@ export default function WelcomeStep({
         <div className="flex items-start gap-4 text-[0.9375rem] text-[#5A6B7F] leading-relaxed">
           <Shield className="w-5 h-5 text-[#12AFCB] flex-shrink-0 mt-0.5" />
           <p>
-            <span className="font-semibold text-[#0E1012]">Medical Guidance Notice:</span> Eywa AI provides data-driven medical advice and analysis. It does not replace in-person evaluation or emergency care. For urgent symptoms, call your local emergency number.
+            <span className="font-semibold text-[#0E1012]">Medical Guidance Notice:</span> inLive provides data-driven medical advice and analysis. It does not replace in-person evaluation or emergency care. For urgent symptoms, call your local emergency number.
           </p>
         </div>
       </div>

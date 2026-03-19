@@ -573,7 +573,7 @@ export function AIChatCenter() {
                 {/* AI Avatar */}
                 <div className="flex-shrink-0 relative">
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#12AFCB]/30 shadow-[0_0_30px_rgba(18,175,203,0.3)] animate-glow-pulse">
-                    <img src={eywaAvatar} alt="EYWA AI" className="w-full h-full object-cover" />
+                    <img src={eywaAvatar} alt="inLive" className="w-full h-full object-cover" />
                   </div>
                   {/* Glow effect around avatar */}
                   <div className="absolute inset-0 rounded-full bg-gradient-radial from-[#12AFCB]/20 to-transparent animate-pulse" />

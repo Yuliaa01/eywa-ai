@@ -170,7 +170,7 @@ export default function PrivacyPolicy() {
             <section className="space-y-4 pt-6 border-t border-[#12AFCB]/10">
               <h2 className="text-[1.5rem] font-semibold text-[#0E1012]">Terms of Service</h2>
               <p className="text-[1rem] text-[#5A6B7F] leading-relaxed">
-                By using Eywa AI, you agree to these terms:
+                By using inLive, you agree to these terms:
               </p>
               <ul className="list-disc list-inside space-y-2 text-[1rem] text-[#5A6B7F] leading-relaxed ml-4">
                 <li>You are at least 18 years of age</li>

@@ -25,7 +25,7 @@ export default function PreferencesStep({ onNext }: PreferencesStepProps) {
           Preferences & Modes
         </h2>
         <p className="text-[1.0625rem] text-muted-foreground max-w-md mx-auto leading-relaxed">
-          Customize your Eywa AI experience
+          Customize your inLive experience
         </p>
       </div>
 

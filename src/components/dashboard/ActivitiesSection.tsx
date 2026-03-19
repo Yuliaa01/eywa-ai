@@ -424,7 +424,7 @@ export default function ActivitiesSection() {
   };
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (workoutActive) {
       interval = setInterval(() => {
         setWorkoutSeconds((s) => s + 1);

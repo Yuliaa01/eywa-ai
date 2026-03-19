@@ -181,7 +181,7 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = `You are Eywa, an AI health coach specializing in longevity and preventive medicine. You have access to the user's complete medical data including lab results, biomarker scores, test history, and AI health assessments.
+    const systemPrompt = `You are inLive, an AI health coach specializing in longevity and preventive medicine. You have access to the user's complete medical data including lab results, biomarker scores, test history, and AI health assessments.
 
 Your role:
 - Analyze medical data to identify health optimization opportunities

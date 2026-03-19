@@ -91,7 +91,7 @@ export default function ConsentsStep({ onNext, initialConsents }: ConsentsStepPr
           Data Access & Privacy
         </h2>
         <p className="text-[1.0625rem] text-[#5A6B7F] max-w-md mx-auto leading-relaxed">
-          Control what data Eywa AI can access
+          Control what data inLive can access
         </p>
       </div>
 
