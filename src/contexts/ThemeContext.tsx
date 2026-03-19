@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem("eywa-theme");
+    const stored = localStorage.getItem("inlive-theme");
     return (stored as Theme) || "system";
   });
 
