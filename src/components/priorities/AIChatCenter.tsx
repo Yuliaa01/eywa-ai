@@ -546,7 +546,7 @@ export function AIChatCenter() {
           <Sparkles className="w-6 h-6 text-white animate-pulse" />
         </div>
         <div className="flex-1">
-          <h3 className="font-rounded text-2xl font-bold text-[#0E1012]">EYWA AI</h3>
+          <h3 className="font-rounded text-2xl font-bold text-[#0E1012]">inLive</h3>
           <p className="text-sm text-[#5A6B7F]">Your health companion</p>
         </div>
         {chatMode && <button onClick={handleBackToPreview} className="w-10 h-10 rounded-xl bg-white/60 hover:bg-white/80 flex items-center justify-center transition-all duration-200">
