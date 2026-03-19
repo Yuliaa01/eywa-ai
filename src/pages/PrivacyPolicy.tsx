@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
             <section className="space-y-4">
               <h2 className="text-[1.5rem] font-semibold text-[#0E1012]">Introduction</h2>
               <p className="text-[1rem] text-[#5A6B7F] leading-relaxed">
-                Welcome to Eywa AI. We are committed to protecting your privacy and ensuring the security of your personal health information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our longevity and health optimization platform.
+                Welcome to inLive. We are committed to protecting your privacy and ensuring the security of your personal health information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our longevity and health optimization platform.
               </p>
             </section>
 
