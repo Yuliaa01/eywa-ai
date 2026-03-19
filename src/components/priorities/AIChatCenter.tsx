@@ -274,7 +274,7 @@ export function AIChatCenter() {
 
           // Show browser notification if enabled
           if (notificationsEnabled) {
-            new Notification("EYWA AI - New Insight", {
+            new Notification("inLive - New Insight", {
               body: newInsight.summary.substring(0, 100) + "...",
               icon: "/favicon.ico",
               badge: "/favicon.ico"
