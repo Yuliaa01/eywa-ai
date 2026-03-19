@@ -152,7 +152,7 @@ export default function PrivacyPolicy() {
             <section className="space-y-4">
               <h2 className="text-[1.5rem] font-semibold text-[#0E1012]">Changes to This Policy</h2>
               <p className="text-[1rem] text-[#5A6B7F] leading-relaxed">
-                We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of any material changes through the platform or via email. Your continued use of Eywa AI after such modifications constitutes acceptance of the updated policy.
+                We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of any material changes through the platform or via email. Your continued use of inLive after such modifications constitutes acceptance of the updated policy.
               </p>
             </section>
 
