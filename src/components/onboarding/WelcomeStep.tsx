@@ -78,7 +78,7 @@ export default function WelcomeStep({
               
               <div>
                 <h3 className="font-semibold text-foreground mb-1">2. Medical Disclaimer</h3>
-                <p>Eywa AI provides health information and guidance but does not provide medical diagnosis, treatment, or professional medical advice. Always consult with qualified healthcare professionals for medical decisions.</p>
+                <p>inLive provides health information and guidance but does not provide medical diagnosis, treatment, or professional medical advice. Always consult with qualified healthcare professionals for medical decisions.</p>
               </div>
               
               <div>
