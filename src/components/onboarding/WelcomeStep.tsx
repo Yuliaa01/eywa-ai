@@ -73,7 +73,7 @@ export default function WelcomeStep({
             <div className="space-y-3">
               <div>
                 <h3 className="font-semibold text-foreground mb-1">1. Acceptance of Terms</h3>
-                <p>By accessing or using Eywa AI, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                <p>By accessing or using inLive, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
               </div>
               
               <div>
