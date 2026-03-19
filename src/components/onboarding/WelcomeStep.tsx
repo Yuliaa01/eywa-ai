@@ -88,7 +88,7 @@ export default function WelcomeStep({
                   <li>Providing accurate health information</li>
                   <li>Maintaining the confidentiality of your account</li>
                   <li>Using the service in compliance with applicable laws</li>
-                  <li>Not sharing medical advice from Eywa AI as your own professional opinion</li>
+                  <li>Not sharing medical advice from inLive as your own professional opinion</li>
                 </ul>
               </div>
               
