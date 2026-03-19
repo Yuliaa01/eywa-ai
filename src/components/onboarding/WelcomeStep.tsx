@@ -24,7 +24,7 @@ export default function WelcomeStep({
             <DialogTitle>How Your Data Is Used</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 text-sm text-muted-foreground">
-            <p>At Eywa AI, we take your privacy seriously. Here's how we handle your data:</p>
+            <p>At inLive, we take your privacy seriously. Here's how we handle your data:</p>
             
             <div className="space-y-3">
               <div>
