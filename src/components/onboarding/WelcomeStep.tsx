@@ -121,7 +121,7 @@ export default function WelcomeStep({
         
         <div className="space-y-4">
           <h1 className="font-rounded text-[2.5rem] font-bold bg-gradient-to-r from-[#0E1012] to-[#12AFCB] bg-clip-text text-transparent leading-tight">
-            Welcome to <span className="text-[#12AFCB]">EYWA AI</span>
+            Welcome to <span className="text-[#12AFCB]">inLive</span>
           </h1>
           <p className="font-rounded text-[1.125rem] font-medium text-[#0E1012] max-w-2xl mx-auto">
             Your AI-powered medical guidance companion
