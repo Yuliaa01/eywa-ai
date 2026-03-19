@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
             <section className="space-y-4">
               <h2 className="text-[1.5rem] font-semibold text-[#0E1012]">Introduction</h2>
               <p className="text-[1rem] text-[#5A6B7F] leading-relaxed">
-                Welcome to Eywa AI. We are committed to protecting your privacy and ensuring the security of your personal health information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our longevity and health optimization platform.
+                Welcome to inLive. We are committed to protecting your privacy and ensuring the security of your personal health information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our longevity and health optimization platform.
               </p>
             </section>
 
@@ -152,7 +152,7 @@ export default function PrivacyPolicy() {
             <section className="space-y-4">
               <h2 className="text-[1.5rem] font-semibold text-[#0E1012]">Changes to This Policy</h2>
               <p className="text-[1rem] text-[#5A6B7F] leading-relaxed">
-                We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of any material changes through the platform or via email. Your continued use of Eywa AI after such modifications constitutes acceptance of the updated policy.
+                We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of any material changes through the platform or via email. Your continued use of inLive after such modifications constitutes acceptance of the updated policy.
               </p>
             </section>
 
@@ -162,15 +162,15 @@ export default function PrivacyPolicy() {
                 If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:
               </p>
               <div className="bg-white/40 rounded-2xl p-6 mt-4">
-                <p className="text-[1rem] text-[#0E1012] font-medium">Email: privacy@eywa-ai.com</p>
-                <p className="text-[1rem] text-[#0E1012] font-medium mt-2">Data Protection Officer: dpo@eywa-ai.com</p>
+                <p className="text-[1rem] text-[#0E1012] font-medium">Email: privacy@inlive.com</p>
+                <p className="text-[1rem] text-[#0E1012] font-medium mt-2">Data Protection Officer: dpo@inlive.com</p>
               </div>
             </section>
 
             <section className="space-y-4 pt-6 border-t border-[#12AFCB]/10">
               <h2 className="text-[1.5rem] font-semibold text-[#0E1012]">Terms of Service</h2>
               <p className="text-[1rem] text-[#5A6B7F] leading-relaxed">
-                By using Eywa AI, you agree to these terms:
+                By using inLive, you agree to these terms:
               </p>
               <ul className="list-disc list-inside space-y-2 text-[1rem] text-[#5A6B7F] leading-relaxed ml-4">
                 <li>You are at least 18 years of age</li>

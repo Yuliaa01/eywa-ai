@@ -24,7 +24,7 @@ export default function WelcomeStep({
             <DialogTitle>How Your Data Is Used</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 text-sm text-muted-foreground">
-            <p>At Eywa AI, we take your privacy seriously. Here's how we handle your data:</p>
+            <p>At inLive, we take your privacy seriously. Here's how we handle your data:</p>
             
             <div className="space-y-3">
               <div>
@@ -73,12 +73,12 @@ export default function WelcomeStep({
             <div className="space-y-3">
               <div>
                 <h3 className="font-semibold text-foreground mb-1">1. Acceptance of Terms</h3>
-                <p>By accessing or using Eywa AI, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                <p>By accessing or using inLive, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
               </div>
               
               <div>
                 <h3 className="font-semibold text-foreground mb-1">2. Medical Disclaimer</h3>
-                <p>Eywa AI provides health information and guidance but does not provide medical diagnosis, treatment, or professional medical advice. Always consult with qualified healthcare professionals for medical decisions.</p>
+                <p>inLive provides health information and guidance but does not provide medical diagnosis, treatment, or professional medical advice. Always consult with qualified healthcare professionals for medical decisions.</p>
               </div>
               
               <div>
@@ -88,7 +88,7 @@ export default function WelcomeStep({
                   <li>Providing accurate health information</li>
                   <li>Maintaining the confidentiality of your account</li>
                   <li>Using the service in compliance with applicable laws</li>
-                  <li>Not sharing medical advice from Eywa AI as your own professional opinion</li>
+                  <li>Not sharing medical advice from inLive as your own professional opinion</li>
                 </ul>
               </div>
               
@@ -99,7 +99,7 @@ export default function WelcomeStep({
               
               <div>
                 <h3 className="font-semibold text-foreground mb-1">5. Limitation of Liability</h3>
-                <p>Eywa AI and its affiliates shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
+                <p>inLive and its affiliates shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
               </div>
               
               <div>
@@ -121,7 +121,7 @@ export default function WelcomeStep({
         
         <div className="space-y-4">
           <h1 className="font-rounded text-[2.5rem] font-bold bg-gradient-to-r from-[#0E1012] to-[#12AFCB] bg-clip-text text-transparent leading-tight">
-            Welcome to <span className="text-[#12AFCB]">EYWA AI</span>
+            Welcome to <span className="text-[#12AFCB]">inLive</span>
           </h1>
           <p className="font-rounded text-[1.125rem] font-medium text-[#0E1012] max-w-2xl mx-auto">
             Your AI-powered medical guidance companion
@@ -136,7 +136,7 @@ export default function WelcomeStep({
         <div className="flex items-start gap-4 text-[0.9375rem] text-[#5A6B7F] leading-relaxed">
           <Shield className="w-5 h-5 text-[#12AFCB] flex-shrink-0 mt-0.5" />
           <p>
-            <span className="font-semibold text-[#0E1012]">Medical Guidance Notice:</span> Eywa AI provides data-driven medical advice and analysis. It does not replace in-person evaluation or emergency care. For urgent symptoms, call your local emergency number.
+            <span className="font-semibold text-[#0E1012]">Medical Guidance Notice:</span> inLive provides data-driven medical advice and analysis. It does not replace in-person evaluation or emergency care. For urgent symptoms, call your local emergency number.
           </p>
         </div>
       </div>

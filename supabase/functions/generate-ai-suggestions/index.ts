@@ -73,7 +73,7 @@ serve(async (req) => {
     };
 
     // Call Lovable AI to generate suggestions
-    const systemPrompt = `You are Eywa AI's Planner. Generate 6 concise, safe, actionable suggestions for today.
+    const systemPrompt = `You are inLive's Planner. Generate 6 concise, safe, actionable suggestions for today.
 Given context about user's global goals, weekly goals, plans (trips/events), health care data (lab results, test orders), profile, nutrition, and supplements, create personalized recommendations.
 Return a JSON array with exactly 6 items, each having: title (max 60 chars), reasoning (max 100 chars), category (movement/nutrition/sleep/recovery/mindset/medical), and duration_min (optional).
 Prioritize actions based on:

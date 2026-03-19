@@ -202,7 +202,7 @@ export default function Auth() {
             <Activity className="w-6 h-6 text-accentTeal" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-accent">EYWA AI</h1>
+            <h1 className="text-xl font-semibold text-accent">inLive</h1>
             <p className="text-sm text-muted-foreground/80">Your Health & Longevity Hub</p>
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function Auth() {
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-accentTeal/10 to-accentTealAlt/10 backdrop-blur-xl border border-white/10 mb-6">
               <Heart className="w-10 h-10 text-accentTeal" />
             </div>
-            <h2 className="text-3xl font-semibold mb-3 text-foreground">Welcome to Eywa AI</h2>
+            <h2 className="text-3xl font-semibold mb-3 text-foreground">Welcome to inLive</h2>
             <p className="text-muted-foreground/70 text-base">
               Unify your health data. Personalize your journey.
             </p>

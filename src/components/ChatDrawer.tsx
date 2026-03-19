@@ -195,7 +195,7 @@ export default function ChatDrawer({ open, onClose, initialMessage }: ChatDrawer
               </div>
               <div>
                 <h3 className="font-rounded font-semibold text-foreground">AI Health Coach</h3>
-                <p className="text-xs text-muted-foreground">Powered by Eywa AI</p>
+                <p className="text-xs text-muted-foreground">Powered by inLive</p>
               </div>
             </div>
           </SheetHeader>
@@ -212,7 +212,7 @@ export default function ChatDrawer({ open, onClose, initialMessage }: ChatDrawer
                     </div>
                     <div className="flex-1 p-4 rounded-2xl bg-accent-teal/5 border border-accent-teal/10">
                       <p className="text-sm text-foreground">
-                        Hi! I'm Eywa, your AI health coach. I can help you with:
+                        Hi! I'm inLive, your AI health coach. I can help you with:
                       </p>
                       <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                         <li>• Health questions & guidance</li>

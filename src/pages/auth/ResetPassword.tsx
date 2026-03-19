@@ -102,7 +102,7 @@ export default function ResetPassword() {
             <Activity className="w-6 h-6 text-accentTeal" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Eywa AI</h1>
+            <h1 className="text-xl font-semibold text-foreground">inLive</h1>
             <p className="text-sm text-muted-foreground/80">Your Health & Longevity Hub</p>
           </div>
         </div>

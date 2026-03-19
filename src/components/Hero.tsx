@@ -7,7 +7,7 @@ const Hero = () => {
   return <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background with gradient overlay */}
       <div className="absolute inset-0 z-0">
-        <img src={heroImage} alt="Eywa AI Health Technology" className="w-full h-full object-cover" />
+        <img src={heroImage} alt="inLive Health Technology" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/85 to-background/75" />
       </div>
 
@@ -29,7 +29,7 @@ const Hero = () => {
 
           {/* Main heading */}
           <h1 className="text-5xl font-bold tracking-tight text-center md:text-7xl">
-            EYWA AI
+            inLive
             <span className="block mt-2 text-center text-4xl">
               Your Personal 360° 
 AI-driven health companion

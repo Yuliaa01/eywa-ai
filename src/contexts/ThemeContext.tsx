@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem("eywa-theme");
+    const stored = localStorage.getItem("inlive-theme");
     return (stored as Theme) || "system";
   });
 
@@ -29,7 +29,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.classList.remove("light", "dark");
     root.classList.add(resolvedTheme);
     setActualTheme(resolvedTheme);
-    localStorage.setItem("eywa-theme", theme);
+    localStorage.setItem("inlive-theme", theme);
 
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

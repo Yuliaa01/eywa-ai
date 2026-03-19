@@ -23,7 +23,7 @@ export default function WorkoutTimer() {
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isRunning) {
       interval = setInterval(() => {
         setSeconds((s) => s + 1);
