@@ -568,7 +568,7 @@ export function AIChatCenter() {
                 </span>
               </div>
               
-              {/* Eywa avatar and message */}
+              {/* AI avatar and message */}
               <div className="flex gap-4 mt-3 items-start">
                 {/* AI Avatar */}
                 <div className="flex-shrink-0 relative">
