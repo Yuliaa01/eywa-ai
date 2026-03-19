@@ -99,7 +99,7 @@ export default function WelcomeStep({
               
               <div>
                 <h3 className="font-semibold text-foreground mb-1">5. Limitation of Liability</h3>
-                <p>Eywa AI and its affiliates shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
+                <p>inLive and its affiliates shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
               </div>
               
               <div>
