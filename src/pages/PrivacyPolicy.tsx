@@ -162,8 +162,8 @@ export default function PrivacyPolicy() {
                 If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:
               </p>
               <div className="bg-white/40 rounded-2xl p-6 mt-4">
-                <p className="text-[1rem] text-[#0E1012] font-medium">Email: privacy@eywa-ai.com</p>
-                <p className="text-[1rem] text-[#0E1012] font-medium mt-2">Data Protection Officer: dpo@eywa-ai.com</p>
+                <p className="text-[1rem] text-[#0E1012] font-medium">Email: privacy@inlive.com</p>
+                <p className="text-[1rem] text-[#0E1012] font-medium mt-2">Data Protection Officer: dpo@inlive.com</p>
               </div>
             </section>
 
