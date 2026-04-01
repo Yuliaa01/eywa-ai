@@ -633,10 +633,10 @@ export function AIChatCenter() {
               </div>}
             
             {/* Input Row */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" capture className="hidden" />
-              <button onClick={() => fileInputRef.current?.click()} disabled={isRecording} className="flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105" title="Take photo or choose from gallery">
-                <Camera className="w-4 h-4" />
+              <button onClick={() => fileInputRef.current?.click()} disabled={isRecording} className="flex items-center justify-center w-10 h-10 md:w-[44px] md:h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105" title="Take photo or choose from gallery">
+                <Camera className="w-5 h-5" />
               </button>
               <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
