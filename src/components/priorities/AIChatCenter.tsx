@@ -652,11 +652,11 @@ export function AIChatCenter() {
               setChatMode(true);
               setTimeout(() => sendMessage(), 100);
             }
-          }} disabled={!input.trim() && !selectedImage || isRecording} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
-                <Send className="w-4 h-4" />
+           }} disabled={!input.trim() && !selectedImage || isRecording} className={`flex items-center justify-center w-10 h-10 md:w-[52px] md:h-[44px] rounded-xl bg-[#12AFCB] hover:bg-[#19D0E4] text-white font-medium text-sm disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
+                <Send className="w-5 h-5" />
               </button>
-              <button onClick={handleVoiceRecord} className={`flex items-center justify-center w-[52px] h-[44px] rounded-xl ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#12AFCB] hover:bg-[#19D0E4]'} text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
-                <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+              <button onClick={handleVoiceRecord} className={`flex items-center justify-center w-10 h-10 md:w-[52px] md:h-[44px] rounded-xl ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-[#12AFCB] hover:bg-[#19D0E4]'} text-white font-medium text-sm transition-all duration-200 hover:scale-105 shadow-[0_4px_12px_rgba(18,175,203,0.3)]`}>
+                <Mic className={`w-5 h-5 ${isRecording ? 'animate-pulse' : ''}`} />
               </button>
             </div>
 
