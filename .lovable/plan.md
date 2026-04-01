@@ -1,22 +1,20 @@
 
 
-## Plan: Show only icons (no text labels) on mobile tabs
+## Fix Camera and Send button sizes on mobile
 
-### What changes
-**File: `src/pages/Dashboard.tsx`**
+### Problem
+On mobile (390px viewport), the Camera and Send buttons in the "Ask me anything" input row appear too small or improperly sized based on the screenshot.
 
-Wrap each tab's text label in a `<span className="hidden md:inline">` so it's hidden on mobile but visible on desktop. Remove the `mr-2` margin from icons on mobile (since there's no text next to them) by changing it to `md:mr-2`.
+### Changes
 
-Each TabsTrigger changes from:
-```tsx
-<Sparkles className="w-4 h-4 mr-2" />
-Priorities
-```
-To:
-```tsx
-<Sparkles className="w-4 h-4 md:mr-2" />
-<span className="hidden md:inline">Priorities</span>
-```
+**File: `src/components/priorities/AIChatCenter.tsx`** (lines 636-660)
 
-This applies to all 5 tabs (Priorities, Nutrition, Activities, Health Care, Discover). The icons already exist -- they just need the text hidden at mobile breakpoint.
+Increase the button sizes on mobile and icon sizes for better touch targets:
+
+1. **Camera button** (line 638): Change `w-[44px] h-[44px]` to `w-10 h-10 md:w-[44px] md:h-[44px]` and icon from `w-4 h-4` to `w-5 h-5`
+2. **Send button** (line 655): Change `w-[52px] h-[44px]` to `w-10 h-10 md:w-[52px] md:h-[44px]` and icon from `w-4 h-4` to `w-5 h-5`
+3. **Mic button** (line 657-659): Same sizing adjustment as Send button
+4. Reduce gap from `gap-3` to `gap-2` on the input row to reclaim horizontal space on mobile
+
+This ensures all three action buttons are uniform squares on mobile (40×40px) with larger icons for better tap targets, while keeping the current desktop sizing.
 
