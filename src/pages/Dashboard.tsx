@@ -243,8 +243,8 @@ export default function Dashboard() {
               value="nutrition"
               className="rounded-2xl font-rounded font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-teal data-[state=active]:to-accent-teal-alt data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(18,175,203,0.3)] transition-all duration-300 py-3"
             >
-              <Utensils className="w-4 h-4 mr-2" />
-              Nutrition
+              <Utensils className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Nutrition</span>
             </TabsTrigger>
             <TabsTrigger
               value="activities"
