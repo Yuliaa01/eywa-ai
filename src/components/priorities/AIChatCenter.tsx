@@ -646,7 +646,7 @@ export function AIChatCenter() {
                 setTimeout(() => sendMessage(), 100);
               }
             }
-          }} placeholder={isRecording ? "Listening..." : "Ask me anything..."} disabled={isRecording} className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
+          }} placeholder={isRecording ? "Listening..." : "Ask me anything..."} disabled={isRecording} className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
               <button onClick={() => {
             if (input.trim() || selectedImage) {
               setChatMode(true);
