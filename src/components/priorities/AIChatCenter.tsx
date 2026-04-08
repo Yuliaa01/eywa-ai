@@ -633,7 +633,7 @@ export function AIChatCenter() {
               </div>}
             
             {/* Input Row */}
-            <div className="flex items-center gap-2 md:gap-3">
+            <div className="flex items-center gap-2 md:gap-3 overflow-hidden">
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" capture className="hidden" />
               <button onClick={() => fileInputRef.current?.click()} disabled={isRecording} className="shrink-0 flex items-center justify-center w-[44px] h-[44px] rounded-xl bg-white/60 hover:bg-white/80 border border-[#12AFCB]/20 text-[#12AFCB] disabled:opacity-50 transition-all duration-200 hover:scale-105" title="Take photo or choose from gallery">
                 <Camera className="w-5 h-5" />
@@ -646,7 +646,7 @@ export function AIChatCenter() {
                 setTimeout(() => sendMessage(), 100);
               }
             }
-          }} placeholder={isRecording ? "Listening..." : "Ask me anything..."} disabled={isRecording} className="flex-1 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
+          }} placeholder={isRecording ? "Listening..." : "Ask me anything..."} disabled={isRecording} className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-[#12AFCB]/20 bg-white/60 focus:bg-white focus:border-[#12AFCB] focus:outline-none focus:ring-2 focus:ring-[#12AFCB]/20 text-sm transition-all duration-200 disabled:opacity-50" />
               <button onClick={() => {
             if (input.trim() || selectedImage) {
               setChatMode(true);
